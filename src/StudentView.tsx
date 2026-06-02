@@ -11,12 +11,19 @@ import {
   Volume2,
   Eye,
   Award,
+  Clock,
 } from "lucide-react";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { supabase } from "./lib/supabase";
 import { s3Client, S3_BUCKET } from "./lib/s3";
 
-export default function StudentView({ user, profile }: { user: any; profile: any }) {
+export default function StudentView({
+  user,
+  profile,
+}: {
+  user: any;
+  profile: any;
+}) {
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [currentTopic, setCurrentTopic] = useState<any>(null);
   const [completedNumbers, setCompletedNumbers] = useState<number[]>([]);
@@ -48,7 +55,10 @@ export default function StudentView({ user, profile }: { user: any; profile: any
   const topicAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const isBongBe = profile.name.toLowerCase().trim() === "bông bé";
-  const totalNumbers = Array.from({ length: activeTopics.length }, (_, i) => i + 1);
+  const totalNumbers = Array.from(
+    { length: activeTopics.length },
+    (_, i) => i + 1,
+  );
 
   // Load topics + questions từ DB
   useEffect(() => {
@@ -65,7 +75,9 @@ export default function StudentView({ user, profile }: { user: any; profile: any
 
         const normalized = (topicsData || []).map((t: any) => ({
           ...t,
-          questions: (t.questions || []).sort((a: any, b: any) => a.order_index - b.order_index),
+          questions: (t.questions || []).sort(
+            (a: any, b: any) => a.order_index - b.order_index,
+          ),
         }));
         setActiveTopics(normalized);
       } catch (err) {
@@ -104,7 +116,12 @@ export default function StudentView({ user, profile }: { user: any; profile: any
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "recordings", filter: `studentName=eq.${profile.name.trim()}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "recordings",
+          filter: `studentName=eq.${profile.name.trim()}`,
+        },
         (payload) => {
           setMyRecordings((prev) => [...prev, payload.new]);
           setCompletedNumbers((prev) => [...prev, payload.new.topicNumber]);
@@ -128,7 +145,9 @@ export default function StudentView({ user, profile }: { user: any; profile: any
       setIsPlayingTopicAudio(false);
 
       const activeQuestion = topic.questions[activeQuestionIndex] || null;
-      const cacheKey = isBongBe ? `${selectedNumber}_q_${activeQuestionIndex}` : `${selectedNumber}`;
+      const cacheKey = isBongBe
+        ? `${selectedNumber}_q_${activeQuestionIndex}`
+        : `${selectedNumber}`;
 
       if (imageCache[cacheKey]) {
         setTopicImage(imageCache[cacheKey]);
@@ -159,8 +178,12 @@ export default function StudentView({ user, profile }: { user: any; profile: any
           setImageCache((prev) => ({ ...prev, [cacheKey]: imgUrl }));
         } catch (err) {
           console.warn("Lỗi không thể tải ảnh minh họa AI:", err);
-          const fallbackLabel = isBongBe ? activeQuestion?.target || topic.title : topic.title;
-          setTopicImage(`https://placehold.co/400x400/eff6ff/1e40af?text=${encodeURIComponent(fallbackLabel)}`);
+          const fallbackLabel = isBongBe
+            ? activeQuestion?.target || topic.title
+            : topic.title;
+          setTopicImage(
+            `https://placehold.co/400x400/eff6ff/1e40af?text=${encodeURIComponent(fallbackLabel)}`,
+          );
         } finally {
           setImageLoading(false);
         }
@@ -218,7 +241,9 @@ export default function StudentView({ user, profile }: { user: any; profile: any
     setAppError("");
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setAppError("Thiết bị hoặc trình duyệt của em không hỗ trợ ghi âm trực tiếp. Hãy đảm bảo đã dùng trình duyệt Chrome/Safari và cấp quyền camera/microphone.");
+      setAppError(
+        "Thiết bị hoặc trình duyệt của em không hỗ trợ ghi âm trực tiếp. Hãy đảm bảo đã dùng trình duyệt Chrome/Safari và cấp quyền camera/microphone.",
+      );
       return;
     }
 
@@ -234,9 +259,14 @@ export default function StudentView({ user, profile }: { user: any; profile: any
 
       const capturedQuestionIndex = activeQuestionIndex;
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType || "audio/webm" });
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: mediaRecorder.mimeType || "audio/webm",
+        });
         if (isBongBe) {
-          setBongBeAudios(prev => ({ ...prev, [capturedQuestionIndex]: audioBlob }));
+          setBongBeAudios((prev) => ({
+            ...prev,
+            [capturedQuestionIndex]: audioBlob,
+          }));
         } else {
           setAudioBase64(audioBlob);
         }
@@ -249,18 +279,26 @@ export default function StudentView({ user, profile }: { user: any; profile: any
 
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
-          if (prev >= 119) { stopRecording(); return 120; }
+          if (prev >= 119) {
+            stopRecording();
+            return 120;
+          }
           return prev + 1;
         });
       }, 1000);
     } catch (err) {
       console.error("Microphone access error:", err);
-      setAppError("Không thể bật Micro. Em hãy chọn 'Cho phép' (Allow) khi trình duyệt hỏi quyền sử dụng Microphone.");
+      setAppError(
+        "Không thể bật Micro. Em hãy chọn 'Cho phép' (Allow) khi trình duyệt hỏi quyền sử dụng Microphone.",
+      );
     }
   };
 
   const stopRecording = (e?: React.MouseEvent) => {
-    if (e) { e.preventDefault(); e.stopPropagation(); }
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
@@ -275,8 +313,13 @@ export default function StudentView({ user, profile }: { user: any; profile: any
 
     // Gom tất cả bài ghi âm cần lưu
     const audiosToSave: { questionIndex: number; blob: Blob }[] = isBongBe
-      ? Object.entries(bongBeAudios).map(([idx, blob]) => ({ questionIndex: parseInt(idx), blob }))
-      : audioBase64 ? [{ questionIndex: 0, blob: audioBase64 }] : [];
+      ? Object.entries(bongBeAudios).map(([idx, blob]) => ({
+          questionIndex: parseInt(idx),
+          blob,
+        }))
+      : audioBase64
+        ? [{ questionIndex: 0, blob: audioBase64 }]
+        : [];
 
     if (audiosToSave.length === 0) return;
 
@@ -301,7 +344,9 @@ export default function StudentView({ user, profile }: { user: any; profile: any
           audioUrl = `${publicBaseUrl.replace(/\/$/, "")}/${fileName}`;
         } else {
           const endpoint = import.meta.env.VITE_S3_ENDPOINT || "";
-          audioUrl = endpoint.includes(S3_BUCKET) ? `${endpoint}/${fileName}` : `${endpoint}/${S3_BUCKET}/${fileName}`;
+          audioUrl = endpoint.includes(S3_BUCKET)
+            ? `${endpoint}/${fileName}`
+            : `${endpoint}/${S3_BUCKET}/${fileName}`;
         }
 
         const questionText = currentTopic?.questions?.[questionIndex]?.text;
@@ -320,8 +365,21 @@ export default function StudentView({ user, profile }: { user: any; profile: any
           question_id: questionId,
         };
 
-        const { error } = await supabase.from("recordings").insert([newRecording]);
+        const { data, error } = await supabase
+          .from("recordings")
+          .insert([newRecording])
+          .select();
         if (error) throw error;
+
+        if (data && data.length > 0) {
+          setMyRecordings((prev) => [...prev, ...data]);
+          setCompletedNumbers((prev) => {
+            if (selectedNumber && !prev.includes(selectedNumber)) {
+              return [...prev, selectedNumber];
+            }
+            return prev;
+          });
+        }
       }
 
       setBongBeAudios({});
@@ -341,18 +399,41 @@ export default function StudentView({ user, profile }: { user: any; profile: any
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  const matchedRecording = myRecordings.find((rec) => rec.topicNumber === selectedNumber);
+  const matchedRecording = myRecordings.find(
+    (rec) => rec.topicNumber === selectedNumber,
+  );
   // Cho Bông bé: tìm recording khớp đúng câu hỏi hiện tại (theo id)
   const currentQuestionId = currentTopic?.questions?.[activeQuestionIndex]?.id;
-  const matchedQuestionRecording = isBongBe && currentTopic && currentQuestionId
-    ? myRecordings.find((rec) => rec.topicNumber === selectedNumber && rec.question_id === currentQuestionId)
-    : null;
+  const currentQuestionText = currentTopic?.questions?.[activeQuestionIndex]?.text;
+  const matchedQuestionRecording =
+    isBongBe && currentTopic && currentQuestionId
+      ? myRecordings.find(
+          (rec) =>
+            rec.topicNumber === selectedNumber &&
+            (rec.question_id === currentQuestionId || rec.questionText === currentQuestionText),
+        )
+      : null;
+
+  const hasPendingAudios = isBongBe
+    ? Object.keys(bongBeAudios).length > 0
+    : !!audioBase64;
+  const isTopicFullyRecorded =
+    isBongBe && currentTopic
+      ? currentTopic.questions.every((q) =>
+          myRecordings.some(
+            (rec) =>
+              rec.topicNumber === selectedNumber && (rec.question_id === q.id || rec.questionText === q.text),
+          ),
+        )
+      : !!matchedRecording;
 
   if (topicsLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <Loader2 className="w-10 h-10 text-[#FF8A80] animate-spin" />
-        <p className="text-slate-400 font-bold text-sm">Đang tải danh sách bài học...</p>
+        <p className="text-slate-400 font-bold text-sm">
+          Đang tải danh sách bài học...
+        </p>
       </div>
     );
   }
@@ -372,13 +453,35 @@ export default function StudentView({ user, profile }: { user: any; profile: any
             </p>
           </div>
           <div className="text-md font-extrabold text-[#1E88E5] bg-[#E3F2FD] border-2 border-[#90CAF9] px-5 py-2.5 rounded-full shadow-inner shrink-0">
-            Thử thách đã mở: {completedNumbers.length} / {totalNumbers.length} 🎁
+            Thử thách đã mở: {completedNumbers.length} / {totalNumbers.length}{" "}
+            🎁
           </div>
         </div>
 
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-5">
           {totalNumbers.map((num) => {
-            const isCompleted = completedNumbers.includes(num);
+            const topic = activeTopics[num - 1];
+            let isCompleted = completedNumbers.includes(num);
+            let isPartiallyCompleted = false;
+            let progressText = "Đã làm";
+
+            if (isBongBe && topic && topic.questions) {
+              const totalQs = topic.questions.length;
+              const answeredQs = topic.questions.filter((q) =>
+                myRecordings.some(
+                  (rec) =>
+                    rec.topicNumber === num &&
+                    (rec.question_id === q.id || rec.questionText === q.text),
+                ),
+              ).length;
+
+              isCompleted = answeredQs === totalQs && totalQs > 0;
+              isPartiallyCompleted = answeredQs > 0 && answeredQs < totalQs;
+              if (answeredQs > 0) {
+                progressText = `${answeredQs}/${totalQs}`;
+              }
+            }
+
             return (
               <button
                 key={num}
@@ -387,15 +490,24 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                 className={`aspect-square cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1.5 group border-3 ${
                   isCompleted
                     ? "bg-slate-200/80 text-slate-500 border-slate-300 opacity-80 hover:bg-slate-300"
-                    : "bg-[#FFF0F0] hover:bg-[#FFCDD2] text-[#E53935] border-[#EF9A9A]"
+                    : isPartiallyCompleted
+                      ? "bg-orange-50/80 text-orange-600 border-orange-300 hover:bg-orange-100"
+                      : "bg-[#FFF0F0] hover:bg-[#FFCDD2] text-[#E53935] border-[#EF9A9A]"
                 }`}
               >
                 <span className="text-4xl font-black tracking-tight group-hover:scale-125 transition-transform duration-300">
                   {isBongBe ? `Test ${num}` : num}
                 </span>
-                {isCompleted && (
-                  <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-500 flex items-center gap-1">
-                    <CheckCircle size={12} /> Đã làm
+                {(isCompleted || isPartiallyCompleted) && (
+                  <span
+                    className={`text-[10px] uppercase tracking-wider font-extrabold flex items-center gap-1 ${isCompleted ? "text-slate-500" : "text-orange-600"}`}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle size={12} />
+                    ) : (
+                      <Clock size={12} />
+                    )}{" "}
+                    {progressText}
                   </span>
                 )}
               </button>
@@ -410,12 +522,18 @@ export default function StudentView({ user, profile }: { user: any; profile: any
             <div className="p-6 md:p-8 space-y-6">
               <div className="flex justify-between items-center border-b-4 border-dashed border-[#FFF0F0] pb-4 pr-10">
                 <div className="flex items-center gap-4">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 text-white rounded-[1.5rem] font-black text-2xl shadow-lg border-b-4 ${matchedRecording ? "bg-gradient-to-br from-[#81C784] to-[#4CAF50] border-[#388E3C]" : "bg-gradient-to-br from-[#64B5F6] to-[#1E88E5] border-blue-800"}`}>
+                  <div
+                    className={`inline-flex items-center justify-center w-16 h-16 text-white rounded-[1.5rem] font-black text-2xl shadow-lg border-b-4 ${matchedRecording ? "bg-gradient-to-br from-[#81C784] to-[#4CAF50] border-[#388E3C]" : "bg-gradient-to-br from-[#64B5F6] to-[#1E88E5] border-blue-800"}`}
+                  >
                     {isBongBe ? `T${selectedNumber}` : selectedNumber}
                   </div>
                   <div>
-                    <span className={`text-xs font-black uppercase tracking-widest ${matchedRecording ? "text-emerald-500" : "text-blue-500"}`}>
-                      {matchedRecording ? "🎁 Bé đã làm thử thách này rồi" : "Topic"}
+                    <span
+                      className={`text-xs font-black uppercase tracking-widest ${matchedRecording ? "text-emerald-500" : "text-blue-500"}`}
+                    >
+                      {matchedRecording
+                        ? "🎁 Bé đã làm thử thách này rồi"
+                        : "Topic"}
                     </span>
                     <h3 className="text-3xl font-black text-slate-800 leading-tight tracking-tight">
                       {currentTopic.title}
@@ -442,17 +560,27 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                     {imageLoading ? (
                       <div className="flex flex-col items-center gap-2">
                         <Loader2 className="w-10 h-10 text-[#FF8A80] animate-spin" />
-                        <span className="text-xs text-slate-400 font-extrabold animate-pulse">Đang tải ảnh minh hoạ...</span>
+                        <span className="text-xs text-slate-400 font-extrabold animate-pulse">
+                          Đang tải ảnh minh hoạ...
+                        </span>
                       </div>
                     ) : topicImage ? (
-                      <img src={topicImage} alt={currentTopic.title} className="w-full h-full object-contain p-4 animate-in fade-in duration-500" />
+                      <img
+                        src={topicImage}
+                        alt={currentTopic.title}
+                        className="w-full h-full object-contain p-4 animate-in fade-in duration-500"
+                      />
                     ) : (
                       <HelpCircle size={48} className="text-slate-300" />
                     )}
                   </div>
 
                   {ttsLoading ? (
-                    <button type="button" disabled className="w-full py-4 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center gap-2 border-2 border-slate-200 font-bold">
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full py-4 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center gap-2 border-2 border-slate-200 font-bold"
+                    >
                       <Loader2 className="w-5 h-5 animate-spin" />
                       Đang tải audio câu hỏi...
                     </button>
@@ -462,8 +590,13 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                       onClick={playTopicAudio}
                       className={`w-full py-4 rounded-full font-black text-md flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 border-b-4 ${isPlayingTopicAudio ? "bg-[#FFB74D] border-orange-800 text-white hover:bg-[#FFA726]" : "bg-[#E3F2FD] hover:bg-[#BBDEFB] border-[#90CAF9] text-[#1E88E5]"}`}
                     >
-                      <Volume2 className={isPlayingTopicAudio ? "animate-bounce" : ""} size={20} />
-                      {isPlayingTopicAudio ? "Đang phát audio câu hỏi" : "Bật audio câu hỏi"}
+                      <Volume2
+                        className={isPlayingTopicAudio ? "animate-bounce" : ""}
+                        size={20}
+                      />
+                      {isPlayingTopicAudio
+                        ? "Đang phát audio câu hỏi"
+                        : "Bật audio câu hỏi"}
                     </button>
                   ) : (
                     <div className="text-xs text-slate-400 py-3 font-extrabold flex items-center gap-2 justify-center">
@@ -479,17 +612,27 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                           <span className="text-xs font-black text-[#2E7D32] flex items-center gap-1">
                             <Eye size={16} /> Bài nói của con đã lưu rồi nè!
                           </span>
-                          <audio controls src={matchedRecording.audioUrl} className="w-full h-11" />
+                          <audio
+                            controls
+                            src={matchedRecording.audioUrl}
+                            className="w-full h-11"
+                          />
                         </div>
                       </div>
                     ) : (
                       <div className="w-full pt-2 border-t-2 border-dashed border-slate-200 flex flex-col items-center justify-center">
                         {!isRecording && !audioBase64 && (
                           <div className="flex flex-col items-center gap-2.5 py-2">
-                            <button type="button" onClick={startRecording} className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800">
+                            <button
+                              type="button"
+                              onClick={startRecording}
+                              className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
+                            >
                               <Mic size={36} />
                             </button>
-                            <span className="text-xs font-black text-slate-500">Bấm nút đỏ để bắt đầu trả lời! 🎙️</span>
+                            <span className="text-xs font-black text-slate-500">
+                              Bấm nút đỏ để bắt đầu trả lời! 🎙️
+                            </span>
                           </div>
                         )}
 
@@ -497,7 +640,11 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                           <div className="flex flex-col items-center space-y-4 py-2">
                             <div className="relative flex items-center justify-center">
                               <div className="absolute w-24 h-24 bg-rose-400/30 rounded-full animate-ping"></div>
-                              <button type="button" onClick={stopRecording} className="w-20 h-20 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900">
+                              <button
+                                type="button"
+                                onClick={stopRecording}
+                                className="w-20 h-20 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900"
+                              >
                                 <Square size={28} />
                               </button>
                             </div>
@@ -510,11 +657,23 @@ export default function StudentView({ user, profile }: { user: any; profile: any
 
                         {audioBase64 && !isRecording && (
                           <div className="w-full space-y-4 bg-white p-4 rounded-2xl border-2 border-amber-200 shadow-md">
-                            <audio controls src={audioBase64 ? URL.createObjectURL(audioBase64) : ""} className="w-full h-12" />
+                            <audio
+                              controls
+                              src={
+                                audioBase64
+                                  ? URL.createObjectURL(audioBase64)
+                                  : ""
+                              }
+                              className="w-full h-12"
+                            />
                             <div className="flex justify-center gap-3">
                               <button
                                 type="button"
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAudioBase64(null); }}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setAudioBase64(null);
+                                }}
                                 className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-full flex items-center gap-2 transition-colors shadow-sm"
                               >
                                 <Trash2 size={16} /> Ghi âm lại
@@ -527,9 +686,13 @@ export default function StudentView({ user, profile }: { user: any; profile: any
 
                   {!isBongBe && (
                     <div className="w-full bg-[#FFFDE7] border-3 border-[#FFF59D] rounded-2xl p-4 flex items-start gap-3 shadow-sm">
-                      <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={24} />
+                      <AlertCircle
+                        className="text-amber-500 shrink-0 mt-0.5"
+                        size={24}
+                      />
                       <p className="text-sm font-black text-amber-900 leading-relaxed text-left">
-                        Lưu ý: Con trả lời bằng ý của mình, không trả lời giống câu mẫu nha! 🥰
+                        Lưu ý: Con trả lời bằng ý của mình, không trả lời giống
+                        câu mẫu nha! 🥰
                       </p>
                     </div>
                   )}
@@ -540,7 +703,8 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                     <div className="bg-white rounded-[2rem] p-6 border-3 border-dashed border-[#FF8A80] space-y-6 shadow-sm text-center">
                       <div className="bg-pink-50 border-2 border-pink-200 rounded-full py-2 px-5 inline-block">
                         <span className="text-sm font-black text-pink-600 uppercase tracking-widest">
-                          Câu hỏi {activeQuestionIndex + 1} / {currentTopic.questions.length}
+                          Câu hỏi {activeQuestionIndex + 1} /{" "}
+                          {currentTopic.questions.length}
                         </span>
                       </div>
 
@@ -551,25 +715,40 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                               <span className="text-sm font-black text-[#2E7D32] flex items-center gap-1">
                                 <Eye size={16} /> Bài nói của con đã lưu rồi nè!
                               </span>
-                              <audio controls src={matchedQuestionRecording.audioUrl} className="w-full h-11" />
+                              <audio
+                                controls
+                                src={matchedQuestionRecording.audioUrl}
+                                className="w-full h-11"
+                              />
                             </div>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center justify-center space-y-4">
-                            {!isRecording && !bongBeAudios[activeQuestionIndex] && (
-                              <div className="flex flex-col items-center gap-2.5">
-                                <button type="button" onClick={startRecording} className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800">
-                                  <Mic size={36} />
-                                </button>
-                                <span className="text-sm font-black text-slate-500">Bấm nút đỏ để bắt đầu trả lời! 🎙️</span>
-                              </div>
-                            )}
+                            {!isRecording &&
+                              !bongBeAudios[activeQuestionIndex] && (
+                                <div className="flex flex-col items-center gap-2.5">
+                                  <button
+                                    type="button"
+                                    onClick={startRecording}
+                                    className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
+                                  >
+                                    <Mic size={36} />
+                                  </button>
+                                  <span className="text-sm font-black text-slate-500">
+                                    Bấm nút đỏ để bắt đầu trả lời! 🎙️
+                                  </span>
+                                </div>
+                              )}
 
                             {isRecording && (
                               <div className="flex flex-col items-center space-y-3">
                                 <div className="relative flex items-center justify-center">
                                   <div className="absolute w-20 h-20 bg-rose-400/30 rounded-full animate-ping"></div>
-                                  <button type="button" onClick={stopRecording} className="w-16 h-16 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900">
+                                  <button
+                                    type="button"
+                                    onClick={stopRecording}
+                                    className="w-16 h-16 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900"
+                                  >
                                     <Square size={24} />
                                   </button>
                                 </div>
@@ -580,20 +759,35 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                               </div>
                             )}
 
-                            {bongBeAudios[activeQuestionIndex] && !isRecording && (
-                              <div className="w-full max-w-md space-y-4 bg-white p-4 rounded-2xl border-2 border-amber-100 shadow-md">
-                                <audio controls src={URL.createObjectURL(bongBeAudios[activeQuestionIndex])} className="w-full h-12" />
-                                <div className="flex justify-center">
-                                  <button
-                                    type="button"
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setBongBeAudios(prev => { const next = {...prev}; delete next[activeQuestionIndex]; return next; }); }}
-                                    className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-full flex items-center gap-2 transition-colors shadow-sm"
-                                  >
-                                    <Trash2 size={16} /> Ghi âm lại
-                                  </button>
+                            {bongBeAudios[activeQuestionIndex] &&
+                              !isRecording && (
+                                <div className="w-full max-w-md space-y-4 bg-white p-4 rounded-2xl border-2 border-amber-100 shadow-md">
+                                  <audio
+                                    controls
+                                    src={URL.createObjectURL(
+                                      bongBeAudios[activeQuestionIndex],
+                                    )}
+                                    className="w-full h-12"
+                                  />
+                                  <div className="flex justify-center">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setBongBeAudios((prev) => {
+                                          const next = { ...prev };
+                                          delete next[activeQuestionIndex];
+                                          return next;
+                                        });
+                                      }}
+                                      className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-full flex items-center gap-2 transition-colors shadow-sm"
+                                    >
+                                      <Trash2 size={16} /> Ghi âm lại
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
                           </div>
                         )}
                       </div>
@@ -602,7 +796,11 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                         <button
                           type="button"
                           disabled={activeQuestionIndex === 0}
-                          onClick={() => setActiveQuestionIndex((prev) => Math.max(0, prev - 1))}
+                          onClick={() =>
+                            setActiveQuestionIndex((prev) =>
+                              Math.max(0, prev - 1),
+                            )
+                          }
                           className={`px-5 py-2.5 font-bold rounded-full border-2 text-sm transition-all ${activeQuestionIndex === 0 ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"}`}
                         >
                           ⬅️ Câu trước
@@ -610,8 +808,18 @@ export default function StudentView({ user, profile }: { user: any; profile: any
 
                         <button
                           type="button"
-                          disabled={activeQuestionIndex === currentTopic.questions.length - 1}
-                          onClick={() => setActiveQuestionIndex((prev) => Math.min(currentTopic.questions.length - 1, prev + 1))}
+                          disabled={
+                            activeQuestionIndex ===
+                            currentTopic.questions.length - 1
+                          }
+                          onClick={() =>
+                            setActiveQuestionIndex((prev) =>
+                              Math.min(
+                                currentTopic.questions.length - 1,
+                                prev + 1,
+                              ),
+                            )
+                          }
                           className={`px-6 py-2.5 font-black rounded-full text-white text-sm transition-all border-b-4 ${activeQuestionIndex === currentTopic.questions.length - 1 ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed" : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800 shadow-md"}`}
                         >
                           Câu tiếp theo ➡️
@@ -621,15 +829,23 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                   ) : (
                     <div className="bg-white rounded-[2rem] p-6 border-3 border-[#FFF0F0] space-y-5 shadow-sm">
                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b-2 border-dashed border-slate-100 pb-3">
-                        <HelpCircle size={16} className="text-[#FF8A80]" /> Questions (Câu hỏi)
+                        <HelpCircle size={16} className="text-[#FF8A80]" />{" "}
+                        Questions (Câu hỏi)
                       </h4>
 
                       <div className="space-y-6">
                         {currentTopic.questions.map((q: any, i: number) => (
-                          <div key={q.id || i} className="space-y-3 pl-4 border-l-4 border-[#FF8A80]">
+                          <div
+                            key={q.id || i}
+                            className="space-y-3 pl-4 border-l-4 border-[#FF8A80]"
+                          >
                             <div className="space-y-1">
-                              <p className="text-lg font-black text-slate-700 leading-snug">{q.text}</p>
-                              <p className="text-sm text-slate-400 italic font-bold">{q.translation || ""}</p>
+                              <p className="text-lg font-black text-slate-700 leading-snug">
+                                {q.text}
+                              </p>
+                              <p className="text-sm text-slate-400 italic font-bold">
+                                {q.translation || ""}
+                              </p>
                             </div>
                             {q.sample_answer && (
                               <div className="bg-[#FFFDF6] rounded-2xl p-4 border-2 border-[#FFF59D]">
@@ -655,7 +871,11 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                   <span className="pr-4 font-bold">{appError}</span>
                   <button
                     type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAppError(""); }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setAppError("");
+                    }}
                     className="absolute top-3.5 right-3.5 text-rose-400 hover:text-rose-600"
                   >
                     <X size={18} />
@@ -665,7 +885,7 @@ export default function StudentView({ user, profile }: { user: any; profile: any
             </div>
 
             <div className="bg-[#FFFDF6] px-6 py-5 flex justify-center items-center border-t-4 border-[#FFF0F0]">
-              {matchedRecording ? (
+              {isTopicFullyRecorded && !hasPendingAudios ? (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -682,7 +902,11 @@ export default function StudentView({ user, profile }: { user: any; profile: any
               ) : (
                 <button
                   type="button"
-                  disabled={(isBongBe ? Object.keys(bongBeAudios).length === 0 : !audioBase64) || isSaving}
+                  disabled={
+                    (isBongBe
+                      ? Object.keys(bongBeAudios).length === 0
+                      : !audioBase64) || isSaving
+                  }
                   onClick={saveRecording}
                   className={`w-full max-w-sm py-4 rounded-full font-black text-xl flex items-center justify-center gap-2 transition-all shadow-md border-b-4 ${(isBongBe ? Object.keys(bongBeAudios).length === 0 : !audioBase64) || isSaving ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed" : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1976D2] text-white border-blue-900 hover:shadow-lg"}`}
                 >
