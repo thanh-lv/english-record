@@ -198,37 +198,42 @@ function TopicsManager() {
 
   const filteredTopics = topics.filter((t) => t.type === activeType);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isNew: boolean) => {
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    isNew: boolean,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     setUploadingImage(true);
     try {
-      const ext = file.name.split('.').pop() || "jpg";
+      const ext = file.name.split(".").pop() || "jpg";
       const fileName = `question_images/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-      
+
       await s3Client.send(
         new PutObjectCommand({
           Bucket: S3_BUCKET,
           Key: fileName,
           Body: new Uint8Array(await file.arrayBuffer()),
           ContentType: file.type,
-        })
+        }),
       );
-      
+
       const publicBaseUrl = import.meta.env.VITE_R2_PUBLIC_URL;
       let imageUrl = "";
       if (publicBaseUrl) {
         imageUrl = `${publicBaseUrl.replace(/\/$/, "")}/${fileName}`;
       } else {
         const endpoint = import.meta.env.VITE_S3_ENDPOINT || "";
-        imageUrl = endpoint.includes(S3_BUCKET) ? `${endpoint}/${fileName}` : `${endpoint}/${S3_BUCKET}/${fileName}`;
+        imageUrl = endpoint.includes(S3_BUCKET)
+          ? `${endpoint}/${fileName}`
+          : `${endpoint}/${S3_BUCKET}/${fileName}`;
       }
-      
+
       if (isNew) {
-        setNewQuestion(prev => ({ ...prev, image_url: imageUrl }));
+        setNewQuestion((prev) => ({ ...prev, image_url: imageUrl }));
       } else {
-        setEditValues(prev => ({ ...prev, image_url: imageUrl }));
+        setEditValues((prev) => ({ ...prev, image_url: imageUrl }));
       }
     } catch (err) {
       console.error("Lỗi upload ảnh:", err);
@@ -236,7 +241,7 @@ function TopicsManager() {
     } finally {
       setUploadingImage(false);
       // Reset input value so same file can be selected again
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
@@ -560,16 +565,44 @@ function TopicsManager() {
                             </label>
                             <div className="flex items-center gap-3">
                               <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer border-2 border-slate-200 transition-colors">
-                                {uploadingImage ? <Loader2 size={18} className="animate-spin" /> : <ImagePlus size={18} />}
-                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, false)} disabled={uploadingImage} />
+                                {uploadingImage ? (
+                                  <Loader2 size={18} className="animate-spin" />
+                                ) : (
+                                  <ImagePlus size={18} />
+                                )}
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleImageUpload(e, false)}
+                                  disabled={uploadingImage}
+                                />
                               </label>
                               {editValues.image_url ? (
                                 <div className="relative group">
-                                  <img src={editValues.image_url} alt="Minh hoạ" className="h-10 w-10 object-cover rounded-lg border border-slate-200" />
-                                  <button type="button" onClick={() => setEditValues({...editValues, image_url: ""})} className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><X size={12}/></button>
+                                  <img
+                                    src={editValues.image_url}
+                                    alt="Minh hoạ"
+                                    className="h-10 w-10 object-cover rounded-lg border border-slate-200"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setEditValues({
+                                        ...editValues,
+                                        image_url: "",
+                                      })
+                                    }
+                                    className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X size={12} />
+                                  </button>
                                 </div>
                               ) : (
-                                <span className="text-xs text-slate-400 font-bold">Chưa có ảnh (sẽ dùng ảnh tự động nếu không tải lên)</span>
+                                <span className="text-xs text-slate-400 font-bold">
+                                  Chưa có ảnh (sẽ dùng ảnh tự động nếu không tải
+                                  lên)
+                                </span>
                               )}
                             </div>
                           </div>
@@ -619,7 +652,11 @@ function TopicsManager() {
                             )}
                           </div>
                           {q.image_url && (
-                            <img src={q.image_url} alt="Question" className="w-12 h-12 object-cover rounded-xl border-2 border-slate-100 shrink-0 ml-2" />
+                            <img
+                              src={q.image_url}
+                              alt="Question"
+                              className="w-12 h-12 object-cover rounded-xl border-2 border-slate-100 shrink-0 ml-2"
+                            />
                           )}
                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
                             <button
@@ -707,16 +744,44 @@ function TopicsManager() {
                         </label>
                         <div className="flex items-center gap-3 pl-1">
                           <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer border-2 border-slate-200 transition-colors">
-                            {uploadingImage ? <Loader2 size={18} className="animate-spin" /> : <ImagePlus size={18} />}
-                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, true)} disabled={uploadingImage} />
+                            {uploadingImage ? (
+                              <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                              <ImagePlus size={18} />
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleImageUpload(e, true)}
+                              disabled={uploadingImage}
+                            />
                           </label>
                           {newQuestion.image_url ? (
                             <div className="relative group">
-                              <img src={newQuestion.image_url} alt="Minh hoạ" className="h-10 w-10 object-cover rounded-lg border border-slate-200" />
-                              <button type="button" onClick={() => setNewQuestion({...newQuestion, image_url: ""})} className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><X size={12}/></button>
+                              <img
+                                src={newQuestion.image_url}
+                                alt="Minh hoạ"
+                                className="h-10 w-10 object-cover rounded-lg border border-slate-200"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setNewQuestion({
+                                    ...newQuestion,
+                                    image_url: "",
+                                  })
+                                }
+                                className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X size={12} />
+                              </button>
                             </div>
                           ) : (
-                            <span className="text-xs text-slate-400 font-bold">Chưa có ảnh (sẽ dùng ảnh tự động nếu không tải lên)</span>
+                            <span className="text-xs text-slate-400 font-bold">
+                              Chưa có ảnh (sẽ dùng ảnh tự động nếu không tải
+                              lên)
+                            </span>
                           )}
                         </div>
                       </div>
@@ -836,6 +901,8 @@ export default function TeacherView({
         .delete()
         .eq("id", deleteTargetId);
       if (error) throw error;
+
+      setRecordings((prev) => prev.filter((r) => r.id !== deleteTargetId));
       setDeleteTargetId(null);
     } catch (err) {
       console.error("Lỗi khi xóa: ", err);
