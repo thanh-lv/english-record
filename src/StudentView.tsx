@@ -39,6 +39,7 @@ export default function StudentView({ user, profile }: { user: any; profile: any
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioBase64, setAudioBase64] = useState<Blob | null>(null);
+  const [bongBeAudios, setBongBeAudios] = useState<Record<number, Blob>>({});
   const [isSaving, setIsSaving] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -207,6 +208,7 @@ export default function StudentView({ user, profile }: { user: any; profile: any
     setCurrentTopic(topicData);
     setActiveQuestionIndex(0);
     setAudioBase64(null);
+    setBongBeAudios({});
     setAppError("");
   };
 
@@ -230,9 +232,14 @@ export default function StudentView({ user, profile }: { user: any; profile: any
         if (event.data.size > 0) audioChunksRef.current.push(event.data);
       };
 
+      const capturedQuestionIndex = activeQuestionIndex;
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType || "audio/webm" });
-        setAudioBase64(audioBlob);
+        if (isBongBe) {
+          setBongBeAudios(prev => ({ ...prev, [capturedQuestionIndex]: audioBlob }));
+        } else {
+          setAudioBase64(audioBlob);
+        }
         stream.getTracks().forEach((track) => track.stop());
       };
 
@@ -264,44 +271,60 @@ export default function StudentView({ user, profile }: { user: any; profile: any
   const saveRecording = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user || !audioBase64) return;
+    if (!user) return;
+
+    // Gom tất cả bài ghi âm cần lưu
+    const audiosToSave: { questionIndex: number; blob: Blob }[] = isBongBe
+      ? Object.entries(bongBeAudios).map(([idx, blob]) => ({ questionIndex: parseInt(idx), blob }))
+      : audioBase64 ? [{ questionIndex: 0, blob: audioBase64 }] : [];
+
+    if (audiosToSave.length === 0) return;
+
     setIsSaving(true);
     setAppError("");
     try {
-      const fileExt = audioBase64.type.includes("mp4") ? "mp4" : "webm";
-      const fileName = `${user.id}/${Date.now()}_topic_${selectedNumber}.${fileExt}`;
+      for (const { questionIndex, blob } of audiosToSave) {
+        const fileExt = blob.type.includes("mp4") ? "mp4" : "webm";
+        const fileName = `${user.id}/${Date.now()}_topic_${selectedNumber}_q${questionIndex}.${fileExt}`;
 
-      const s3Command = new PutObjectCommand({
-        Bucket: S3_BUCKET,
-        Key: fileName,
-        Body: new Uint8Array(await audioBase64.arrayBuffer()),
-        ContentType: audioBase64.type,
-      });
-      await s3Client.send(s3Command);
+        const s3Command = new PutObjectCommand({
+          Bucket: S3_BUCKET,
+          Key: fileName,
+          Body: new Uint8Array(await blob.arrayBuffer()),
+          ContentType: blob.type,
+        });
+        await s3Client.send(s3Command);
 
-      const publicBaseUrl = import.meta.env.VITE_R2_PUBLIC_URL;
-      let audioUrl = "";
-      if (publicBaseUrl) {
-        audioUrl = `${publicBaseUrl.replace(/\/$/, "")}/${fileName}`;
-      } else {
-        const endpoint = import.meta.env.VITE_S3_ENDPOINT || "";
-        audioUrl = endpoint.includes(S3_BUCKET) ? `${endpoint}/${fileName}` : `${endpoint}/${S3_BUCKET}/${fileName}`;
+        const publicBaseUrl = import.meta.env.VITE_R2_PUBLIC_URL;
+        let audioUrl = "";
+        if (publicBaseUrl) {
+          audioUrl = `${publicBaseUrl.replace(/\/$/, "")}/${fileName}`;
+        } else {
+          const endpoint = import.meta.env.VITE_S3_ENDPOINT || "";
+          audioUrl = endpoint.includes(S3_BUCKET) ? `${endpoint}/${fileName}` : `${endpoint}/${S3_BUCKET}/${fileName}`;
+        }
+
+        const questionText = currentTopic?.questions?.[questionIndex]?.text;
+        const questionId = currentTopic?.questions?.[questionIndex]?.id;
+        const topicId = currentTopic?.id;
+
+        const newRecording = {
+          studentName: profile.name,
+          topic: currentTopic.title,
+          topicNumber: selectedNumber,
+          audioUrl,
+          createdAt: new Date().toISOString(),
+          userId: user.id,
+          questionText,
+          topic_id: topicId,
+          question_id: questionId,
+        };
+
+        const { error } = await supabase.from("recordings").insert([newRecording]);
+        if (error) throw error;
       }
 
-      const activeQuestion = currentTopic?.questions?.[activeQuestionIndex]?.text;
-      const newRecording = {
-        studentName: profile.name,
-        topic: currentTopic.title,
-        topicNumber: selectedNumber,
-        audioUrl,
-        createdAt: new Date().toISOString(),
-        userId: user.id,
-        questionText: activeQuestion,
-      };
-
-      const { error } = await supabase.from("recordings").insert([newRecording]);
-      if (error) throw error;
-
+      setBongBeAudios({});
       setSelectedNumber(null);
       setCurrentTopic(null);
     } catch (error) {
@@ -319,6 +342,11 @@ export default function StudentView({ user, profile }: { user: any; profile: any
   };
 
   const matchedRecording = myRecordings.find((rec) => rec.topicNumber === selectedNumber);
+  // Cho Bông bé: tìm recording khớp đúng câu hỏi hiện tại (theo id)
+  const currentQuestionId = currentTopic?.questions?.[activeQuestionIndex]?.id;
+  const matchedQuestionRecording = isBongBe && currentTopic && currentQuestionId
+    ? myRecordings.find((rec) => rec.topicNumber === selectedNumber && rec.question_id === currentQuestionId)
+    : null;
 
   if (topicsLoading) {
     return (
@@ -517,18 +545,18 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                       </div>
 
                       <div className="py-6 space-y-5 bg-[#FAFAFA] rounded-3xl p-5 border-2 border-slate-100">
-                        {matchedRecording ? (
+                        {matchedQuestionRecording ? (
                           <div className="space-y-3">
                             <div className="bg-[#E8F5E9] border-2 border-[#A5D6A7] rounded-2xl p-4 flex flex-col items-center gap-3 shadow-inner">
                               <span className="text-sm font-black text-[#2E7D32] flex items-center gap-1">
                                 <Eye size={16} /> Bài nói của con đã lưu rồi nè!
                               </span>
-                              <audio controls src={matchedRecording.audioUrl} className="w-full h-11" />
+                              <audio controls src={matchedQuestionRecording.audioUrl} className="w-full h-11" />
                             </div>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center justify-center space-y-4">
-                            {!isRecording && !audioBase64 && (
+                            {!isRecording && !bongBeAudios[activeQuestionIndex] && (
                               <div className="flex flex-col items-center gap-2.5">
                                 <button type="button" onClick={startRecording} className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800">
                                   <Mic size={36} />
@@ -552,13 +580,13 @@ export default function StudentView({ user, profile }: { user: any; profile: any
                               </div>
                             )}
 
-                            {audioBase64 && !isRecording && (
+                            {bongBeAudios[activeQuestionIndex] && !isRecording && (
                               <div className="w-full max-w-md space-y-4 bg-white p-4 rounded-2xl border-2 border-amber-100 shadow-md">
-                                <audio controls src={audioBase64 ? URL.createObjectURL(audioBase64) : ""} className="w-full h-12" />
+                                <audio controls src={URL.createObjectURL(bongBeAudios[activeQuestionIndex])} className="w-full h-12" />
                                 <div className="flex justify-center">
                                   <button
                                     type="button"
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAudioBase64(null); }}
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setBongBeAudios(prev => { const next = {...prev}; delete next[activeQuestionIndex]; return next; }); }}
                                     className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-full flex items-center gap-2 transition-colors shadow-sm"
                                   >
                                     <Trash2 size={16} /> Ghi âm lại
@@ -654,9 +682,9 @@ export default function StudentView({ user, profile }: { user: any; profile: any
               ) : (
                 <button
                   type="button"
-                  disabled={!audioBase64 || isSaving}
+                  disabled={(isBongBe ? Object.keys(bongBeAudios).length === 0 : !audioBase64) || isSaving}
                   onClick={saveRecording}
-                  className={`w-full max-w-sm py-4 rounded-full font-black text-xl flex items-center justify-center gap-2 transition-all shadow-md border-b-4 ${!audioBase64 || isSaving ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed" : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1976D2] text-white border-blue-900 hover:shadow-lg"}`}
+                  className={`w-full max-w-sm py-4 rounded-full font-black text-xl flex items-center justify-center gap-2 transition-all shadow-md border-b-4 ${(isBongBe ? Object.keys(bongBeAudios).length === 0 : !audioBase64) || isSaving ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed" : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1976D2] text-white border-blue-900 hover:shadow-lg"}`}
                 >
                   {isSaving ? "Đang gửi..." : "Nộp bài 🚀"}
                   {!isSaving && <CheckCircle size={24} />}
