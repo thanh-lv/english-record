@@ -149,7 +149,9 @@ export default function StudentView({
         ? `${selectedNumber}_q_${activeQuestionIndex}`
         : `${selectedNumber}`;
 
-      if (imageCache[cacheKey]) {
+      if (activeQuestion?.image_url) {
+        setTopicImage(activeQuestion.image_url);
+      } else if (imageCache[cacheKey]) {
         setTopicImage(imageCache[cacheKey]);
       } else {
         setImageLoading(true);
