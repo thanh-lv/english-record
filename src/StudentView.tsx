@@ -154,41 +154,39 @@ export default function StudentView({
       } else if (imageCache[cacheKey]) {
         setTopicImage(imageCache[cacheKey]);
       } else {
-        setImageLoading(true);
-        try {
-          const keyword = isBongBe
-            ? activeQuestion?.target || activeQuestion?.text
-            : topic.title;
-          const prompt = `A single ${keyword}, cute flat-design illustration for children aged 5-8. Soft pastel colors, clean white background, simple shapes, friendly and cheerful style. No text, no letters, no numbers, no labels anywhere in the image.`;
-
-          const imgRes = await fetch(
-            "https://free-image-generation-api.levanthanh29111999.workers.dev/",
-            {
-              method: "POST",
-              headers: {
-                Authorization: "Bearer your-secret-api-key",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ prompt }),
-            },
-          );
-          if (!imgRes.ok) throw new Error(`Image API error: ${imgRes.status}`);
-          const imgBlob = await imgRes.blob();
-          const imgUrl = URL.createObjectURL(imgBlob);
-
-          setTopicImage(imgUrl);
-          setImageCache((prev) => ({ ...prev, [cacheKey]: imgUrl }));
-        } catch (err) {
-          console.warn("Lỗi không thể tải ảnh minh họa AI:", err);
-          const fallbackLabel = isBongBe
-            ? activeQuestion?.target || topic.title
-            : topic.title;
-          setTopicImage(
-            `https://placehold.co/400x400/eff6ff/1e40af?text=${encodeURIComponent(fallbackLabel)}`,
-          );
-        } finally {
-          setImageLoading(false);
-        }
+        // setImageLoading(true);
+        // try {
+        //   const keyword = isBongBe
+        //     ? activeQuestion?.target
+        //     : topic.title;
+        //   const prompt = `A single ${keyword}, cute flat-design illustration for children aged 5-8. Soft pastel colors, clean white background, simple shapes, friendly and cheerful style. No text, no letters, no numbers, no labels anywhere in the image.`;
+        //   const imgRes = await fetch(
+        //     "https://free-image-generation-api.levanthanh29111999.workers.dev/",
+        //     {
+        //       method: "POST",
+        //       headers: {
+        //         Authorization: "Bearer your-secret-api-key",
+        //         "Content-Type": "application/json",
+        //       },
+        //       body: JSON.stringify({ prompt }),
+        //     },
+        //   );
+        //   if (!imgRes.ok) throw new Error(`Image API error: ${imgRes.status}`);
+        //   const imgBlob = await imgRes.blob();
+        //   const imgUrl = URL.createObjectURL(imgBlob);
+        //   setTopicImage(imgUrl);
+        //   setImageCache((prev) => ({ ...prev, [cacheKey]: imgUrl }));
+        // } catch (err) {
+        //   console.warn("Lỗi không thể tải ảnh minh họa AI:", err);
+        //   const fallbackLabel = isBongBe
+        //     ? activeQuestion?.target || topic.title
+        //     : topic.title;
+        //   setTopicImage(
+        //     `https://placehold.co/400x400/eff6ff/1e40af?text=${encodeURIComponent(fallbackLabel)}`,
+        //   );
+        // } finally {
+        //   setImageLoading(false);
+        // }
       }
 
       setTopicAudio("browser_tts");
@@ -406,13 +404,15 @@ export default function StudentView({
   );
   // Cho Bông bé: tìm recording khớp đúng câu hỏi hiện tại (theo id)
   const currentQuestionId = currentTopic?.questions?.[activeQuestionIndex]?.id;
-  const currentQuestionText = currentTopic?.questions?.[activeQuestionIndex]?.text;
+  const currentQuestionText =
+    currentTopic?.questions?.[activeQuestionIndex]?.text;
   const matchedQuestionRecording =
     isBongBe && currentTopic && currentQuestionId
       ? myRecordings.find(
           (rec) =>
             rec.topicNumber === selectedNumber &&
-            (rec.question_id === currentQuestionId || rec.questionText === currentQuestionText),
+            (rec.question_id === currentQuestionId ||
+              rec.questionText === currentQuestionText),
         )
       : null;
 
@@ -424,7 +424,8 @@ export default function StudentView({
       ? currentTopic.questions.every((q) =>
           myRecordings.some(
             (rec) =>
-              rec.topicNumber === selectedNumber && (rec.question_id === q.id || rec.questionText === q.text),
+              rec.topicNumber === selectedNumber &&
+              (rec.question_id === q.id || rec.questionText === q.text),
           ),
         )
       : !!matchedRecording;

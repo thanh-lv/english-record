@@ -600,8 +600,7 @@ function TopicsManager() {
                                 </div>
                               ) : (
                                 <span className="text-xs text-slate-400 font-bold">
-                                  Chưa có ảnh (sẽ dùng ảnh tự động nếu không tải
-                                  lên)
+                                  Chưa có ảnh
                                 </span>
                               )}
                             </div>
@@ -779,8 +778,7 @@ function TopicsManager() {
                             </div>
                           ) : (
                             <span className="text-xs text-slate-400 font-bold">
-                              Chưa có ảnh (sẽ dùng ảnh tự động nếu không tải
-                              lên)
+                              Chưa có ảnh
                             </span>
                           )}
                         </div>
