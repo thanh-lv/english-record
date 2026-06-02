@@ -12,6 +12,7 @@ import {
   Eye,
   Award,
   Clock,
+  ImageOff,
 } from "lucide-react";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { supabase } from "./lib/supabase";
@@ -574,7 +575,10 @@ export default function StudentView({
                         className="w-full h-full object-contain p-4 animate-in fade-in duration-500"
                       />
                     ) : (
-                      <HelpCircle size={48} className="text-slate-300" />
+                      <div className="flex flex-col items-center gap-2">
+                        <ImageOff size={48} className="text-slate-200" strokeWidth={1.5} />
+                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">Không có ảnh</span>
+                      </div>
                     )}
                   </div>
 
