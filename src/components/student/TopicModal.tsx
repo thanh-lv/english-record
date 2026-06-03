@@ -118,7 +118,9 @@ export function TopicModal({
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
             <div className="md:col-span-5 space-y-5 flex flex-col items-center bg-[#F4F9FF] p-5 rounded-[2rem] border-2 border-[#E3F2FD] shadow-inner">
               {/* Ẩn image box trên mobile khi không có ảnh */}
-              <div className={`w-full aspect-square bg-white rounded-3xl border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}>
+              <div
+                className={`w-full aspect-square bg-white rounded-3xl border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}
+              >
                 {imageLoading ? (
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="w-10 h-10 text-[#FF8A80] animate-spin" />
