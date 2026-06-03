@@ -30,6 +30,7 @@ import {
   Filter,
   Award,
   Flame,
+  Heart,
 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { s3Client, S3_BUCKET } from "./lib/s3";
@@ -1683,6 +1684,11 @@ function RecordingItem({
             {hasFeedback && !isEditing && (
               <span className="text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
                 <Check size={12} /> Đã nhận xét
+              </span>
+            )}
+            {rec.student_reaction === "heart" && (
+              <span className="text-xs text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
+                <Heart size={12} className="fill-rose-500 text-rose-500" /> Bé đã thả tim
               </span>
             )}
           </div>

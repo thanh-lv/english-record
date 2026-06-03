@@ -16,8 +16,9 @@ import {
   Star,
   MessageSquare,
   Pencil,
-  BookOpen,
   Flame,
+  Heart,
+  BookOpen,
 } from "lucide-react";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { supabase } from "./lib/supabase";
@@ -25,12 +26,35 @@ import { s3Client, S3_BUCKET } from "./lib/s3";
 import { calculateStreak } from "./utils";
 
 function TeacherFeedback({ recording }: { recording: any }) {
+  const [reacting, setReacting] = useState(false);
+  const [reacted, setReacted] = useState(!!recording?.student_reaction);
+  const [showEffect, setShowEffect] = useState(false);
+
   if (!recording) return null;
   const hasRating = recording.teacher_rating > 0;
   const hasText =
     recording.teacher_feedback && recording.teacher_feedback.trim().length > 0;
 
   if (!hasRating && !hasText) return null;
+
+  const handleReact = async () => {
+    if (reacted) return;
+    setReacting(true);
+    try {
+      const { error } = await supabase
+        .from("recordings")
+        .update({ student_reaction: "heart" })
+        .eq("id", recording.id);
+      if (error) throw error;
+      setReacted(true);
+      setShowEffect(true);
+      setTimeout(() => setShowEffect(false), 2000);
+    } catch (err) {
+      console.error("Error reacting to feedback", err);
+    } finally {
+      setReacting(false);
+    }
+  };
 
   return (
     <div className="w-full mt-3 bg-gradient-to-br from-[#FFF8E1] to-[#FFF9C4] border-2 border-[#FFD54F] rounded-2xl p-4 shadow-sm relative overflow-hidden">
@@ -63,6 +87,57 @@ function TeacherFeedback({ recording }: { recording: any }) {
             "{recording.teacher_feedback}"
           </p>
         )}
+
+        <div className="pt-2 flex justify-end relative">
+          {showEffect && (
+            <div className="absolute bottom-full right-10 pointer-events-none z-50 flex items-center justify-center">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute text-rose-500 text-3xl opacity-0"
+                  style={
+                    {
+                      animation: `floatUpHeart 1.5s ease-out forwards`,
+                      animationDelay: `${i * 150}ms`,
+                      "--tx": `${(Math.random() - 0.5) * 120}px`,
+                      "--ty": `-${Math.random() * 50 + 80}px`,
+                      "--rot": `${(Math.random() - 0.5) * 60}deg`,
+                    } as React.CSSProperties
+                  }
+                >
+                  ❤️
+                </div>
+              ))}
+              <style>{`
+                @keyframes floatUpHeart {
+                  0% { opacity: 1; transform: translate(0, 0) scale(0.5) rotate(0deg); }
+                  50% { opacity: 1; }
+                  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(var(--rot)); }
+                }
+              `}</style>
+            </div>
+          )}
+          <button
+            type="button"
+            disabled={reacted || reacting}
+            onClick={handleReact}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+              reacted
+                ? "bg-rose-100 text-rose-600 border border-rose-200 shadow-sm"
+                : "bg-white text-slate-500 border border-slate-200 hover:border-rose-300 hover:text-rose-500 hover:bg-rose-50"
+            }`}
+          >
+            <Heart
+              size={14}
+              className={reacted ? "fill-rose-500 text-rose-500" : ""}
+            />
+            {reacting
+              ? "Đang gửi..."
+              : reacted
+                ? "Đã thả tim"
+                : "Thả tim cho Cô"}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -576,8 +651,17 @@ export default function StudentView({
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full text-amber-700 text-sm font-bold shadow-sm">
               <Award size={16} /> {completedNumbers.length} Quà
             </div>
-            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm border ${streak > 0 ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}>
-              <Flame size={16} className={streak > 0 ? "fill-orange-500 text-orange-600" : "text-slate-400"} />
+            <div
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm border ${streak > 0 ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}
+            >
+              <Flame
+                size={16}
+                className={
+                  streak > 0
+                    ? "fill-orange-500 text-orange-600"
+                    : "text-slate-400"
+                }
+              />
               {streak > 0 ? `${streak} Ngày` : "Bắt đầu học!"}
             </div>
           </div>
