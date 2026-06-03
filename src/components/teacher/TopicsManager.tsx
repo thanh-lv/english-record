@@ -287,85 +287,87 @@ export function TopicsManager() {
               className="bg-white rounded-2xl border-2 border-slate-100 overflow-hidden shadow-sm"
             >
               {/* Topic header */}
-              <div
-                className="flex items-center gap-3 p-4 hover:bg-slate-50 cursor-pointer"
-                onClick={() =>
-                  setExpandedTopic(expandedTopic === topic.id ? null : topic.id)
-                }
-              >
-                {expandedTopic === topic.id ? (
-                  <ChevronDown size={18} className="text-slate-400 shrink-0" />
-                ) : (
-                  <ChevronRight size={18} className="text-slate-400 shrink-0" />
-                )}
-                <span className="w-7 h-7 rounded-xl bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
-                  {idx + 1}
-                </span>
-
-                {editingTopic === topic.id ? (
+              {editingTopic === topic.id ? (
+                <div className="flex items-center gap-2 p-3 bg-blue-50 border-b-2 border-blue-100">
+                  <span className="w-7 h-7 rounded-xl bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
+                    {idx + 1}
+                  </span>
                   <input
                     autoFocus
                     value={editTopicTitle}
                     onChange={(e) => setEditTopicTitle(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && saveTopic(topic.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex-1 px-3 py-1 rounded-lg border-2 border-blue-300 text-sm font-bold focus:outline-none focus:border-blue-500"
+                    className="flex-1 px-3 py-2 rounded-xl border-2 border-blue-300 text-sm font-bold focus:outline-none focus:border-blue-500 bg-white"
                   />
-                ) : (
-                  <span className="flex-1 font-extrabold text-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => saveTopic(topic.id)}
+                    disabled={saving}
+                    className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shrink-0"
+                  >
+                    <Check size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingTopic(null)}
+                    className="p-2 bg-white text-slate-500 rounded-xl hover:bg-slate-100 border border-slate-200 shrink-0"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  className="flex items-center gap-3 p-4 hover:bg-slate-50 cursor-pointer"
+                  onClick={() =>
+                    setExpandedTopic(
+                      expandedTopic === topic.id ? null : topic.id,
+                    )
+                  }
+                >
+                  {expandedTopic === topic.id ? (
+                    <ChevronDown
+                      size={18}
+                      className="text-slate-400 shrink-0"
+                    />
+                  ) : (
+                    <ChevronRight
+                      size={18}
+                      className="text-slate-400 shrink-0"
+                    />
+                  )}
+                  <span className="w-7 h-7 rounded-xl bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
+                    {idx + 1}
+                  </span>
+                  <span className="flex-1 font-extrabold text-slate-800 truncate">
                     {topic.title}
                   </span>
-                )}
-
-                <span className="text-xs text-slate-400 font-bold shrink-0">
-                  {topic.questions.length} câu
-                </span>
-
-                <div
-                  className="flex gap-1 shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {editingTopic === topic.id ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => saveTopic(topic.id)}
-                        disabled={saving}
-                        className="p-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                      >
-                        <Check size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditingTopic(null)}
-                        className="p-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200"
-                      >
-                        <X size={14} />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingTopic(topic.id);
-                          setEditTopicTitle(topic.title);
-                        }}
-                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => deleteTopic(topic.id)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </>
-                  )}
+                  <span className="text-xs text-slate-400 font-bold shrink-0">
+                    {topic.questions.length} câu
+                  </span>
+                  <div
+                    className="flex gap-1 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingTopic(topic.id);
+                        setEditTopicTitle(topic.title);
+                      }}
+                      className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteTopic(topic.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Questions */}
               {expandedTopic === topic.id && (
@@ -533,7 +535,7 @@ export function TopicsManager() {
                               className="w-12 h-12 object-cover rounded-xl border-2 border-slate-100 shrink-0 ml-2"
                             />
                           )}
-                          <div className="flex gap-1 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
+                          <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
                             <button
                               type="button"
                               onClick={() => {

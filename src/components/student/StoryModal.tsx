@@ -58,15 +58,15 @@ export function StoryModal({
           </div>
         )}
 
-        <div className="p-6 md:p-8">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-black text-slate-800 text-xl flex items-center gap-2">
-              <BookOpen className="text-purple-500" />
+        <div className="p-4 md:p-8">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-black text-slate-800 text-base md:text-xl flex items-center gap-2">
+              <BookOpen size={18} className="text-purple-500" />
               Nội dung truyện
             </h4>
             <button
               onClick={onPlayAudio}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all shadow-sm ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
                 isPlayingAudio
                   ? "bg-rose-100 text-rose-600 hover:bg-rose-200"
                   : "bg-purple-100 text-purple-600 hover:bg-purple-200"
@@ -74,26 +74,26 @@ export function StoryModal({
             >
               {isPlayingAudio ? (
                 <>
-                  <Square size={18} fill="currentColor" /> Dừng nghe
+                  <Square size={15} fill="currentColor" /> Dừng
                 </>
               ) : (
                 <>
-                  <Volume2 size={18} /> Đọc truyện
+                  <Volume2 size={15} /> Nghe
                 </>
               )}
             </button>
           </div>
-          <div className="bg-purple-50/50 p-6 md:p-8 rounded-[2rem] border-2 border-purple-100">
-            <p className="text-lg md:text-xl font-medium text-slate-700 leading-relaxed whitespace-pre-wrap">
+          <div className="bg-purple-50/50 p-4 md:p-6 rounded-[1.5rem] border-2 border-purple-100 max-h-[50vh] overflow-y-auto">
+            <p className="text-sm md:text-base font-medium text-slate-700 leading-7 whitespace-pre-wrap">
               {story.content}
             </p>
           </div>
         </div>
 
-        <div className="p-4 md:p-6 bg-slate-50 border-t-2 border-slate-100 flex justify-center">
+        <div className="p-3 md:p-5 bg-slate-50 border-t-2 border-slate-100 flex justify-center">
           <button
             onClick={onClose}
-            className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
+            className="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-base transition-all shadow-md hover:shadow-lg active:scale-95"
           >
             Đóng lại
           </button>

@@ -8,10 +8,8 @@ import {
 } from "./components/teacher/TeacherSidebar";
 import { TopicsManager } from "./components/teacher/TopicsManager";
 import { DeleteConfirmModal } from "./components/teacher/DeleteConfirmModal";
-import { NotificationBell } from "./components/teacher/NotificationBell";
 import { useRecordings } from "./components/teacher/hooks/useRecordings";
-import { useNotifications } from "./components/teacher/hooks/useNotifications";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const formatDate = (timestamp: string) => {
   const d = new Date(timestamp);
@@ -20,24 +18,29 @@ const formatDate = (timestamp: string) => {
 
 export default function TeacherView({
   user,
-  profile,
+  addNotification,
+  activeTabSignal,
 }: {
   user: any;
-  profile: any;
+  addNotification: (record: any) => void;
+  activeTabSignal?: string;
 }) {
   const [activeTab, setActiveTab] = useState<TeacherTab>("recordings");
   const [highlightRecordId, setHighlightRecordId] = useState<string | null>(
     null,
   );
-  const {
-    notifications,
-    unreadCount,
-    readIds,
-    addNotification,
-    markRead,
-    markAllRead,
-    clearAll,
-  } = useNotifications();
+
+  useEffect(() => {
+    if (!activeTabSignal) return;
+    if (activeTabSignal.startsWith("recordings:")) {
+      const recordId = activeTabSignal.replace("recordings:", "");
+      setActiveTab("recordings");
+      setHighlightRecordId(recordId);
+      setTimeout(() => setHighlightRecordId(null), 2000);
+    } else {
+      setActiveTab(activeTabSignal as TeacherTab);
+    }
+  }, [activeTabSignal]);
 
   const {
     recordings,
@@ -52,30 +55,6 @@ export default function TeacherView({
 
   return (
     <div className="animate-in fade-in duration-500 min-h-screen flex flex-col">
-      <div className="bg-gradient-to-r from-[#2E7D32] to-[#4CAF50] text-white px-6 py-5 rounded-[2rem] shadow-md border-b-4 border-emerald-900 flex items-center justify-between mb-5">
-        <div>
-          <h2 className="text-lg md:text-3xl font-black mb-0.5">
-            Bảng điều khiển của {profile.name} 📚
-          </h2>
-          <p className="text-emerald-100 font-bold opacity-90 text-sm">
-            Tổng số bài học sinh đã nộp: {recordings.length}
-          </p>
-        </div>
-        <NotificationBell
-          notifications={notifications}
-          unreadCount={unreadCount}
-          readIds={readIds}
-          onMarkRead={markRead}
-          onMarkAllRead={markAllRead}
-          onClearAll={clearAll}
-          onNavigate={(recordId) => {
-            setActiveTab("recordings");
-            setHighlightRecordId(recordId);
-            setTimeout(() => setHighlightRecordId(null), 2000);
-          }}
-        />
-      </div>
-
       <div className="flex gap-5 flex-1 items-start">
         <TeacherSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 

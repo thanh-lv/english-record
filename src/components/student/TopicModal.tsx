@@ -82,37 +82,35 @@ export function TopicModal({
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-50 overflow-y-auto items-start py-8">
       <div className="bg-white rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border-4 border-[#FFF59D] my-auto relative">
-        <div className="p-6 md:p-8 space-y-6">
-          <div className="flex justify-between items-center border-b-4 border-dashed border-[#FFF0F0] pb-4 pr-10">
-            <div className="flex items-center gap-4">
-              <div
-                className={`inline-flex items-center justify-center w-16 h-16 text-white rounded-[1.5rem] font-black text-2xl shadow-lg border-b-4 ${matchedRecording ? "bg-gradient-to-br from-[#81C784] to-[#4CAF50] border-[#388E3C]" : "bg-gradient-to-br from-[#64B5F6] to-[#1E88E5] border-blue-800"}`}
+        <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+          <div className="flex items-center gap-3 border-b-4 border-dashed border-[#FFF0F0] pb-3 md:pb-4 pr-10">
+            <div
+              className={`inline-flex items-center justify-center w-10 h-10 md:w-16 md:h-16 text-white rounded-[1rem] md:rounded-[1.5rem] font-black text-base md:text-2xl shadow-lg border-b-4 shrink-0 ${matchedRecording ? "bg-gradient-to-br from-[#81C784] to-[#4CAF50] border-[#388E3C]" : "bg-gradient-to-br from-[#64B5F6] to-[#1E88E5] border-blue-800"}`}
+            >
+              {isBongBe ? `T${selectedNumber}` : selectedNumber}
+            </div>
+            <div className="min-w-0">
+              <span
+                className={`text-[10px] md:text-xs font-black uppercase tracking-widest ${canRetry ? "text-amber-500" : matchedRecording ? "text-emerald-500" : "text-blue-500"}`}
               >
-                {isBongBe ? `T${selectedNumber}` : selectedNumber}
-              </div>
-              <div>
-                <span
-                  className={`text-xs font-black uppercase tracking-widest ${canRetry ? "text-amber-500" : matchedRecording ? "text-emerald-500" : "text-blue-500"}`}
-                >
-                  {canRetry
-                    ? "🎯 Ghi âm lại để cải thiện điểm"
-                    : matchedRecording
-                      ? "🎁 Bé đã làm thử thách này rồi"
-                      : "Topic"}
-                </span>
-                <h3 className="text-3xl font-black text-slate-800 leading-tight tracking-tight">
-                  {currentTopic.title}
-                </h3>
-              </div>
+                {canRetry
+                  ? "🎯 Ghi âm lại để cải thiện"
+                  : matchedRecording
+                    ? "🎁 Đã làm rồi"
+                    : "Topic"}
+              </span>
+              <h3 className="text-lg md:text-3xl font-black text-slate-800 leading-tight tracking-tight truncate">
+                {currentTopic.title}
+              </h3>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-6 right-6 p-2 text-slate-400 hover:text-rose-500 hover:bg-[#FFF0F0] rounded-full transition-all border-2 border-transparent hover:border-[#FFCDD2] z-10"
+            className="absolute top-4 right-4 md:top-6 md:right-6 p-1.5 md:p-2 text-slate-400 hover:text-rose-500 hover:bg-[#FFF0F0] rounded-full transition-all border-2 border-transparent hover:border-[#FFCDD2] z-10"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
@@ -299,8 +297,15 @@ export function TopicModal({
                   : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1976D2] text-white border-blue-900 hover:shadow-lg"
               }`}
             >
-              {isSaving ? "Đang gửi..." : "Nộp bài 🚀"}
-              {!isSaving && <CheckCircle size={24} />}
+              {isSaving ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" /> Đang gửi...
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={20} /> Nộp bài 🚀
+                </>
+              )}
             </button>
           )}
         </div>
@@ -330,9 +335,11 @@ function RecordingControls({
   formatTime,
   size,
 }: RecordingControlsProps) {
-  const btnSize = size === "lg" ? "w-20 h-20" : "w-16 h-16";
-  const pingSize = size === "lg" ? "w-24 h-24" : "w-20 h-20";
-  const iconSize = size === "lg" ? 36 : 24;
+  const btnSize =
+    size === "lg" ? "w-16 h-16 md:w-20 md:h-20" : "w-14 h-14 md:w-16 md:h-16";
+  const pingSize =
+    size === "lg" ? "w-20 h-20 md:w-24 md:h-24" : "w-18 h-18 md:w-20 md:h-20";
+  const iconSize = size === "lg" ? 28 : 22;
 
   return (
     <div className="w-full pt-2 border-t-2 border-dashed border-slate-200 flex flex-col items-center justify-center">
