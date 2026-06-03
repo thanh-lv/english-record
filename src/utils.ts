@@ -12,8 +12,6 @@ export function calculateStreak(records: any[]): number {
     }
   });
 
-  debugger;
-
   const sortedDates = Array.from(datesSet).sort((a, b) => b.localeCompare(a)); // descending
 
   if (sortedDates.length === 0) return 0;

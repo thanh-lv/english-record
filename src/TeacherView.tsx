@@ -8,6 +8,8 @@ import {
   Clock,
   Mic,
   BookOpen,
+  Library,
+  Wand2,
   Plus,
   Pencil,
   Check,
@@ -19,6 +21,7 @@ import {
   Users,
   BarChart2,
   Search,
+  CheckCircle,
   CheckCircle2,
   Circle,
   Eye,
@@ -673,7 +676,7 @@ function TopicsManager() {
                               className="w-12 h-12 object-cover rounded-xl border-2 border-slate-100 shrink-0 ml-2"
                             />
                           )}
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
+                          <div className="flex gap-1 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
                             <button
                               type="button"
                               onClick={() => {
@@ -876,6 +879,7 @@ function StudentsManager() {
   // Create student form state
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createName, setCreateName] = useState("");
+  const [createYearBorn, setCreateYearBorn] = useState("2015");
   const [createPassword, setCreatePassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [createError, setCreateError] = useState("");
@@ -897,6 +901,13 @@ function StudentsManager() {
   const [resetError, setResetError] = useState("");
   const [resetSaving, setResetSaving] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
+
+  // Edit student state
+  const [editStudentTarget, setEditStudentTarget] = useState<any | null>(null);
+  const [editStudentName, setEditStudentName] = useState("");
+  const [editStudentYearBorn, setEditStudentYearBorn] = useState("");
+  const [editStudentSaving, setEditStudentSaving] = useState(false);
+  const [editStudentError, setEditStudentError] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -955,7 +966,12 @@ function StudentsManager() {
       }
       const { data: inserted, error } = await supabaseForStudents
         .from("profiles")
-        .insert({ name: trimName, role: "student", password: trimPass })
+        .insert({
+          name: trimName,
+          role: "student",
+          password: trimPass,
+          year_born: parseInt(createYearBorn) || 2015,
+        })
         .select()
         .single();
       if (error) throw error;
@@ -963,6 +979,7 @@ function StudentsManager() {
         [...prev, inserted].sort((a, b) => a.name.localeCompare(b.name)),
       );
       setCreateName("");
+      setCreateYearBorn("2015");
       setCreatePassword("");
       setShowCreateForm(false);
     } catch (err: any) {
@@ -1022,6 +1039,36 @@ function StudentsManager() {
       setResetError(err.message || "Không thể đổi mật khẩu. Vui lòng thử lại.");
     } finally {
       setResetSaving(false);
+    }
+  };
+
+  const saveEditedStudent = async () => {
+    if (!editStudentTarget) return;
+
+    setEditStudentSaving(true);
+    setEditStudentError("");
+    try {
+      const { data, error } = await supabaseForStudents
+        .from("profiles")
+        .update({
+          year_born: parseInt(editStudentYearBorn) || 2015,
+        })
+        .eq("id", editStudentTarget.id)
+        .select()
+        .single();
+      if (error) throw error;
+      setStudents((prev) =>
+        prev
+          .map((s) => (s.id === data.id ? data : s))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      );
+      setEditStudentTarget(null);
+    } catch (err: any) {
+      setEditStudentError(
+        err.message || "Không thể cập nhật. Vui lòng thử lại.",
+      );
+    } finally {
+      setEditStudentSaving(false);
     }
   };
 
@@ -1179,8 +1226,13 @@ function StudentsManager() {
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-extrabold text-slate-800 text-sm truncate">
+                        <p className="font-extrabold text-slate-800 text-sm truncate flex items-center gap-2">
                           {student.name}
+                          {student.year_born && (
+                            <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium">
+                              {student.year_born}
+                            </span>
+                          )}
                         </p>
                         <p className="text-xs text-slate-400 font-medium mt-0.5">
                           {lastRec
@@ -1202,7 +1254,8 @@ function StudentsManager() {
                           )}
                           {calculateStreak(studentRecs) > 0 && (
                             <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full flex items-center gap-0.5 border border-orange-200">
-                              <Flame size={10} className="fill-orange-500" /> {calculateStreak(studentRecs)}
+                              <Flame size={10} className="fill-orange-500" />{" "}
+                              {calculateStreak(studentRecs)}
                             </span>
                           )}
                         </div>
@@ -1223,43 +1276,64 @@ function StudentsManager() {
                       </div>
                     </button>
 
-                    {/* Reset Password button */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setResetPasswordTarget(student);
-                        setResetPasswordValue("");
-                        setResetError("");
-                        setResetSuccess(false);
-                        setShowPassword(false);
-                      }}
-                      className="shrink-0 p-2 group-hover:opacity-100 text-slate-300 hover:text-[#1E88E5] hover:bg-[#E3F2FD] rounded-xl transition-all"
-                      title="Đổi mật khẩu"
-                    >
-                      <Key size={15} />
-                    </button>
+                    <div className="flex items-center gap-1 group-hover:opacity-100 transition-opacity pr-2 md:pr-4">
+                      {/* Edit button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setEditStudentTarget(student);
+                          setEditStudentName(student.name);
+                          setEditStudentYearBorn(
+                            student.year_born?.toString() || "2015",
+                          );
+                          setEditStudentError("");
+                        }}
+                        className="shrink-0 p-2 text-slate-300 hover:text-[#4CAF50] hover:bg-[#E8F5E9] rounded-xl transition-all"
+                        title="Sửa thông tin"
+                      >
+                        <Pencil size={15} />
+                      </button>
 
-                    {/* Delete button — visible on row hover */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const recCount = recordings.filter(
-                          (r) =>
-                            r.studentName.trim().toLowerCase() ===
-                            student.name.trim().toLowerCase(),
-                        ).length;
-                        setDeleteStudentTarget({ student, recCount });
-                        setDeleteError("");
-                      }}
-                      className="shrink-0 p-2 group-hover:opacity-100 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
-                      title="Xóa học sinh"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                      {/* Reset Password button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setResetPasswordTarget(student);
+                          setResetPasswordValue("");
+                          setResetError("");
+                          setResetSuccess(false);
+                          setShowPassword(false);
+                        }}
+                        className="shrink-0 p-2 text-slate-300 hover:text-[#1E88E5] hover:bg-[#E3F2FD] rounded-xl transition-all"
+                        title="Đổi mật khẩu"
+                      >
+                        <Key size={15} />
+                      </button>
+
+                      {/* Delete button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const recCount = recordings.filter(
+                            (r) =>
+                              r.studentName.trim().toLowerCase() ===
+                              student.name.trim().toLowerCase(),
+                          ).length;
+                          setDeleteStudentTarget({ student, recCount });
+                          setDeleteError("");
+                        }}
+                        className="shrink-0 p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                        title="Xóa học sinh"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
 
                     {/* Chevron */}
                     <button
@@ -1515,6 +1589,85 @@ function StudentsManager() {
         </div>
       )}
 
+      {/* Edit Student Modal */}
+      {editStudentTarget && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
+                <Pencil size={20} />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+                  Sửa thông tin
+                </h4>
+                <p className="text-xs text-slate-400 font-medium">
+                  Cập nhật thông tin học sinh
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditStudentTarget(null)}
+                className="ml-auto p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Form */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+                  Năm sinh
+                </label>
+                <input
+                  type="number"
+                  value={editStudentYearBorn}
+                  onChange={(e) => {
+                    setEditStudentYearBorn(e.target.value);
+                    setEditStudentError("");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && saveEditedStudent()}
+                  className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+                />
+              </div>
+
+              {editStudentError && (
+                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                  <AlertCircle size={14} className="shrink-0" />
+                  {editStudentError}
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="pt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setEditStudentTarget(null)}
+                className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                disabled={editStudentSaving}
+                onClick={saveEditedStudent}
+                className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 text-white font-black text-sm rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center gap-2"
+              >
+                {editStudentSaving ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Save size={16} />
+                )}
+                {editStudentSaving ? "Đang lưu..." : "Lưu thay đổi"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Create Student Modal ── */}
       {showCreateForm && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -1557,6 +1710,24 @@ function StudentsManager() {
                   }}
                   onKeyDown={(e) => e.key === "Enter" && createStudent()}
                   placeholder="Ví dụ: Tuệ Minh, Bông bé..."
+                  className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+                />
+              </div>
+
+              {/* Year Born */}
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+                  Năm sinh
+                </label>
+                <input
+                  type="number"
+                  value={createYearBorn}
+                  onChange={(e) => {
+                    setCreateYearBorn(e.target.value);
+                    setCreateError("");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && createStudent()}
+                  placeholder="Ví dụ: 2015"
                   className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
                 />
               </div>
@@ -1688,7 +1859,8 @@ function RecordingItem({
             )}
             {rec.student_reaction === "heart" && (
               <span className="text-xs text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
-                <Heart size={12} className="fill-rose-500 text-rose-500" /> Bé đã thả tim
+                <Heart size={12} className="fill-rose-500 text-rose-500" /> Bé
+                đã thả tim
               </span>
             )}
           </div>
@@ -2067,6 +2239,560 @@ function RecordingsPanel({
   );
 }
 
+function StoriesManager() {
+  const [stories, setStories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingStory, setEditingStory] = useState<any>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editEmoji, setEditEmoji] = useState("");
+
+  const [deleteStoryTarget, setDeleteStoryTarget] = useState<any>(null);
+  const [deleteSaving, setDeleteSaving] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  const [title, setTitle] = useState("");
+  const [yearBorn, setYearBorn] = useState("2015");
+  const [type, setType] = useState("Truyện tranh");
+  const [emoji, setEmoji] = useState("📚");
+  const [prompt, setPrompt] = useState("");
+
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedStory, setGeneratedStory] = useState("");
+  const [generatedImageBlob, setGeneratedImageBlob] = useState<Blob | null>(
+    null,
+  );
+  const [generatedImageUrl, setGeneratedImageUrl] = useState("");
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchStories();
+  }, []);
+
+  const fetchStories = async () => {
+    try {
+      const { data, error } = await supabaseForStudents
+        .from("stories")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      setStories(data || []);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!prompt) return setError("Vui lòng nhập chủ đề (Prompt).");
+    const aiApiKey = import.meta.env.VITE_AI_API_KEY;
+    if (!aiApiKey) return setError("Thiếu VITE_AI_API_KEY trong file .env");
+
+    setIsGenerating(true);
+    setError("");
+    setGeneratedStory("");
+    setGeneratedImageBlob(null);
+    setGeneratedImageUrl("");
+
+    try {
+      // 1. Generate text
+      const age = parseInt(yearBorn)
+        ? new Date().getFullYear() - parseInt(yearBorn)
+        : 5;
+      const textPrompt = `You are a friendly storyteller for children. Write a short, simple, and engaging English story based on the prompt: ${prompt}. Keep it under 150 words. The story is for a ${age}-year-old child, so use appropriate simple vocabulary and short sentences. Return only the story text.`;
+
+      const textRes = await fetch(
+        "https://free-image-generation-api.levanthanh29111999.workers.dev/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${aiApiKey}`,
+          },
+          body: JSON.stringify({ prompt: textPrompt, type: "text" }),
+        },
+      );
+      if (!textRes.ok)
+        throw new Error("Lỗi khi tạo chữ. Kiểm tra lại API Key.");
+      const textData = await textRes.json();
+      setGeneratedStory(textData.story);
+
+      // 2. Generate image
+      const imgRes = await fetch(
+        "https://free-image-generation-api.levanthanh29111999.workers.dev/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${aiApiKey}`,
+          },
+          body: JSON.stringify({ prompt, type: "image" }),
+        },
+      );
+      if (!imgRes.ok) throw new Error("Lỗi khi tạo ảnh.");
+      const imgBlob = await imgRes.blob();
+      setGeneratedImageBlob(imgBlob);
+      setGeneratedImageUrl(URL.createObjectURL(imgBlob));
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!title || !generatedStory || !generatedImageBlob)
+      return setError("Vui lòng nhập tên truyện và tạo nội dung.");
+    setIsSaving(true);
+    setError("");
+    try {
+      const ext = generatedImageBlob.type.split("/")[1] || "jpg";
+      const fileName = `${yearBorn}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: S3_BUCKET,
+          Key: fileName,
+          Body: new Uint8Array(await generatedImageBlob.arrayBuffer()),
+          ContentType: generatedImageBlob.type,
+        }),
+      );
+
+      const publicBaseUrl = import.meta.env.VITE_R2_PUBLIC_URL;
+      let imageUrl = "";
+      if (publicBaseUrl) {
+        imageUrl = `${publicBaseUrl.replace(/\/$/, "")}/${fileName}`;
+      } else {
+        const endpoint = import.meta.env.VITE_S3_ENDPOINT || "";
+        imageUrl = endpoint.includes(S3_BUCKET)
+          ? `${endpoint}/${fileName}`
+          : `${endpoint}/${S3_BUCKET}/${fileName}`;
+      }
+
+      const ageGroup =
+        parseInt(yearBorn) >= new Date().getFullYear() - 5
+          ? "kindergarten"
+          : "primary";
+
+      const { data, error } = await supabaseForStudents
+        .from("stories")
+        .insert({
+          title,
+          age_group: ageGroup,
+          type,
+          emoji,
+          content: generatedStory,
+          image_url: imageUrl,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setStories([data, ...stories]);
+      setShowCreate(false);
+      setTitle("");
+      setPrompt("");
+      setGeneratedStory("");
+      setGeneratedImageUrl("");
+      setGeneratedImageBlob(null);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const openEditStory = (story: any) => {
+    setEditingStory(story);
+    setEditTitle(story.title);
+    setEditContent(story.content);
+    setEditEmoji(story.emoji);
+  };
+
+  const handleUpdateStory = async () => {
+    try {
+      const { data, error } = await supabaseForStudents
+        .from("stories")
+        .update({ title: editTitle, content: editContent, emoji: editEmoji })
+        .eq("id", editingStory.id)
+        .select()
+        .single();
+      if (error) throw error;
+      setStories(stories.map((s) => (s.id === data.id ? data : s)));
+      setEditingStory(null);
+    } catch (err: any) {
+      alert("Lỗi sửa truyện: " + err.message);
+    }
+  };
+
+  const handleDeleteStory = (story: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeleteStoryTarget(story);
+    setDeleteError("");
+  };
+
+  const confirmDeleteStory = async () => {
+    if (!deleteStoryTarget) return;
+    setDeleteSaving(true);
+    setDeleteError("");
+    try {
+      const { error } = await supabaseForStudents
+        .from("stories")
+        .delete()
+        .eq("id", deleteStoryTarget.id);
+      if (error) throw error;
+      setStories(stories.filter((s) => s.id !== deleteStoryTarget.id));
+      setDeleteStoryTarget(null);
+    } catch (err: any) {
+      setDeleteError(err.message);
+    } finally {
+      setDeleteSaving(false);
+    }
+  };
+
+  if (loading)
+    return (
+      <div className="p-8 text-center">
+        <Loader2 className="animate-spin mx-auto text-slate-400" />
+      </div>
+    );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-black text-slate-800">
+          Quản lý Truyện AI 📚
+        </h3>
+        <button
+          onClick={() => setShowCreate(true)}
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md"
+        >
+          <Wand2 size={18} /> Tạo Truyện Mới
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+        {stories.map((story) => (
+          <div
+            key={story.id}
+            className="bg-white rounded-[1.5rem] border-2 border-slate-100 overflow-hidden shadow-sm flex flex-col"
+          >
+            <div className="aspect-video bg-slate-100 relative">
+              {story.image_url ? (
+                <img
+                  src={story.image_url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-4xl">
+                  {story.emoji}
+                </div>
+              )}
+            </div>
+            <div className="p-4 flex flex-col flex-1">
+              <h4 className="font-extrabold text-slate-800 line-clamp-1 mb-1">
+                {story.title}
+              </h4>
+              <p className="text-xs font-bold text-purple-600 mb-3">
+                {story.type} • {story.age_group}
+              </p>
+              <div className="mt-auto flex gap-2 pt-2 border-t border-slate-100">
+                <button
+                  onClick={() => openEditStory(story)}
+                  className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
+                >
+                  <Pencil size={14} /> Sửa
+                </button>
+                <button
+                  onClick={(e) => handleDeleteStory(story, e)}
+                  className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
+                >
+                  <Trash2 size={14} /> Xóa
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {stories.length === 0 && (
+          <div className="col-span-full py-10 text-center text-slate-400 font-bold bg-white rounded-[1.5rem] border-2 border-dashed border-slate-200">
+            Chưa có truyện nào. Hãy tạo truyện đầu tiên nhé!
+          </div>
+        )}
+      </div>
+
+      {editingStory && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-amber-100 p-6 space-y-5 my-8">
+            <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
+              <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
+                <Pencil className="text-amber-500" /> Sửa thông tin Truyện
+              </h4>
+              <button
+                onClick={() => setEditingStory(null)}
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Tên truyện
+                  </label>
+                  <input
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-amber-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Emoji đại diện
+                  </label>
+                  <input
+                    value={editEmoji}
+                    onChange={(e) => setEditEmoji(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-amber-400 focus:outline-none"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                  Nội dung truyện
+                </label>
+                <textarea
+                  rows={10}
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:border-amber-400 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t-2 border-slate-100 flex justify-end gap-3">
+              <button
+                onClick={() => setEditingStory(null)}
+                className="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleUpdateStory}
+                disabled={!editTitle || !editContent}
+                className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black disabled:opacity-50 flex items-center gap-2"
+              >
+                <CheckCircle size={18} /> Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteStoryTarget && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+                <AlertCircle size={20} />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+                  Xóa truyện kể
+                </h4>
+                <p className="text-sm text-slate-600 font-bold mt-0.5 line-clamp-1">
+                  {deleteStoryTarget.title}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-sm text-slate-500 font-medium">
+              Bạn có chắc chắn muốn xóa bộ truyện này không? Học sinh sẽ không
+              thể đọc được nữa.
+            </p>
+
+            {deleteError && (
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                <AlertCircle size={14} className="shrink-0" />
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setDeleteStoryTarget(null)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteStory}
+                disabled={deleteSaving}
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center justify-center gap-2"
+              >
+                {deleteSaving ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  <Trash2 size={15} />
+                )}
+                Đồng ý xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCreate && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-purple-100 p-6 space-y-5 my-8">
+            <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
+              <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
+                <Wand2 className="text-purple-500" /> Sáng tác Truyện AI
+              </h4>
+              <button
+                onClick={() => setShowCreate(false)}
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Tên truyện
+                  </label>
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Năm sinh mục tiêu
+                  </label>
+                  <input
+                    type="number"
+                    value={yearBorn}
+                    onChange={(e) => setYearBorn(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Thể loại
+                  </label>
+                  <input
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                    placeholder="VD: Truyện tranh, Cổ tích"
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Emoji đại diện
+                  </label>
+                  <input
+                    value={emoji}
+                    onChange={(e) => setEmoji(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 space-y-3">
+                <div>
+                  <label className="block text-xs font-black text-purple-800 mb-1.5 uppercase">
+                    Chủ đề (Prompt tiếng Anh)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="VD: A cute robot cooking breakfast..."
+                    className="w-full px-4 py-2 bg-white border-2 border-purple-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none resize-none"
+                  />
+                </div>
+                <button
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-black disabled:opacity-50 flex justify-center items-center gap-2"
+                >
+                  {isGenerating ? (
+                    <Loader2 className="animate-spin" size={18} />
+                  ) : (
+                    <Wand2 size={18} />
+                  )}
+                  {isGenerating
+                    ? "AI đang vẽ và viết truyện..."
+                    : "Phép thuật Winx: Tạo nội dung!"}
+                </button>
+              </div>
+
+              {error && (
+                <div className="text-rose-600 text-sm font-bold bg-rose-50 p-3 rounded-xl flex items-center gap-2">
+                  <AlertCircle size={16} /> {error}
+                </div>
+              )}
+
+              {(generatedStory || generatedImageUrl) && (
+                <div className="space-y-4 bg-slate-50 p-4 rounded-xl border-2 border-slate-100">
+                  <h5 className="font-black text-slate-800">
+                    Kết quả xem trước:
+                  </h5>
+                  {generatedImageUrl && (
+                    <img
+                      src={generatedImageUrl}
+                      alt="Preview"
+                      className="w-full h-48 object-cover rounded-xl border border-slate-200"
+                    />
+                  )}
+                  {generatedStory && (
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 text-sm whitespace-pre-wrap font-medium text-slate-700">
+                      {generatedStory}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="pt-4 border-t-2 border-slate-100 flex justify-end gap-3">
+              <button
+                onClick={() => setShowCreate(false)}
+                className="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving || !generatedStory || !generatedImageBlob}
+                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSaving ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  <Save size={18} />
+                )}{" "}
+                Lưu Truyện
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function TeacherView({
   user,
   profile,
@@ -2079,7 +2805,7 @@ export default function TeacherView({
   const [appError, setAppError] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "recordings" | "topics" | "students"
+    "recordings" | "topics" | "students" | "stories"
   >("recordings");
 
   useEffect(() => {
@@ -2155,6 +2881,11 @@ export default function TeacherView({
       id: "students" as const,
       label: "Học sinh",
       icon: <Users size={18} />,
+    },
+    {
+      id: "stories" as const,
+      label: "Truyện kể",
+      icon: <Library size={18} />,
     },
   ];
 
@@ -2235,6 +2966,8 @@ export default function TeacherView({
           {activeTab === "topics" && <TopicsManager />}
 
           {activeTab === "students" && <StudentsManager />}
+
+          {activeTab === "stories" && <StoriesManager />}
         </div>
       </div>
 

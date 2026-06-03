@@ -19,6 +19,7 @@ import {
   Flame,
   Heart,
   BookOpen,
+  Library,
 } from "lucide-react";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { supabase } from "./lib/supabase";
@@ -197,9 +198,9 @@ export default function StudentView({
 
   const [imageLoading, setImageLoading] = useState(false);
   const [ttsLoading, setTtsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"exercises" | "achievements">(
-    "exercises",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "exercises" | "stories" | "achievements"
+  >("exercises");
 
   const PRIZES = [
     "🎈",
@@ -241,6 +242,30 @@ export default function StudentView({
   const isBongBe = profile.name.toLowerCase().trim() === "bông bé";
 
   const streak = calculateStreak(myRecordings);
+  const studentAge = new Date().getFullYear() - (profile.year_born || 2015);
+
+  const [dbStories, setDbStories] = useState<any[]>([]);
+  const [selectedStory, setSelectedStory] = useState<any>(null);
+  const [isPlayingStoryAudio, setIsPlayingStoryAudio] = useState(false);
+
+  useEffect(() => {
+    const fetchStories = async () => {
+      try {
+        const targetAgeGroup = studentAge <= 5 ? "kindergarten" : "primary";
+        const { data, error } = await supabase
+          .from("stories")
+          .select("*")
+          .eq("age_group", targetAgeGroup)
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        setDbStories(data || []);
+      } catch (err) {
+        console.error("Error fetching stories:", err);
+      }
+    };
+    fetchStories();
+  }, [studentAge]);
+
   const totalNumbers = Array.from(
     { length: activeTopics.length },
     (_, i) => i + 1,
@@ -406,6 +431,33 @@ export default function StudentView({
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utterance);
     }
+  };
+
+  const playStoryAudio = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!selectedStory) return;
+
+    if (isPlayingStoryAudio) {
+      window.speechSynthesis.cancel();
+      setIsPlayingStoryAudio(false);
+    } else {
+      const utterance = new SpeechSynthesisUtterance(selectedStory.content);
+      utterance.lang = "en-US";
+      utterance.rate = 0.85;
+      utterance.onend = () => setIsPlayingStoryAudio(false);
+      utterance.onerror = () => setIsPlayingStoryAudio(false);
+
+      setIsPlayingStoryAudio(true);
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const closeStoryModal = () => {
+    window.speechSynthesis.cancel();
+    setIsPlayingStoryAudio(false);
+    setSelectedStory(null);
   };
 
   const handleNumberClick = (num: number, e: React.MouseEvent) => {
@@ -691,6 +743,26 @@ export default function StudentView({
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab("stories")}
+            className={`flex items-center gap-3 px-5 py-4 rounded-xl font-extrabold text-sm transition-all ${
+              activeTab === "stories"
+                ? "bg-purple-50 text-purple-600 shadow-sm"
+                : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+            }`}
+          >
+            <Library
+              size={20}
+              className={
+                activeTab === "stories" ? "text-purple-500" : "text-slate-400"
+              }
+            />
+            Truyện kể 📚
+            {activeTab === "stories" && (
+              <span className="ml-auto w-1.5 h-1.5 rounded-full bg-purple-500" />
+            )}
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("achievements")}
             className={`flex items-center gap-3 px-5 py-4 rounded-xl font-extrabold text-sm transition-all ${
               activeTab === "achievements"
@@ -839,6 +911,57 @@ export default function StudentView({
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === "stories" && (
+          <div className="bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] border-3 border-white shadow-md">
+            <div className="mb-8 space-y-2 text-center">
+              <h3 className="text-3xl font-black text-purple-500 flex items-center justify-center gap-3">
+                <Library size={32} /> Góc Truyện Kể <Library size={32} />
+              </h3>
+              <p className="text-slate-500 font-bold text-sm">
+                Chào {profile.name}! Con {studentAge} tuổi nên cô tặng con những
+                truyện này nhé:
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+              {dbStories.length === 0 && (
+                <div className="col-span-full py-12 text-center text-slate-400 font-bold bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                  Chưa có truyện nào phù hợp với tuổi của con.
+                </div>
+              )}
+              {dbStories.map((story) => (
+                <div
+                  key={story.id}
+                  className="bg-white rounded-[2rem] border-4 border-purple-100 shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col items-center text-center overflow-hidden"
+                  onClick={() => setSelectedStory(story)}
+                >
+                  <div className="w-full aspect-video bg-slate-100 relative">
+                    {story.image_url ? (
+                      <img
+                        src={story.image_url}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-5xl">
+                        {story.emoji}
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4 w-full">
+                    <h4 className="font-extrabold text-slate-800 text-lg leading-tight mb-1">
+                      {story.title}
+                    </h4>
+                    <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
+                      {story.type}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -1288,6 +1411,94 @@ export default function StudentView({
                   {emoji}
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {selectedStory && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-[60] overflow-y-auto items-start py-8">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative my-auto">
+            {selectedStory.image_url ? (
+              <div className="w-full h-64 md:h-80 relative">
+                <img
+                  src={selectedStory.image_url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <button
+                  onClick={closeStoryModal}
+                  className="absolute top-4 right-4 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-full p-2 transition-colors"
+                >
+                  <X size={24} />
+                </button>
+                <div className="absolute bottom-4 left-6 right-6">
+                  <span className="text-xs font-black bg-purple-500 text-white px-3 py-1 rounded-full mb-2 inline-block">
+                    {selectedStory.type}
+                  </span>
+                  <h3 className="text-3xl md:text-4xl font-black text-white leading-tight drop-shadow-md">
+                    {selectedStory.title}
+                  </h3>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 pb-0 flex justify-between items-start">
+                <div>
+                  <span className="text-xs font-black bg-purple-100 text-purple-700 px-3 py-1 rounded-full mb-2 inline-block">
+                    {selectedStory.type}
+                  </span>
+                  <h3 className="text-3xl md:text-4xl font-black text-slate-800 leading-tight">
+                    {selectedStory.emoji} {selectedStory.title}
+                  </h3>
+                </div>
+                <button
+                  onClick={closeStoryModal}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full p-2 transition-colors shrink-0"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            )}
+
+            <div className="p-6 md:p-8">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-black text-slate-800 text-xl flex items-center gap-2">
+                  <BookOpen className="text-purple-500" />
+                  Nội dung truyện
+                </h4>
+                <button
+                  onClick={playStoryAudio}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all shadow-sm ${
+                    isPlayingStoryAudio
+                      ? "bg-rose-100 text-rose-600 hover:bg-rose-200"
+                      : "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                  }`}
+                >
+                  {isPlayingStoryAudio ? (
+                    <>
+                      <Square size={18} fill="currentColor" /> Dừng nghe
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 size={18} /> Đọc truyện
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="bg-purple-50/50 p-6 md:p-8 rounded-[2rem] border-2 border-purple-100">
+                <p className="text-lg md:text-xl font-medium text-slate-700 leading-relaxed whitespace-pre-wrap">
+                  {selectedStory.content}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 md:p-6 bg-slate-50 border-t-2 border-slate-100 flex justify-center">
+              <button
+                onClick={closeStoryModal}
+                className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
+              >
+                Đóng lại
+              </button>
             </div>
           </div>
         </div>
