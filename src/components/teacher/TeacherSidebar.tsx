@@ -14,13 +14,18 @@ interface TeacherSidebarProps {
   onTabChange: (tab: TeacherTab) => void;
 }
 
-export function TeacherSidebar({ activeTab, onTabChange }: TeacherSidebarProps) {
+export function TeacherSidebar({
+  activeTab,
+  onTabChange,
+}: TeacherSidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 shrink-0 bg-white rounded-[1.5rem] shadow-sm border border-slate-100 overflow-hidden sticky top-4">
         <div className="px-5 pt-5 pb-3 border-b border-slate-100">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Menu</p>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
+            Menu
+          </p>
         </div>
         <nav className="p-3 space-y-1">
           {NAV_ITEMS.map((item) => {
@@ -40,7 +45,9 @@ export function TeacherSidebar({ activeTab, onTabChange }: TeacherSidebarProps) 
                   {item.icon}
                 </span>
                 {item.label}
-                {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />}
+                {active && (
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />
+                )}
               </button>
             );
           })}
@@ -61,7 +68,9 @@ export function TeacherSidebar({ activeTab, onTabChange }: TeacherSidebarProps) 
                   active ? "text-[#1E88E5]" : "text-slate-400"
                 }`}
               >
-                <span className={`p-1.5 rounded-xl transition-all ${active ? "bg-[#E3F2FD]" : ""}`}>
+                <span
+                  className={`p-1.5 rounded-xl transition-all ${active ? "bg-[#E3F2FD]" : ""}`}
+                >
                   {item.icon}
                 </span>
                 {item.label}

@@ -164,7 +164,8 @@ export default function StudentView({
   };
 
   const currentQuestionId = currentTopic?.questions?.[activeQuestionIndex]?.id;
-  const currentQuestionText = currentTopic?.questions?.[activeQuestionIndex]?.text;
+  const currentQuestionText =
+    currentTopic?.questions?.[activeQuestionIndex]?.text;
 
   const matchedRecording = myRecordings.find(
     (rec) => rec.topicNumber === selectedNumber,
@@ -191,13 +192,18 @@ export default function StudentView({
         )
       : !!matchedRecording;
 
-  const totalNumbers = Array.from({ length: activeTopics.length }, (_, i) => i + 1);
+  const totalNumbers = Array.from(
+    { length: activeTopics.length },
+    (_, i) => i + 1,
+  );
 
   if (topicsLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <Loader2 className="w-10 h-10 text-[#FF8A80] animate-spin" />
-        <p className="text-slate-400 font-bold text-sm">Đang tải danh sách bài học...</p>
+        <p className="text-slate-400 font-bold text-sm">
+          Đang tải danh sách bài học...
+        </p>
       </div>
     );
   }

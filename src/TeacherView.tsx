@@ -1,11 +1,16 @@
-import { AlertCircle, Key } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { RecordingsPanel } from "./components/teacher/RecordingsPanel";
 import { StoriesManager } from "./components/teacher/StoriesManager";
 import { StudentsManager } from "./components/teacher/StudentsManager";
-import { TeacherSidebar, TeacherTab } from "./components/teacher/TeacherSidebar";
+import {
+  TeacherSidebar,
+  TeacherTab,
+} from "./components/teacher/TeacherSidebar";
 import { TopicsManager } from "./components/teacher/TopicsManager";
 import { DeleteConfirmModal } from "./components/teacher/DeleteConfirmModal";
+import { NotificationBell } from "./components/teacher/NotificationBell";
 import { useRecordings } from "./components/teacher/hooks/useRecordings";
+import { useNotifications } from "./components/teacher/hooks/useNotifications";
 import { useState } from "react";
 
 const formatDate = (timestamp: string) => {
@@ -21,8 +26,26 @@ export default function TeacherView({
   profile: any;
 }) {
   const [activeTab, setActiveTab] = useState<TeacherTab>("recordings");
-  const { recordings, loading, appError, deleteTargetId, setDeleteTargetId, confirmDelete } =
-    useRecordings(user);
+  const {
+    notifications,
+    unreadCount,
+    readIds,
+    addNotification,
+    markRead,
+    markAllRead,
+    clearAll,
+  } = useNotifications();
+
+  const {
+    recordings,
+    loading,
+    appError,
+    deleteTargetId,
+    setDeleteTargetId,
+    confirmDelete,
+  } = useRecordings(user, {
+    onNewRecording: addNotification,
+  });
 
   return (
     <div className="animate-in fade-in duration-500 min-h-screen flex flex-col">
@@ -35,9 +58,14 @@ export default function TeacherView({
             Tổng số bài học sinh đã nộp: {recordings.length}
           </p>
         </div>
-        <div className="hidden sm:flex w-14 h-14 bg-white/20 rounded-full items-center justify-center border-2 border-white/20">
-          <Key size={28} />
-        </div>
+        <NotificationBell
+          notifications={notifications}
+          unreadCount={unreadCount}
+          readIds={readIds}
+          onMarkRead={markRead}
+          onMarkAllRead={markAllRead}
+          onClearAll={clearAll}
+        />
       </div>
 
       <div className="flex gap-5 flex-1 items-start">

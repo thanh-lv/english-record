@@ -7,13 +7,22 @@ interface StoryModalProps {
   onPlayAudio: (e: React.MouseEvent) => void;
 }
 
-export function StoryModal({ story, isPlayingAudio, onClose, onPlayAudio }: StoryModalProps) {
+export function StoryModal({
+  story,
+  isPlayingAudio,
+  onClose,
+  onPlayAudio,
+}: StoryModalProps) {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-[60] overflow-y-auto items-start py-8">
       <div className="bg-white rounded-[2.5rem] w-full max-w-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative my-auto">
         {story.image_url ? (
           <div className="w-full h-64 md:h-80 relative">
-            <img src={story.image_url} alt="" className="w-full h-full object-cover" />
+            <img
+              src={story.image_url}
+              alt=""
+              className="w-full h-full object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <button
               onClick={onClose}
@@ -64,9 +73,13 @@ export function StoryModal({ story, isPlayingAudio, onClose, onPlayAudio }: Stor
               }`}
             >
               {isPlayingAudio ? (
-                <><Square size={18} fill="currentColor" /> Dừng nghe</>
+                <>
+                  <Square size={18} fill="currentColor" /> Dừng nghe
+                </>
               ) : (
-                <><Volume2 size={18} /> Đọc truyện</>
+                <>
+                  <Volume2 size={18} /> Đọc truyện
+                </>
               )}
             </button>
           </div>

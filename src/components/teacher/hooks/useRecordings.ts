@@ -1,11 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
-export function useRecordings(user: any) {
+interface UseRecordingsOptions {
+  onNewRecording?: (record: any) => void;
+}
+
+export function useRecordings(user: any, options?: UseRecordingsOptions) {
   const [recordings, setRecordings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [appError, setAppError] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const isInitialLoad = useRef(true);
+  const onNewRecordingRef = useRef(options?.onNewRecording);
+  onNewRecordingRef.current = options?.onNewRecording;
 
   const fetchRecordings = async () => {
     try {
@@ -26,16 +33,29 @@ export function useRecordings(user: any) {
   useEffect(() => {
     if (!user) return;
 
-    fetchRecordings();
+    fetchRecordings().then(() => {
+      isInitialLoad.current = false;
+    });
 
     const channel = supabase
       .channel("teacher-recordings")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "recordings" },
-        () => fetchRecordings(),
+        (payload) => {
+          fetchRecordings();
+          if (
+            payload.eventType === "INSERT" &&
+            !isInitialLoad.current &&
+            onNewRecordingRef.current
+          ) {
+            onNewRecordingRef.current(payload.new);
+          }
+        },
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("[useRecordings] realtime status:", status);
+      });
 
     return () => {
       supabase.removeChannel(channel);

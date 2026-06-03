@@ -57,7 +57,11 @@ export function DeleteConfirmModal({
             disabled={saving}
             className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center gap-2"
           >
-            {saving ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+            {saving ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Trash2 size={15} />
+            )}
             {confirmLabel}
           </button>
         </div>

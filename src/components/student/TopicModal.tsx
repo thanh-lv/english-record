@@ -89,8 +89,12 @@ export function TopicModal({
                 {isBongBe ? `T${selectedNumber}` : selectedNumber}
               </div>
               <div>
-                <span className={`text-xs font-black uppercase tracking-widest ${matchedRecording ? "text-emerald-500" : "text-blue-500"}`}>
-                  {matchedRecording ? "🎁 Bé đã làm thử thách này rồi" : "Topic"}
+                <span
+                  className={`text-xs font-black uppercase tracking-widest ${matchedRecording ? "text-emerald-500" : "text-blue-500"}`}
+                >
+                  {matchedRecording
+                    ? "🎁 Bé đã làm thử thách này rồi"
+                    : "Topic"}
                 </span>
                 <h3 className="text-3xl font-black text-slate-800 leading-tight tracking-tight">
                   {currentTopic.title}
@@ -125,7 +129,11 @@ export function TopicModal({
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-2">
-                    <ImageOff size={48} className="text-slate-200" strokeWidth={1.5} />
+                    <ImageOff
+                      size={48}
+                      className="text-slate-200"
+                      strokeWidth={1.5}
+                    />
                     <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
                       Không có ảnh
                     </span>
@@ -148,8 +156,13 @@ export function TopicModal({
                   onClick={onPlayTopicAudio}
                   className={`w-full py-4 rounded-full font-black text-md flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 border-b-4 ${isPlayingTopicAudio ? "bg-[#FFB74D] border-orange-800 text-white hover:bg-[#FFA726]" : "bg-[#E3F2FD] hover:bg-[#BBDEFB] border-[#90CAF9] text-[#1E88E5]"}`}
                 >
-                  <Volume2 className={isPlayingTopicAudio ? "animate-bounce" : ""} size={20} />
-                  {isPlayingTopicAudio ? "Đang phát audio câu hỏi" : "Bật audio câu hỏi"}
+                  <Volume2
+                    className={isPlayingTopicAudio ? "animate-bounce" : ""}
+                    size={20}
+                  />
+                  {isPlayingTopicAudio
+                    ? "Đang phát audio câu hỏi"
+                    : "Bật audio câu hỏi"}
                 </button>
               ) : (
                 <div className="text-xs text-slate-400 py-3 font-extrabold flex items-center gap-2 justify-center">
@@ -158,14 +171,18 @@ export function TopicModal({
                 </div>
               )}
 
-              {!isBongBe && (
-                matchedRecording ? (
+              {!isBongBe &&
+                (matchedRecording ? (
                   <div className="w-full pt-2 border-t-2 border-dashed border-slate-200 space-y-3">
                     <div className="bg-[#E8F5E9] border-2 border-[#A5D6A7] rounded-2xl p-4 flex flex-col items-center gap-3 shadow-inner">
                       <span className="text-xs font-black text-[#2E7D32] flex items-center gap-1">
                         <Eye size={16} /> Bài nói của con đã lưu rồi nè!
                       </span>
-                      <audio controls src={matchedRecording.audioUrl} className="w-full h-11" />
+                      <audio
+                        controls
+                        src={matchedRecording.audioUrl}
+                        className="w-full h-11"
+                      />
                     </div>
                     <TeacherFeedback recording={matchedRecording} />
                   </div>
@@ -180,14 +197,17 @@ export function TopicModal({
                     formatTime={formatTime}
                     size="lg"
                   />
-                )
-              )}
+                ))}
 
               {!isBongBe && (
                 <div className="w-full bg-[#FFFDE7] border-3 border-[#FFF59D] rounded-2xl p-4 flex items-start gap-3 shadow-sm">
-                  <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={24} />
+                  <AlertCircle
+                    className="text-amber-500 shrink-0 mt-0.5"
+                    size={24}
+                  />
                   <p className="text-sm font-black text-amber-900 leading-relaxed text-left">
-                    Lưu ý: Con trả lời bằng ý của mình, không trả lời giống câu mẫu nha! 🥰
+                    Lưu ý: Con trả lời bằng ý của mình, không trả lời giống câu
+                    mẫu nha! 🥰
                   </p>
                 </div>
               )}
@@ -248,7 +268,9 @@ export function TopicModal({
               }
               onClick={onSaveRecording}
               className={`w-full max-w-sm py-4 rounded-full font-black text-xl flex items-center justify-center gap-2 transition-all shadow-md border-b-4 ${
-                (isBongBe ? Object.keys(bongBeAudios).length === 0 : !audioBase64) || isSaving
+                (isBongBe
+                  ? Object.keys(bongBeAudios).length === 0
+                  : !audioBase64) || isSaving
                   ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed"
                   : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1976D2] text-white border-blue-900 hover:shadow-lg"
               }`}
@@ -299,14 +321,18 @@ function RecordingControls({
           >
             <Mic size={iconSize} />
           </button>
-          <span className="text-xs font-black text-slate-500">Bấm nút đỏ để bắt đầu trả lời! 🎙️</span>
+          <span className="text-xs font-black text-slate-500">
+            Bấm nút đỏ để bắt đầu trả lời! 🎙️
+          </span>
         </div>
       )}
 
       {isRecording && (
         <div className="flex flex-col items-center space-y-4 py-2">
           <div className="relative flex items-center justify-center">
-            <div className={`absolute ${pingSize} bg-rose-400/30 rounded-full animate-ping`}></div>
+            <div
+              className={`absolute ${pingSize} bg-rose-400/30 rounded-full animate-ping`}
+            ></div>
             <button
               type="button"
               onClick={onStop}
@@ -388,7 +414,11 @@ function BongBeQuestionPanel({
               <span className="text-sm font-black text-[#2E7D32] flex items-center gap-1">
                 <Eye size={16} /> Bài nói của con đã lưu rồi nè!
               </span>
-              <audio controls src={matchedQuestionRecording.audioUrl} className="w-full h-11" />
+              <audio
+                controls
+                src={matchedQuestionRecording.audioUrl}
+                className="w-full h-11"
+              />
             </div>
             <TeacherFeedback recording={matchedQuestionRecording} />
           </div>
@@ -430,7 +460,11 @@ function BongBeQuestionPanel({
 
             {audioBlob && !isRecording && (
               <div className="w-full max-w-md space-y-4 bg-white p-4 rounded-2xl border-2 border-amber-100 shadow-md">
-                <audio controls src={URL.createObjectURL(audioBlob)} className="w-full h-12" />
+                <audio
+                  controls
+                  src={URL.createObjectURL(audioBlob)}
+                  className="w-full h-12"
+                />
                 <div className="flex justify-center">
                   <button
                     type="button"
@@ -459,7 +493,14 @@ function BongBeQuestionPanel({
         <button
           type="button"
           disabled={activeQuestionIndex === currentTopic.questions.length - 1}
-          onClick={() => onQuestionChange(Math.min(currentTopic.questions.length - 1, activeQuestionIndex + 1))}
+          onClick={() =>
+            onQuestionChange(
+              Math.min(
+                currentTopic.questions.length - 1,
+                activeQuestionIndex + 1,
+              ),
+            )
+          }
           className={`px-6 py-2.5 font-black rounded-full text-white text-sm transition-all border-b-4 ${activeQuestionIndex === currentTopic.questions.length - 1 ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed" : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800 shadow-md"}`}
         >
           Câu tiếp theo ➡️
@@ -478,10 +519,17 @@ function StandardQuestionsPanel({ currentTopic }: { currentTopic: any }) {
 
       <div className="space-y-6">
         {currentTopic.questions.map((q: any, i: number) => (
-          <div key={q.id || i} className="space-y-3 pl-4 border-l-4 border-[#FF8A80]">
+          <div
+            key={q.id || i}
+            className="space-y-3 pl-4 border-l-4 border-[#FF8A80]"
+          >
             <div className="space-y-1">
-              <p className="text-lg font-black text-slate-700 leading-snug">{q.text}</p>
-              <p className="text-sm text-slate-400 italic font-bold">{q.translation || ""}</p>
+              <p className="text-lg font-black text-slate-700 leading-snug">
+                {q.text}
+              </p>
+              <p className="text-sm text-slate-400 italic font-bold">
+                {q.translation || ""}
+              </p>
             </div>
             {q.sample_answer && (
               <div className="bg-[#FFFDF6] rounded-2xl p-4 border-2 border-[#FFF59D]">

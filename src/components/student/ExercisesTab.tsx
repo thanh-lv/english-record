@@ -1,8 +1,20 @@
 import { CheckCircle } from "lucide-react";
 
 const PRIZES = [
-  "🎈", "🎁", "🌟", "🏅", "👑", "💎", "🎀", "🎯",
-  "🎨", "🎭", "🎪", "🎡", "🎢", "🎠",
+  "🎈",
+  "🎁",
+  "🌟",
+  "🏅",
+  "👑",
+  "💎",
+  "🎀",
+  "🎯",
+  "🎨",
+  "🎭",
+  "🎪",
+  "🎡",
+  "🎢",
+  "🎠",
 ];
 
 export function getPrizeForTopic(topicNum: number) {
@@ -24,7 +36,10 @@ export function ExercisesTab({
   myRecordings,
   onTopicClick,
 }: ExercisesTabProps) {
-  const totalNumbers = Array.from({ length: activeTopics.length }, (_, i) => i + 1);
+  const totalNumbers = Array.from(
+    { length: activeTopics.length },
+    (_, i) => i + 1,
+  );
 
   return (
     <div className="bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] border-3 border-white shadow-md">

@@ -47,7 +47,11 @@ export function StudentSidebar({
           >
             <Flame
               size={16}
-              className={streak > 0 ? "fill-orange-500 text-orange-600" : "text-slate-400"}
+              className={
+                streak > 0
+                  ? "fill-orange-500 text-orange-600"
+                  : "text-slate-400"
+              }
             />
             {streak > 0 ? `${streak} Ngày` : "Bắt đầu học!"}
           </div>
@@ -64,7 +68,12 @@ export function StudentSidebar({
               : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
           }`}
         >
-          <BookOpen size={20} className={activeTab === "exercises" ? "text-[#1E88E5]" : "text-slate-400"} />
+          <BookOpen
+            size={20}
+            className={
+              activeTab === "exercises" ? "text-[#1E88E5]" : "text-slate-400"
+            }
+          />
           Bài tập của con
           {activeTab === "exercises" && (
             <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />
@@ -80,7 +89,12 @@ export function StudentSidebar({
               : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
           }`}
         >
-          <Library size={20} className={activeTab === "stories" ? "text-purple-500" : "text-slate-400"} />
+          <Library
+            size={20}
+            className={
+              activeTab === "stories" ? "text-purple-500" : "text-slate-400"
+            }
+          />
           Truyện kể 📚
           {activeTab === "stories" && (
             <span className="ml-auto w-1.5 h-1.5 rounded-full bg-purple-500" />
@@ -96,7 +110,12 @@ export function StudentSidebar({
               : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
           }`}
         >
-          <Award size={20} className={activeTab === "achievements" ? "text-amber-500" : "text-slate-400"} />
+          <Award
+            size={20}
+            className={
+              activeTab === "achievements" ? "text-amber-500" : "text-slate-400"
+            }
+          />
           Thành tích 🏆
           {activeTab === "achievements" && (
             <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#FFB300]" />

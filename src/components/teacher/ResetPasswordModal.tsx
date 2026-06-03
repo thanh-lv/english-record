@@ -7,7 +7,10 @@ interface ResetPasswordModalProps {
   onClose: () => void;
 }
 
-export function ResetPasswordModal({ student, onClose }: ResetPasswordModalProps) {
+export function ResetPasswordModal({
+  student,
+  onClose,
+}: ResetPasswordModalProps) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -16,7 +19,10 @@ export function ResetPasswordModal({ student, onClose }: ResetPasswordModalProps
 
   const handleReset = async () => {
     const trimPass = password.trim();
-    if (trimPass.length < 3) { setError("Mật khẩu phải có ít nhất 3 ký tự."); return; }
+    if (trimPass.length < 3) {
+      setError("Mật khẩu phải có ít nhất 3 ký tự.");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
@@ -42,24 +48,35 @@ export function ResetPasswordModal({ student, onClose }: ResetPasswordModalProps
             <Key size={20} />
           </div>
           <div>
-            <h4 className="font-extrabold text-slate-800 text-lg leading-tight">Đổi mật khẩu</h4>
+            <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+              Đổi mật khẩu
+            </h4>
             <p className="text-sm font-bold text-slate-500">{student.name}</p>
           </div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">Mật khẩu mới</label>
+            <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+              Mật khẩu mới
+            </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
                 onKeyDown={(e) => e.key === "Enter" && handleReset()}
                 placeholder="Nhập mật khẩu mới..."
                 className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
               />
-              <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
@@ -72,7 +89,11 @@ export function ResetPasswordModal({ student, onClose }: ResetPasswordModalProps
         </div>
 
         <div className="flex gap-3 pt-1">
-          <button type="button" onClick={onClose} className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+          >
             Hủy
           </button>
           <button
@@ -81,7 +102,13 @@ export function ResetPasswordModal({ student, onClose }: ResetPasswordModalProps
             disabled={saving}
             className={`flex-1 py-2.5 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md flex items-center justify-center gap-2 border-b-4 ${success ? "bg-emerald-500 hover:bg-emerald-600 border-emerald-700" : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800"}`}
           >
-            {saving ? <Loader2 size={15} className="animate-spin" /> : success ? <Check size={15} /> : <Key size={15} />}
+            {saving ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : success ? (
+              <Check size={15} />
+            ) : (
+              <Key size={15} />
+            )}
             {success ? "Thành công" : "Đổi mật khẩu"}
           </button>
         </div>

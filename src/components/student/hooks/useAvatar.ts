@@ -2,12 +2,25 @@ import { useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
 export const AVATARS = [
-  "🐰", "🐯", "🐶", "🦊", "🐻", "🐼", "🐨", "🐸", "🐧", "🦄", "🦖", "🐳",
+  "🐰",
+  "🐯",
+  "🐶",
+  "🦊",
+  "🐻",
+  "🐼",
+  "🐨",
+  "🐸",
+  "🐧",
+  "🦄",
+  "🦖",
+  "🐳",
 ];
 
 export function useAvatar(profile: any) {
   const [currentAvatar, setCurrentAvatar] = useState(() => {
-    return profile.avatar || localStorage.getItem(`avatar_${profile.id}`) || "🐰";
+    return (
+      profile.avatar || localStorage.getItem(`avatar_${profile.id}`) || "🐰"
+    );
   });
   const [showAvatarSelect, setShowAvatarSelect] = useState(false);
 

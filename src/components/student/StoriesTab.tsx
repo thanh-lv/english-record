@@ -7,7 +7,12 @@ interface StoriesTabProps {
   onStoryClick: (story: any) => void;
 }
 
-export function StoriesTab({ dbStories, profile, studentAge, onStoryClick }: StoriesTabProps) {
+export function StoriesTab({
+  dbStories,
+  profile,
+  studentAge,
+  onStoryClick,
+}: StoriesTabProps) {
   return (
     <div className="bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] border-3 border-white shadow-md">
       <div className="mb-8 space-y-2 text-center">
@@ -15,7 +20,8 @@ export function StoriesTab({ dbStories, profile, studentAge, onStoryClick }: Sto
           <Library size={32} /> Góc Truyện Kể <Library size={32} />
         </h3>
         <p className="text-slate-500 font-bold text-sm">
-          Chào {profile.name}! Con {studentAge} tuổi nên cô tặng con những truyện này nhé:
+          Chào {profile.name}! Con {studentAge} tuổi nên cô tặng con những
+          truyện này nhé:
         </p>
       </div>
 
@@ -33,7 +39,11 @@ export function StoriesTab({ dbStories, profile, studentAge, onStoryClick }: Sto
           >
             <div className="w-full aspect-video bg-slate-100 relative">
               {story.image_url ? (
-                <img src={story.image_url} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={story.image_url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-5xl">
                   {story.emoji}
