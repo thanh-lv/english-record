@@ -922,8 +922,7 @@ function RecordingsPanel({
         <div className="divide-y divide-slate-100">
           {studentGroups.map((group, groupIdx) => {
             const isExpanded = expandedStudents.has(group.key);
-            const colorClass =
-              avatarColors[groupIdx % avatarColors.length];
+            const colorClass = avatarColors[groupIdx % avatarColors.length];
             const initials = group.studentName
               .split(" ")
               .map((w: string) => w[0])
@@ -959,8 +958,12 @@ function RecordingsPanel({
                     {group.records.length} bài
                   </span>
 
-                  <span className="shrink-0 text-slate-400 transition-transform duration-200"
-                    style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>
+                  <span
+                    className="shrink-0 text-slate-400 transition-transform duration-200"
+                    style={{
+                      transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                    }}
+                  >
                     <ChevronDown size={18} />
                   </span>
                 </button>
@@ -1093,59 +1096,120 @@ export default function TeacherView({
     return `${d.getHours()}:${d.getMinutes().toString().padStart(2, "0")} - ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
   };
 
+  const navItems = [
+    { id: "recordings" as const, label: "Bài nộp", icon: <Mic size={18} /> },
+    {
+      id: "topics" as const,
+      label: "Quản lý Topics",
+      icon: <BookOpen size={18} />,
+    },
+  ];
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-gradient-to-r from-[#2E7D32] to-[#4CAF50] text-white p-6 rounded-[2rem] shadow-md border-b-4 border-emerald-900 flex items-center justify-between">
+    <div className="animate-in fade-in duration-500 min-h-screen flex flex-col">
+      {/* Header banner */}
+      <div className="bg-gradient-to-r from-[#2E7D32] to-[#4CAF50] text-white px-6 py-5 rounded-[2rem] shadow-md border-b-4 border-emerald-900 flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-2xl md:text-3xl font-black mb-1">
+          <h2 className="text-2xl md:text-3xl font-black mb-0.5">
             Bảng điều khiển của {profile.name} 📚
           </h2>
-          <p className="text-emerald-100 font-bold opacity-90">
+          <p className="text-emerald-100 font-bold opacity-90 text-sm">
             Tổng số bài học sinh đã nộp: {recordings.length}
           </p>
         </div>
-        <div className="hidden sm:flex w-16 h-16 bg-white/20 rounded-full items-center justify-center border-2 border-white/20">
-          <Key size={32} />
+        <div className="hidden sm:flex w-14 h-14 bg-white/20 rounded-full items-center justify-center border-2 border-white/20">
+          <Key size={28} />
         </div>
       </div>
 
-      {/* Tab switcher */}
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("recordings")}
-          className={`px-5 py-2.5 rounded-full font-extrabold text-sm border-2 transition-all flex items-center gap-2 ${activeTab === "recordings" ? "bg-[#1E88E5] text-white border-blue-800 shadow" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
-        >
-          <Mic size={15} /> Bài nộp
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("topics")}
-          className={`px-5 py-2.5 rounded-full font-extrabold text-sm border-2 transition-all flex items-center gap-2 ${activeTab === "topics" ? "bg-[#1E88E5] text-white border-blue-800 shadow" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
-        >
-          <BookOpen size={15} /> Quản lý Topics
-        </button>
+      {/* Sidebar + content */}
+      <div className="flex gap-5 flex-1 items-start">
+        {/* ── Sidebar (desktop) ── */}
+        <aside className="hidden md:flex flex-col w-56 shrink-0 bg-white rounded-[1.5rem] shadow-sm border border-slate-100 overflow-hidden sticky top-4">
+          {/* brand strip */}
+          <div className="px-5 pt-5 pb-3 border-b border-slate-100">
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
+              Menu
+            </p>
+          </div>
+          <nav className="p-3 space-y-1">
+            {navItems.map((item) => {
+              const active = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-extrabold text-sm transition-all ${
+                    active
+                      ? "bg-[#E3F2FD] text-[#1E88E5] shadow-sm"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                  }`}
+                >
+                  <span
+                    className={active ? "text-[#1E88E5]" : "text-slate-400"}
+                  >
+                    {item.icon}
+                  </span>
+                  {item.label}
+                  {active && (
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
+
+        {/* ── Main content ── */}
+        <div className="flex-1 min-w-0 space-y-4 pb-24 md:pb-0">
+          {activeTab === "recordings" && appError && (
+            <div className="bg-[#FFEBEE] border-2 border-[#FFCDD2] text-rose-700 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+              <AlertCircle size={18} className="shrink-0" />
+              <span className="font-bold">{appError}</span>
+            </div>
+          )}
+
+          {activeTab === "recordings" && (
+            <RecordingsPanel
+              recordings={recordings}
+              loading={loading}
+              formatDate={formatDate}
+              onDeleteRequest={(id) => setDeleteTargetId(id)}
+            />
+          )}
+
+          {activeTab === "topics" && <TopicsManager />}
+        </div>
       </div>
 
-      {activeTab === "topics" && <TopicsManager />}
-
-      {activeTab === "recordings" && appError && (
-        <div className="bg-[#FFEBEE] border-2 border-[#FFCDD2] text-rose-700 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
-          <AlertCircle size={18} className="shrink-0" />
-          <span className="font-bold">{appError}</span>
+      {/* ── Bottom nav (mobile) ── */}
+      <div className="fixed bottom-0 inset-x-0 md:hidden z-40">
+        <div className="mx-3 mb-3 bg-white/90 backdrop-blur-md border border-slate-200 rounded-[1.5rem] shadow-xl flex overflow-hidden">
+          {navItems.map((item) => {
+            const active = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveTab(item.id)}
+                className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-extrabold transition-all ${
+                  active ? "text-[#1E88E5]" : "text-slate-400"
+                }`}
+              >
+                <span
+                  className={`p-1.5 rounded-xl transition-all ${active ? "bg-[#E3F2FD]" : ""}`}
+                >
+                  {item.icon}
+                </span>
+                {item.label}
+              </button>
+            );
+          })}
         </div>
-      )}
+      </div>
 
-      {activeTab === "recordings" && (
-        <RecordingsPanel
-          recordings={recordings}
-          loading={loading}
-          formatDate={formatDate}
-          onDeleteRequest={(id) => setDeleteTargetId(id)}
-        />
-      )}
-
-
+      {/* Delete confirmation modal */}
       {deleteTargetId !== null && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 p-6 border-4 border-rose-100 space-y-5">
