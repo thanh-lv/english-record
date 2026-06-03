@@ -63,7 +63,7 @@ export function StudentsManager() {
         const [studRes, recRes, topRes] = await Promise.all([
           supabase
             .from("profiles")
-            .select("*")
+            .select("id, name, role, avatar, year_born, password")
             .eq("role", "student")
             .order("name"),
           supabase

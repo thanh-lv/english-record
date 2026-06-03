@@ -43,7 +43,7 @@ export default function LoginScreen({
         const dbOperation = async () => {
           const { data: existingUser, error: searchError } = await supabase
             .from("profiles")
-            .select("*")
+            .select("id, name, role, password, avatar, year_born, auth_user_id")
             .ilike("name", trimmedName)
             .maybeSingle();
           if (searchError) throw searchError;

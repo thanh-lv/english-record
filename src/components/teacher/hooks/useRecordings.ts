@@ -18,7 +18,9 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
     try {
       const { data, error } = await supabase
         .from("recordings")
-        .select("*")
+        .select(
+          "id, studentName, topicNumber, topic, questionText, audioUrl, createdAt, teacher_rating, teacher_feedback, student_reaction, userId",
+        )
         .order("createdAt", { ascending: false });
       if (error) throw error;
       if (data) setRecordings(data);

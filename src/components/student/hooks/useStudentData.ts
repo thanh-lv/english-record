@@ -51,7 +51,9 @@ export function useStudentData(
       try {
         const { data, error } = await supabase
           .from("recordings")
-          .select("*")
+          .select(
+            "id, topicNumber, audioUrl, createdAt, teacher_rating, teacher_feedback, student_reaction, question_id, questionText, topic, topic_id",
+          )
           .eq("studentName", profile.name.trim());
         if (error) throw error;
         if (data) {
@@ -93,7 +95,7 @@ export function useStudentData(
         const targetAgeGroup = studentAge <= 5 ? "kindergarten" : "primary";
         const { data, error } = await supabase
           .from("stories")
-          .select("*")
+          .select("id, title, type, emoji, image_url, content, age_group")
           .eq("age_group", targetAgeGroup)
           .order("created_at", { ascending: false });
         if (error) throw error;

@@ -50,7 +50,9 @@ export function StoriesManager() {
     try {
       const { data, error } = await supabase
         .from("stories")
-        .select("*")
+        .select(
+          "id, title, type, emoji, image_url, content, age_group, created_at",
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       setStories(data || []);
