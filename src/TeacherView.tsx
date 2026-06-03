@@ -79,7 +79,7 @@ export default function TeacherView({
       <div className="flex gap-5 flex-1 items-start">
         <TeacherSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <div className="flex-1 min-w-0 space-y-4 pb-24 md:pb-0">
+        <div className="flex-1 min-w-0 space-y-4 pb-20 md:pb-0">
           {activeTab === "recordings" && appError && (
             <div className="bg-[#FFEBEE] border-2 border-[#FFCDD2] text-rose-700 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
               <AlertCircle size={18} className="shrink-0" />

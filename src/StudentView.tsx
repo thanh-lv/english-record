@@ -250,7 +250,7 @@ export default function StudentView({
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:gap-6 animate-in fade-in duration-500 pb-24 md:pb-0">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-6 animate-in fade-in duration-500 pb-20 md:pb-0">
       <StudentSidebar
         profile={profile}
         currentAvatar={currentAvatar}

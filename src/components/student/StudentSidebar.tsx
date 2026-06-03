@@ -121,8 +121,8 @@ export function StudentSidebar({
       </div>
 
       {/* Mobile bottom nav */}
-      <div className="fixed bottom-0 inset-x-0 md:hidden z-40">
-        <div className="mx-3 mb-3 bg-white/90 backdrop-blur-md border border-slate-200 rounded-[1.5rem] shadow-xl flex overflow-hidden">
+      <div className="fixed bottom-0 inset-x-0 md:hidden z-40 bg-white border-t-2 border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="flex pb-safe">
           {NAV_ITEMS.map((item) => {
             const active = activeTab === item.id;
             return (

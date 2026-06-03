@@ -97,7 +97,16 @@ export function AudioPlayer({ src }: { src: string }) {
       <button
         type="button"
         onClick={changeSpeed}
-        className="shrink-0 bg-white border-2 border-slate-200 text-slate-600 font-black text-[10px] px-2 py-1 rounded-lg hover:bg-slate-50 hover:border-blue-400 transition-colors w-10 text-center"
+        className={`shrink-0 font-black text-xs px-2.5 py-1.5 rounded-xl transition-all active:scale-95 border-b-2 min-w-[42px] text-center ${
+          playbackRate === 1
+            ? "bg-slate-100 border-slate-300 text-slate-500 hover:bg-slate-200"
+            : playbackRate === 1.25
+              ? "bg-blue-100 border-blue-300 text-blue-600"
+              : playbackRate === 1.5
+                ? "bg-amber-100 border-amber-300 text-amber-600"
+                : "bg-rose-100 border-rose-300 text-rose-600"
+        }`}
+        title="Đổi tốc độ phát"
       >
         {playbackRate}x
       </button>

@@ -17,6 +17,9 @@ export default {
       animation: {
         fall: "fall linear infinite",
       },
+      padding: {
+        safe: "env(safe-area-inset-bottom, 0px)",
+      },
     },
   },
   plugins: [],
