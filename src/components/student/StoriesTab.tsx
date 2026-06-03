@@ -25,7 +25,7 @@ export function StoriesTab({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
         {dbStories.length === 0 && (
           <div className="col-span-full py-12 text-center text-slate-400 font-bold bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
             Chưa có truyện nào phù hợp với tuổi của con.
@@ -34,10 +34,10 @@ export function StoriesTab({
         {dbStories.map((story) => (
           <div
             key={story.id}
-            className="bg-white rounded-[2rem] border-4 border-purple-100 shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col items-center text-center overflow-hidden"
+            className="bg-white rounded-[1.5rem] border-3 border-purple-100 shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col overflow-hidden"
             onClick={() => onStoryClick(story)}
           >
-            <div className="w-full aspect-video bg-slate-100 relative">
+            <div className="w-full aspect-square bg-slate-100 relative">
               {story.image_url ? (
                 <img
                   src={story.image_url}
@@ -50,11 +50,11 @@ export function StoriesTab({
                 </div>
               )}
             </div>
-            <div className="p-4 w-full">
-              <h4 className="font-extrabold text-slate-800 text-lg leading-tight mb-1">
+            <div className="p-3">
+              <h4 className="font-extrabold text-slate-800 text-sm leading-tight mb-1 line-clamp-2">
                 {story.title}
               </h4>
-              <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
+              <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
                 {story.type}
               </span>
             </div>

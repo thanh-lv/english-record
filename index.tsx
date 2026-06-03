@@ -98,11 +98,22 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-12 h-12 text-[#FF8A80] animate-spin" />
-        <p className="text-slate-500 font-bold text-sm tracking-wide">
-          Đang kết nối hệ thống học tập dễ thương...
-        </p>
+      <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] flex flex-col items-center justify-center gap-5">
+        <div className="relative">
+          <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-pink-100 rounded-full flex items-center justify-center text-5xl shadow-lg border-4 border-white">
+            🎤
+          </div>
+          <span className="absolute -top-1 -right-1 text-xl animate-bounce">✨</span>
+        </div>
+        <div className="text-center space-y-1">
+          <p className="text-xl font-black bg-gradient-to-r from-[#1E88E5] to-[#F06292] bg-clip-text text-transparent">
+            SpeakwithMsMy
+          </p>
+          <p className="text-slate-400 font-bold text-xs tracking-wide flex items-center gap-2 justify-center">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            Đang kết nối...
+          </p>
+        </div>
       </div>
     );
   }

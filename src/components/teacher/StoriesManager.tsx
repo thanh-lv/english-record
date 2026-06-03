@@ -248,13 +248,13 @@ export function StoriesManager() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
         {stories.map((story) => (
           <div
             key={story.id}
             className="bg-white rounded-[1.5rem] border-2 border-slate-100 overflow-hidden shadow-sm flex flex-col"
           >
-            <div className="aspect-video bg-slate-100 relative">
+            <div className="aspect-square sm:aspect-video bg-slate-100 relative">
               {story.image_url ? (
                 <img
                   src={story.image_url}
@@ -267,25 +267,25 @@ export function StoriesManager() {
                 </div>
               )}
             </div>
-            <div className="p-4 flex flex-col flex-1">
-              <h4 className="font-extrabold text-slate-800 line-clamp-1 mb-1">
+            <div className="p-3 flex flex-col flex-1">
+              <h4 className="font-extrabold text-slate-800 text-sm line-clamp-1 mb-0.5">
                 {story.title}
               </h4>
-              <p className="text-xs font-bold text-purple-600 mb-3">
-                {story.type} • {story.age_group}
+              <p className="text-xs font-bold text-purple-600 mb-2 line-clamp-1">
+                {story.type}
               </p>
-              <div className="mt-auto flex gap-2 pt-2 border-t border-slate-100">
+              <div className="mt-auto flex gap-1.5 pt-2 border-t border-slate-100">
                 <button
                   onClick={() => openEditStory(story)}
                   className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
                 >
-                  <Pencil size={14} /> Sửa
+                  <Pencil size={12} /> Sửa
                 </button>
                 <button
                   onClick={(e) => handleDeleteStory(story, e)}
                   className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
                 >
-                  <Trash2 size={14} /> Xóa
+                  <Trash2 size={12} /> Xóa
                 </button>
               </div>
             </div>

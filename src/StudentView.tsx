@@ -1,4 +1,3 @@
-import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AchievementsTab } from "./components/student/AchievementsTab";
 import { AvatarSelectModal } from "./components/student/AvatarSelectModal";
@@ -240,11 +239,25 @@ export default function StudentView({
 
   if (topicsLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <Loader2 className="w-10 h-10 text-[#FF8A80] animate-spin" />
-        <p className="text-slate-400 font-bold text-sm">
-          Đang tải danh sách bài học...
-        </p>
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 pb-20 md:pb-0 animate-pulse">
+        {/* Sidebar skeleton */}
+        <div className="hidden md:block w-64 shrink-0 space-y-4">
+          <div className="h-48 bg-slate-100 rounded-[2rem]" />
+          <div className="h-36 bg-slate-100 rounded-[2rem]" />
+        </div>
+        {/* Mobile profile bar skeleton */}
+        <div className="md:hidden h-16 bg-slate-100 rounded-[1.5rem] mb-1" />
+        {/* Content skeleton */}
+        <div className="flex-1 space-y-4">
+          <div className="bg-white/70 p-6 rounded-[2rem] border-3 border-white shadow-sm space-y-4">
+            <div className="h-6 w-40 bg-slate-100 rounded-xl" />
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-28 bg-slate-100 rounded-[2rem]" />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
