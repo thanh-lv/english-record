@@ -98,7 +98,7 @@ export function ExercisesTab({
               key={num}
               type="button"
               onClick={(e) => onTopicClick(num, e)}
-              className={`cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1.5 group border-3 relative px-2 py-3 ${
+              className={`cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1.5 group border-3 relative px-2 py-4 h-28 ${
                 isCompleted
                   ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
                   : isPartiallyCompleted

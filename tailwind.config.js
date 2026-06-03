@@ -6,7 +6,18 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      keyframes: {
+        fall: {
+          "0%": { transform: "translateY(-10%) rotate(0deg)", opacity: "1" },
+          "80%": { opacity: "1" },
+          "100%": { transform: "translateY(110vh) rotate(720deg)", opacity: "0" },
+        },
+      },
+      animation: {
+        fall: "fall linear infinite",
+      },
+    },
   },
   plugins: [],
 };

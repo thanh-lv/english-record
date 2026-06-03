@@ -2,6 +2,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AchievementsTab } from "./components/student/AchievementsTab";
 import { AvatarSelectModal } from "./components/student/AvatarSelectModal";
+import { CompletionCelebration } from "./components/student/CompletionCelebration";
 import { ExercisesTab } from "./components/student/ExercisesTab";
 import { StoriesTab } from "./components/student/StoriesTab";
 import { StoryModal } from "./components/student/StoryModal";
@@ -38,6 +39,8 @@ export default function StudentView({
     useAvatar(profile);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>("exercises");
+  const [showCelebration, setShowCelebration] = useState(false);
+  const prevCompletedCount = useRef(0);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [currentTopic, setCurrentTopic] = useState<any>(null);
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
@@ -52,6 +55,24 @@ export default function StudentView({
   const [isPlayingStoryAudio, setIsPlayingStoryAudio] = useState(false);
 
   const topicAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const isDataReady = useRef(false);
+
+  useEffect(() => {
+    if (topicsLoading || activeTopics.length === 0) return;
+    const uniqueCompleted = new Set(completedNumbers).size;
+
+    if (!isDataReady.current) {
+      isDataReady.current = true;
+      prevCompletedCount.current = uniqueCompleted;
+      return;
+    }
+
+    if (uniqueCompleted > prevCompletedCount.current) {
+      setShowCelebration(true);
+    }
+    prevCompletedCount.current = uniqueCompleted;
+  }, [completedNumbers, activeTopics, topicsLoading]);
 
   const recording = useRecording({
     user,
@@ -312,6 +333,13 @@ export default function StudentView({
           onPlayAudio={playStoryAudio}
         />
       )}
+
+      <CompletionCelebration
+        show={showCelebration}
+        completedCount={new Set(completedNumbers).size}
+        totalTopics={activeTopics.length}
+        onClose={() => setShowCelebration(false)}
+      />
     </div>
   );
 }
