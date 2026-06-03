@@ -21,6 +21,9 @@ import {
   Search,
   CheckCircle2,
   Circle,
+  Eye,
+  EyeOff,
+  UserPlus,
 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { s3Client, S3_BUCKET } from "./lib/s3";
@@ -862,6 +865,14 @@ function StudentsManager() {
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
+  // Create student form state
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createName, setCreateName] = useState("");
+  const [createPassword, setCreatePassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [createError, setCreateError] = useState("");
+  const [createSaving, setCreateSaving] = useState(false);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -893,6 +904,49 @@ function StudentsManager() {
     };
     load();
   }, []);
+
+  const createStudent = async () => {
+    const trimName = createName.trim();
+    const trimPass = createPassword.trim();
+    if (trimName.length < 2) {
+      setCreateError("Tên phải có ít nhất 2 ký tự.");
+      return;
+    }
+    if (trimPass.length < 3) {
+      setCreateError("Mật khẩu phải có ít nhất 3 ký tự.");
+      return;
+    }
+    setCreateSaving(true);
+    setCreateError("");
+    try {
+      // Check duplicate name
+      const { data: existing } = await supabaseForStudents
+        .from("profiles")
+        .select("id")
+        .ilike("name", trimName)
+        .maybeSingle();
+      if (existing) {
+        setCreateError("Tên này đã tồn tại. Vui lòng chọn tên khác.");
+        return;
+      }
+      const { data: inserted, error } = await supabaseForStudents
+        .from("profiles")
+        .insert({ name: trimName, role: "student", password: trimPass })
+        .select()
+        .single();
+      if (error) throw error;
+      setStudents((prev) =>
+        [...prev, inserted].sort((a, b) => a.name.localeCompare(b.name)),
+      );
+      setCreateName("");
+      setCreatePassword("");
+      setShowCreateForm(false);
+    } catch (err: any) {
+      setCreateError(err.message || "Không thể tạo học sinh. Vui lòng thử lại.");
+    } finally {
+      setCreateSaving(false);
+    }
+  };
 
   const formatDate = (ts: string) => {
     const d = new Date(ts);
@@ -980,6 +1034,18 @@ function StudentsManager() {
           <h3 className="font-extrabold text-slate-700 text-sm">
             Danh sách học sinh
           </h3>
+          <button
+            type="button"
+            onClick={() => {
+              setShowCreateForm(true);
+              setCreateName("");
+              setCreatePassword("");
+              setCreateError("");
+            }}
+            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border-2 border-emerald-200 hover:bg-emerald-100 rounded-xl text-xs font-extrabold transition-all"
+          >
+            <UserPlus size={14} /> Thêm học sinh
+          </button>
         </div>
 
         {filtered.length === 0 ? (
@@ -1141,6 +1207,115 @@ function StudentsManager() {
           </div>
         )}
       </div>
+
+      {/* ── Create Student Modal ── */}
+      {showCreateForm && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
+                <UserPlus size={20} />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+                  Thêm học sinh mới
+                </h4>
+                <p className="text-xs text-slate-400 font-medium">
+                  Tạo tài khoản cho học sinh
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCreateForm(false)}
+                className="ml-auto p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Form */}
+            <div className="space-y-3">
+              {/* Name */}
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+                  Tên học sinh
+                </label>
+                <input
+                  autoFocus
+                  value={createName}
+                  onChange={(e) => {
+                    setCreateName(e.target.value);
+                    setCreateError("");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && createStudent()}
+                  placeholder="Ví dụ: Tuệ Minh, Bông bé..."
+                  className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+                  Mật khẩu
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={createPassword}
+                    onChange={(e) => {
+                      setCreatePassword(e.target.value);
+                      setCreateError("");
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && createStudent()}
+                    placeholder="Nhập mật khẩu..."
+                    className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Error */}
+              {createError && (
+                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                  <AlertCircle size={14} className="shrink-0" />
+                  {createError}
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setShowCreateForm(false)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={createStudent}
+                disabled={createSaving}
+                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-emerald-900 flex items-center justify-center gap-2"
+              >
+                {createSaving ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  <Check size={15} />
+                )}
+                Tạo học sinh
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1175,15 +1350,15 @@ function RecordingsPanel({
   const studentGroups = React.useMemo(() => {
     const map = new Map<
       string,
-      { key: string; studentName: string; userId: string; records: any[] }
+      { key: string; studentName: string; records: any[] }
     >();
     for (const rec of recordings) {
-      const key = rec.userId || rec.studentName;
+      // Always group by studentName (normalized) — userId changes per browser session
+      const key = (rec.studentName || "").trim().toLowerCase();
       if (!map.has(key)) {
         map.set(key, {
           key,
           studentName: rec.studentName,
-          userId: rec.userId || "",
           records: [],
         });
       }
@@ -1195,6 +1370,7 @@ function RecordingsPanel({
         new Date(a.records[0].createdAt).getTime(),
     );
   }, [recordings]);
+
 
   const avatarColors = [
     "bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]",
