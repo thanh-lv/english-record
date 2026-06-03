@@ -836,6 +836,186 @@ function TopicsManager() {
   );
 }
 
+function RecordingsPanel({
+  recordings,
+  loading,
+  formatDate,
+  onDeleteRequest,
+}: {
+  recordings: any[];
+  loading: boolean;
+  formatDate: (ts: string) => string;
+  onDeleteRequest: (id: string) => void;
+}) {
+  const [expandedStudents, setExpandedStudents] = useState<Set<string>>(
+    new Set(),
+  );
+
+  const toggleStudent = (key: string) => {
+    setExpandedStudents((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  };
+
+  const studentGroups = React.useMemo(() => {
+    const map = new Map<
+      string,
+      { key: string; studentName: string; userId: string; records: any[] }
+    >();
+    for (const rec of recordings) {
+      const key = rec.userId || rec.studentName;
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          studentName: rec.studentName,
+          userId: rec.userId || "",
+          records: [],
+        });
+      }
+      map.get(key)!.records.push(rec);
+    }
+    return Array.from(map.values()).sort(
+      (a, b) =>
+        new Date(b.records[0].createdAt).getTime() -
+        new Date(a.records[0].createdAt).getTime(),
+    );
+  }, [recordings]);
+
+  const avatarColors = [
+    "bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]",
+    "bg-[#F3E5F5] text-[#8E24AA] border-[#CE93D8]",
+    "bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]",
+    "bg-[#FFF3E0] text-[#E65100] border-[#FFCC80]",
+    "bg-[#FCE4EC] text-[#C62828] border-[#F48FB1]",
+    "bg-[#E0F7FA] text-[#00838F] border-[#80DEEA]",
+  ];
+
+  return (
+    <div className="bg-white rounded-[2rem] shadow-md border-3 border-[#FFF59D] overflow-hidden">
+      <div className="p-4 border-b-2 border-slate-100 flex items-center gap-2 bg-[#FFFDF6]">
+        <Clock size={18} className="text-slate-500" />
+        <h3 className="font-extrabold text-slate-700 text-md">
+          Lịch sử bài nộp mới nhất
+        </h3>
+      </div>
+
+      {loading ? (
+        <div className="p-12 text-center text-slate-400 font-bold animate-pulse">
+          Đang tải dữ liệu...
+        </div>
+      ) : recordings.length === 0 ? (
+        <div className="p-12 text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Mic size={24} className="text-slate-400" />
+          </div>
+          <p className="text-slate-500 font-bold">
+            Chưa có bài nộp nào từ học sinh.
+          </p>
+        </div>
+      ) : (
+        <div className="divide-y divide-slate-100">
+          {studentGroups.map((group, groupIdx) => {
+            const isExpanded = expandedStudents.has(group.key);
+            const colorClass =
+              avatarColors[groupIdx % avatarColors.length];
+            const initials = group.studentName
+              .split(" ")
+              .map((w: string) => w[0])
+              .join("")
+              .toUpperCase()
+              .slice(0, 2);
+            const latestDate = formatDate(group.records[0].createdAt);
+
+            return (
+              <div key={group.key}>
+                <button
+                  type="button"
+                  onClick={() => toggleStudent(group.key)}
+                  className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
+                >
+                  <span
+                    className={`w-10 h-10 rounded-2xl border-2 font-black text-sm flex items-center justify-center shrink-0 ${colorClass}`}
+                  >
+                    {initials}
+                  </span>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="font-extrabold text-slate-800 text-base truncate">
+                      {group.studentName}
+                    </p>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
+                      {/* {group.userId ? `ID: ${group.userId} · ` : ""} */}
+                      Mới nhất: {latestDate}
+                    </p>
+                  </div>
+
+                  <span className="shrink-0 px-3 py-1 bg-[#E3F2FD] text-[#1E88E5] text-xs font-black rounded-full border border-[#90CAF9]">
+                    {group.records.length} bài
+                  </span>
+
+                  <span className="shrink-0 text-slate-400 transition-transform duration-200"
+                    style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>
+                    <ChevronDown size={18} />
+                  </span>
+                </button>
+
+                {isExpanded && (
+                  <div className="divide-y divide-slate-50 bg-slate-50/50 border-t border-slate-100">
+                    {group.records.map((rec: any) => (
+                      <div
+                        key={rec.id}
+                        className="px-5 py-4 flex flex-col md:flex-row gap-4 md:items-center hover:bg-white transition-colors"
+                      >
+                        <div className="flex-1 space-y-1 pl-13">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[#E3F2FD] border border-[#90CAF9] text-[#1E88E5] font-black text-xs shadow-sm shrink-0">
+                              {rec.topicNumber}
+                            </span>
+                            <span className="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded font-bold">
+                              {formatDate(rec.createdAt)}
+                            </span>
+                          </div>
+                          <p className="text-slate-600 text-sm font-bold bg-white p-2.5 rounded-xl border border-slate-100 mt-1">
+                            Topic: {rec.topic}
+                          </p>
+                          <p className="text-slate-600 text-sm font-bold bg-white p-2.5 rounded-xl border border-slate-100">
+                            Question: {rec.questionText}
+                          </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto mt-1 md:mt-0 pl-10 md:pl-0">
+                          <AudioPlayer src={rec.audioUrl} />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              onDeleteRequest(rec.id);
+                            }}
+                            className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-2xl transition-all border-2 border-transparent hover:border-rose-100"
+                            title="Xóa bài nộp"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function TeacherView({
   user,
   profile,
@@ -957,74 +1137,14 @@ export default function TeacherView({
       )}
 
       {activeTab === "recordings" && (
-        <div className="bg-white rounded-[2rem] shadow-md border-3 border-[#FFF59D] overflow-hidden">
-          <div className="p-4 border-b-2 border-slate-100 flex items-center gap-2 bg-[#FFFDF6]">
-            <Clock size={18} className="text-slate-500" />
-            <h3 className="font-extrabold text-slate-700 text-md">
-              Lịch sử bài nộp mới nhất
-            </h3>
-          </div>
-
-          {loading ? (
-            <div className="p-12 text-center text-slate-400 font-bold animate-pulse">
-              Đang tải dữ liệu...
-            </div>
-          ) : recordings.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mic size={24} className="text-slate-400" />
-              </div>
-              <p className="text-slate-500 font-bold">
-                Chưa có bài nộp nào từ học sinh.
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {recordings.map((rec) => (
-                <div
-                  key={rec.id}
-                  className="p-4 sm:p-6 hover:bg-slate-50 transition-all flex flex-col md:flex-row gap-4 md:items-center"
-                >
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-[#E3F2FD] border border-[#90CAF9] text-[#1E88E5] font-black text-sm shadow-sm">
-                        {rec.topicNumber}
-                      </span>
-                      <h4 className="font-extrabold text-xl text-slate-800">
-                        {rec.studentName}
-                      </h4>
-                      <span className="text-xs text-slate-400 ml-auto md:ml-0 bg-slate-100 px-2.5 py-1 rounded font-bold">
-                        {formatDate(rec.createdAt)}
-                      </span>
-                    </div>
-                    <p className="text-slate-600 text-sm ml-12 line-clamp-2 font-bold bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                      Topic: {rec.topic}
-                    </p>
-                    <p className="text-slate-600 text-sm ml-12 line-clamp-2 font-bold bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                      Question: {rec.questionText}
-                    </p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto mt-2 md:mt-0 pl-12 md:pl-0">
-                    <AudioPlayer src={rec.audioUrl} />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setDeleteTargetId(rec.id);
-                      }}
-                      className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-2xl transition-all border-2 border-transparent hover:border-rose-100"
-                      title="Xóa bài nộp"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <RecordingsPanel
+          recordings={recordings}
+          loading={loading}
+          formatDate={formatDate}
+          onDeleteRequest={(id) => setDeleteTargetId(id)}
+        />
       )}
+
 
       {deleteTargetId !== null && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
