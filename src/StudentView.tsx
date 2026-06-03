@@ -74,6 +74,10 @@ export default function StudentView({
     prevCompletedCount.current = uniqueCompleted;
   }, [completedNumbers, activeTopics, topicsLoading]);
 
+  const retryRecordingRef = useRef<{ id: string; topicNumber: number } | null>(
+    null,
+  );
+
   const recording = useRecording({
     user,
     profile,
@@ -81,8 +85,13 @@ export default function StudentView({
     selectedNumber,
     currentTopic,
     activeQuestionIndex,
+    existingRecordingId: retryRecordingRef.current?.id ?? null,
     onSaveSuccess: (saved, completedNumber) => {
-      setMyRecordings((prev) => [...prev, ...saved]);
+      const oldId = retryRecordingRef.current?.id;
+      setMyRecordings((prev) => {
+        const withoutOld = oldId ? prev.filter((r) => r.id !== oldId) : prev;
+        return [...withoutOld, ...saved];
+      });
       setCompletedNumbers((prev) => {
         if (completedNumber && !prev.includes(completedNumber)) {
           return [...prev, completedNumber];
@@ -192,6 +201,17 @@ export default function StudentView({
     (rec) => rec.topicNumber === selectedNumber,
   );
 
+  const canRetry =
+    !isBongBe &&
+    !!matchedRecording &&
+    matchedRecording.teacher_rating > 0 &&
+    matchedRecording.teacher_rating <= 3;
+
+  retryRecordingRef.current =
+    canRetry && matchedRecording
+      ? { id: matchedRecording.id, topicNumber: matchedRecording.topicNumber }
+      : null;
+
   const matchedQuestionRecording =
     isBongBe && currentTopic && currentQuestionId
       ? myRecordings.find(
@@ -288,6 +308,7 @@ export default function StudentView({
           matchedQuestionRecording={matchedQuestionRecording}
           isTopicFullyRecorded={isTopicFullyRecorded}
           hasPendingAudios={recording.hasPendingAudios}
+          canRetry={canRetry}
           onClose={handleCloseTopicModal}
           onPlayTopicAudio={playTopicAudio}
           onStartRecording={recording.startRecording}

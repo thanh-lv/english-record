@@ -1,4 +1,4 @@
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Star } from "lucide-react";
 
 const PRIZES = [
   "🎈",
@@ -93,20 +93,28 @@ export function ExercisesTab({
           const progressPct =
             totalQs > 0 ? Math.round((answeredQs / totalQs) * 100) : 0;
 
+          const topicRating = !isBongBe
+            ? (myRecordings.find((rec) => rec.topicNumber === num)
+                ?.teacher_rating ?? 0)
+            : 0;
+          const needsRetry = isCompleted && topicRating > 0 && topicRating <= 3;
+
           return (
             <button
               key={num}
               type="button"
               onClick={(e) => onTopicClick(num, e)}
-              className={`cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1.5 group border-3 relative px-2 py-4 h-28 ${
-                isCompleted
-                  ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
-                  : isPartiallyCompleted
-                    ? "bg-orange-50/80 text-orange-600 border-orange-300 hover:bg-orange-100"
-                    : "bg-[#FFF0F0] hover:bg-[#FFCDD2] text-[#E53935] border-[#EF9A9A]"
+              className={`cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1 group border-3 relative px-2 py-3 h-28 ${
+                needsRetry
+                  ? "bg-amber-50 text-amber-600 border-amber-300 hover:bg-amber-100"
+                  : isCompleted
+                    ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
+                    : isPartiallyCompleted
+                      ? "bg-orange-50/80 text-orange-600 border-orange-300 hover:bg-orange-100"
+                      : "bg-[#FFF0F0] hover:bg-[#FFCDD2] text-[#E53935] border-[#EF9A9A]"
               }`}
             >
-              {isCompleted && (
+              {isCompleted && !needsRetry && (
                 <span className="absolute -top-3 -right-3 text-2xl drop-shadow-md animate-in zoom-in spin-in-12 duration-500">
                   {getPrizeForTopic(num)}
                 </span>
@@ -114,22 +122,48 @@ export function ExercisesTab({
               <span className="text-3xl font-black tracking-tight group-hover:scale-125 transition-transform duration-300">
                 {isBongBe ? `Test ${num}` : num}
               </span>
-              {(isCompleted || isPartiallyCompleted) && (
-                <span
-                  className={`text-[10px] uppercase tracking-wider font-extrabold flex items-center gap-1 ${isCompleted ? "text-emerald-600" : "text-orange-600"}`}
-                >
-                  {isCompleted && <CheckCircle size={10} />} {progressText}
+
+              {topic?.title && (
+                <span className="text-[9px] font-extrabold text-center leading-tight line-clamp-1 px-1 opacity-70 w-full truncate">
+                  {topic.title}
                 </span>
               )}
-              <div className="w-full px-1 mt-1">
+
+              {needsRetry ? (
+                <span className="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      size={9}
+                      className={
+                        i < topicRating
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-amber-200 fill-amber-200"
+                      }
+                    />
+                  ))}
+                </span>
+              ) : (
+                (isCompleted || isPartiallyCompleted) && (
+                  <span
+                    className={`text-[10px] uppercase tracking-wider font-extrabold flex items-center gap-1 ${isCompleted ? "text-emerald-600" : "text-orange-600"}`}
+                  >
+                    {isCompleted && <CheckCircle size={10} />} {progressText}
+                  </span>
+                )
+              )}
+
+              <div className="w-full px-1 mt-auto">
                 <div className="w-full h-1.5 bg-black/10 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      isCompleted
-                        ? "bg-emerald-500"
-                        : isPartiallyCompleted
-                          ? "bg-orange-400"
-                          : "bg-transparent"
+                      needsRetry
+                        ? "bg-amber-400"
+                        : isCompleted
+                          ? "bg-emerald-500"
+                          : isPartiallyCompleted
+                            ? "bg-orange-400"
+                            : "bg-transparent"
                     }`}
                     style={{ width: `${progressPct}%` }}
                   />

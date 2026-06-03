@@ -10,6 +10,7 @@ interface UseRecordingOptions {
   selectedNumber: number | null;
   currentTopic: any;
   activeQuestionIndex: number;
+  existingRecordingId?: string | null;
   onSaveSuccess: (recordings: any[], completedNumber: number | null) => void;
 }
 
@@ -20,6 +21,7 @@ export function useRecording({
   selectedNumber,
   currentTopic,
   activeQuestionIndex,
+  existingRecordingId,
   onSaveSuccess,
 }: UseRecordingOptions) {
   const [isRecording, setIsRecording] = useState(false);
@@ -169,6 +171,13 @@ export function useRecording({
           topic_id: topicId,
           question_id: questionId,
         };
+
+        if (existingRecordingId) {
+          await supabase
+            .from("recordings")
+            .delete()
+            .eq("id", existingRecordingId);
+        }
 
         const { data, error } = await supabase
           .from("recordings")

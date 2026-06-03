@@ -33,6 +33,7 @@ interface TopicModalProps {
   matchedRecording: any;
   matchedQuestionRecording: any;
   isTopicFullyRecorded: boolean;
+  canRetry: boolean;
   hasPendingAudios: boolean;
   onClose: () => void;
   onPlayTopicAudio: (e: React.MouseEvent) => void;
@@ -66,6 +67,7 @@ export function TopicModal({
   matchedQuestionRecording,
   isTopicFullyRecorded,
   hasPendingAudios,
+  canRetry,
   onClose,
   onPlayTopicAudio,
   onStartRecording,
@@ -90,11 +92,13 @@ export function TopicModal({
               </div>
               <div>
                 <span
-                  className={`text-xs font-black uppercase tracking-widest ${matchedRecording ? "text-emerald-500" : "text-blue-500"}`}
+                  className={`text-xs font-black uppercase tracking-widest ${canRetry ? "text-amber-500" : matchedRecording ? "text-emerald-500" : "text-blue-500"}`}
                 >
-                  {matchedRecording
-                    ? "🎁 Bé đã làm thử thách này rồi"
-                    : "Topic"}
+                  {canRetry
+                    ? "🎯 Ghi âm lại để cải thiện điểm"
+                    : matchedRecording
+                      ? "🎁 Bé đã làm thử thách này rồi"
+                      : "Topic"}
                 </span>
                 <h3 className="text-3xl font-black text-slate-800 leading-tight tracking-tight">
                   {currentTopic.title}
@@ -185,6 +189,23 @@ export function TopicModal({
                       />
                     </div>
                     <TeacherFeedback recording={matchedRecording} />
+                    {canRetry && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-black text-amber-600 text-center">
+                          🎯 Con có thể ghi âm lại để cải thiện nhé!
+                        </p>
+                        <RecordingControls
+                          isRecording={isRecording}
+                          recordingTime={recordingTime}
+                          audioBlob={audioBase64}
+                          onStart={onStartRecording}
+                          onStop={onStopRecording}
+                          onDelete={onDeleteAudio}
+                          formatTime={formatTime}
+                          size="lg"
+                        />
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <RecordingControls
