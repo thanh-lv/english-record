@@ -9,6 +9,7 @@ interface NotificationBellProps {
   onMarkRead: (id: string) => void;
   onMarkAllRead: () => void;
   onClearAll: () => void;
+  onNavigate: (recordId: string, studentName: string) => void;
 }
 
 function timeAgo(isoString: string): string {
@@ -26,6 +27,7 @@ export function NotificationBell({
   onMarkRead,
   onMarkAllRead,
   onClearAll,
+  onNavigate,
 }: NotificationBellProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -104,7 +106,11 @@ export function NotificationBell({
                 return (
                   <div
                     key={n.id}
-                    onClick={() => onMarkRead(n.id)}
+                    onClick={() => {
+                      onMarkRead(n.id);
+                      onNavigate(n.id, n.studentName);
+                      setOpen(false);
+                    }}
                     className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors border-b border-slate-50 last:border-0 ${
                       isRead
                         ? "bg-white hover:bg-slate-50"

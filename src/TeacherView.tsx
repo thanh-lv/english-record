@@ -26,6 +26,9 @@ export default function TeacherView({
   profile: any;
 }) {
   const [activeTab, setActiveTab] = useState<TeacherTab>("recordings");
+  const [highlightRecordId, setHighlightRecordId] = useState<string | null>(
+    null,
+  );
   const {
     notifications,
     unreadCount,
@@ -65,6 +68,11 @@ export default function TeacherView({
           onMarkRead={markRead}
           onMarkAllRead={markAllRead}
           onClearAll={clearAll}
+          onNavigate={(recordId) => {
+            setActiveTab("recordings");
+            setHighlightRecordId(recordId);
+            setTimeout(() => setHighlightRecordId(null), 2000);
+          }}
         />
       </div>
 
@@ -85,6 +93,7 @@ export default function TeacherView({
               loading={loading}
               formatDate={formatDate}
               onDeleteRequest={(id) => setDeleteTargetId(id)}
+              highlightRecordId={highlightRecordId}
             />
           )}
           {activeTab === "topics" && <TopicsManager />}

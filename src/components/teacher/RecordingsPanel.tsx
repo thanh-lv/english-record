@@ -12,7 +12,7 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { AudioPlayer } from "../common/AudioPlayer";
 
@@ -21,15 +21,26 @@ export function RecordingsPanel({
   loading,
   formatDate,
   onDeleteRequest,
+  highlightRecordId,
 }: {
   recordings: any[];
   loading: boolean;
   formatDate: (ts: string) => string;
   onDeleteRequest: (id: string) => void;
+  highlightRecordId?: string | null;
 }) {
   const [expandedStudents, setExpandedStudents] = useState<Set<string>>(
     new Set(),
   );
+
+  useEffect(() => {
+    if (!highlightRecordId) return;
+    // tìm studentName của record đó rồi expand group
+    const rec = recordings.find((r) => r.id === highlightRecordId);
+    if (!rec) return;
+    const key = (rec.studentName || "").trim().toLowerCase();
+    setExpandedStudents((prev) => new Set([...prev, key]));
+  }, [highlightRecordId]);
 
   const [filterName, setFilterName] = useState("");
   const [filterTopic, setFilterTopic] = useState("");
@@ -272,6 +283,7 @@ export function RecordingsPanel({
                       <RecordingItem
                         key={rec.id}
                         rec={rec}
+                        isHighlighted={rec.id === highlightRecordId}
                         formatDate={formatDate}
                         onDeleteRequest={onDeleteRequest}
                       />
@@ -291,16 +303,26 @@ export function RecordingItem({
   rec,
   formatDate,
   onDeleteRequest,
+  isHighlighted,
 }: {
   rec: any;
   formatDate: (ts: string) => string;
   onDeleteRequest: (id: string) => void;
+  isHighlighted: boolean;
 }) {
   const [rating, setRating] = useState<number>(rec.teacher_rating || 0);
   const [feedback, setFeedback] = useState<string>(rec.teacher_feedback || "");
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isHighlighted) return;
+    setTimeout(() => {
+      itemRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
+  }, [isHighlighted]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -331,7 +353,14 @@ export function RecordingItem({
     (rec.teacher_feedback && rec.teacher_feedback.length > 0);
 
   return (
-    <div className="px-5 py-4 flex flex-col gap-3 hover:bg-white transition-colors">
+    <div
+      ref={itemRef}
+      className={`px-5 py-4 flex flex-col gap-3 transition-colors ${
+        isHighlighted
+          ? "bg-emerald-50 ring-2 ring-inset ring-emerald-400"
+          : "hover:bg-white"
+      }`}
+    >
       <div className="flex flex-col md:flex-row gap-4 md:items-center">
         <div className="flex-1 space-y-1 pl-13">
           <div className="flex items-center gap-2 flex-wrap">
