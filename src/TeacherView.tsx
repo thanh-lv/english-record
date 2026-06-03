@@ -27,6 +27,7 @@ import {
   Star,
   MessageSquare,
   Save,
+  Filter,
 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { s3Client, S3_BUCKET } from "./lib/s3";
@@ -884,6 +885,15 @@ function StudentsManager() {
   const [deleteSaving, setDeleteSaving] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
+  // Reset password state
+  const [resetPasswordTarget, setResetPasswordTarget] = useState<any | null>(
+    null,
+  );
+  const [resetPasswordValue, setResetPasswordValue] = useState("");
+  const [resetError, setResetError] = useState("");
+  const [resetSaving, setResetSaving] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -980,6 +990,34 @@ function StudentsManager() {
       );
     } finally {
       setDeleteSaving(false);
+    }
+  };
+
+  const resetStudentPassword = async () => {
+    if (!resetPasswordTarget) return;
+    const trimPass = resetPasswordValue.trim();
+    if (trimPass.length < 3) {
+      setResetError("Mật khẩu phải có ít nhất 3 ký tự.");
+      return;
+    }
+    setResetSaving(true);
+    setResetError("");
+    setResetSuccess(false);
+    try {
+      const { error } = await supabaseForStudents
+        .from("profiles")
+        .update({ password: trimPass })
+        .eq("id", resetPasswordTarget.id);
+      if (error) throw error;
+      setResetSuccess(true);
+      setTimeout(() => {
+        setResetPasswordTarget(null);
+        setResetSuccess(false);
+      }, 1500);
+    } catch (err: any) {
+      setResetError(err.message || "Không thể đổi mật khẩu. Vui lòng thử lại.");
+    } finally {
+      setResetSaving(false);
     }
   };
 
@@ -1126,9 +1164,13 @@ function StudentsManager() {
                     >
                       {/* Avatar */}
                       <span
-                        className={`w-10 h-10 rounded-2xl border-2 font-black text-sm flex items-center justify-center shrink-0 ${colorClass}`}
+                        className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
+                          student.avatar
+                            ? "bg-amber-50 text-2xl shadow-sm border-amber-200"
+                            : `text-sm ${colorClass}`
+                        }`}
                       >
-                        {initials}
+                        {student.avatar || initials}
                       </span>
 
                       {/* Info */}
@@ -1163,6 +1205,24 @@ function StudentsManager() {
                           />
                         </div>
                       </div>
+                    </button>
+
+                    {/* Reset Password button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setResetPasswordTarget(student);
+                        setResetPasswordValue("");
+                        setResetError("");
+                        setResetSuccess(false);
+                        setShowPassword(false);
+                      }}
+                      className="shrink-0 p-2 group-hover:opacity-100 text-slate-300 hover:text-[#1E88E5] hover:bg-[#E3F2FD] rounded-xl transition-all"
+                      title="Đổi mật khẩu"
+                    >
+                      <Key size={15} />
                     </button>
 
                     {/* Delete button — visible on row hover */}
@@ -1346,6 +1406,93 @@ function StudentsManager() {
                 {deleteStudentTarget.recCount > 0
                   ? "Đồng ý xóa"
                   : "Xóa học sinh"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Reset Password Modal ── */}
+      {resetPasswordTarget !== null && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 border-2 border-blue-200 text-blue-600 flex items-center justify-center">
+                <Key size={20} />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+                  Đổi mật khẩu
+                </h4>
+                <p className="text-sm font-bold text-slate-500">
+                  {resetPasswordTarget.name}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+                  Mật khẩu mới
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={resetPasswordValue}
+                    onChange={(e) => {
+                      setResetPasswordValue(e.target.value);
+                      setResetError("");
+                    }}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && resetStudentPassword()
+                    }
+                    placeholder="Nhập mật khẩu mới..."
+                    className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {resetError && (
+                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                  <AlertCircle size={14} className="shrink-0" />
+                  {resetError}
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setResetPasswordTarget(null)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={resetStudentPassword}
+                disabled={resetSaving}
+                className={`flex-1 py-2.5 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md flex items-center justify-center gap-2 border-b-4 ${
+                  resetSuccess
+                    ? "bg-emerald-500 hover:bg-emerald-600 border-emerald-700"
+                    : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800"
+                }`}
+              >
+                {resetSaving ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : resetSuccess ? (
+                  <Check size={15} />
+                ) : (
+                  <Key size={15} />
+                )}
+                {resetSuccess ? "Thành công" : "Đổi mật khẩu"}
               </button>
             </div>
           </div>
@@ -1643,6 +1790,37 @@ function RecordingsPanel({
     new Set(),
   );
 
+  const [filterName, setFilterName] = useState("");
+  const [filterTopic, setFilterTopic] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'graded', 'ungraded'
+  const [showFilters, setShowFilters] = useState(false);
+  const [studentAvatars, setStudentAvatars] = useState<Record<string, string>>(
+    {},
+  );
+
+  useEffect(() => {
+    const fetchAvatars = async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("name, avatar")
+          .eq("role", "student");
+        if (data) {
+          const map: Record<string, string> = {};
+          data.forEach((p: any) => {
+            if (p.name && p.avatar) {
+              map[p.name.trim().toLowerCase()] = p.avatar;
+            }
+          });
+          setStudentAvatars(map);
+        }
+      } catch (err) {
+        console.error("Error fetching avatars", err);
+      }
+    };
+    fetchAvatars();
+  }, []);
+
   const toggleStudent = (key: string) => {
     setExpandedStudents((prev) => {
       const next = new Set(prev);
@@ -1660,7 +1838,28 @@ function RecordingsPanel({
       string,
       { key: string; studentName: string; records: any[] }
     >();
-    for (const rec of recordings) {
+
+    const filteredRecordings = recordings.filter((rec) => {
+      if (
+        filterName &&
+        !rec.studentName.toLowerCase().includes(filterName.toLowerCase())
+      ) {
+        return false;
+      }
+      if (filterTopic && String(rec.topicNumber) !== filterTopic.trim()) {
+        return false;
+      }
+      if (filterStatus !== "all") {
+        const hasFeedback =
+          rec.teacher_rating > 0 ||
+          (rec.teacher_feedback && rec.teacher_feedback.trim().length > 0);
+        if (filterStatus === "graded" && !hasFeedback) return false;
+        if (filterStatus === "ungraded" && hasFeedback) return false;
+      }
+      return true;
+    });
+
+    for (const rec of filteredRecordings) {
       // Always group by studentName (normalized) — userId changes per browser session
       const key = (rec.studentName || "").trim().toLowerCase();
       if (!map.has(key)) {
@@ -1677,7 +1876,7 @@ function RecordingsPanel({
         new Date(b.records[0].createdAt).getTime() -
         new Date(a.records[0].createdAt).getTime(),
     );
-  }, [recordings]);
+  }, [recordings, filterName, filterTopic, filterStatus]);
 
   const avatarColors = [
     "bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]",
@@ -1690,12 +1889,73 @@ function RecordingsPanel({
 
   return (
     <div className="bg-white rounded-[2rem] shadow-md border-3 border-[#FFF59D] overflow-hidden">
-      <div className="p-4 border-b-2 border-slate-100 flex items-center gap-2 bg-[#FFFDF6]">
-        <Clock size={18} className="text-slate-500" />
-        <h3 className="font-extrabold text-slate-700 text-md">
-          Lịch sử bài nộp mới nhất
-        </h3>
+      <div className="p-4 border-b-2 border-slate-100 flex items-center justify-between bg-[#FFFDF6]">
+        <div className="flex items-center gap-2">
+          <Clock size={18} className="text-slate-500" />
+          <h3 className="font-extrabold text-slate-700 text-md">
+            Lịch sử bài nộp mới nhất
+          </h3>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowFilters(!showFilters)}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-extrabold transition-colors border-2 ${
+            showFilters || filterName || filterTopic || filterStatus !== "all"
+              ? "bg-amber-50 text-amber-700 border-amber-200"
+              : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+          }`}
+        >
+          <Filter size={16} /> Bộ lọc
+        </button>
       </div>
+
+      {showFilters && (
+        <div className="p-4 bg-slate-50 border-b-2 border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-black text-slate-500 uppercase">
+              Tên học sinh
+            </label>
+            <div className="relative">
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                value={filterName}
+                onChange={(e) => setFilterName(e.target.value)}
+                placeholder="Tìm tên..."
+                className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-black text-slate-500 uppercase">
+              Bài học (Topic)
+            </label>
+            <input
+              value={filterTopic}
+              onChange={(e) => setFilterTopic(e.target.value)}
+              placeholder="VD: 1, 2..."
+              type="number"
+              className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-black text-slate-500 uppercase">
+              Trạng thái chấm
+            </label>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400 appearance-none"
+            >
+              <option value="all">Tất cả</option>
+              <option value="ungraded">Chưa chấm điểm</option>
+              <option value="graded">Đã chấm điểm</option>
+            </select>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="p-12 text-center text-slate-400 font-bold animate-pulse">
@@ -1714,6 +1974,7 @@ function RecordingsPanel({
         <div className="divide-y divide-slate-100">
           {studentGroups.map((group, groupIdx) => {
             const isExpanded = expandedStudents.has(group.key);
+            const avatar = studentAvatars[group.key];
             const colorClass = avatarColors[groupIdx % avatarColors.length];
             const initials = group.studentName
               .split(" ")
@@ -1731,9 +1992,13 @@ function RecordingsPanel({
                   className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
                 >
                   <span
-                    className={`w-10 h-10 rounded-2xl border-2 font-black text-sm flex items-center justify-center shrink-0 ${colorClass}`}
+                    className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
+                      avatar
+                        ? "bg-amber-50 text-2xl shadow-sm border-amber-200"
+                        : `text-sm ${colorClass}`
+                    }`}
                   >
-                    {initials}
+                    {avatar || initials}
                   </span>
 
                   <div className="flex-1 min-w-0">

@@ -15,6 +15,7 @@ import {
   ImageOff,
   Star,
   MessageSquare,
+  Pencil,
 } from "lucide-react";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { supabase } from "./lib/supabase";
@@ -80,6 +81,41 @@ export default function StudentView({
   const [topicsLoading, setTopicsLoading] = useState(true);
 
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
+
+  const [showAvatarSelect, setShowAvatarSelect] = useState(false);
+  const [currentAvatar, setCurrentAvatar] = useState(() => {
+    return (
+      profile.avatar || localStorage.getItem(`avatar_${profile.id}`) || "🐰"
+    );
+  });
+  const AVATARS = [
+    "🐰",
+    "🐯",
+    "🐶",
+    "🦊",
+    "🐻",
+    "🐼",
+    "🐨",
+    "🐸",
+    "🐧",
+    "🦄",
+    "🦖",
+    "🐳",
+  ];
+
+  const changeAvatar = async (emoji: string) => {
+    setCurrentAvatar(emoji);
+    setShowAvatarSelect(false);
+    localStorage.setItem(`avatar_${profile.id}`, emoji);
+    try {
+      await supabase
+        .from("profiles")
+        .update({ avatar: emoji })
+        .eq("id", profile.id);
+    } catch (e) {
+      console.warn("Could not save avatar to db", e);
+    }
+  };
 
   const [imageLoading, setImageLoading] = useState(false);
   const [ttsLoading, setTtsLoading] = useState(false);
@@ -491,9 +527,20 @@ export default function StudentView({
   return (
     <div>
       <div className="space-y-8 animate-in fade-in duration-500">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 bg-white/70 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-[#E3F2FD] shadow-md">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 bg-white/70 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-[#E3F2FD] shadow-md relative">
           <div className="space-y-1">
-            <h2 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+            <h2 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAvatarSelect(true)}
+                className="w-14 h-14 bg-white border-4 border-amber-200 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all rounded-full flex items-center justify-center text-3xl shadow-sm relative group"
+                title="Đổi Avatar"
+              >
+                {currentAvatar}
+                <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform">
+                  <Pencil size={10} />
+                </span>
+              </button>
               Hello, <span className="text-[#FF8A80]">{profile.name}</span>! 👋
             </h2>
             <p className="text-slate-500 font-bold text-sm">
@@ -977,6 +1024,40 @@ export default function StudentView({
                   {!isSaving && <CheckCircle size={24} />}
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Avatar Selection Modal */}
+      {showAvatarSelect && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm p-6 border-4 border-amber-200 shadow-2xl animate-in zoom-in-95 duration-200 relative">
+            <button
+              type="button"
+              onClick={() => setShowAvatarSelect(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-xl font-black text-slate-800 text-center mb-6">
+              Chọn Avatar của con
+            </h3>
+            <div className="grid grid-cols-4 gap-4">
+              {AVATARS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => changeAvatar(emoji)}
+                  className={`aspect-square rounded-2xl text-4xl flex items-center justify-center transition-all ${
+                    currentAvatar === emoji
+                      ? "bg-amber-100 border-4 border-amber-400 scale-110 shadow-md"
+                      : "bg-slate-50 border-2 border-slate-100 hover:bg-amber-50 hover:border-amber-200 hover:scale-105"
+                  }`}
+                >
+                  {emoji}
+                </button>
+              ))}
             </div>
           </div>
         </div>
