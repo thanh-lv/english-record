@@ -17,10 +17,12 @@ import {
   MessageSquare,
   Pencil,
   BookOpen,
+  Flame,
 } from "lucide-react";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { supabase } from "./lib/supabase";
 import { s3Client, S3_BUCKET } from "./lib/s3";
+import { calculateStreak } from "./utils";
 
 function TeacherFeedback({ recording }: { recording: any }) {
   if (!recording) return null;
@@ -162,6 +164,8 @@ export default function StudentView({
   const topicAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const isBongBe = profile.name.toLowerCase().trim() === "bông bé";
+
+  const streak = calculateStreak(myRecordings);
   const totalNumbers = Array.from(
     { length: activeTopics.length },
     (_, i) => i + 1,
@@ -568,8 +572,14 @@ export default function StudentView({
           <h2 className="text-xl font-black text-slate-800 tracking-tight">
             Hello, <span className="text-[#FF8A80]">{profile.name}</span>! 👋
           </h2>
-          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full text-amber-700 text-sm font-bold shadow-sm">
-            <Award size={16} /> {completedNumbers.length} Quà tặng
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full text-amber-700 text-sm font-bold shadow-sm">
+              <Award size={16} /> {completedNumbers.length} Quà
+            </div>
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm border ${streak > 0 ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}>
+              <Flame size={16} className={streak > 0 ? "fill-orange-500 text-orange-600" : "text-slate-400"} />
+              {streak > 0 ? `${streak} Ngày` : "Bắt đầu học!"}
+            </div>
           </div>
         </div>
 
@@ -591,6 +601,9 @@ export default function StudentView({
               }
             />
             Bài tập của con
+            {activeTab === "exercises" && (
+              <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />
+            )}
           </button>
           <button
             type="button"
@@ -610,6 +623,9 @@ export default function StudentView({
               }
             />
             Thành tích 🏆
+            {activeTab === "achievements" && (
+              <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#FFB300]" />
+            )}
           </button>
         </nav>
       </aside>

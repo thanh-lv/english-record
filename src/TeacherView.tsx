@@ -29,9 +29,11 @@ import {
   Save,
   Filter,
   Award,
+  Flame,
 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { s3Client, S3_BUCKET } from "./lib/s3";
+import { calculateStreak } from "./utils";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
@@ -1191,11 +1193,18 @@ function StudentsManager() {
                         <span className="text-xs font-black text-slate-600">
                           {doneCount}/{totalTopics}
                         </span>
-                        {doneCount > 0 && (
-                          <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-200">
-                            <Award size={10} /> {doneCount} Quà
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1">
+                          {doneCount > 0 && (
+                            <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full flex items-center gap-0.5 border border-amber-200">
+                              <Award size={10} /> {doneCount}
+                            </span>
+                          )}
+                          {calculateStreak(studentRecs) > 0 && (
+                            <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full flex items-center gap-0.5 border border-orange-200">
+                              <Flame size={10} className="fill-orange-500" /> {calculateStreak(studentRecs)}
+                            </span>
+                          )}
+                        </div>
                         <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className="h-full rounded-full transition-all duration-500"
