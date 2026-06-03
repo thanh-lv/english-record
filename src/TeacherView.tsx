@@ -54,7 +54,7 @@ export default function TeacherView({
     <div className="animate-in fade-in duration-500 min-h-screen flex flex-col">
       <div className="bg-gradient-to-r from-[#2E7D32] to-[#4CAF50] text-white px-6 py-5 rounded-[2rem] shadow-md border-b-4 border-emerald-900 flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-2xl md:text-3xl font-black mb-0.5">
+          <h2 className="text-lg md:text-3xl font-black mb-0.5">
             Bảng điều khiển của {profile.name} 📚
           </h2>
           <p className="text-emerald-100 font-bold opacity-90 text-sm">

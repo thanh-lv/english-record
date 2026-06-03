@@ -425,7 +425,7 @@ export function StoriesManager() {
 
       {showCreate && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-purple-100 p-6 space-y-5 my-8">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-purple-100 p-4 sm:p-6 space-y-4 my-4 sm:my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
               <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
                 <Wand2 className="text-purple-500" /> Sáng tác Truyện AI
@@ -439,7 +439,7 @@ export function StoriesManager() {
             </div>
 
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
                     Tên truyện

@@ -224,131 +224,137 @@ export function StudentsManager() {
 
               return (
                 <div key={student.id} className="group">
-                  <div className="flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setExpandedStudent(isExpanded ? null : student.id)
-                      }
-                      className="flex items-center gap-3 flex-1 min-w-0 text-left"
-                    >
+                  <div className="px-4 py-3 hover:bg-slate-50 transition-colors">
+                    {/* Main row */}
+                    <div className="flex items-center gap-3">
+                      {/* Avatar */}
                       <span
-                        className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${student.avatar ? "bg-amber-50 text-2xl shadow-sm border-amber-200" : `text-sm ${colorClass}`}`}
+                        className={`w-11 h-11 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${student.avatar ? "bg-amber-50 text-2xl shadow-sm border-amber-200" : `text-sm ${colorClass}`}`}
                       >
                         {student.avatar || initials}
                       </span>
+
+                      {/* Name + date */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-extrabold text-slate-800 text-sm truncate flex items-center gap-2">
-                          {student.name}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-extrabold text-slate-800 text-sm">
+                            {student.name}
+                          </p>
                           {student.year_born && (
-                            <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium">
+                            <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium shrink-0">
                               {student.year_born}
                             </span>
                           )}
-                        </p>
+                        </div>
                         <p className="text-xs text-slate-400 font-medium mt-0.5">
                           {lastRec
-                            ? `Nộp gần nhất: ${formatDate(lastRec.createdAt)}`
-                            : "Chưa nộp bài nào"}
+                            ? `Mới nhất: ${formatDate(lastRec.createdAt)}`
+                            : "Chưa nộp bài"}
                         </p>
                       </div>
-                      <div className="shrink-0 flex flex-col items-end gap-1 min-w-[72px]">
-                        <span className="text-xs font-black text-slate-600">
-                          {doneCount}/{totalTopics}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          {doneCount > 0 && (
-                            <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full flex items-center gap-0.5 border border-amber-200">
-                              <Award size={10} /> {doneCount}
-                            </span>
-                          )}
-                          {calculateStreak(studentRecs) > 0 && (
-                            <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full flex items-center gap-0.5 border border-orange-200">
-                              <Flame size={10} className="fill-orange-500" />{" "}
-                              {calculateStreak(studentRecs)}
-                            </span>
-                          )}
+
+                      {/* Progress + actions + chevron */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {/* Progress */}
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="text-xs font-black text-slate-600">
+                            {doneCount}/{totalTopics}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {doneCount > 0 && (
+                              <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 border border-amber-200">
+                                <Award size={9} /> {doneCount}
+                              </span>
+                            )}
+                            {calculateStreak(studentRecs) > 0 && (
+                              <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 border border-orange-200">
+                                <Flame size={9} className="fill-orange-500" />{" "}
+                                {calculateStreak(studentRecs)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${pct}%`,
+                                background:
+                                  pct === 100
+                                    ? "#4CAF50"
+                                    : pct >= 50
+                                      ? "#1E88E5"
+                                      : "#FFB74D",
+                              }}
+                            />
+                          </div>
                         </div>
-                        <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-500"
+
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-0.5 border-l border-slate-100 pl-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setEditStudentTarget(student);
+                            }}
+                            className="p-1.5 text-slate-300 hover:text-[#4CAF50] hover:bg-[#E8F5E9] rounded-lg transition-all"
+                            title="Sửa"
+                          >
+                            <Pencil size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setResetPasswordTarget(student);
+                            }}
+                            className="p-1.5 text-slate-300 hover:text-[#1E88E5] hover:bg-[#E3F2FD] rounded-lg transition-all"
+                            title="Đổi mật khẩu"
+                          >
+                            <Key size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const recCount = recordings.filter(
+                                (r) =>
+                                  r.studentName.trim().toLowerCase() ===
+                                  student.name.trim().toLowerCase(),
+                              ).length;
+                              setDeleteStudentTarget({ student, recCount });
+                              setDeleteError("");
+                            }}
+                            className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                            title="Xóa"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+
+                        {/* Chevron */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedStudent(isExpanded ? null : student.id)
+                          }
+                          className="p-1 text-slate-400 hover:text-slate-600 transition-all"
+                        >
+                          <ChevronDown
+                            size={15}
+                            className="transition-transform duration-200"
                             style={{
-                              width: `${pct}%`,
-                              background:
-                                pct === 100
-                                  ? "#4CAF50"
-                                  : pct >= 50
-                                    ? "#1E88E5"
-                                    : "#FFB74D",
+                              transform: isExpanded
+                                ? "rotate(180deg)"
+                                : "rotate(0deg)",
                             }}
                           />
-                        </div>
+                        </button>
                       </div>
-                    </button>
-
-                    <div className="flex items-center gap-1 group-hover:opacity-100 transition-opacity pr-2 md:pr-4">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setEditStudentTarget(student);
-                        }}
-                        className="shrink-0 p-2 text-slate-300 hover:text-[#4CAF50] hover:bg-[#E8F5E9] rounded-xl transition-all"
-                        title="Sửa thông tin"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setResetPasswordTarget(student);
-                        }}
-                        className="shrink-0 p-2 text-slate-300 hover:text-[#1E88E5] hover:bg-[#E3F2FD] rounded-xl transition-all"
-                        title="Đổi mật khẩu"
-                      >
-                        <Key size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const recCount = recordings.filter(
-                            (r) =>
-                              r.studentName.trim().toLowerCase() ===
-                              student.name.trim().toLowerCase(),
-                          ).length;
-                          setDeleteStudentTarget({ student, recCount });
-                          setDeleteError("");
-                        }}
-                        className="shrink-0 p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
-                        title="Xóa học sinh"
-                      >
-                        <Trash2 size={15} />
-                      </button>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setExpandedStudent(isExpanded ? null : student.id)
-                      }
-                      className="shrink-0 p-1 text-slate-400 hover:text-slate-600 transition-all"
-                    >
-                      <span
-                        className="block transition-transform duration-200"
-                        style={{
-                          transform: isExpanded
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                        }}
-                      >
-                        <ChevronDown size={16} />
-                      </span>
-                    </button>
                   </div>
 
                   {isExpanded && (

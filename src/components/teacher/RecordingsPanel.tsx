@@ -278,7 +278,7 @@ export function RecordingsPanel({
                 </button>
 
                 {isExpanded && (
-                  <div className="divide-y divide-slate-50 bg-slate-50/50 border-t border-slate-100">
+                  <div className="divide-y divide-slate-100 bg-slate-50/50 border-t border-slate-100">
                     {group.records.map((rec: any) => (
                       <RecordingItem
                         key={rec.id}
@@ -355,57 +355,42 @@ export function RecordingItem({
   return (
     <div
       ref={itemRef}
-      className={`px-5 py-4 flex flex-col gap-3 transition-colors ${
+      className={`px-4 py-3 flex flex-col gap-2.5 transition-colors ${
         isHighlighted
           ? "bg-emerald-50 ring-2 ring-inset ring-emerald-400"
           : "hover:bg-white"
       }`}
     >
-      <div className="flex flex-col md:flex-row gap-4 md:items-center">
-        <div className="flex-1 space-y-1 pl-13">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[#E3F2FD] border border-[#90CAF9] text-[#1E88E5] font-black text-xs shadow-sm shrink-0">
-              {rec.topicNumber}
-            </span>
-            <span className="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded font-bold">
-              {formatDate(rec.createdAt)}
-            </span>
-            {hasFeedback && !isEditing && (
-              <span className="text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
-                <Check size={12} /> Đã nhận xét
-              </span>
-            )}
-            {rec.student_reaction === "heart" && (
-              <span className="text-xs text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
-                <Heart size={12} className="fill-rose-500 text-rose-500" /> Bé
-                đã thả tim
-              </span>
-            )}
-          </div>
-          <p className="text-slate-600 text-sm font-bold bg-white p-2.5 rounded-xl border border-slate-100 mt-1">
-            Topic: {rec.topic}
-          </p>
-          <p className="text-slate-600 text-sm font-bold bg-white p-2.5 rounded-xl border border-slate-100">
-            Question: {rec.questionText}
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto mt-1 md:mt-0 pl-10 md:pl-0">
-          <AudioPlayer src={rec.audioUrl} />
-
+      {/* Row 1: topic number + date + badges + action buttons */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[#E3F2FD] border border-[#90CAF9] text-[#1E88E5] font-black text-xs shadow-sm shrink-0">
+          {rec.topicNumber}
+        </span>
+        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded font-bold">
+          {formatDate(rec.createdAt)}
+        </span>
+        {hasFeedback && !isEditing && (
+          <span className="text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full font-bold flex items-center gap-1">
+            <Check size={11} /> Đã nhận xét
+          </span>
+        )}
+        {rec.student_reaction === "heart" && (
+          <span className="text-xs text-rose-500">❤️</span>
+        )}
+        {/* action buttons pushed to right */}
+        <div className="ml-auto flex items-center gap-1">
           <button
             type="button"
             onClick={() => setIsEditing(!isEditing)}
-            className={`p-3 rounded-2xl transition-all border-2 border-transparent ${
+            className={`p-2 rounded-xl transition-all border border-transparent ${
               isEditing || hasFeedback
-                ? "text-emerald-500 bg-emerald-50 hover:border-emerald-100"
-                : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 hover:border-emerald-100"
+                ? "text-emerald-500 bg-emerald-50"
+                : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50"
             }`}
             title="Nhận xét"
           >
-            <MessageSquare size={20} />
+            <MessageSquare size={16} />
           </button>
-
           <button
             type="button"
             onClick={(e) => {
@@ -413,13 +398,26 @@ export function RecordingItem({
               e.stopPropagation();
               onDeleteRequest(rec.id);
             }}
-            className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-2xl transition-all border-2 border-transparent hover:border-rose-100"
-            title="Xóa bài nộp"
+            className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-transparent"
+            title="Xóa"
           >
-            <Trash2 size={20} />
+            <Trash2 size={16} />
           </button>
         </div>
       </div>
+
+      {/* Row 2: topic + question text */}
+      <div className="space-y-1">
+        <p className="text-slate-600 text-xs font-bold bg-white px-3 py-2 rounded-xl border border-slate-100">
+          <span className="text-slate-400">Topic:</span> {rec.topic}
+        </p>
+        <p className="text-slate-600 text-xs font-bold bg-white px-3 py-2 rounded-xl border border-slate-100">
+          <span className="text-slate-400">Q:</span> {rec.questionText}
+        </p>
+      </div>
+
+      {/* Row 3: audio player full width */}
+      <AudioPlayer src={rec.audioUrl} />
 
       {/* Grading / Feedback Form */}
       {isEditing && (
