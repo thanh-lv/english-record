@@ -1,8 +1,14 @@
+import { AlertCircle, Loader2, LogIn } from "lucide-react";
 import React, { useState } from "react";
-import { AlertCircle, LogIn, Loader2 } from "lucide-react";
 import { supabase } from "./lib/supabase";
 
-export default function LoginScreen({ setProfile, user }: { setProfile: (p: any) => void; user: any }) {
+export default function LoginScreen({
+  setProfile,
+  user,
+}: {
+  setProfile: (p: any) => void;
+  user: any;
+}) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,7 +32,8 @@ export default function LoginScreen({ setProfile, user }: { setProfile: (p: any)
     setError("");
     setIsLoggingIn(true);
 
-    const role = trimmedName.toLowerCase() === "my admin" ? "teacher" : "student";
+    const role =
+      trimmedName.toLowerCase() === "my admin" ? "teacher" : "student";
 
     try {
       if (user) {
@@ -43,7 +50,9 @@ export default function LoginScreen({ setProfile, user }: { setProfile: (p: any)
 
           if (existingUser) {
             if (existingUser.password && existingUser.password !== password) {
-              throw new Error("Tên này đã được đăng ký. Sai mật khẩu! Vui lòng thử lại.");
+              throw new Error(
+                "Tên này đã được đăng ký. Sai mật khẩu! Vui lòng thử lại.",
+              );
             }
             profileData = {
               ...existingUser,
@@ -74,7 +83,9 @@ export default function LoginScreen({ setProfile, user }: { setProfile: (p: any)
               .select()
               .single();
             if (dbError?.code === "23505") {
-              throw new Error("Tên này đã được người khác sử dụng. Vui lòng chọn tên khác.");
+              throw new Error(
+                "Tên này đã được người khác sử dụng. Vui lòng chọn tên khác.",
+              );
             }
             if (dbError) throw dbError;
             profileData = inserted;
@@ -84,16 +95,26 @@ export default function LoginScreen({ setProfile, user }: { setProfile: (p: any)
 
         const timeoutPromise = new Promise((_, reject) =>
           setTimeout(
-            () => reject(new Error("Lỗi mạng: Thời gian kết nối quá lâu. Vui lòng thử lại!")),
+            () =>
+              reject(
+                new Error(
+                  "Lỗi mạng: Thời gian kết nối quá lâu. Vui lòng thử lại!",
+                ),
+              ),
             8000,
           ),
         );
 
         const profileData = await Promise.race([dbOperation(), timeoutPromise]);
-        localStorage.setItem("english_record_profile_id", (profileData as any).id);
+        localStorage.setItem(
+          "english_record_profile_id",
+          (profileData as any).id,
+        );
         setProfile(profileData);
       } else {
-        setError("Hệ thống đang khởi tạo bảo mật. Vui lòng đợi 3 giây và bấm Đăng nhập lại.");
+        setError(
+          "Hệ thống đang khởi tạo bảo mật. Vui lòng đợi 3 giây và bấm Đăng nhập lại.",
+        );
       }
     } catch (err: any) {
       console.error("Lưu thông tin đăng nhập thất bại:", err);
@@ -127,7 +148,10 @@ export default function LoginScreen({ setProfile, user }: { setProfile: (p: any)
               placeholder="Ví dụ: Bông bé, Tuệ Minh..."
               className="w-full px-5 py-4 bg-[#FFFDF6] border-3 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 focus:outline-none text-lg transition-all shadow-inner text-slate-700 font-bold placeholder-slate-300"
               value={name}
-              onChange={(e) => { setName(e.target.value); setError(""); }}
+              onChange={(e) => {
+                setName(e.target.value);
+                setError("");
+              }}
               disabled={isLoggingIn}
             />
           </div>
@@ -141,7 +165,10 @@ export default function LoginScreen({ setProfile, user }: { setProfile: (p: any)
               placeholder="Nhập mật khẩu..."
               className="w-full px-5 py-4 bg-[#FFFDF6] border-3 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 focus:outline-none text-lg transition-all shadow-inner text-slate-700 font-bold placeholder-slate-300"
               value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(""); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError("");
+              }}
               disabled={isLoggingIn}
             />
             {error && (
@@ -157,7 +184,11 @@ export default function LoginScreen({ setProfile, user }: { setProfile: (p: any)
               disabled={isLoggingIn}
               className="flex items-center justify-center gap-2 w-full py-4 bg-gradient-to-r from-[#1E88E5] to-[#2196F3] hover:from-[#1565C0] hover:to-[#1976D2] disabled:from-slate-300 disabled:to-slate-400 text-white rounded-full font-black text-xl transition-all shadow-lg hover:shadow-xl active:scale-95 border-b-4 border-blue-800"
             >
-              {isLoggingIn ? <Loader2 size={24} className="animate-spin" /> : <LogIn size={24} />}{" "}
+              {isLoggingIn ? (
+                <Loader2 size={24} className="animate-spin" />
+              ) : (
+                <LogIn size={24} />
+              )}{" "}
               Đăng nhập
             </button>
           </div>
