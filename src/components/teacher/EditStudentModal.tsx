@@ -1,0 +1,87 @@
+import { AlertCircle, Loader2, Pencil, Save, X } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "../../lib/supabase";
+
+interface EditStudentModalProps {
+  student: any;
+  onUpdated: (updated: any) => void;
+  onClose: () => void;
+}
+
+export function EditStudentModal({ student, onUpdated, onClose }: EditStudentModalProps) {
+  const [yearBorn, setYearBorn] = useState(student.year_born?.toString() || "2015");
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError("");
+    try {
+      const { data, error: updateError } = await supabase
+        .from("profiles")
+        .update({ year_born: parseInt(yearBorn) || 2015 })
+        .eq("id", student.id)
+        .select()
+        .single();
+      if (updateError) throw updateError;
+      onUpdated(data);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || "Không thể cập nhật. Vui lòng thử lại.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
+            <Pencil size={20} />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-slate-800 text-lg leading-tight">Sửa thông tin</h4>
+            <p className="text-xs text-slate-400 font-medium">Cập nhật thông tin học sinh</p>
+          </div>
+          <button type="button" onClick={onClose} className="ml-auto p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">Năm sinh</label>
+            <input
+              type="number"
+              value={yearBorn}
+              onChange={(e) => { setYearBorn(e.target.value); setError(""); }}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
+              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+            />
+          </div>
+          {error && (
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <AlertCircle size={14} className="shrink-0" /> {error}
+            </div>
+          )}
+        </div>
+
+        <div className="pt-2 flex justify-end gap-2">
+          <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+            Hủy
+          </button>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={handleSave}
+            className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 text-white font-black text-sm rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center gap-2"
+          >
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            {saving ? "Đang lưu..." : "Lưu thay đổi"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

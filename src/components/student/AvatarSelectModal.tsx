@@ -1,0 +1,41 @@
+import { X } from "lucide-react";
+import { AVATARS } from "./hooks/useAvatar";
+
+interface AvatarSelectModalProps {
+  currentAvatar: string;
+  onSelect: (emoji: string) => void;
+  onClose: () => void;
+}
+
+export function AvatarSelectModal({ currentAvatar, onSelect, onClose }: AvatarSelectModalProps) {
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+      <div className="bg-white rounded-[2rem] w-full max-w-sm p-6 border-4 border-amber-200 shadow-2xl animate-in zoom-in-95 duration-200 relative">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all"
+        >
+          <X size={20} />
+        </button>
+        <h3 className="text-xl font-black text-slate-800 text-center mb-6">Chọn Avatar của con</h3>
+        <div className="grid grid-cols-4 gap-4">
+          {AVATARS.map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => onSelect(emoji)}
+              className={`aspect-square rounded-2xl text-4xl flex items-center justify-center transition-all ${
+                currentAvatar === emoji
+                  ? "bg-amber-100 border-4 border-amber-400 scale-110 shadow-md"
+                  : "bg-slate-50 border-2 border-slate-100 hover:bg-amber-50 hover:border-amber-200 hover:scale-105"
+              }`}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

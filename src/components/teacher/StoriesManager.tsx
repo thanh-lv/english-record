@@ -1,5 +1,4 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { createClient } from "@supabase/supabase-js";
 import {
   AlertCircle,
   CheckCircle,
@@ -12,14 +11,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { S3_BUCKET, s3Client } from "../../lib/s3";
-
-// We'll declare supabaseForStudents just in case
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  "";
-const supabaseForStudents = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from "../../lib/supabase";
 
 export function StoriesManager() {
   const [stories, setStories] = useState<any[]>([]);
@@ -56,7 +48,7 @@ export function StoriesManager() {
 
   const fetchStories = async () => {
     try {
-      const { data, error } = await supabaseForStudents
+      const { data, error } = await supabase
         .from("stories")
         .select("*")
         .order("created_at", { ascending: false });
@@ -159,7 +151,7 @@ export function StoriesManager() {
           ? "kindergarten"
           : "primary";
 
-      const { data, error } = await supabaseForStudents
+      const { data, error } = await supabase
         .from("stories")
         .insert({
           title,
@@ -196,7 +188,7 @@ export function StoriesManager() {
 
   const handleUpdateStory = async () => {
     try {
-      const { data, error } = await supabaseForStudents
+      const { data, error } = await supabase
         .from("stories")
         .update({ title: editTitle, content: editContent, emoji: editEmoji })
         .eq("id", editingStory.id)
@@ -221,7 +213,7 @@ export function StoriesManager() {
     setDeleteSaving(true);
     setDeleteError("");
     try {
-      const { error } = await supabaseForStudents
+      const { error } = await supabase
         .from("stories")
         .delete()
         .eq("id", deleteStoryTarget.id);

@@ -1,4 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
 import {
   Check,
   ChevronDown,
@@ -16,14 +15,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { AudioPlayer } from "../common/AudioPlayer";
-
-// We'll declare supabaseForStudents just in case
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  "";
-const supabaseForStudents = createClient(supabaseUrl, supabaseAnonKey);
 
 export function RecordingsPanel({
   recordings,

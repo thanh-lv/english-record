@@ -1,5 +1,4 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { createClient } from "@supabase/supabase-js";
 import {
   Check,
   ChevronDown,
@@ -14,14 +13,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { S3_BUCKET, s3Client } from "../../lib/s3";
 import { supabase } from "../../lib/supabase";
-
-// We'll declare supabaseForStudents just in case
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  "";
-const supabaseForStudents = createClient(supabaseUrl, supabaseAnonKey);
 
 export function TopicsManager() {
   const [topics, setTopics] = useState<any[]>([]);
