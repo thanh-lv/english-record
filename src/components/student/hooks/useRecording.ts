@@ -1,6 +1,4 @@
 import { useRef, useState } from "react";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { S3_BUCKET, s3Client } from "../../../lib/s3";
 import { supabase } from "../../../lib/supabase";
 
 interface UseRecordingOptions {
@@ -133,6 +131,10 @@ export function useRecording({
     const savedRecordings: any[] = [];
 
     try {
+      const [{ PutObjectCommand }, { s3Client, S3_BUCKET }] = await Promise.all(
+        [import("@aws-sdk/client-s3"), import("../../../lib/s3")],
+      );
+
       for (const { questionIndex, blob } of audiosToSave) {
         const fileExt = blob.type.includes("mp4") ? "mp4" : "webm";
         const fileName = `${user.id}/${Date.now()}_topic_${selectedNumber}_q${questionIndex}.${fileExt}`;

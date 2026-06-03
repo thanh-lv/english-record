@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import TeacherView from "./src/TeacherView";
-import StudentView from "./src/StudentView";
+import { useState, useEffect, lazy, Suspense } from "react";
 import LoginScreen from "./src/LoginScreen";
+
+const TeacherView = lazy(() => import("./src/TeacherView"));
+const StudentView = lazy(() => import("./src/StudentView"));
 import { Mic, User, LogOut, Loader2 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { NotificationBell } from "./src/components/teacher/NotificationBell";
@@ -181,14 +182,16 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto p-3 md:p-6 lg:p-8">
         {!userProfile && <LoginScreen setProfile={setUserProfile} user={user} />}
-        {userProfile?.role === "student" && <StudentView user={user} profile={userProfile} />}
-        {isTeacher && (
-          <TeacherView
-            user={user}
-            addNotification={addNotification}
-            activeTabSignal={teacherActiveTab}
-          />
-        )}
+        <Suspense fallback={null}>
+          {userProfile?.role === "student" && <StudentView user={user} profile={userProfile} />}
+          {isTeacher && (
+            <TeacherView
+              user={user}
+              addNotification={addNotification}
+              activeTabSignal={teacherActiveTab}
+            />
+          )}
+        </Suspense>
       </main>
     </div>
   );
