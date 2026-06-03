@@ -873,6 +873,14 @@ function StudentsManager() {
   const [createError, setCreateError] = useState("");
   const [createSaving, setCreateSaving] = useState(false);
 
+  // Delete student state
+  const [deleteStudentTarget, setDeleteStudentTarget] = useState<{
+    student: any;
+    recCount: number;
+  } | null>(null);
+  const [deleteSaving, setDeleteSaving] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -919,7 +927,6 @@ function StudentsManager() {
     setCreateSaving(true);
     setCreateError("");
     try {
-      // Check duplicate name
       const { data: existing } = await supabaseForStudents
         .from("profiles")
         .select("id")
@@ -945,6 +952,27 @@ function StudentsManager() {
       setCreateError(err.message || "Không thể tạo học sinh. Vui lòng thử lại.");
     } finally {
       setCreateSaving(false);
+    }
+  };
+
+  const deleteStudent = async () => {
+    if (!deleteStudentTarget) return;
+    setDeleteSaving(true);
+    setDeleteError("");
+    try {
+      const { error } = await supabaseForStudents
+        .from("profiles")
+        .delete()
+        .eq("id", deleteStudentTarget.student.id);
+      if (error) throw error;
+      setStudents((prev) =>
+        prev.filter((s) => s.id !== deleteStudentTarget.student.id),
+      );
+      setDeleteStudentTarget(null);
+    } catch (err: any) {
+      setDeleteError(err.message || "Không thể xóa học sinh. Vui lòng thử lại.");
+    } finally {
+      setDeleteSaving(false);
     }
   };
 
@@ -1078,67 +1106,98 @@ function StudentsManager() {
               const lastRec = studentRecs[0];
 
               return (
-                <div key={student.id}>
-                  {/* Student row */}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setExpandedStudent(isExpanded ? null : student.id)
-                    }
-                    className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
-                  >
-                    {/* Avatar */}
-                    <span
-                      className={`w-10 h-10 rounded-2xl border-2 font-black text-sm flex items-center justify-center shrink-0 ${colorClass}`}
+                <div key={student.id} className="group">
+                  {/* Student row — flex row with separate action buttons */}
+                  <div className="flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors">
+                    {/* Clickable area: avatar + info + progress */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedStudent(isExpanded ? null : student.id)
+                      }
+                      className="flex items-center gap-3 flex-1 min-w-0 text-left"
                     >
-                      {initials}
-                    </span>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-extrabold text-slate-800 text-sm truncate">
-                        {student.name}
-                      </p>
-                      <p className="text-xs text-slate-400 font-medium mt-0.5">
-                        {lastRec
-                          ? `Nộp gần nhất: ${formatDate(lastRec.createdAt)}`
-                          : "Chưa nộp bài nào"}
-                      </p>
-                    </div>
-
-                    {/* Progress bar + count */}
-                    <div className="shrink-0 flex flex-col items-end gap-1 min-w-[72px]">
-                      <span className="text-xs font-black text-slate-600">
-                        {doneCount}/{totalTopics}
+                      {/* Avatar */}
+                      <span
+                        className={`w-10 h-10 rounded-2xl border-2 font-black text-sm flex items-center justify-center shrink-0 ${colorClass}`}
+                      >
+                        {initials}
                       </span>
-                      <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${pct}%`,
-                            background:
-                              pct === 100
-                                ? "#4CAF50"
-                                : pct >= 50
-                                  ? "#1E88E5"
-                                  : "#FFB74D",
-                          }}
-                        />
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-extrabold text-slate-800 text-sm truncate">
+                          {student.name}
+                        </p>
+                        <p className="text-xs text-slate-400 font-medium mt-0.5">
+                          {lastRec
+                            ? `Nộp gần nhất: ${formatDate(lastRec.createdAt)}`
+                            : "Chưa nộp bài nào"}
+                        </p>
                       </div>
-                    </div>
+
+                      {/* Progress bar + count */}
+                      <div className="shrink-0 flex flex-col items-end gap-1 min-w-[72px]">
+                        <span className="text-xs font-black text-slate-600">
+                          {doneCount}/{totalTopics}
+                        </span>
+                        <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${pct}%`,
+                              background:
+                                pct === 100
+                                  ? "#4CAF50"
+                                  : pct >= 50
+                                    ? "#1E88E5"
+                                    : "#FFB74D",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Delete button — visible on row hover */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const recCount = recordings.filter(
+                          (r) =>
+                            r.studentName.trim().toLowerCase() ===
+                            student.name.trim().toLowerCase(),
+                        ).length;
+                        setDeleteStudentTarget({ student, recCount });
+                        setDeleteError("");
+                      }}
+                      className="shrink-0 p-2 group-hover:opacity-100 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                      title="Xóa học sinh"
+                    >
+                      <Trash2 size={15} />
+                    </button>
 
                     {/* Chevron */}
-                    <span
-                      className="shrink-0 text-slate-400 transition-transform duration-200"
-                      style={{
-                        transform: isExpanded
-                          ? "rotate(180deg)"
-                          : "rotate(0deg)",
-                      }}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedStudent(isExpanded ? null : student.id)
+                      }
+                      className="shrink-0 p-1 text-slate-400 hover:text-slate-600 transition-all"
                     >
-                      <ChevronDown size={16} />
-                    </span>
-                  </button>
+                      <span
+                        className="block transition-transform duration-200"
+                        style={{
+                          transform: isExpanded
+                            ? "rotate(180deg)"
+                            : "rotate(0deg)",
+                        }}
+                      >
+                        <ChevronDown size={16} />
+                      </span>
+                    </button>
+                  </div>
 
                   {/* Expanded: topic progress grid */}
                   {isExpanded && (
@@ -1207,6 +1266,83 @@ function StudentsManager() {
           </div>
         )}
       </div>
+
+      {/* ── Delete Student Modal ── */}
+      {deleteStudentTarget !== null && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+                <AlertCircle size={20} />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+                  Xóa học sinh
+                </h4>
+                <p className="text-sm text-slate-600 font-bold mt-0.5">
+                  {deleteStudentTarget.student.name}
+                </p>
+              </div>
+            </div>
+
+            {/* Warning if has recordings */}
+            {deleteStudentTarget.recCount > 0 ? (
+              <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 space-y-2">
+                <div className="flex items-center gap-2 text-amber-700 font-extrabold text-sm">
+                  <AlertCircle size={16} className="shrink-0" />
+                  Cảnh báo: học sinh này có dữ liệu bài nộp!
+                </div>
+                <p className="text-xs text-amber-600 font-bold">
+                  Học sinh này đã nộp{" "}
+                  <span className="font-black text-amber-800">
+                    {deleteStudentTarget.recCount} bài ghi âm
+                  </span>
+                  . Nếu xóa tài khoản, các bài nộp vẫn được giữ lại trong hệ thống nhưng học sinh sẽ không thể đăng nhập nữa.
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 font-medium">
+                Học sinh này chưa có bài nộp nào. Bạn có chắc chắn muốn xóa?
+              </p>
+            )}
+
+            {/* Error */}
+            {deleteError && (
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                <AlertCircle size={14} className="shrink-0" />
+                {deleteError}
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setDeleteStudentTarget(null)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={deleteStudent}
+                disabled={deleteSaving}
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center justify-center gap-2"
+              >
+                {deleteSaving ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  <Trash2 size={15} />
+                )}
+                {deleteStudentTarget.recCount > 0
+                  ? "Đồng ý xóa"
+                  : "Xóa học sinh"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Create Student Modal ── */}
       {showCreateForm && (
