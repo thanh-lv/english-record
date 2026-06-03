@@ -13,10 +13,56 @@ import {
   Award,
   Clock,
   ImageOff,
+  Star,
+  MessageSquare,
 } from "lucide-react";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { supabase } from "./lib/supabase";
 import { s3Client, S3_BUCKET } from "./lib/s3";
+
+function TeacherFeedback({ recording }: { recording: any }) {
+  if (!recording) return null;
+  const hasRating = recording.teacher_rating > 0;
+  const hasText =
+    recording.teacher_feedback && recording.teacher_feedback.trim().length > 0;
+
+  if (!hasRating && !hasText) return null;
+
+  return (
+    <div className="w-full mt-3 bg-gradient-to-br from-[#FFF8E1] to-[#FFF9C4] border-2 border-[#FFD54F] rounded-2xl p-4 shadow-sm relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-bl-full -mr-2 -mt-2 blur-md"></div>
+
+      <h4 className="text-sm font-black text-amber-800 flex items-center gap-2 mb-3 relative z-10">
+        <MessageSquare size={16} className="text-amber-600" /> Nhận xét của Cô
+        giáo:
+      </h4>
+
+      <div className="space-y-3 relative z-10">
+        {hasRating && (
+          <div className="flex items-center gap-1.5 bg-white/50 w-fit px-3 py-1.5 rounded-xl border border-amber-200">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={20}
+                className={
+                  star <= recording.teacher_rating
+                    ? "text-amber-400 fill-amber-400 drop-shadow-sm"
+                    : "text-amber-100 fill-amber-100"
+                }
+              />
+            ))}
+          </div>
+        )}
+
+        {hasText && (
+          <p className="text-slate-700 font-bold bg-white p-3 rounded-xl border border-amber-200 text-sm italic">
+            "{recording.teacher_feedback}"
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function StudentView({
   user,
@@ -462,7 +508,7 @@ export default function StudentView({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-5">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-5">
           {totalNumbers.map((num) => {
             const topic = activeTopics[num - 1];
             let isCompleted = completedNumbers.includes(num);
@@ -576,8 +622,14 @@ export default function StudentView({
                       />
                     ) : (
                       <div className="flex flex-col items-center gap-2">
-                        <ImageOff size={48} className="text-slate-200" strokeWidth={1.5} />
-                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">Không có ảnh</span>
+                        <ImageOff
+                          size={48}
+                          className="text-slate-200"
+                          strokeWidth={1.5}
+                        />
+                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
+                          Không có ảnh
+                        </span>
                       </div>
                     )}
                   </div>
@@ -625,6 +677,7 @@ export default function StudentView({
                             className="w-full h-11"
                           />
                         </div>
+                        <TeacherFeedback recording={matchedRecording} />
                       </div>
                     ) : (
                       <div className="w-full pt-2 border-t-2 border-dashed border-slate-200 flex flex-col items-center justify-center">
@@ -728,6 +781,9 @@ export default function StudentView({
                                 className="w-full h-11"
                               />
                             </div>
+                            <TeacherFeedback
+                              recording={matchedQuestionRecording}
+                            />
                           </div>
                         ) : (
                           <div className="flex flex-col items-center justify-center space-y-4">
