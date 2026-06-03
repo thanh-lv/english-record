@@ -76,12 +76,29 @@ export function ExercisesTab({
             }
           }
 
+          const totalQs =
+            isBongBe && topic?.questions ? topic.questions.length : 1;
+          const answeredQs =
+            isBongBe && topic?.questions
+              ? topic.questions.filter((q: any) =>
+                  myRecordings.some(
+                    (rec) =>
+                      rec.topicNumber === num &&
+                      (rec.question_id === q.id || rec.questionText === q.text),
+                  ),
+                ).length
+              : isCompleted
+                ? 1
+                : 0;
+          const progressPct =
+            totalQs > 0 ? Math.round((answeredQs / totalQs) * 100) : 0;
+
           return (
             <button
               key={num}
               type="button"
               onClick={(e) => onTopicClick(num, e)}
-              className={`aspect-square cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1.5 group border-3 relative ${
+              className={`cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1.5 group border-3 relative px-2 py-3 ${
                 isCompleted
                   ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
                   : isPartiallyCompleted
@@ -94,7 +111,7 @@ export function ExercisesTab({
                   {getPrizeForTopic(num)}
                 </span>
               )}
-              <span className="text-4xl font-black tracking-tight group-hover:scale-125 transition-transform duration-300">
+              <span className="text-3xl font-black tracking-tight group-hover:scale-125 transition-transform duration-300">
                 {isBongBe ? `Test ${num}` : num}
               </span>
               {(isCompleted || isPartiallyCompleted) && (
@@ -104,6 +121,20 @@ export function ExercisesTab({
                   {isCompleted && <CheckCircle size={10} />} {progressText}
                 </span>
               )}
+              <div className="w-full px-1 mt-1">
+                <div className="w-full h-1.5 bg-black/10 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      isCompleted
+                        ? "bg-emerald-500"
+                        : isPartiallyCompleted
+                          ? "bg-orange-400"
+                          : "bg-transparent"
+                    }`}
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+              </div>
             </button>
           );
         })}
