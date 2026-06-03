@@ -16,6 +16,7 @@ import {
   Star,
   MessageSquare,
   Pencil,
+  BookOpen,
 } from "lucide-react";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { supabase } from "./lib/supabase";
@@ -119,6 +120,29 @@ export default function StudentView({
 
   const [imageLoading, setImageLoading] = useState(false);
   const [ttsLoading, setTtsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"exercises" | "achievements">(
+    "exercises",
+  );
+
+  const PRIZES = [
+    "🎈",
+    "🎁",
+    "🌟",
+    "🏅",
+    "👑",
+    "💎",
+    "🎀",
+    "🎯",
+    "🎨",
+    "🎭",
+    "🎪",
+    "🎡",
+    "🎢",
+    "🎠",
+  ];
+  const getPrizeForTopic = (topicNum: number) => {
+    return PRIZES[(topicNum - 1) % PRIZES.length];
+  };
   const [topicImage, setTopicImage] = useState<string | null>(null);
   const [topicAudio, setTopicAudio] = useState<string | null>(null);
   const [isPlayingTopicAudio, setIsPlayingTopicAudio] = useState(false);
@@ -525,92 +549,198 @@ export default function StudentView({
   }
 
   return (
-    <div>
-      <div className="space-y-8 animate-in fade-in duration-500">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 bg-white/70 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-[#E3F2FD] shadow-md relative">
-          <div className="space-y-1">
-            <h2 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setShowAvatarSelect(true)}
-                className="w-14 h-14 bg-white border-4 border-amber-200 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all rounded-full flex items-center justify-center text-3xl shadow-sm relative group"
-                title="Đổi Avatar"
-              >
-                {currentAvatar}
-                <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform">
-                  <Pencil size={10} />
-                </span>
-              </button>
-              Hello, <span className="text-[#FF8A80]">{profile.name}</span>! 👋
-            </h2>
-            <p className="text-slate-500 font-bold text-sm">
-              {isBongBe
-                ? "Con hãy nhấn vào các Test ở dưới để làm bài kiểm tra đặc biệt nhé!"
-                : "Con hãy nhấn vào số muốn chọn để xem chủ đề luyện nói nhé!"}
-            </p>
-          </div>
-          <div className="text-md font-extrabold text-[#1E88E5] bg-[#E3F2FD] border-2 border-[#90CAF9] px-5 py-2.5 rounded-full shadow-inner shrink-0">
-            Thử thách đã mở: {completedNumbers.length} / {totalNumbers.length}{" "}
-            🎁
+    <div className="flex flex-col md:flex-row gap-6 animate-in fade-in duration-500">
+      {/* Sidebar */}
+      <aside className="w-full md:w-64 shrink-0 space-y-4">
+        {/* Profile Card */}
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-[#E3F2FD] shadow-md text-center relative group">
+          <button
+            type="button"
+            onClick={() => setShowAvatarSelect(true)}
+            className="w-20 h-20 mx-auto bg-white border-4 border-amber-200 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all rounded-full flex items-center justify-center text-4xl shadow-sm relative mb-4"
+            title="Đổi Avatar"
+          >
+            {currentAvatar}
+            <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform">
+              <Pencil size={12} />
+            </span>
+          </button>
+          <h2 className="text-xl font-black text-slate-800 tracking-tight">
+            Hello, <span className="text-[#FF8A80]">{profile.name}</span>! 👋
+          </h2>
+          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full text-amber-700 text-sm font-bold shadow-sm">
+            <Award size={16} /> {completedNumbers.length} Quà tặng
           </div>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-5">
-          {totalNumbers.map((num) => {
-            const topic = activeTopics[num - 1];
-            let isCompleted = completedNumbers.includes(num);
-            let isPartiallyCompleted = false;
-            let progressText = "Đã làm";
-
-            if (isBongBe && topic && topic.questions) {
-              const totalQs = topic.questions.length;
-              const answeredQs = topic.questions.filter((q) =>
-                myRecordings.some(
-                  (rec) =>
-                    rec.topicNumber === num &&
-                    (rec.question_id === q.id || rec.questionText === q.text),
-                ),
-              ).length;
-
-              isCompleted = answeredQs === totalQs && totalQs > 0;
-              isPartiallyCompleted = answeredQs > 0 && answeredQs < totalQs;
-              if (answeredQs > 0) {
-                progressText = `${answeredQs}/${totalQs}`;
+        {/* Navigation */}
+        <nav className="bg-white/80 backdrop-blur-sm p-3 rounded-[2rem] border-3 border-slate-100 shadow-sm flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab("exercises")}
+            className={`flex items-center gap-3 px-5 py-4 rounded-xl font-extrabold text-sm transition-all ${
+              activeTab === "exercises"
+                ? "bg-[#E3F2FD] text-[#1E88E5] shadow-sm"
+                : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+            }`}
+          >
+            <BookOpen
+              size={20}
+              className={
+                activeTab === "exercises" ? "text-[#1E88E5]" : "text-slate-400"
               }
-            }
+            />
+            Bài tập của con
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("achievements")}
+            className={`flex items-center gap-3 px-5 py-4 rounded-xl font-extrabold text-sm transition-all ${
+              activeTab === "achievements"
+                ? "bg-amber-50 text-amber-600 shadow-sm"
+                : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+            }`}
+          >
+            <Award
+              size={20}
+              className={
+                activeTab === "achievements"
+                  ? "text-amber-500"
+                  : "text-slate-400"
+              }
+            />
+            Thành tích 🏆
+          </button>
+        </nav>
+      </aside>
 
-            return (
-              <button
-                key={num}
-                type="button"
-                onClick={(e) => handleNumberClick(num, e)}
-                className={`aspect-square cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1.5 group border-3 ${
-                  isCompleted
-                    ? "bg-slate-200/80 text-slate-500 border-slate-300 opacity-80 hover:bg-slate-300"
-                    : isPartiallyCompleted
-                      ? "bg-orange-50/80 text-orange-600 border-orange-300 hover:bg-orange-100"
-                      : "bg-[#FFF0F0] hover:bg-[#FFCDD2] text-[#E53935] border-[#EF9A9A]"
-                }`}
-              >
-                <span className="text-4xl font-black tracking-tight group-hover:scale-125 transition-transform duration-300">
-                  {isBongBe ? `Test ${num}` : num}
-                </span>
-                {(isCompleted || isPartiallyCompleted) && (
-                  <span
-                    className={`text-[10px] uppercase tracking-wider font-extrabold flex items-center gap-1 ${isCompleted ? "text-slate-500" : "text-orange-600"}`}
+      {/* Main Content */}
+      <div className="flex-1 min-w-0 space-y-6">
+        {activeTab === "exercises" && (
+          <div className="bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] border-3 border-white shadow-md">
+            <div className="mb-6 space-y-1">
+              <h3 className="text-2xl font-black text-slate-800">
+                Chọn bài học 📚
+              </h3>
+              <p className="text-slate-500 font-bold text-sm">
+                {isBongBe
+                  ? "Con hãy nhấn vào các Test ở dưới để làm bài kiểm tra đặc biệt nhé!"
+                  : "Con hãy nhấn vào số muốn chọn để xem chủ đề luyện nói nhé!"}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 sm:gap-5">
+              {totalNumbers.map((num) => {
+                const topic = activeTopics[num - 1];
+                let isCompleted = completedNumbers.includes(num);
+                let isPartiallyCompleted = false;
+                let progressText = "Đã làm";
+
+                if (isBongBe && topic && topic.questions) {
+                  const totalQs = topic.questions.length;
+                  const answeredQs = topic.questions.filter((q) =>
+                    myRecordings.some(
+                      (rec) =>
+                        rec.topicNumber === num &&
+                        (rec.question_id === q.id ||
+                          rec.questionText === q.text),
+                    ),
+                  ).length;
+
+                  isCompleted = answeredQs === totalQs && totalQs > 0;
+                  isPartiallyCompleted = answeredQs > 0 && answeredQs < totalQs;
+                  if (answeredQs > 0) {
+                    progressText = `${answeredQs}/${totalQs}`;
+                  }
+                }
+
+                return (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={(e) => handleNumberClick(num, e)}
+                    className={`aspect-square cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1.5 group border-3 relative ${
+                      isCompleted
+                        ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
+                        : isPartiallyCompleted
+                          ? "bg-orange-50/80 text-orange-600 border-orange-300 hover:bg-orange-100"
+                          : "bg-[#FFF0F0] hover:bg-[#FFCDD2] text-[#E53935] border-[#EF9A9A]"
+                    }`}
                   >
-                    {isCompleted ? (
-                      <CheckCircle size={12} />
-                    ) : (
-                      <Clock size={12} />
-                    )}{" "}
-                    {progressText}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+                    {isCompleted && (
+                      <span className="absolute -top-3 -right-3 text-2xl drop-shadow-md animate-in zoom-in spin-in-12 duration-500">
+                        {getPrizeForTopic(num)}
+                      </span>
+                    )}
+                    <span className="text-4xl font-black tracking-tight group-hover:scale-125 transition-transform duration-300">
+                      {isBongBe ? `Test ${num}` : num}
+                    </span>
+                    {(isCompleted || isPartiallyCompleted) && (
+                      <span
+                        className={`text-[10px] uppercase tracking-wider font-extrabold flex items-center gap-1 ${isCompleted ? "text-emerald-600" : "text-orange-600"}`}
+                      >
+                        {isCompleted && <CheckCircle size={10} />}{" "}
+                        {progressText}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "achievements" && (
+          <div className="bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] border-3 border-white shadow-md">
+            <div className="mb-8 space-y-2 text-center">
+              <h3 className="text-3xl font-black text-amber-500 flex items-center justify-center gap-3">
+                <Award size={32} /> Tủ đồ Thành tích <Award size={32} />
+              </h3>
+              <p className="text-slate-500 font-bold text-sm">
+                Mỗi bài học hoàn thành con sẽ nhận được một món quà. Hãy sưu tập
+                thật nhiều nhé!
+              </p>
+            </div>
+
+            {completedNumbers.length === 0 ? (
+              <div className="text-center py-16 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                <div className="text-5xl mb-4 opacity-50">🏆</div>
+                <p className="text-slate-400 font-bold">
+                  Con chưa nhận được món quà nào.
+                </p>
+                <p className="text-slate-400 text-sm mt-1">
+                  Hãy bắt đầu làm bài tập ngay thôi!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-6">
+                {totalNumbers.map((num) => {
+                  const isCompleted = completedNumbers.includes(num);
+                  const prize = getPrizeForTopic(num);
+                  return (
+                    <div
+                      key={num}
+                      className={`aspect-square rounded-3xl flex flex-col items-center justify-center gap-2 border-4 transition-all duration-500 ${
+                        isCompleted
+                          ? "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-lg hover:scale-105 hover:shadow-xl"
+                          : "bg-slate-50 border-slate-100 opacity-50 grayscale"
+                      }`}
+                    >
+                      <span className="text-4xl drop-shadow-md">
+                        {isCompleted ? prize : "🔒"}
+                      </span>
+                      <span
+                        className={`text-xs font-black uppercase tracking-wider ${isCompleted ? "text-amber-700" : "text-slate-400"}`}
+                      >
+                        Topic {num}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {selectedNumber && currentTopic && (
