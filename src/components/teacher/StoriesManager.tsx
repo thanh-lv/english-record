@@ -28,6 +28,16 @@ export function StoriesManager() {
   const [deleteSaving, setDeleteSaving] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
+  // Manual write
+  const [showManual, setShowManual] = useState(false);
+  const [manualTitle, setManualTitle] = useState("");
+  const [manualContent, setManualContent] = useState("");
+  const [manualEmoji, setManualEmoji] = useState("📚");
+  const [manualType, setManualType] = useState("Truyện tranh");
+  const [manualYearBorn, setManualYearBorn] = useState("2015");
+  const [manualSaving, setManualSaving] = useState(false);
+  const [manualError, setManualError] = useState("");
+
   const [title, setTitle] = useState("");
   const [yearBorn, setYearBorn] = useState("2015");
   const [type, setType] = useState("Truyện tranh");
@@ -183,6 +193,44 @@ export function StoriesManager() {
     }
   };
 
+  const handleManualSave = async () => {
+    if (!manualTitle.trim() || !manualContent.trim()) {
+      setManualError("Please enter both title and content.");
+      return;
+    }
+    setManualSaving(true);
+    setManualError("");
+    try {
+      const ageGroup =
+        parseInt(manualYearBorn) >= new Date().getFullYear() - 5
+          ? "kindergarten"
+          : "primary";
+      const { data, error } = await supabase
+        .from("stories")
+        .insert({
+          title: manualTitle,
+          age_group: ageGroup,
+          type: manualType,
+          emoji: manualEmoji,
+          content: manualContent,
+          image_url: null,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      setStories([data, ...stories]);
+      setShowManual(false);
+      setManualTitle("");
+      setManualContent("");
+      setManualEmoji("📚");
+      setManualType("Truyện tranh");
+    } catch (err: any) {
+      setManualError(err.message);
+    } finally {
+      setManualSaving(false);
+    }
+  };
+
   const openEditStory = (story: any) => {
     setEditingStory(story);
     setEditTitle(story.title);
@@ -244,12 +292,23 @@ export function StoriesManager() {
         <h3 className="text-xl font-black text-slate-800">
           {t.common.manageStories}
         </h3>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md"
-        >
-          <Wand2 size={18} /> {t.common.createStory}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setShowManual(true);
+              setManualError("");
+            }}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md text-sm"
+          >
+            <Pencil size={16} /> Write
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md text-sm"
+          >
+            <Wand2 size={16} /> AI
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
@@ -420,6 +479,110 @@ export function StoriesManager() {
                   <Trash2 size={15} />
                 )}
                 {t.common.storyConfirmDelete}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manual Write Modal */}
+      {showManual && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-emerald-100 p-5 space-y-4 my-4">
+            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+              <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
+                <Pencil className="text-emerald-500" size={20} /> Write a Story
+              </h4>
+              <button
+                onClick={() => setShowManual(false)}
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                  {t.common.storyTitle}
+                </label>
+                <input
+                  value={manualTitle}
+                  onChange={(e) => setManualTitle(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-emerald-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                  {t.common.storyYearBorn}
+                </label>
+                <input
+                  type="number"
+                  value={manualYearBorn}
+                  onChange={(e) => setManualYearBorn(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-emerald-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                  {t.common.storyGenre}
+                </label>
+                <input
+                  value={manualType}
+                  onChange={(e) => setManualType(e.target.value)}
+                  placeholder={t.common.storyGenrePlaceholder}
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-emerald-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                  {t.common.storyEmoji}
+                </label>
+                <input
+                  value={manualEmoji}
+                  onChange={(e) => setManualEmoji(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-emerald-400 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                {t.common.storyContent}
+              </label>
+              <textarea
+                rows={8}
+                value={manualContent}
+                onChange={(e) => setManualContent(e.target.value)}
+                placeholder="Write the story content in English..."
+                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-medium focus:border-emerald-400 focus:outline-none resize-none leading-relaxed"
+              />
+            </div>
+
+            {manualError && (
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                <AlertCircle size={14} /> {manualError}
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setShowManual(false)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors"
+              >
+                {t.common.cancel}
+              </button>
+              <button
+                onClick={handleManualSave}
+                disabled={manualSaving}
+                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-full text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {manualSaving ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  <Save size={15} />
+                )}
+                {t.common.save}
               </button>
             </div>
           </div>

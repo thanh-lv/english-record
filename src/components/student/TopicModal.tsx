@@ -544,6 +544,7 @@ function BongBeQuestionPanel({
 }
 
 function StandardQuestionsPanel({ currentTopic }: { currentTopic: any }) {
+  const { t } = useLanguage();
   return (
     <div className="bg-white rounded-[2rem] p-6 border-3 border-[#FFF0F0] space-y-5 shadow-sm">
       <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b-2 border-dashed border-slate-100 pb-3">

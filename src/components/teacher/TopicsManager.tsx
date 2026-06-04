@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { S3_BUCKET, s3Client } from "../../lib/s3";
 import { supabase } from "../../lib/supabase";
 
@@ -20,7 +21,12 @@ export function TopicsManager() {
   const [topics, setTopics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
-  const [editingQuestion, setEditingQuestion] = useState<any>(null);
+  const [questionModal, setQuestionModal] = useState<{
+    mode: "add" | "edit";
+    topicId: string;
+    topicType: string;
+    question?: any;
+  } | null>(null);
   const [editValues, setEditValues] = useState({
     text: "",
     translation: "",
@@ -28,7 +34,6 @@ export function TopicsManager() {
     target: "",
     image_url: "",
   });
-  const [addingQuestion, setAddingQuestion] = useState<string | null>(null);
   const [newQuestion, setNewQuestion] = useState({
     text: "",
     translation: "",
@@ -47,6 +52,11 @@ export function TopicsManager() {
     "standard",
   );
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: "topic" | "question";
+    id: string;
+    label: string;
+  } | null>(null);
 
   const fetchTopics = async () => {
     setLoading(true);
@@ -124,7 +134,13 @@ export function TopicsManager() {
   };
 
   const saveQuestion = async () => {
-    if (!editingQuestion || !editValues.text.trim()) return;
+    if (
+      !questionModal ||
+      questionModal.mode !== "edit" ||
+      !questionModal.question ||
+      !editValues.text.trim()
+    )
+      return;
     setSaving(true);
     try {
       const { error } = await supabase
@@ -136,19 +152,17 @@ export function TopicsManager() {
           target: editValues.target || null,
           image_url: editValues.image_url || null,
         })
-        .eq("id", editingQuestion.id);
+        .eq("id", questionModal.question.id);
       if (error) throw error;
-      setEditingQuestion(null);
+      setQuestionModal(null);
       fetchTopics();
     } finally {
       setSaving(false);
     }
   };
 
-  const deleteQuestion = async (id: string) => {
-    if (!confirm(t.common.deleteQuestionConfirm)) return;
-    await supabase.from("questions").delete().eq("id", id);
-    fetchTopics();
+  const deleteQuestion = (id: string, text: string) => {
+    setDeleteTarget({ type: "question", id, label: text });
   };
 
   const addQuestion = async (topicId: string) => {
@@ -167,7 +181,7 @@ export function TopicsManager() {
         order_index: maxOrder,
       });
       if (error) throw error;
-      setAddingQuestion(null);
+      setQuestionModal(null);
       setNewQuestion({
         text: "",
         translation: "",
@@ -197,9 +211,19 @@ export function TopicsManager() {
     }
   };
 
-  const deleteTopic = async (topicId: string) => {
-    if (!confirm(t.common.deleteTopicConfirm)) return;
-    await supabase.from("topics").delete().eq("id", topicId);
+  const deleteTopic = (topicId: string, title: string) => {
+    setDeleteTarget({ type: "topic", id: topicId, label: title });
+  };
+
+  const confirmDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!deleteTarget) return;
+    if (deleteTarget.type === "question") {
+      await supabase.from("questions").delete().eq("id", deleteTarget.id);
+    } else {
+      await supabase.from("topics").delete().eq("id", deleteTarget.id);
+    }
+    setDeleteTarget(null);
     fetchTopics();
   };
 
@@ -362,7 +386,7 @@ export function TopicsManager() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => deleteTopic(topic.id)}
+                      onClick={() => deleteTopic(topic.id, topic.title)}
                       className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
                     >
                       <Trash2 size={14} />
@@ -376,341 +400,312 @@ export function TopicsManager() {
                 <div className="border-t-2 border-slate-100 divide-y divide-gray-500">
                   {topic.questions.map((q: any) => (
                     <div key={q.id} className="px-4 py-3">
-                      {editingQuestion?.id === q.id ? (
-                        <div className="space-y-2">
-                          <div>
-                            <label className="text-slate-600 font-extrabold text-sm">
-                              {t.common.questionLabel}
-                            </label>
-                            <input
-                              value={editValues.text}
-                              onChange={(e) =>
-                                setEditValues({
-                                  ...editValues,
-                                  text: e.target.value,
-                                })
-                              }
-                              placeholder={t.common.questionPlaceholder}
-                              className="w-full px-3 py-2 rounded-xl border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-slate-600 font-extrabold text-sm">
-                              {t.common.translationLabel}
-                            </label>
-                            <input
-                              value={editValues.translation}
-                              onChange={(e) =>
-                                setEditValues({
-                                  ...editValues,
-                                  translation: e.target.value,
-                                })
-                              }
-                              placeholder={t.common.translationPlaceholder}
-                              className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-slate-400"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-slate-600 font-extrabold text-sm">
-                              {t.common.sampleAnswerLabel}
-                            </label>
-                            <input
-                              value={editValues.sample_answer}
-                              onChange={(e) =>
-                                setEditValues({
-                                  ...editValues,
-                                  sample_answer: e.target.value,
-                                })
-                              }
-                              placeholder={t.common.sampleAnswerPlaceholder}
-                              className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-slate-400"
-                            />
-                          </div>
-                          {topic.type === "bongbe" && (
-                            <input
-                              value={editValues.target}
-                              onChange={(e) =>
-                                setEditValues({
-                                  ...editValues,
-                                  target: e.target.value,
-                                })
-                              }
-                              placeholder={t.common.targetPlaceholder}
-                              className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-slate-400"
-                            />
-                          )}
-                          <div className="flex flex-col gap-1">
-                            <label className="text-slate-600 font-extrabold text-sm">
-                              {t.common.imageOptional}
-                            </label>
-                            <div className="flex items-center gap-3">
-                              <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer border-2 border-slate-200 transition-colors">
-                                {uploadingImage ? (
-                                  <Loader2 size={18} className="animate-spin" />
-                                ) : (
-                                  <ImagePlus size={18} />
-                                )}
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  onChange={(e) => handleImageUpload(e, false)}
-                                  disabled={uploadingImage}
-                                />
-                              </label>
-                              {editValues.image_url ? (
-                                <div className="relative group">
-                                  <img
-                                    src={editValues.image_url}
-                                    alt="Minh hoạ"
-                                    className="h-10 w-10 object-cover rounded-lg border border-slate-200"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setEditValues({
-                                        ...editValues,
-                                        image_url: "",
-                                      })
-                                    }
-                                    className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  >
-                                    <X size={12} />
-                                  </button>
-                                </div>
-                              ) : (
-                                <span className="text-xs text-slate-400 font-bold">
-                                  {t.common.noImageYet}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-2 pt-2">
-                            <button
-                              type="button"
-                              onClick={saveQuestion}
-                              disabled={saving}
-                              className="px-4 py-1.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1"
-                            >
-                              {saving ? (
-                                <Loader2 size={14} className="animate-spin" />
-                              ) : (
-                                <Check size={14} />
-                              )}{" "}
-                              {t.common.save}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingQuestion(null)}
-                              className="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200"
-                            >
-                              {t.common.cancel}
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-start gap-2 group">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-slate-800">
-                              {q.text}
+                      <div className="flex items-start gap-2 group">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-800">
+                            {q.text}
+                          </p>
+                          {q.translation && (
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              {q.translation}
                             </p>
-                            {q.translation && (
-                              <p className="text-xs text-slate-400 mt-0.5">
-                                {q.translation}
-                              </p>
-                            )}
-                            {q.sample_answer && (
-                              <p className="text-xs text-emerald-600 mt-0.5 italic">
-                                {q.sample_answer}
-                              </p>
-                            )}
-                            {q.target && (
-                              <p className="text-xs text-purple-500 mt-0.5">
-                                🎯 {q.target}
-                              </p>
-                            )}
-                          </div>
-                          {q.image_url && (
-                            <img
-                              src={q.image_url}
-                              alt="Question"
-                              className="w-12 h-12 object-cover rounded-xl border-2 border-slate-100 shrink-0 ml-2"
-                            />
                           )}
-                          <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEditingQuestion(q);
-                                setEditValues({
-                                  text: q.text,
-                                  translation: q.translation || "",
-                                  sample_answer: q.sample_answer || "",
-                                  target: q.target || "",
-                                  image_url: q.image_url || "",
-                                });
-                              }}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                            >
-                              <Pencil size={13} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => deleteQuestion(q.id)}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
+                          {q.sample_answer && (
+                            <p className="text-xs text-emerald-600 mt-0.5 italic">
+                              {q.sample_answer}
+                            </p>
+                          )}
+                          {q.target && (
+                            <p className="text-xs text-purple-500 mt-0.5">
+                              🎯 {q.target}
+                            </p>
+                          )}
                         </div>
-                      )}
+                        {q.image_url && (
+                          <img
+                            src={q.image_url}
+                            alt="Question"
+                            className="w-12 h-12 object-cover rounded-xl border-2 border-slate-100 shrink-0 ml-2"
+                          />
+                        )}
+                        <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setQuestionModal({
+                                mode: "edit",
+                                topicId: topic.id,
+                                topicType: topic.type,
+                                question: q,
+                              });
+                              setEditValues({
+                                text: q.text,
+                                translation: q.translation || "",
+                                sample_answer: q.sample_answer || "",
+                                target: q.target || "",
+                                image_url: q.image_url || "",
+                              });
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                          >
+                            <Pencil size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteQuestion(q.id, q.text)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   ))}
 
-                  {/* Add question */}
-                  {addingQuestion === topic.id ? (
-                    <div className="px-4 py-3 bg-slate-50 space-y-2">
-                      <input
-                        autoFocus
-                        value={newQuestion.text}
-                        onChange={(e) =>
-                          setNewQuestion({
-                            ...newQuestion,
-                            text: e.target.value,
-                          })
-                        }
-                        placeholder={t.common.questionPlaceholder}
-                        className="w-full px-3 py-2 rounded-xl border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
-                      />
-                      <input
-                        value={newQuestion.translation}
-                        onChange={(e) =>
-                          setNewQuestion({
-                            ...newQuestion,
-                            translation: e.target.value,
-                          })
-                        }
-                        placeholder={t.common.translationPlaceholder}
-                        className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
-                      />
-                      <input
-                        value={newQuestion.sample_answer}
-                        onChange={(e) =>
-                          setNewQuestion({
-                            ...newQuestion,
-                            sample_answer: e.target.value,
-                          })
-                        }
-                        placeholder={t.common.sampleAnswerPlaceholder}
-                        className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
-                      />
-                      {topic.type === "bongbe" && (
-                        <input
-                          value={newQuestion.target}
-                          onChange={(e) =>
-                            setNewQuestion({
-                              ...newQuestion,
-                              target: e.target.value,
-                            })
-                          }
-                          placeholder={t.common.targetPlaceholder}
-                          className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
-                        />
-                      )}
-                      <div className="flex flex-col gap-1 py-1">
-                        <label className="text-slate-600 font-extrabold text-sm pl-1">
-                          {t.common.imageOptional}
-                        </label>
-                        <div className="flex items-center gap-3 pl-1">
-                          <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer border-2 border-slate-200 transition-colors">
-                            {uploadingImage ? (
-                              <Loader2 size={18} className="animate-spin" />
-                            ) : (
-                              <ImagePlus size={18} />
-                            )}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => handleImageUpload(e, true)}
-                              disabled={uploadingImage}
-                            />
-                          </label>
-                          {newQuestion.image_url ? (
-                            <div className="relative group">
-                              <img
-                                src={newQuestion.image_url}
-                                alt="Minh hoạ"
-                                className="h-10 w-10 object-cover rounded-lg border border-slate-200"
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setNewQuestion({
-                                    ...newQuestion,
-                                    image_url: "",
-                                  })
-                                }
-                                className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <X size={12} />
-                              </button>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-slate-400 font-bold">
-                              {t.common.noImageYet}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => addQuestion(topic.id)}
-                          disabled={saving}
-                          className="px-4 py-1.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-1"
-                        >
-                          {saving ? (
-                            <Loader2 size={14} className="animate-spin" />
-                          ) : (
-                            <Plus size={14} />
-                          )}{" "}
-                          {t.common.add}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setAddingQuestion(null)}
-                          className="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200"
-                        >
-                          {t.common.cancel}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="px-4 py-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAddingQuestion(topic.id);
-                          setNewQuestion({
-                            text: "",
-                            translation: "",
-                            sample_answer: "",
-                            target: "",
-                            image_url: "",
-                          });
-                        }}
-                        className="text-sm text-slate-400 hover:text-emerald-600 font-bold flex items-center gap-1 py-1"
-                      >
-                        <Plus size={14} /> {t.common.addQuestion}
-                      </button>
-                    </div>
-                  )}
+                  {/* Add question button */}
+                  <div className="px-4 py-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuestionModal({
+                          mode: "add",
+                          topicId: topic.id,
+                          topicType: topic.type,
+                        });
+                        setNewQuestion({
+                          text: "",
+                          translation: "",
+                          sample_answer: "",
+                          target: "",
+                          image_url: "",
+                        });
+                      }}
+                      className="text-sm text-slate-400 hover:text-emerald-600 font-bold flex items-center gap-1 py-1"
+                    >
+                      <Plus size={14} /> {t.common.addQuestion}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           ))}
         </div>
+      )}
+
+      {/* Question modal (add / edit) */}
+      {questionModal && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl border-4 border-blue-100 p-6 space-y-4 my-4">
+            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+              <h4 className="font-black text-lg text-slate-800">
+                {questionModal.mode === "add"
+                  ? t.common.addQuestion
+                  : t.common.edit +
+                    " " +
+                    t.common.questionLabel.replace(":", "")}
+              </h4>
+              <button
+                onClick={() => setQuestionModal(null)}
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Form fields */}
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+                  {t.common.questionLabel.replace(":", "")}
+                </label>
+                <input
+                  autoFocus
+                  value={
+                    questionModal.mode === "add"
+                      ? newQuestion.text
+                      : editValues.text
+                  }
+                  onChange={(e) =>
+                    questionModal.mode === "add"
+                      ? setNewQuestion({ ...newQuestion, text: e.target.value })
+                      : setEditValues({ ...editValues, text: e.target.value })
+                  }
+                  placeholder={t.common.questionPlaceholder}
+                  className="w-full px-3 py-2.5 rounded-xl border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+                  {t.common.translationLabel.replace(":", "")}
+                </label>
+                <input
+                  value={
+                    questionModal.mode === "add"
+                      ? newQuestion.translation
+                      : editValues.translation
+                  }
+                  onChange={(e) =>
+                    questionModal.mode === "add"
+                      ? setNewQuestion({
+                          ...newQuestion,
+                          translation: e.target.value,
+                        })
+                      : setEditValues({
+                          ...editValues,
+                          translation: e.target.value,
+                        })
+                  }
+                  placeholder={t.common.translationPlaceholder}
+                  className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+                  {t.common.sampleAnswerLabel.replace(":", "")}
+                </label>
+                <input
+                  value={
+                    questionModal.mode === "add"
+                      ? newQuestion.sample_answer
+                      : editValues.sample_answer
+                  }
+                  onChange={(e) =>
+                    questionModal.mode === "add"
+                      ? setNewQuestion({
+                          ...newQuestion,
+                          sample_answer: e.target.value,
+                        })
+                      : setEditValues({
+                          ...editValues,
+                          sample_answer: e.target.value,
+                        })
+                  }
+                  placeholder={t.common.sampleAnswerPlaceholder}
+                  className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
+                />
+              </div>
+              {questionModal.topicType === "bongbe" && (
+                <div>
+                  <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+                    {t.common.targetPlaceholder}
+                  </label>
+                  <input
+                    value={
+                      questionModal.mode === "add"
+                        ? newQuestion.target
+                        : editValues.target
+                    }
+                    onChange={(e) =>
+                      questionModal.mode === "add"
+                        ? setNewQuestion({
+                            ...newQuestion,
+                            target: e.target.value,
+                          })
+                        : setEditValues({
+                            ...editValues,
+                            target: e.target.value,
+                          })
+                    }
+                    placeholder={t.common.targetPlaceholder}
+                    className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
+                  />
+                </div>
+              )}
+              <div>
+                <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+                  {t.common.imageOptional.replace(":", "")}
+                </label>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer border-2 border-slate-200 transition-colors">
+                    {uploadingImage ? (
+                      <Loader2 size={18} className="animate-spin" />
+                    ) : (
+                      <ImagePlus size={18} />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) =>
+                        handleImageUpload(e, questionModal.mode === "add")
+                      }
+                      disabled={uploadingImage}
+                    />
+                  </label>
+                  {(
+                    questionModal.mode === "add"
+                      ? newQuestion.image_url
+                      : editValues.image_url
+                  ) ? (
+                    <div className="relative group">
+                      <img
+                        src={
+                          questionModal.mode === "add"
+                            ? newQuestion.image_url
+                            : editValues.image_url
+                        }
+                        alt=""
+                        className="h-10 w-10 object-cover rounded-lg border border-slate-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          questionModal.mode === "add"
+                            ? setNewQuestion({ ...newQuestion, image_url: "" })
+                            : setEditValues({ ...editValues, image_url: "" })
+                        }
+                        className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-400 font-bold">
+                      {t.common.noImageYet}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setQuestionModal(null)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors"
+              >
+                {t.common.cancel}
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() =>
+                  questionModal.mode === "add"
+                    ? addQuestion(questionModal.topicId)
+                    : saveQuestion()
+                }
+                className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-full text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {saving ? <Loader2 size={15} className="animate-spin" /> : null}
+                {questionModal.mode === "add" ? t.common.add : t.common.save}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <DeleteConfirmModal
+          title={
+            deleteTarget.type === "topic"
+              ? t.common.deleteTopicConfirm
+              : t.common.deleteQuestionConfirm
+          }
+          description={deleteTarget.label}
+          confirmLabel={t.common.confirmDelete}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
       )}
     </div>
   );

@@ -52,6 +52,11 @@ export function CompletionCelebration({
     return () => clearTimeout(timer);
   }, [show]);
 
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(onClose, 400);
+  };
+
   if (!show && !visible) return null;
 
   return (
@@ -63,7 +68,7 @@ export function CompletionCelebration({
       {/* backdrop */}
       <div
         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* falling particles */}
@@ -128,7 +133,7 @@ export function CompletionCelebration({
         </div>
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           className="mt-2 px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all border-b-4 border-emerald-700 text-sm"
         >
           {t.celebration.button}
