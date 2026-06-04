@@ -10,6 +10,7 @@ import { TopicModal } from "./components/student/TopicModal";
 import { useAvatar } from "./components/student/hooks/useAvatar";
 import { useRecording } from "./components/student/hooks/useRecording";
 import { useStudentData } from "./components/student/hooks/useStudentData";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 
 type ActiveTab = "exercises" | "stories" | "achievements";
 
@@ -236,6 +237,22 @@ export default function StudentView({
     { length: activeTopics.length },
     (_, i) => i + 1,
   );
+
+  useKeyboardShortcuts({
+    isModalOpen: !!selectedNumber,
+    isRecording: recording.isRecording,
+    onPlayPause: () => {
+      if (!topicAudio || !currentTopic) return;
+      playTopicAudio({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent);
+    },
+    onStartRecord: () => {
+      recording.startRecording({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent);
+    },
+    onStopRecord: () => {
+      recording.stopRecording();
+    },
+    onClose: handleCloseTopicModal,
+  });
 
   if (topicsLoading) {
     return (

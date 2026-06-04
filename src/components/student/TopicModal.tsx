@@ -255,6 +255,12 @@ export function TopicModal({
             </div>
           </div>
 
+          <div className="hidden md:flex items-center justify-center gap-4 text-[10px] text-slate-300 font-bold">
+            <span><kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono">Space</kbd> play audio</span>
+            <span><kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono">R</kbd> record</span>
+            <span><kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono">Esc</kbd> close</span>
+          </div>
+
           {appError && (
             <div className="bg-[#FFEBEE] border-2 border-[#FFCDD2] text-rose-700 text-sm px-5 py-4 rounded-2xl flex items-start gap-2 text-left relative mt-4">
               <AlertCircle size={20} className="shrink-0" />
