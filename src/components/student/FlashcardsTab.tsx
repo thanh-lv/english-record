@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Volume2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Shuffle, Volume2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "../../lib/supabase";
@@ -126,6 +126,17 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
   const [cards, setCards] = useState<VocabCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [shuffled, setShuffled] = useState(false);
+
+  const toggleShuffle = () => {
+    setCards((prev) =>
+      shuffled
+        ? [...prev].sort((a, b) => a.order_index - b.order_index)
+        : [...prev].sort(() => Math.random() - 0.5),
+    );
+    setCurrentIndex(0);
+    setShuffled((s) => !s);
+  };
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -181,12 +192,21 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
               )}
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleShuffle}
+              className={`p-2 rounded-full transition-colors ${shuffled ? "bg-blue-100 text-[#1E88E5]" : "hover:bg-slate-100 text-slate-400"}`}
+              title="Shuffle"
+            >
+              <Shuffle size={18} />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Card area */}
