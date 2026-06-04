@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 
 interface CreateStudentModalProps {
@@ -25,16 +26,17 @@ export function CreateStudentModal({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const { t } = useLanguage();
 
   const handleCreate = async () => {
     const trimName = name.trim();
     const trimPass = password.trim();
     if (trimName.length < 2) {
-      setError("Tên phải có ít nhất 2 ký tự.");
+      setError(t.common.nameMin);
       return;
     }
     if (trimPass.length < 3) {
-      setError("Mật khẩu phải có ít nhất 3 ký tự.");
+      setError(t.common.passwordMin);
       return;
     }
 
@@ -47,7 +49,7 @@ export function CreateStudentModal({
         .ilike("name", trimName)
         .maybeSingle();
       if (existing) {
-        setError("Tên này đã tồn tại. Vui lòng chọn tên khác.");
+        setError(t.common.nameDuplicate);
         return;
       }
 
@@ -80,10 +82,10 @@ export function CreateStudentModal({
           </div>
           <div>
             <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
-              Thêm học sinh mới
+              {t.teacherModal.addStudentTitle}
             </h4>
             <p className="text-xs text-slate-400 font-medium">
-              Tạo tài khoản cho học sinh
+              {t.common.createStudentTitle}
             </p>
           </div>
           <button
@@ -98,7 +100,7 @@ export function CreateStudentModal({
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
-              Tên học sinh
+              {t.common.studentName}
             </label>
             <input
               autoFocus
@@ -108,13 +110,13 @@ export function CreateStudentModal({
                 setError("");
               }}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-              placeholder="Ví dụ: Tuệ Minh, Bông bé..."
+              placeholder={t.login.namePlaceholder}
               className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
             />
           </div>
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
-              Năm sinh
+              {t.common.yearBorn}
             </label>
             <input
               type="number"
@@ -124,13 +126,13 @@ export function CreateStudentModal({
                 setError("");
               }}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-              placeholder="Ví dụ: 2015"
+              placeholder={t.common.yearBornPlaceholder}
               className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
             />
           </div>
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
-              Mật khẩu
+              {t.common.password}
             </label>
             <div className="relative">
               <input
@@ -141,7 +143,7 @@ export function CreateStudentModal({
                   setError("");
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-                placeholder="Nhập mật khẩu..."
+                placeholder={t.login.passwordPlaceholder}
                 className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
               />
               <button
@@ -166,7 +168,7 @@ export function CreateStudentModal({
             onClick={onClose}
             className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
           >
-            Hủy
+            {t.common.cancel}
           </button>
           <button
             type="button"
@@ -179,7 +181,7 @@ export function CreateStudentModal({
             ) : (
               <Check size={15} />
             )}
-            Tạo học sinh
+            {t.common.createStudent}
           </button>
         </div>
       </div>

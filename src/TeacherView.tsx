@@ -1,4 +1,5 @@
 import { AlertCircle } from "lucide-react";
+import { useLanguage } from "./i18n/LanguageContext";
 import { RecordingsPanel } from "./components/teacher/RecordingsPanel";
 import { StoriesManager } from "./components/teacher/StoriesManager";
 import { StudentsManager } from "./components/teacher/StudentsManager";
@@ -25,6 +26,7 @@ export default function TeacherView({
   addNotification: (record: any) => void;
   activeTabSignal?: string;
 }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<TeacherTab>("recordings");
   const [highlightRecordId, setHighlightRecordId] = useState<string | null>(
     null,
@@ -83,8 +85,8 @@ export default function TeacherView({
 
       {deleteTargetId !== null && (
         <DeleteConfirmModal
-          title="Xác nhận xóa"
-          description="Thầy cô có chắc chắn muốn xóa bài ghi âm của học sinh này khỏi hệ thống không?"
+          title={t.common.deleteRecordingTitle}
+          description={t.common.deleteRecordingDesc}
           onConfirm={confirmDelete}
           onCancel={() => setDeleteTargetId(null)}
         />

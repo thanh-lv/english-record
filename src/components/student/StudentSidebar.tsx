@@ -1,12 +1,7 @@
 import { Award, BookOpen, Flame, Library, Pencil } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 type ActiveTab = "exercises" | "stories" | "achievements";
-
-const NAV_ITEMS: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
-  { id: "exercises", label: "Bài tập", icon: <BookOpen size={20} /> },
-  { id: "stories", label: "Truyện kể", icon: <Library size={20} /> },
-  { id: "achievements", label: "Thành tích", icon: <Award size={20} /> },
-];
 
 interface StudentSidebarProps {
   profile: any;
@@ -27,16 +22,36 @@ export function StudentSidebar({
   onTabChange,
   onAvatarClick,
 }: StudentSidebarProps) {
+  const { t } = useLanguage();
+
+  const NAV_ITEMS = [
+    {
+      id: "exercises" as ActiveTab,
+      label: t.sidebar.exercises,
+      icon: <BookOpen size={20} />,
+    },
+    {
+      id: "stories" as ActiveTab,
+      label: t.sidebar.stories,
+      icon: <Library size={20} />,
+    },
+    {
+      id: "achievements" as ActiveTab,
+      label: t.sidebar.achievements,
+      icon: <Award size={20} />,
+    },
+  ];
+
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-64 shrink-0 space-y-4">
-        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-[#E3F2FD] shadow-md text-center relative group">
+        <div className="bg-white/80 backdrop-blur-sm p-3 rounded-[2rem] border-3 border-[#E3F2FD] shadow-md text-center relative group">
           <button
             type="button"
             onClick={onAvatarClick}
             className="w-20 h-20 mx-auto bg-white border-4 border-amber-200 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all rounded-full flex items-center justify-center text-4xl shadow-sm relative mb-4"
-            title="Đổi Avatar"
+            title={t.common.changeAvatar}
           >
             {currentAvatar}
             <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform">
@@ -44,11 +59,12 @@ export function StudentSidebar({
             </span>
           </button>
           <h2 className="text-xl font-black text-slate-800 tracking-tight">
-            Hello, <span className="text-[#FF8A80]">{profile.name}</span>! 👋
+            {t.sidebar.hello}{" "}
+            <span className="text-[#FF8A80]">{profile.name}</span>! 👋
           </h2>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full text-amber-700 text-sm font-bold shadow-sm">
-              <Award size={16} /> {completedNumbers.length} Quà
+              <Award size={16} /> {completedNumbers.length} {t.sidebar.prizes}
             </div>
             <div
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm border ${streak > 0 ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}
@@ -61,7 +77,9 @@ export function StudentSidebar({
                     : "text-slate-400"
                 }
               />
-              {streak > 0 ? `${streak} Ngày` : "Bắt đầu học!"}
+              {streak > 0
+                ? `${streak} ${t.sidebar.days}`
+                : t.sidebar.startLearning}
             </div>
           </div>
         </div>
@@ -105,15 +123,16 @@ export function StudentSidebar({
         </button>
         <div className="flex-1 min-w-0">
           <p className="font-black text-slate-800 text-sm truncate">
-            Hello, <span className="text-[#FF8A80]">{profile.name}</span>! 👋
+            {t.sidebar.hello}{" "}
+            <span className="text-[#FF8A80]">{profile.name}</span>! 👋
           </p>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-xs font-bold text-amber-600">
-              🎁 {completedNumbers.length} Quà
+              🎁 {completedNumbers.length} {t.sidebar.prizes}
             </span>
             {streak > 0 && (
               <span className="text-xs font-bold text-orange-500">
-                🔥 {streak} Ngày
+                🔥 {streak} {t.sidebar.days}
               </span>
             )}
           </div>

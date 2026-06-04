@@ -11,10 +11,12 @@ import {
   X,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { S3_BUCKET, s3Client } from "../../lib/s3";
 import { supabase } from "../../lib/supabase";
 
 export function TopicsManager() {
+  const { t } = useLanguage();
   const [topics, setTopics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
@@ -144,7 +146,7 @@ export function TopicsManager() {
   };
 
   const deleteQuestion = async (id: string) => {
-    if (!confirm("Xóa câu hỏi này?")) return;
+    if (!confirm(t.common.deleteQuestionConfirm)) return;
     await supabase.from("questions").delete().eq("id", id);
     fetchTopics();
   };
@@ -196,7 +198,7 @@ export function TopicsManager() {
   };
 
   const deleteTopic = async (topicId: string) => {
-    if (!confirm("Xóa topic này và toàn bộ câu hỏi?")) return;
+    if (!confirm(t.common.deleteTopicConfirm)) return;
     await supabase.from("topics").delete().eq("id", topicId);
     fetchTopics();
   };
@@ -231,7 +233,7 @@ export function TopicsManager() {
             onClick={() => setActiveType(type)}
             className={`px-5 py-2 rounded-full font-extrabold text-sm border-2 transition-all ${activeType === type ? "bg-[#1E88E5] text-white border-blue-800 shadow" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
           >
-            {type === "standard" ? "📚 Học sinh" : "🌸 Bông bé"}
+            {type === "standard" ? `📚 ${t.teacherNav.students}` : "🌸 Bông bé"}
           </button>
         ))}
         <button
@@ -242,7 +244,7 @@ export function TopicsManager() {
           }}
           className="ml-auto px-4 py-2 rounded-full font-extrabold text-sm bg-emerald-50 text-emerald-700 border-2 border-emerald-200 hover:bg-emerald-100 flex items-center gap-1"
         >
-          <Plus size={15} /> Thêm topic
+          <Plus size={15} /> {t.common.addTopic}
         </button>
       </div>
 
@@ -253,7 +255,7 @@ export function TopicsManager() {
             autoFocus
             value={newTopicTitle}
             onChange={(e) => setNewTopicTitle(e.target.value)}
-            placeholder="Tên topic mới..."
+            placeholder={t.common.newTopicPlaceholder}
             onKeyDown={(e) => e.key === "Enter" && addTopic()}
             className="flex-1 px-4 py-2 rounded-xl border-2 border-emerald-200 text-sm font-bold focus:outline-none focus:border-emerald-400"
           />
@@ -342,7 +344,7 @@ export function TopicsManager() {
                     {topic.title}
                   </span>
                   <span className="text-xs text-slate-400 font-bold shrink-0">
-                    {topic.questions.length} câu
+                    {topic.questions.length} {t.common.questionCount}
                   </span>
                   <div
                     className="flex gap-1 shrink-0"
@@ -378,7 +380,7 @@ export function TopicsManager() {
                         <div className="space-y-2">
                           <div>
                             <label className="text-slate-600 font-extrabold text-sm">
-                              Câu hỏi:
+                              {t.common.questionLabel}
                             </label>
                             <input
                               value={editValues.text}
@@ -388,13 +390,13 @@ export function TopicsManager() {
                                   text: e.target.value,
                                 })
                               }
-                              placeholder="Câu hỏi*"
+                              placeholder={t.common.questionPlaceholder}
                               className="w-full px-3 py-2 rounded-xl border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
                             />
                           </div>
                           <div>
                             <label className="text-slate-600 font-extrabold text-sm">
-                              Dịch nghĩa:
+                              {t.common.translationLabel}
                             </label>
                             <input
                               value={editValues.translation}
@@ -404,13 +406,13 @@ export function TopicsManager() {
                                   translation: e.target.value,
                                 })
                               }
-                              placeholder="Dịch nghĩa"
+                              placeholder={t.common.translationPlaceholder}
                               className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-slate-400"
                             />
                           </div>
                           <div>
                             <label className="text-slate-600 font-extrabold text-sm">
-                              Câu trả lời mẫu:
+                              {t.common.sampleAnswerLabel}
                             </label>
                             <input
                               value={editValues.sample_answer}
@@ -420,7 +422,7 @@ export function TopicsManager() {
                                   sample_answer: e.target.value,
                                 })
                               }
-                              placeholder="Câu trả lời mẫu"
+                              placeholder={t.common.sampleAnswerPlaceholder}
                               className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-slate-400"
                             />
                           </div>
@@ -433,13 +435,13 @@ export function TopicsManager() {
                                   target: e.target.value,
                                 })
                               }
-                              placeholder="Target (từ vựng cho ảnh)"
+                              placeholder={t.common.targetPlaceholder}
                               className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-slate-400"
                             />
                           )}
                           <div className="flex flex-col gap-1">
                             <label className="text-slate-600 font-extrabold text-sm">
-                              Ảnh minh hoạ (Tùy chọn):
+                              {t.common.imageOptional}
                             </label>
                             <div className="flex items-center gap-3">
                               <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer border-2 border-slate-200 transition-colors">
@@ -478,7 +480,7 @@ export function TopicsManager() {
                                 </div>
                               ) : (
                                 <span className="text-xs text-slate-400 font-bold">
-                                  Chưa có ảnh
+                                  {t.common.noImageYet}
                                 </span>
                               )}
                             </div>
@@ -495,14 +497,14 @@ export function TopicsManager() {
                               ) : (
                                 <Check size={14} />
                               )}{" "}
-                              Lưu
+                              {t.common.save}
                             </button>
                             <button
                               type="button"
                               onClick={() => setEditingQuestion(null)}
                               className="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200"
                             >
-                              Hủy
+                              {t.common.cancel}
                             </button>
                           </div>
                         </div>
@@ -577,7 +579,7 @@ export function TopicsManager() {
                             text: e.target.value,
                           })
                         }
-                        placeholder="Câu hỏi*"
+                        placeholder={t.common.questionPlaceholder}
                         className="w-full px-3 py-2 rounded-xl border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
                       />
                       <input
@@ -588,7 +590,7 @@ export function TopicsManager() {
                             translation: e.target.value,
                           })
                         }
-                        placeholder="Dịch nghĩa"
+                        placeholder={t.common.translationPlaceholder}
                         className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
                       />
                       <input
@@ -599,7 +601,7 @@ export function TopicsManager() {
                             sample_answer: e.target.value,
                           })
                         }
-                        placeholder="Câu trả lời mẫu"
+                        placeholder={t.common.sampleAnswerPlaceholder}
                         className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
                       />
                       {topic.type === "bongbe" && (
@@ -611,13 +613,13 @@ export function TopicsManager() {
                               target: e.target.value,
                             })
                           }
-                          placeholder="Target (từ vựng cho ảnh)"
+                          placeholder={t.common.targetPlaceholder}
                           className="w-full px-3 py-2 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
                         />
                       )}
                       <div className="flex flex-col gap-1 py-1">
                         <label className="text-slate-600 font-extrabold text-sm pl-1">
-                          Ảnh minh hoạ (Tùy chọn):
+                          {t.common.imageOptional}
                         </label>
                         <div className="flex items-center gap-3 pl-1">
                           <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer border-2 border-slate-200 transition-colors">
@@ -656,7 +658,7 @@ export function TopicsManager() {
                             </div>
                           ) : (
                             <span className="text-xs text-slate-400 font-bold">
-                              Chưa có ảnh
+                              {t.common.noImageYet}
                             </span>
                           )}
                         </div>
@@ -673,14 +675,14 @@ export function TopicsManager() {
                           ) : (
                             <Plus size={14} />
                           )}{" "}
-                          Thêm
+                          {t.common.add}
                         </button>
                         <button
                           type="button"
                           onClick={() => setAddingQuestion(null)}
                           className="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200"
                         >
-                          Hủy
+                          {t.common.cancel}
                         </button>
                       </div>
                     </div>
@@ -700,7 +702,7 @@ export function TopicsManager() {
                         }}
                         className="text-sm text-slate-400 hover:text-emerald-600 font-bold flex items-center gap-1 py-1"
                       >
-                        <Plus size={14} /> Thêm câu hỏi
+                        <Plus size={14} /> {t.common.addQuestion}
                       </button>
                     </div>
                   )}

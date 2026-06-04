@@ -7,6 +7,7 @@ import { Mic, User, LogOut, Loader2 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { NotificationBell } from "./src/components/teacher/NotificationBell";
 import { useNotifications } from "./src/components/teacher/hooks/useNotifications";
+import { useLanguage } from "./src/i18n/LanguageContext";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
 const supabaseAnonKey =
@@ -25,6 +26,7 @@ export default function App() {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [teacherActiveTab, setTeacherActiveTab] = useState<string>("recordings");
+  const { t, lang, setLang } = useLanguage();
 
   const {
     notifications,
@@ -74,6 +76,9 @@ export default function App() {
             .from("profiles").select("*").eq("id", savedProfileId).maybeSingle();
           if (!error && data) {
             setUserProfile(data);
+            if (data.language === "vi" || data.language === "en") {
+              setLang(data.language);
+            }
           } else {
             localStorage.removeItem("english_record_profile_id");
             setUserProfile(null);
@@ -102,6 +107,8 @@ export default function App() {
     await supabase.auth.signInAnonymously();
   };
 
+  const isTeacher = userProfile?.role === "teacher";
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] flex flex-col items-center justify-center gap-5">
@@ -113,18 +120,16 @@ export default function App() {
         </div>
         <div className="text-center space-y-1">
           <p className="text-xl font-black bg-gradient-to-r from-[#1E88E5] to-[#F06292] bg-clip-text text-transparent">
-            SpeakwithMsMy
+            {t.appName}
           </p>
           <p className="text-slate-400 font-bold text-xs tracking-wide flex items-center gap-2 justify-center">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            Đang kết nối...
+            {t.common.connecting}
           </p>
         </div>
       </div>
     );
   }
-
-  const isTeacher = userProfile?.role === "teacher";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] text-slate-800 font-sans selection:bg-pink-100">
@@ -134,50 +139,60 @@ export default function App() {
             <Mic size={16} className="text-[#1E88E5]" />
           </span>
           <span className="text-base md:text-2xl tracking-wide">
-            <span className="sm:hidden">MsMy</span>
-            <span className="hidden sm:inline">SpeakwithMsMy</span>
+            <span className="sm:hidden">{t.appNameShort}</span>
+            <span className="hidden sm:inline">{t.appName}</span>
           </span>
         </h1>
-        {userProfile && (
-          <div className="flex items-center gap-2">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#FFFDE7] border-2 border-[#FFF59D] rounded-full shadow-sm">
-              <User size={14} className="text-[#FFB74D]" />
-              <span className="text-sm font-bold text-slate-700">
-                {userProfile.name}
-                <span className="text-slate-400 font-normal ml-1">
-                  ({isTeacher ? "Cô Giáo" : "Học sinh"})
+        <div className="flex items-center gap-2">
+          {/* Language switcher */}
+          <button
+            type="button"
+            onClick={() => setLang(lang === "vi" ? "en" : "vi", userProfile?.id)}
+            className="text-xs font-black px-2.5 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
+          >
+            {lang === "vi" ? "🇬🇧 EN" : "🇻🇳 VI"}
+          </button>
+
+          {userProfile && (
+            <>
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#FFFDE7] border-2 border-[#FFF59D] rounded-full shadow-sm">
+                <User size={14} className="text-[#FFB74D]" />
+                <span className="text-sm font-bold text-slate-700">
+                  {userProfile.name}
+                  <span className="text-slate-400 font-normal ml-1">
+                    ({isTeacher ? t.teacher : t.student})
+                  </span>
                 </span>
-              </span>
-            </div>
-
-            {/* Bell chỉ hiện khi là teacher */}
-            {isTeacher && (
-              <div className="text-slate-600">
-                <NotificationBell
-                  notifications={notifications}
-                  unreadCount={unreadCount}
-                  readIds={readIds}
-                  onMarkRead={markRead}
-                  onMarkAllRead={markAllRead}
-                  onClearAll={clearAll}
-                  onNavigate={(recordId) => {
-                    setTeacherActiveTab("recordings:" + recordId);
-                    setTimeout(() => setTeacherActiveTab("recordings"), 2100);
-                  }}
-                />
               </div>
-            )}
 
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-2 rounded-full border border-rose-200 transition-all"
-            >
-              <LogOut size={13} />
-              <span className="hidden sm:inline">Đăng xuất</span>
-            </button>
-          </div>
-        )}
+              {isTeacher && (
+                <div className="text-slate-600">
+                  <NotificationBell
+                    notifications={notifications}
+                    unreadCount={unreadCount}
+                    readIds={readIds}
+                    onMarkRead={markRead}
+                    onMarkAllRead={markAllRead}
+                    onClearAll={clearAll}
+                    onNavigate={(recordId) => {
+                      setTeacherActiveTab("recordings:" + recordId);
+                      setTimeout(() => setTeacherActiveTab("recordings"), 2100);
+                    }}
+                  />
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-2 rounded-full border border-rose-200 transition-all"
+              >
+                <LogOut size={13} />
+                <span className="hidden sm:inline">{t.logout}</span>
+              </button>
+            </>
+          )}
+        </div>
       </header>
 
       <main className="max-w-5xl mx-auto p-3 md:p-6 lg:p-8">

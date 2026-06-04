@@ -1,4 +1,5 @@
 import { AlertCircle, Loader2, Trash2 } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 interface DeleteConfirmModalProps {
   title: string;
@@ -14,13 +15,14 @@ interface DeleteConfirmModalProps {
 export function DeleteConfirmModal({
   title,
   description,
-  confirmLabel = "Đồng ý xóa",
+  confirmLabel,
   saving = false,
   error,
   onConfirm,
   onCancel,
   children,
 }: DeleteConfirmModalProps) {
+  const { t } = useLanguage();
   return (
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 p-6 border-4 border-rose-100 space-y-5">
@@ -49,7 +51,7 @@ export function DeleteConfirmModal({
             onClick={onCancel}
             className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200 shadow-sm"
           >
-            Hủy bỏ
+            {t.common.cancel}
           </button>
           <button
             type="button"

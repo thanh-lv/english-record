@@ -1,4 +1,5 @@
 import { Award } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { getPrizeForTopic } from "./ExercisesTab";
 
 interface AchievementsTabProps {
@@ -10,6 +11,7 @@ export function AchievementsTab({
   totalNumbers,
   completedNumbers,
 }: AchievementsTabProps) {
+  const { t } = useLanguage();
   const pct =
     totalNumbers.length > 0
       ? Math.round((completedNumbers.length / totalNumbers.length) * 100)
@@ -19,10 +21,10 @@ export function AchievementsTab({
     <div className="bg-white/70 backdrop-blur-sm p-5 sm:p-8 rounded-[2rem] border-3 border-white shadow-md space-y-5">
       <div className="text-center space-y-1">
         <h3 className="text-2xl font-black text-amber-500 flex items-center justify-center gap-2">
-          <Award size={26} /> Tủ đồ Thành tích
+          <Award size={26} /> {t.achievements.title}
         </h3>
         <p className="text-slate-500 font-bold text-sm">
-          Mỗi bài học hoàn thành con sẽ nhận được một món quà!
+          {t.achievements.subtitle}
         </p>
       </div>
 
@@ -31,7 +33,8 @@ export function AchievementsTab({
         <div className="text-4xl">🏆</div>
         <div className="flex-1">
           <p className="font-black text-amber-800 text-sm">
-            {completedNumbers.length}/{totalNumbers.length} bài hoàn thành
+            {completedNumbers.length}/{totalNumbers.length}{" "}
+            {t.achievements.lessons}
           </p>
           <div className="w-full h-2.5 bg-amber-100 rounded-full overflow-hidden mt-1.5">
             <div
@@ -47,10 +50,10 @@ export function AchievementsTab({
         <div className="text-center py-12 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
           <div className="text-5xl mb-3 opacity-40">🔒</div>
           <p className="text-slate-400 font-bold text-sm">
-            Con chưa nhận được món quà nào.
+            {t.achievements.empty}
           </p>
           <p className="text-slate-400 text-xs mt-1">
-            Hãy bắt đầu làm bài tập ngay thôi!
+            {t.achievements.emptyHint}
           </p>
         </div>
       ) : (

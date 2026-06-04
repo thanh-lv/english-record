@@ -1,13 +1,7 @@
 import { BookOpen, Library, Mic, Users } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 export type TeacherTab = "recordings" | "topics" | "students" | "stories";
-
-const NAV_ITEMS: { id: TeacherTab; label: string; icon: React.ReactNode }[] = [
-  { id: "recordings", label: "Bài nộp", icon: <Mic size={18} /> },
-  { id: "topics", label: "Quản lý Topics", icon: <BookOpen size={18} /> },
-  { id: "students", label: "Học sinh", icon: <Users size={18} /> },
-  { id: "stories", label: "Truyện kể", icon: <Library size={18} /> },
-];
 
 interface TeacherSidebarProps {
   activeTab: TeacherTab;
@@ -18,6 +12,31 @@ export function TeacherSidebar({
   activeTab,
   onTabChange,
 }: TeacherSidebarProps) {
+  const { t } = useLanguage();
+  const NAV_ITEMS: { id: TeacherTab; label: string; icon: React.ReactNode }[] =
+    [
+      {
+        id: "recordings",
+        label: t.teacherNav.recordings,
+        icon: <Mic size={18} />,
+      },
+      {
+        id: "topics",
+        label: t.teacherNav.topics,
+        icon: <BookOpen size={18} />,
+      },
+      {
+        id: "students",
+        label: t.teacherNav.students,
+        icon: <Users size={18} />,
+      },
+      {
+        id: "stories",
+        label: t.teacherNav.stories,
+        icon: <Library size={18} />,
+      },
+    ];
+
   return (
     <>
       {/* Desktop sidebar */}

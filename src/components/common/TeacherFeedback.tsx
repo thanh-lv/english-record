@@ -1,8 +1,10 @@
 import { Heart, MessageSquare, Star } from "lucide-react";
 import React, { useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 
 export function TeacherFeedback({ recording }: { recording: any }) {
+  const { t } = useLanguage();
   const [reacting, setReacting] = useState(false);
   const [reacted, setReacted] = useState(!!recording?.student_reaction);
   const [showEffect, setShowEffect] = useState(false);
@@ -38,8 +40,8 @@ export function TeacherFeedback({ recording }: { recording: any }) {
       <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-bl-full -mr-2 -mt-2 blur-md"></div>
 
       <h4 className="text-sm font-black text-amber-800 flex items-center gap-2 mb-3 relative z-10">
-        <MessageSquare size={16} className="text-amber-600" /> Nhận xét của Cô
-        giáo:
+        <MessageSquare size={16} className="text-amber-600" />{" "}
+        {t.feedback.title}
       </h4>
 
       <div className="space-y-3 relative z-10">
@@ -109,10 +111,10 @@ export function TeacherFeedback({ recording }: { recording: any }) {
               className={reacted ? "fill-rose-500 text-rose-500" : ""}
             />
             {reacting
-              ? "Đang gửi..."
+              ? t.feedback.hearting
               : reacted
-                ? "Đã thả tim"
-                : "Thả tim cho Cô"}
+                ? t.feedback.hearted
+                : t.feedback.heart}
           </button>
         </div>
       </div>

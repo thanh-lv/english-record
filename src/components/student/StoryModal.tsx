@@ -1,4 +1,5 @@
 import { BookOpen, Square, Volume2, X } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 interface StoryModalProps {
   story: any;
@@ -13,6 +14,7 @@ export function StoryModal({
   onClose,
   onPlayAudio,
 }: StoryModalProps) {
+  const { t } = useLanguage();
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-[60] overflow-y-auto items-start py-8">
       <div className="bg-white rounded-[2.5rem] w-full max-w-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative my-auto">
@@ -62,7 +64,7 @@ export function StoryModal({
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-black text-slate-800 text-base md:text-xl flex items-center gap-2">
               <BookOpen size={18} className="text-purple-500" />
-              Nội dung truyện
+              {t.stories.content}
             </h4>
             <button
               onClick={onPlayAudio}
@@ -74,11 +76,11 @@ export function StoryModal({
             >
               {isPlayingAudio ? (
                 <>
-                  <Square size={15} fill="currentColor" /> Dừng
+                  <Square size={15} fill="currentColor" /> {t.stories.stop}
                 </>
               ) : (
                 <>
-                  <Volume2 size={15} /> Nghe
+                  <Volume2 size={15} /> {t.stories.listen}
                 </>
               )}
             </button>
@@ -95,7 +97,7 @@ export function StoryModal({
             onClick={onClose}
             className="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-base transition-all shadow-md hover:shadow-lg active:scale-95"
           >
-            Đóng lại
+            {t.stories.close}
           </button>
         </div>
       </div>

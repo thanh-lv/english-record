@@ -1,3 +1,4 @@
+import { useLanguage } from "../../i18n/LanguageContext";
 import { X } from "lucide-react";
 import { AVATARS } from "./hooks/useAvatar";
 
@@ -12,6 +13,7 @@ export function AvatarSelectModal({
   onSelect,
   onClose,
 }: AvatarSelectModalProps) {
+  const { t } = useLanguage();
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
       <div className="bg-white rounded-[2rem] w-full max-w-sm p-6 border-4 border-amber-200 shadow-2xl animate-in zoom-in-95 duration-200 relative">
@@ -23,7 +25,7 @@ export function AvatarSelectModal({
           <X size={20} />
         </button>
         <h3 className="text-xl font-black text-slate-800 text-center mb-6">
-          Chọn Avatar của con
+          {t.common.selectAvatar}
         </h3>
         <div className="grid grid-cols-4 gap-4">
           {AVATARS.map((emoji) => (

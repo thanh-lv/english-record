@@ -1,4 +1,5 @@
 import { CheckCircle, Star } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 const PRIZES = [
   "🎈",
@@ -36,6 +37,7 @@ export function ExercisesTab({
   myRecordings,
   onTopicClick,
 }: ExercisesTabProps) {
+  const { t } = useLanguage();
   const totalNumbers = Array.from(
     { length: activeTopics.length },
     (_, i) => i + 1,
@@ -44,11 +46,11 @@ export function ExercisesTab({
   return (
     <div className="bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] border-3 border-white shadow-md">
       <div className="mb-6 space-y-1">
-        <h3 className="text-2xl font-black text-slate-800">Chọn bài học 📚</h3>
+        <h3 className="text-2xl font-black text-slate-800">
+          {t.exercises.title}
+        </h3>
         <p className="text-slate-500 font-bold text-sm">
-          {isBongBe
-            ? "Con hãy nhấn vào các Test ở dưới để làm bài kiểm tra đặc biệt nhé!"
-            : "Con hãy nhấn vào số muốn chọn để xem chủ đề luyện nói nhé!"}
+          {isBongBe ? t.exercises.subtitleBongBe : t.exercises.subtitleNormal}
         </p>
       </div>
 
@@ -57,7 +59,7 @@ export function ExercisesTab({
           const topic = activeTopics[num - 1];
           let isCompleted = completedNumbers.includes(num);
           let isPartiallyCompleted = false;
-          let progressText = "Đã làm";
+          let progressText = t.exercises.done;
 
           if (isBongBe && topic && topic.questions) {
             const totalQs = topic.questions.length;

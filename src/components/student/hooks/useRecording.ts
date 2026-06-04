@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { supabase } from "../../../lib/supabase";
+import { useLanguage } from "../../../i18n/LanguageContext";
 
 interface UseRecordingOptions {
   user: any;
@@ -22,6 +23,7 @@ export function useRecording({
   existingRecordingId,
   onSaveSuccess,
 }: UseRecordingOptions) {
+  const { t } = useLanguage();
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioBase64, setAudioBase64] = useState<Blob | null>(null);
@@ -57,9 +59,7 @@ export function useRecording({
     setAppError("");
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setAppError(
-        "Thiết bị hoặc trình duyệt của em không hỗ trợ ghi âm trực tiếp. Hãy đảm bảo đã dùng trình duyệt Chrome/Safari và cấp quyền camera/microphone.",
-      );
+      setAppError(t.common.micNotSupported);
       return;
     }
 
@@ -104,9 +104,7 @@ export function useRecording({
       }, 1000);
     } catch (err) {
       console.error("Microphone access error:", err);
-      setAppError(
-        "Không thể bật Micro. Em hãy chọn 'Cho phép' (Allow) khi trình duyệt hỏi quyền sử dụng Microphone.",
-      );
+      setAppError(t.common.micError);
     }
   };
 
@@ -197,7 +195,7 @@ export function useRecording({
       setAudioBase64(null);
     } catch (error) {
       console.error("Lỗi khi gửi bài:", error);
-      setAppError("Không thể nộp bài nói này. Hãy kiểm tra kết nối mạng.");
+      setAppError(t.common.submitError);
     } finally {
       setIsSaving(false);
     }

@@ -1,4 +1,5 @@
 import { Library } from "lucide-react";
+import { interpolate, useLanguage } from "../../i18n/LanguageContext";
 
 interface StoriesTabProps {
   dbStories: any[];
@@ -13,22 +14,25 @@ export function StoriesTab({
   studentAge,
   onStoryClick,
 }: StoriesTabProps) {
+  const { t } = useLanguage();
   return (
     <div className="bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] border-3 border-white shadow-md">
       <div className="mb-8 space-y-2 text-center">
         <h3 className="text-3xl font-black text-purple-500 flex items-center justify-center gap-3">
-          <Library size={32} /> Góc Truyện Kể <Library size={32} />
+          <Library size={32} /> {t.stories.title} <Library size={32} />
         </h3>
         <p className="text-slate-500 font-bold text-sm">
-          Chào {profile.name}! Con {studentAge} tuổi nên cô tặng con những
-          truyện này nhé:
+          {interpolate(t.stories.subtitle, {
+            name: profile.name,
+            age: studentAge,
+          })}
         </p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
         {dbStories.length === 0 && (
           <div className="col-span-full py-12 text-center text-slate-400 font-bold bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-            Chưa có truyện nào phù hợp với tuổi của con.
+            {t.stories.empty}
           </div>
         )}
         {dbStories.map((story) => (

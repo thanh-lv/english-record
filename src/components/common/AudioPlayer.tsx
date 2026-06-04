@@ -1,7 +1,9 @@
 import { Pause, Play } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 export function AudioPlayer({ src }: { src: string }) {
+  const { t } = useLanguage();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -106,7 +108,7 @@ export function AudioPlayer({ src }: { src: string }) {
                 ? "bg-amber-100 border-amber-300 text-amber-600"
                 : "bg-rose-100 border-rose-300 text-rose-600"
         }`}
-        title="Đổi tốc độ phát"
+        title={t.common.changeSpeed}
       >
         {playbackRate}x
       </button>

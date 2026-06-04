@@ -1,6 +1,7 @@
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { supabase } from "./lib/supabase";
+import { useLanguage } from "./i18n/LanguageContext";
 
 const FLOATING = ["🌟", "🎈", "📚", "🎵", "✨", "🦋", "🌈", "🎯"];
 
@@ -11,6 +12,7 @@ export default function LoginScreen({
   setProfile: (p: any) => void;
   user: any;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,11 +27,11 @@ export default function LoginScreen({
 
     const trimmedName = name.trim();
     if (trimmedName.length < 2) {
-      setError("Vui lòng nhập tên của bạn (ít nhất 2 ký tự)");
+      setError(t.common.nameRequired);
       return;
     }
     if (password.length < 3) {
-      setError("Vui lòng nhập mật khẩu (ít nhất 3 ký tự)");
+      setError(t.common.passwordRequired);
       return;
     }
     setError("");
@@ -51,9 +53,7 @@ export default function LoginScreen({
           let profileData;
           if (existingUser) {
             if (existingUser.password && existingUser.password !== password) {
-              throw new Error(
-                "Tên này đã được đăng ký. Sai mật khẩu! Vui lòng thử lại.",
-              );
+              throw new Error(t.common.nameTaken);
             }
             profileData = {
               ...existingUser,
@@ -82,10 +82,7 @@ export default function LoginScreen({
               })
               .select()
               .single();
-            if (dbError?.code === "23505")
-              throw new Error(
-                "Tên này đã được người khác sử dụng. Vui lòng chọn tên khác.",
-              );
+            if (dbError?.code === "23505") throw new Error(t.common.nameUsed);
             if (dbError) throw dbError;
             profileData = inserted;
           }
@@ -95,15 +92,7 @@ export default function LoginScreen({
         const profileData = await Promise.race([
           dbOperation(),
           new Promise((_, reject) =>
-            setTimeout(
-              () =>
-                reject(
-                  new Error(
-                    "Lỗi mạng: Thời gian kết nối quá lâu. Vui lòng thử lại!",
-                  ),
-                ),
-              8000,
-            ),
+            setTimeout(() => reject(new Error(t.common.networkTimeout)), 8000),
           ),
         ]);
         localStorage.setItem(
@@ -112,9 +101,7 @@ export default function LoginScreen({
         );
         setProfile(profileData);
       } else {
-        setError(
-          "Hệ thống đang khởi tạo bảo mật. Vui lòng đợi 3 giây và bấm Đăng nhập lại.",
-        );
+        setError(t.common.systemInit);
       }
     } catch (err: any) {
       console.error("Lưu thông tin đăng nhập thất bại:", err);
@@ -154,13 +141,13 @@ export default function LoginScreen({
             </span>
           </div>
           <h2 className="text-2xl font-black text-slate-800 leading-tight">
-            Chào mừng đến với
+            {t.login.welcome}
           </h2>
           <h1 className="text-3xl font-black bg-gradient-to-r from-[#1E88E5] to-[#F06292] bg-clip-text text-transparent">
-            SpeakwithMsMy!
+            {t.appName}!
           </h1>
           <p className="text-slate-400 text-sm font-bold mt-1">
-            Luyện nói tiếng Anh mỗi ngày 🌟
+            {t.login.subtitle}
           </p>
         </div>
 
@@ -169,11 +156,11 @@ export default function LoginScreen({
           {/* Name input */}
           <div className="space-y-1.5">
             <label className="block text-xs font-black text-slate-600 uppercase tracking-wide">
-              Tên của con 👦👧
+              {t.login.nameLabel}
             </label>
             <input
               type="text"
-              placeholder="Ví dụ: Bông Bé, Tuệ Minh..."
+              placeholder={t.login.namePlaceholder}
               className="w-full px-4 py-3.5 bg-[#FFFDF6] border-2 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-100 focus:border-amber-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
               value={name}
               onChange={(e) => {
@@ -188,12 +175,12 @@ export default function LoginScreen({
           {/* Password input */}
           <div className="space-y-1.5">
             <label className="block text-xs font-black text-slate-600 uppercase tracking-wide">
-              Mật khẩu 🔑
+              {t.login.passwordLabel}
             </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Nhập mật khẩu..."
+                placeholder={t.login.passwordPlaceholder}
                 className="w-full px-4 py-3.5 pr-12 bg-[#FFFDF6] border-2 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-100 focus:border-amber-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
                 value={password}
                 onChange={(e) => {
@@ -231,16 +218,16 @@ export default function LoginScreen({
             {isLoggingIn ? (
               <>
                 <Loader2 size={20} className="animate-spin" />
-                Đang vào...
+                {t.login.submitting}
               </>
             ) : (
-              <>🚀 Bắt đầu học!</>
+              <>{t.login.submit}</>
             )}
           </button>
         </div>
 
         <p className="text-center text-xs text-slate-400 font-bold mt-4">
-          Nếu con chưa có tài khoản, hãy nhờ thầy cô tạo nhé! 💌
+          {t.login.hint}
         </p>
       </div>
     </div>

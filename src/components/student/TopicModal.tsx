@@ -12,6 +12,7 @@ import {
   Volume2,
   X,
 } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { TeacherFeedback } from "../common/TeacherFeedback";
 
 interface TopicModalProps {
@@ -79,6 +80,7 @@ export function TopicModal({
   onDismissError,
   formatTime,
 }: TopicModalProps) {
+  const { t } = useLanguage();
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-50 overflow-y-auto items-start py-8">
       <div className="bg-white rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border-4 border-[#FFF59D] my-auto relative">
@@ -94,9 +96,9 @@ export function TopicModal({
                 className={`text-[10px] md:text-xs font-black uppercase tracking-widest ${canRetry ? "text-amber-500" : matchedRecording ? "text-emerald-500" : "text-blue-500"}`}
               >
                 {canRetry
-                  ? "🎯 Ghi âm lại để cải thiện"
+                  ? t.topic.retry
                   : matchedRecording
-                    ? "🎁 Đã làm rồi"
+                    ? t.topic.done
                     : "Topic"}
               </span>
               <h3 className="text-lg md:text-3xl font-black text-slate-800 leading-tight tracking-tight truncate">
@@ -123,7 +125,7 @@ export function TopicModal({
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="w-10 h-10 text-[#FF8A80] animate-spin" />
                     <span className="text-xs text-slate-400 font-extrabold animate-pulse">
-                      Đang tải ảnh minh hoạ...
+                      {t.topic.loadingImage}
                     </span>
                   </div>
                 ) : topicImage ? (
@@ -140,7 +142,7 @@ export function TopicModal({
                       strokeWidth={1.5}
                     />
                     <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
-                      Không có ảnh
+                      {t.topic.noImage}
                     </span>
                   </div>
                 )}
@@ -153,7 +155,7 @@ export function TopicModal({
                   className="w-full py-4 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center gap-2 border-2 border-slate-200 font-bold"
                 >
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Đang tải audio câu hỏi...
+                  {t.topic.loadingAudio + "..."}
                 </button>
               ) : topicAudio ? (
                 <button
@@ -165,14 +167,12 @@ export function TopicModal({
                     className={isPlayingTopicAudio ? "animate-bounce" : ""}
                     size={20}
                   />
-                  {isPlayingTopicAudio
-                    ? "Đang phát audio câu hỏi"
-                    : "Bật audio câu hỏi"}
+                  {isPlayingTopicAudio ? t.topic.stopAudio : t.topic.playAudio}
                 </button>
               ) : (
                 <div className="text-xs text-slate-400 py-3 font-extrabold flex items-center gap-2 justify-center">
                   <Loader2 className="w-4 h-4 animate-spin text-[#1E88E5]" />
-                  Đang tải audio câu hỏi
+                  {t.topic.loadingAudio}
                 </div>
               )}
 
@@ -181,7 +181,7 @@ export function TopicModal({
                   <div className="w-full pt-2 border-t-2 border-dashed border-slate-200 space-y-3">
                     <div className="bg-[#E8F5E9] border-2 border-[#A5D6A7] rounded-2xl p-4 flex flex-col items-center gap-3 shadow-inner">
                       <span className="text-xs font-black text-[#2E7D32] flex items-center gap-1">
-                        <Eye size={16} /> Bài nói của con đã lưu rồi nè!
+                        <Eye size={16} /> {t.topic.saved}
                       </span>
                       <audio
                         controls
@@ -193,7 +193,7 @@ export function TopicModal({
                     {canRetry && (
                       <div className="space-y-2">
                         <p className="text-xs font-black text-amber-600 text-center">
-                          🎯 Con có thể ghi âm lại để cải thiện nhé!
+                          {t.topic.retryHint}
                         </p>
                         <RecordingControls
                           isRecording={isRecording}
@@ -228,8 +228,7 @@ export function TopicModal({
                     size={24}
                   />
                   <p className="text-sm font-black text-amber-900 leading-relaxed text-left">
-                    Lưu ý: Con trả lời bằng ý của mình, không trả lời giống câu
-                    mẫu nha! 🥰
+                    {t.topic.note}
                   </p>
                 </div>
               )}
@@ -278,7 +277,7 @@ export function TopicModal({
               onClick={onClose}
               className="w-full max-w-sm py-4 bg-gradient-to-r from-[#4CAF50] to-[#81C784] hover:from-[#388E3C] hover:to-[#4CAF50] text-white font-black text-lg rounded-full transition-all shadow-md hover:shadow-lg border-b-4 border-emerald-800 text-center"
             >
-              Đóng lại
+              {t.topic.close}
             </button>
           ) : (
             <button
@@ -299,11 +298,12 @@ export function TopicModal({
             >
               {isSaving ? (
                 <>
-                  <Loader2 size={20} className="animate-spin" /> Đang gửi...
+                  <Loader2 size={20} className="animate-spin" />{" "}
+                  {t.topic.submitting}
                 </>
               ) : (
                 <>
-                  <CheckCircle size={20} /> Nộp bài 🚀
+                  <CheckCircle size={20} /> {t.topic.submit}
                 </>
               )}
             </button>
@@ -335,6 +335,7 @@ function RecordingControls({
   formatTime,
   size,
 }: RecordingControlsProps) {
+  const { t } = useLanguage();
   const btnSize =
     size === "lg" ? "w-16 h-16 md:w-20 md:h-20" : "w-14 h-14 md:w-16 md:h-16";
   const pingSize =
@@ -353,7 +354,7 @@ function RecordingControls({
             <Mic size={iconSize} />
           </button>
           <span className="text-xs font-black text-slate-500">
-            Bấm nút đỏ để bắt đầu trả lời! 🎙️
+            {t.topic.startRecord}
           </span>
         </div>
       )}
@@ -392,7 +393,7 @@ function RecordingControls({
               onClick={onDelete}
               className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-full flex items-center gap-2 transition-colors shadow-sm"
             >
-              <Trash2 size={16} /> Ghi âm lại
+              <Trash2 size={16} /> {t.topic.reRecord}
             </button>
           </div>
         </div>
@@ -428,6 +429,7 @@ function BongBeQuestionPanel({
   onQuestionChange,
   formatTime,
 }: BongBeQuestionPanelProps) {
+  const { t } = useLanguage();
   const audioBlob = bongBeAudios[activeQuestionIndex] || null;
 
   return (
@@ -443,7 +445,7 @@ function BongBeQuestionPanel({
           <div className="space-y-3">
             <div className="bg-[#E8F5E9] border-2 border-[#A5D6A7] rounded-2xl p-4 flex flex-col items-center gap-3 shadow-inner">
               <span className="text-sm font-black text-[#2E7D32] flex items-center gap-1">
-                <Eye size={16} /> Bài nói của con đã lưu rồi nè!
+                <Eye size={16} /> {t.topic.saved}
               </span>
               <audio
                 controls
@@ -465,7 +467,7 @@ function BongBeQuestionPanel({
                   <Mic size={36} />
                 </button>
                 <span className="text-sm font-black text-slate-500">
-                  Bấm nút đỏ để bắt đầu trả lời! 🎙️
+                  {t.topic.startRecord}
                 </span>
               </div>
             )}
@@ -502,7 +504,7 @@ function BongBeQuestionPanel({
                     onClick={(e) => onDeleteBongBeAudio(activeQuestionIndex, e)}
                     className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-full flex items-center gap-2 transition-colors shadow-sm"
                   >
-                    <Trash2 size={16} /> Ghi âm lại
+                    <Trash2 size={16} /> {t.topic.reRecord}
                   </button>
                 </div>
               </div>
@@ -518,7 +520,7 @@ function BongBeQuestionPanel({
           onClick={() => onQuestionChange(Math.max(0, activeQuestionIndex - 1))}
           className={`px-5 py-2.5 font-bold rounded-full border-2 text-sm transition-all ${activeQuestionIndex === 0 ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"}`}
         >
-          ⬅️ Câu trước
+          {t.common.prevQuestion}
         </button>
 
         <button
@@ -534,7 +536,7 @@ function BongBeQuestionPanel({
           }
           className={`px-6 py-2.5 font-black rounded-full text-white text-sm transition-all border-b-4 ${activeQuestionIndex === currentTopic.questions.length - 1 ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed" : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800 shadow-md"}`}
         >
-          Câu tiếp theo ➡️
+          {t.common.nextQuestion}
         </button>
       </div>
     </div>
@@ -545,7 +547,8 @@ function StandardQuestionsPanel({ currentTopic }: { currentTopic: any }) {
   return (
     <div className="bg-white rounded-[2rem] p-6 border-3 border-[#FFF0F0] space-y-5 shadow-sm">
       <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b-2 border-dashed border-slate-100 pb-3">
-        <HelpCircle size={16} className="text-[#FF8A80]" /> Questions (Câu hỏi)
+        <HelpCircle size={16} className="text-[#FF8A80]" />{" "}
+        {t.common.questionNav}
       </h4>
 
       <div className="space-y-6">

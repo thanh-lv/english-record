@@ -10,10 +10,12 @@ import {
   X,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { S3_BUCKET, s3Client } from "../../lib/s3";
 import { supabase } from "../../lib/supabase";
 
 export function StoriesManager() {
+  const { t } = useLanguage();
   const [stories, setStories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -64,7 +66,7 @@ export function StoriesManager() {
   };
 
   const handleGenerate = async () => {
-    if (!prompt) return setError("Vui lòng nhập chủ đề (Prompt).");
+    if (!prompt) return setError(t.common.promptRequired);
     const aiApiKey = import.meta.env.VITE_AI_API_KEY;
     if (!aiApiKey) return setError("Thiếu VITE_AI_API_KEY trong file .env");
 
@@ -122,7 +124,7 @@ export function StoriesManager() {
 
   const handleSave = async () => {
     if (!title || !generatedStory || !generatedImageBlob)
-      return setError("Vui lòng nhập tên truyện và tạo nội dung.");
+      return setError(t.common.storyRequired);
     setIsSaving(true);
     setError("");
     try {
@@ -240,13 +242,13 @@ export function StoriesManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-black text-slate-800">
-          Quản lý Truyện AI 📚
+          {t.common.manageStories}
         </h3>
         <button
           onClick={() => setShowCreate(true)}
           className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md"
         >
-          <Wand2 size={18} /> Tạo Truyện Mới
+          <Wand2 size={18} /> {t.common.createStory}
         </button>
       </div>
 
@@ -281,13 +283,13 @@ export function StoriesManager() {
                   onClick={() => openEditStory(story)}
                   className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
                 >
-                  <Pencil size={12} /> Sửa
+                  <Pencil size={12} /> {t.common.edit}
                 </button>
                 <button
                   onClick={(e) => handleDeleteStory(story, e)}
                   className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
                 >
-                  <Trash2 size={12} /> Xóa
+                  <Trash2 size={12} /> {t.common.delete}
                 </button>
               </div>
             </div>
@@ -295,7 +297,7 @@ export function StoriesManager() {
         ))}
         {stories.length === 0 && (
           <div className="col-span-full py-10 text-center text-slate-400 font-bold bg-white rounded-[1.5rem] border-2 border-dashed border-slate-200">
-            Chưa có truyện nào. Hãy tạo truyện đầu tiên nhé!
+            {t.common.storyEmpty}
           </div>
         )}
       </div>
@@ -305,7 +307,7 @@ export function StoriesManager() {
           <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-amber-100 p-6 space-y-5 my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
               <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
-                <Pencil className="text-amber-500" /> Sửa thông tin Truyện
+                <Pencil className="text-amber-500" /> {t.common.editStoryInfo}
               </h4>
               <button
                 onClick={() => setEditingStory(null)}
@@ -319,7 +321,7 @@ export function StoriesManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Tên truyện
+                    {t.common.storyTitle}
                   </label>
                   <input
                     value={editTitle}
@@ -329,7 +331,7 @@ export function StoriesManager() {
                 </div>
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Emoji đại diện
+                    {t.common.storyEmoji}
                   </label>
                   <input
                     value={editEmoji}
@@ -340,7 +342,7 @@ export function StoriesManager() {
               </div>
               <div>
                 <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  Nội dung truyện
+                  {t.common.storyContent}
                 </label>
                 <textarea
                   rows={10}
@@ -356,14 +358,14 @@ export function StoriesManager() {
                 onClick={() => setEditingStory(null)}
                 className="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100"
               >
-                Hủy
+                {t.common.cancel}
               </button>
               <button
                 onClick={handleUpdateStory}
                 disabled={!editTitle || !editContent}
                 className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black disabled:opacity-50 flex items-center gap-2"
               >
-                <CheckCircle size={18} /> Lưu thay đổi
+                <CheckCircle size={18} /> {t.common.saveChanges}
               </button>
             </div>
           </div>
@@ -379,7 +381,7 @@ export function StoriesManager() {
               </div>
               <div>
                 <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
-                  Xóa truyện kể
+                  {t.common.deleteStoryConfirm}
                 </h4>
                 <p className="text-sm text-slate-600 font-bold mt-0.5 line-clamp-1">
                   {deleteStoryTarget.title}
@@ -388,8 +390,7 @@ export function StoriesManager() {
             </div>
 
             <p className="text-sm text-slate-500 font-medium">
-              Bạn có chắc chắn muốn xóa bộ truyện này không? Học sinh sẽ không
-              thể đọc được nữa.
+              {t.teacherModal.deleteStoryWarning}
             </p>
 
             {deleteError && (
@@ -405,7 +406,7 @@ export function StoriesManager() {
                 onClick={() => setDeleteStoryTarget(null)}
                 className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
               >
-                Hủy
+                {t.common.cancel}
               </button>
               <button
                 type="button"
@@ -418,7 +419,7 @@ export function StoriesManager() {
                 ) : (
                   <Trash2 size={15} />
                 )}
-                Đồng ý xóa
+                {t.common.storyConfirmDelete}
               </button>
             </div>
           </div>
@@ -430,7 +431,7 @@ export function StoriesManager() {
           <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-purple-100 p-4 sm:p-6 space-y-4 my-4 sm:my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
               <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
-                <Wand2 className="text-purple-500" /> Sáng tác Truyện AI
+                <Wand2 className="text-purple-500" /> {t.common.aiStoryCreate}
               </h4>
               <button
                 onClick={() => setShowCreate(false)}
@@ -444,7 +445,7 @@ export function StoriesManager() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Tên truyện
+                    {t.common.storyTitle}
                   </label>
                   <input
                     value={title}
@@ -454,7 +455,7 @@ export function StoriesManager() {
                 </div>
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Năm sinh mục tiêu
+                    {t.common.storyYearBorn}
                   </label>
                   <input
                     type="number"
@@ -465,18 +466,18 @@ export function StoriesManager() {
                 </div>
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Thể loại
+                    {t.common.storyGenre}
                   </label>
                   <input
                     value={type}
                     onChange={(e) => setType(e.target.value)}
-                    placeholder="VD: Truyện tranh, Cổ tích"
+                    placeholder={t.common.storyGenrePlaceholder}
                     className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Emoji đại diện
+                    {t.common.storyEmoji}
                   </label>
                   <input
                     value={emoji}
@@ -489,7 +490,7 @@ export function StoriesManager() {
               <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 space-y-3">
                 <div>
                   <label className="block text-xs font-black text-purple-800 mb-1.5 uppercase">
-                    Chủ đề (Prompt tiếng Anh)
+                    {t.common.storyPromptLabel}
                   </label>
                   <textarea
                     rows={2}
@@ -509,9 +510,7 @@ export function StoriesManager() {
                   ) : (
                     <Wand2 size={18} />
                   )}
-                  {isGenerating
-                    ? "AI đang vẽ và viết truyện..."
-                    : "Phép thuật Winx: Tạo nội dung!"}
+                  {isGenerating ? t.common.aiGenerating : t.common.aiGenerate}
                 </button>
               </div>
 
@@ -524,7 +523,7 @@ export function StoriesManager() {
               {(generatedStory || generatedImageUrl) && (
                 <div className="space-y-4 bg-slate-50 p-4 rounded-xl border-2 border-slate-100">
                   <h5 className="font-black text-slate-800">
-                    Kết quả xem trước:
+                    {t.common.storyPreview}
                   </h5>
                   {generatedImageUrl && (
                     <img
@@ -547,7 +546,7 @@ export function StoriesManager() {
                 onClick={() => setShowCreate(false)}
                 className="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100"
               >
-                Hủy
+                {t.common.cancel}
               </button>
               <button
                 onClick={handleSave}
@@ -559,7 +558,7 @@ export function StoriesManager() {
                 ) : (
                   <Save size={18} />
                 )}{" "}
-                Lưu Truyện
+                {t.teacherModal.saveStory}
               </button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { AlertCircle, Check, Eye, EyeOff, Key, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 
 interface ResetPasswordModalProps {
@@ -16,11 +17,12 @@ export function ResetPasswordModal({
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const { t } = useLanguage();
 
   const handleReset = async () => {
     const trimPass = password.trim();
     if (trimPass.length < 3) {
-      setError("Mật khẩu phải có ít nhất 3 ký tự.");
+      setError(t.common.passwordMin);
       return;
     }
     setSaving(true);
@@ -49,7 +51,7 @@ export function ResetPasswordModal({
           </div>
           <div>
             <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
-              Đổi mật khẩu
+              {t.common.resetPasswordTitle}
             </h4>
             <p className="text-sm font-bold text-slate-500">{student.name}</p>
           </div>
@@ -58,7 +60,7 @@ export function ResetPasswordModal({
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
-              Mật khẩu mới
+              {t.common.newPassword}
             </label>
             <div className="relative">
               <input
@@ -69,7 +71,7 @@ export function ResetPasswordModal({
                   setError("");
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleReset()}
-                placeholder="Nhập mật khẩu mới..."
+                placeholder={t.login.passwordPlaceholder}
                 className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
               />
               <button
@@ -94,7 +96,7 @@ export function ResetPasswordModal({
             onClick={onClose}
             className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
           >
-            Hủy
+            {t.common.cancel}
           </button>
           <button
             type="button"
@@ -109,7 +111,7 @@ export function ResetPasswordModal({
             ) : (
               <Key size={15} />
             )}
-            {success ? "Thành công" : "Đổi mật khẩu"}
+            {success ? t.common.success : t.common.changePassword}
           </button>
         </div>
       </div>

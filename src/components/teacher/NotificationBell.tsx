@@ -1,6 +1,7 @@
 import { Bell, Check, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Notification } from "./hooks/useNotifications";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 interface NotificationBellProps {
   notifications: Notification[];
@@ -12,14 +13,6 @@ interface NotificationBellProps {
   onNavigate: (recordId: string, studentName: string) => void;
 }
 
-function timeAgo(isoString: string): string {
-  const diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
-  if (diff < 60) return "vừa xong";
-  if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-  return `${Math.floor(diff / 86400)} ngày trước`;
-}
-
 export function NotificationBell({
   notifications,
   unreadCount,
@@ -29,7 +22,20 @@ export function NotificationBell({
   onClearAll,
   onNavigate,
 }: NotificationBellProps) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+
+  function timeAgo(isoString: string): string {
+    const diff = Math.floor(
+      (Date.now() - new Date(isoString).getTime()) / 1000,
+    );
+    if (diff < 60) return t.notifications.justNow;
+    if (diff < 3600)
+      return `${Math.floor(diff / 60)} ${t.notifications.minutesAgo}`;
+    if (diff < 86400)
+      return `${Math.floor(diff / 3600)} ${t.notifications.hoursAgo}`;
+    return `${Math.floor(diff / 86400)} ${t.notifications.daysAgo}`;
+  }
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -66,10 +72,10 @@ export function NotificationBell({
         <div className="fixed md:absolute left-2 right-2 md:left-auto md:right-0 top-16 md:top-12 md:w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200">
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
             <span className="font-extrabold text-slate-800 text-sm">
-              Thông báo
+              {t.notifications.title}
               {unreadCount > 0 && (
                 <span className="ml-2 px-1.5 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-black rounded-full">
-                  {unreadCount} mới
+                  {unreadCount} {t.notifications.new}
                 </span>
               )}
             </span>
@@ -79,7 +85,7 @@ export function NotificationBell({
                   type="button"
                   onClick={onClearAll}
                   className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                  title="Xóa tất cả"
+                  title={t.common.delete}
                 >
                   <Trash2 size={13} />
                 </button>
@@ -98,7 +104,7 @@ export function NotificationBell({
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2 text-slate-400">
                 <Bell size={28} className="opacity-30" />
-                <p className="text-xs font-bold">Chưa có thông báo nào</p>
+                <p className="text-xs font-bold">{t.notifications.empty}</p>
               </div>
             ) : (
               notifications.map((n) => {
@@ -131,11 +137,11 @@ export function NotificationBell({
                         <span className="text-emerald-600">
                           {n.studentName}
                         </span>{" "}
-                        vừa nộp bài!
+                        {t.notifications.submitted}
                       </p>
                       {n.topicNumber !== undefined && (
                         <p className="text-xs font-bold text-slate-400 mt-0.5">
-                          Topic {n.topicNumber}
+                          {t.notifications.topic} {n.topicNumber}
                         </p>
                       )}
                       <p className="text-[10px] text-slate-300 font-bold mt-0.5">

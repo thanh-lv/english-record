@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLanguage, interpolate } from "../../i18n/LanguageContext";
 
 const EMOJIS = ["🎉", "⭐", "🌟", "🎈", "🏆", "💫", "🎊", "✨", "🥳", "🎀"];
 
@@ -37,6 +38,7 @@ export function CompletionCelebration({
   totalTopics,
   onClose,
 }: CompletionCelebrationProps) {
+  const { t } = useLanguage();
   const [particles] = useState(() => generateParticles(30));
   const [visible, setVisible] = useState(false);
 
@@ -90,24 +92,26 @@ export function CompletionCelebration({
           {completedCount === totalTopics ? "🏆" : "🎉"}
         </div>
         <h2 className="text-3xl font-black text-slate-800 text-center leading-tight">
-          {completedCount === totalTopics ? "Xuất sắc!" : "Làm tốt lắm!"}
+          {completedCount === totalTopics
+            ? t.celebration.excellent
+            : t.celebration.goodJob}
         </h2>
         <p className="text-slate-500 font-bold text-center text-sm leading-relaxed">
           {completedCount === totalTopics ? (
             <>
-              Con đã hoàn thành{" "}
+              {t.celebration.allDone}{" "}
               <span className="text-emerald-600 font-black">
-                tất cả {totalTopics} bài
+                {interpolate(t.celebration.allLessons, { total: totalTopics })}
               </span>
-              ! Thầy cô rất tự hào về con 🌟
+              {t.celebration.proud}
             </>
           ) : (
             <>
-              Con đã hoàn thành{" "}
+              {t.celebration.progress}{" "}
               <span className="text-emerald-600 font-black">
-                {completedCount}/{totalTopics} bài
+                {completedCount}/{totalTopics} {t.celebration.lessons}
               </span>
-              ! Cố lên nhé con! 💪
+              {t.celebration.encourage}
             </>
           )}
         </p>
@@ -127,7 +131,7 @@ export function CompletionCelebration({
           onClick={onClose}
           className="mt-2 px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all border-b-4 border-emerald-700 text-sm"
         >
-          Tuyệt vời! 🎉
+          {t.celebration.button}
         </button>
       </div>
     </div>

@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { calculateStreak } from "../../utils";
 import { CreateStudentModal } from "./CreateStudentModal";
@@ -37,6 +38,7 @@ const formatDate = (ts: string) => {
 };
 
 export function StudentsManager() {
+  const { t } = useLanguage();
   const [students, setStudents] = useState<any[]>([]);
   const [recordings, setRecordings] = useState<any[]>([]);
   const [topics, setTopics] = useState<any[]>([]);
@@ -136,7 +138,9 @@ export function StudentsManager() {
             <p className="text-2xl font-black text-slate-800">
               {students.length}
             </p>
-            <p className="text-xs font-bold text-slate-400">Học sinh</p>
+            <p className="text-xs font-bold text-slate-400">
+              {t.teacherNav.students}
+            </p>
           </div>
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
@@ -147,7 +151,9 @@ export function StudentsManager() {
             <p className="text-2xl font-black text-slate-800">
               {recordings.length}
             </p>
-            <p className="text-xs font-bold text-slate-400">Tổng bài nộp</p>
+            <p className="text-xs font-bold text-slate-400">
+              {t.common.totalSubmissions}
+            </p>
           </div>
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
@@ -172,7 +178,7 @@ export function StudentsManager() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm học sinh..."
+          placeholder={t.common.searchStudent}
           className="w-full pl-9 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] shadow-sm"
         />
       </div>
@@ -182,20 +188,20 @@ export function StudentsManager() {
         <div className="p-4 border-b-2 border-slate-100 flex items-center gap-2 bg-slate-50">
           <Users size={16} className="text-slate-500" />
           <h3 className="font-extrabold text-slate-700 text-sm">
-            Danh sách học sinh
+            {t.common.studentList}
           </h3>
           <button
             type="button"
             onClick={() => setShowCreateForm(true)}
             className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border-2 border-emerald-200 hover:bg-emerald-100 rounded-xl text-xs font-extrabold transition-all"
           >
-            <UserPlus size={14} /> Thêm học sinh
+            <UserPlus size={14} /> {t.common.addStudent}
           </button>
         </div>
 
         {filtered.length === 0 ? (
           <div className="p-10 text-center text-slate-400 font-bold">
-            Không tìm thấy học sinh.
+            {t.recordings.empty}
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
@@ -248,8 +254,8 @@ export function StudentsManager() {
                         </div>
                         <p className="text-xs text-slate-400 font-medium mt-0.5">
                           {lastRec
-                            ? `Mới nhất: ${formatDate(lastRec.createdAt)}`
-                            : "Chưa nộp bài"}
+                            ? `${t.recordings.latest} ${formatDate(lastRec.createdAt)}`
+                            : t.common.notSubmitted}
                         </p>
                       </div>
 
@@ -299,7 +305,7 @@ export function StudentsManager() {
                               setEditStudentTarget(student);
                             }}
                             className="p-1.5 text-slate-300 hover:text-[#4CAF50] hover:bg-[#E8F5E9] rounded-lg transition-all"
-                            title="Sửa"
+                            title={t.common.edit}
                           >
                             <Pencil size={13} />
                           </button>
@@ -311,7 +317,7 @@ export function StudentsManager() {
                               setResetPasswordTarget(student);
                             }}
                             className="p-1.5 text-slate-300 hover:text-[#1E88E5] hover:bg-[#E3F2FD] rounded-lg transition-all"
-                            title="Đổi mật khẩu"
+                            title={t.common.changePassword}
                           >
                             <Key size={13} />
                           </button>
@@ -329,7 +335,7 @@ export function StudentsManager() {
                               setDeleteError("");
                             }}
                             className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
-                            title="Xóa"
+                            title={t.common.delete}
                           >
                             <Trash2 size={13} />
                           </button>
@@ -360,7 +366,7 @@ export function StudentsManager() {
                   {isExpanded && (
                     <div className="px-5 pb-5 pt-2 bg-slate-50/60 border-t border-slate-100">
                       <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
-                        Tiến độ từng topic
+                        {t.common.topicProgress}
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {topics.map((topic) => {
@@ -404,7 +410,7 @@ export function StudentsManager() {
                         })}
                         {topics.length === 0 && (
                           <p className="text-xs text-slate-400 font-bold">
-                            Không có topic nào.
+                            {t.common.noTopics}
                           </p>
                         )}
                       </div>
@@ -419,10 +425,15 @@ export function StudentsManager() {
 
       {deleteStudentTarget && (
         <DeleteConfirmModal
-          title="Xóa học sinh"
-          description={`Bạn có chắc chắn muốn xóa học sinh "${deleteStudentTarget.student.name}" không?`}
+          title={t.common.deleteConfirm}
+          description={t.common.deleteStudentDesc.replace(
+            "{name}",
+            deleteStudentTarget.student.name,
+          )}
           confirmLabel={
-            deleteStudentTarget.recCount > 0 ? "Đồng ý xóa" : "Xóa học sinh"
+            deleteStudentTarget.recCount > 0
+              ? t.common.deleteStudentConfirm
+              : t.common.deleteConfirm
           }
           saving={deleteSaving}
           error={deleteError}
@@ -432,12 +443,11 @@ export function StudentsManager() {
           {deleteStudentTarget.recCount > 0 && (
             <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 space-y-2">
               <p className="text-xs text-amber-600 font-bold">
-                Học sinh này đã nộp{" "}
+                {t.teacherModal.deleteStudentWarning}{" "}
                 <span className="font-black text-amber-800">
-                  {deleteStudentTarget.recCount} bài ghi âm
+                  {deleteStudentTarget.recCount}{" "}
+                  {t.teacherModal.deleteStudentNote}
                 </span>
-                . Nếu xóa tài khoản, các bài nộp vẫn được giữ lại nhưng học sinh
-                sẽ không thể đăng nhập nữa.
               </p>
             </div>
           )}

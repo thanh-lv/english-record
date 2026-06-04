@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { AudioPlayer } from "../common/AudioPlayer";
 
@@ -29,6 +30,8 @@ export function RecordingsPanel({
   onDeleteRequest: (id: string) => void;
   highlightRecordId?: string | null;
 }) {
+  const { t } = useLanguage();
+
   const [expandedStudents, setExpandedStudents] = useState<Set<string>>(
     new Set(),
   );
@@ -145,7 +148,7 @@ export function RecordingsPanel({
         <div className="flex items-center gap-2">
           <Clock size={18} className="text-slate-500" />
           <h3 className="font-extrabold text-slate-700 text-md">
-            Lịch sử bài nộp mới nhất
+            {t.recordings.title}
           </h3>
         </div>
         <button
@@ -157,7 +160,7 @@ export function RecordingsPanel({
               : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
           }`}
         >
-          <Filter size={16} /> Bộ lọc
+          <Filter size={16} /> {t.recordings.filter}
         </button>
       </div>
 
@@ -165,7 +168,7 @@ export function RecordingsPanel({
         <div className="p-4 bg-slate-50 border-b-2 border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-500 uppercase">
-              Tên học sinh
+              {t.recordings.filterName}
             </label>
             <div className="relative">
               <Search
@@ -175,35 +178,35 @@ export function RecordingsPanel({
               <input
                 value={filterName}
                 onChange={(e) => setFilterName(e.target.value)}
-                placeholder="Tìm tên..."
+                placeholder={t.recordings.searchPlaceholder}
                 className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
               />
             </div>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-500 uppercase">
-              Bài học (Topic)
+              {t.recordings.filterTopic}
             </label>
             <input
               value={filterTopic}
               onChange={(e) => setFilterTopic(e.target.value)}
-              placeholder="VD: 1, 2..."
+              placeholder={t.recordings.topicPlaceholder}
               type="number"
               className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
             />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-500 uppercase">
-              Trạng thái chấm
+              {t.recordings.filterStatus}
             </label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400 appearance-none"
             >
-              <option value="all">Tất cả</option>
-              <option value="ungraded">Chưa chấm điểm</option>
-              <option value="graded">Đã chấm điểm</option>
+              <option value="all">{t.recordings.filterAll}</option>
+              <option value="ungraded">{t.recordings.filterUngraded}</option>
+              <option value="graded">{t.recordings.filterGraded}</option>
             </select>
           </div>
         </div>
@@ -211,16 +214,14 @@ export function RecordingsPanel({
 
       {loading ? (
         <div className="p-12 text-center text-slate-400 font-bold animate-pulse">
-          Đang tải dữ liệu...
+          {t.recordings.loading}
         </div>
       ) : recordings.length === 0 ? (
         <div className="p-12 text-center">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mic size={24} className="text-slate-400" />
           </div>
-          <p className="text-slate-500 font-bold">
-            Chưa có bài nộp nào từ học sinh.
-          </p>
+          <p className="text-slate-500 font-bold">{t.recordings.empty}</p>
         </div>
       ) : (
         <div className="divide-y divide-slate-100">
@@ -259,12 +260,12 @@ export function RecordingsPanel({
                     </p>
                     <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
                       {/* {group.userId ? `ID: ${group.userId} · ` : ""} */}
-                      Mới nhất: {latestDate}
+                      {t.recordings.latest} {latestDate}
                     </p>
                   </div>
 
                   <span className="shrink-0 px-3 py-1 bg-[#E3F2FD] text-[#1E88E5] text-xs font-black rounded-full border border-[#90CAF9]">
-                    {group.records.length} bài
+                    {group.records.length} {t.recordings.lessons}
                   </span>
 
                   <span
@@ -310,6 +311,7 @@ export function RecordingItem({
   onDeleteRequest: (id: string) => void;
   isHighlighted: boolean;
 }) {
+  const { t } = useLanguage();
   const [rating, setRating] = useState<number>(rec.teacher_rating || 0);
   const [feedback, setFeedback] = useState<string>(rec.teacher_feedback || "");
   const [isEditing, setIsEditing] = useState(false);
@@ -371,11 +373,16 @@ export function RecordingItem({
         </span>
         {hasFeedback && !isEditing && (
           <span className="text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full font-bold flex items-center gap-1">
-            <Check size={11} /> Đã nhận xét
+            <Check size={11} /> {t.recordings.graded}
           </span>
         )}
         {rec.student_reaction === "heart" && (
-          <span className="text-xs text-rose-500">❤️</span>
+          <span
+            className="text-xs text-rose-500"
+            title={t.recordings.heartReaction}
+          >
+            ❤️
+          </span>
         )}
         {/* action buttons pushed to right */}
         <div className="ml-auto flex items-center gap-1">
@@ -387,7 +394,7 @@ export function RecordingItem({
                 ? "text-emerald-500 bg-emerald-50"
                 : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50"
             }`}
-            title="Nhận xét"
+            title={t.common.comment}
           >
             <MessageSquare size={16} />
           </button>
@@ -399,7 +406,7 @@ export function RecordingItem({
               onDeleteRequest(rec.id);
             }}
             className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-transparent"
-            title="Xóa"
+            title={t.common.delete}
           >
             <Trash2 size={16} />
           </button>
@@ -409,10 +416,12 @@ export function RecordingItem({
       {/* Row 2: topic + question text */}
       <div className="space-y-1">
         <p className="text-slate-600 text-xs font-bold bg-white px-3 py-2 rounded-xl border border-slate-100">
-          <span className="text-slate-400">Topic:</span> {rec.topic}
+          <span className="text-slate-400">{t.recordings.topic}</span>{" "}
+          {rec.topic}
         </p>
         <p className="text-slate-600 text-xs font-bold bg-white px-3 py-2 rounded-xl border border-slate-100">
-          <span className="text-slate-400">Q:</span> {rec.questionText}
+          <span className="text-slate-400">{t.recordings.question}</span>{" "}
+          {rec.questionText}
         </p>
       </div>
 
@@ -424,8 +433,8 @@ export function RecordingItem({
         <div className="pl-13 mt-2 animate-in slide-in-from-top-2 duration-300">
           <div className="bg-[#F8FBFF] border-2 border-[#E3F2FD] rounded-2xl p-4 space-y-3 relative">
             <h4 className="text-sm font-black text-slate-700 flex items-center gap-2">
-              <Star size={16} className="text-amber-400 fill-amber-400" /> Nhận
-              xét & Chấm điểm
+              <Star size={16} className="text-amber-400 fill-amber-400" />{" "}
+              {t.recordings.feedback}
             </h4>
 
             <div className="flex items-center gap-2">
@@ -451,7 +460,7 @@ export function RecordingItem({
             <textarea
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Nhập lời khen hoặc nhận xét cho con..."
+              placeholder={t.recordings.feedbackPlaceholder}
               className="w-full px-4 py-3 bg-white border-2 border-[#90CAF9] rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all resize-none"
               rows={2}
             />
@@ -474,7 +483,7 @@ export function RecordingItem({
                 ) : (
                   <Save size={16} />
                 )}
-                {saveSuccess ? "Đã lưu thành công!" : "Lưu nhận xét"}
+                {saveSuccess ? t.recordings.saved : t.recordings.saveFeedback}
               </button>
             </div>
           </div>

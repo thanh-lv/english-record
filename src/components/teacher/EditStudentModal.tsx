@@ -1,5 +1,6 @@
 import { AlertCircle, Loader2, Pencil, Save, X } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 
 interface EditStudentModalProps {
@@ -18,6 +19,7 @@ export function EditStudentModal({
   );
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const { t } = useLanguage();
 
   const handleSave = async () => {
     setSaving(true);
@@ -48,10 +50,10 @@ export function EditStudentModal({
           </div>
           <div>
             <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
-              Sửa thông tin
+              {t.common.editStudentTitle}
             </h4>
             <p className="text-xs text-slate-400 font-medium">
-              Cập nhật thông tin học sinh
+              {t.common.editStudentSubtitle}
             </p>
           </div>
           <button
@@ -66,7 +68,7 @@ export function EditStudentModal({
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
-              Năm sinh
+              {t.common.yearBorn}
             </label>
             <input
               type="number"
@@ -92,7 +94,7 @@ export function EditStudentModal({
             onClick={onClose}
             className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
-            Hủy
+            {t.common.cancel}
           </button>
           <button
             type="button"
@@ -105,7 +107,7 @@ export function EditStudentModal({
             ) : (
               <Save size={16} />
             )}
-            {saving ? "Đang lưu..." : "Lưu thay đổi"}
+            {saving ? t.common.saving : t.common.saveChanges}
           </button>
         </div>
       </div>
