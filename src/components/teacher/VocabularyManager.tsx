@@ -6,6 +6,7 @@ import {
   ImagePlus,
   Loader2,
   Plus,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -63,7 +64,36 @@ export function VocabularyManager() {
   const [cardImageDragging, setCardImageDragging] = useState(false);
   const [addCardSaving, setAddCardSaving] = useState(false);
   const [addCardError, setAddCardError] = useState("");
+  const [ipaLoading, setIpaLoading] = useState(false);
   const cardImageInputRef = useRef<HTMLInputElement>(null);
+
+  const WORKER_URL =
+    "https://free-image-generation-api.levanthanh29111999.workers.dev/";
+
+  const autoGenIpa = async () => {
+    const word = cardFront.trim();
+    if (!word) return;
+    const apiKey = import.meta.env.VITE_AI_API_KEY;
+    if (!apiKey) return;
+    setIpaLoading(true);
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ type: "ipa", prompt: word }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
+      if (data.ipa) setCardIpa(data.ipa);
+    } catch {
+      // silently fail — teacher can type manually
+    } finally {
+      setIpaLoading(false);
+    }
+  };
 
   const uploadCardImage = async (file: File) => {
     setCardImageUploading(true);
@@ -591,12 +621,28 @@ export function VocabularyManager() {
                 <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
                   IPA (optional)
                 </label>
-                <input
-                  value={cardIpa}
-                  onChange={(e) => setCardIpa(e.target.value)}
-                  placeholder="E.g. /frʊt/"
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none font-mono"
-                />
+                <div className="flex gap-2">
+                  <input
+                    value={cardIpa}
+                    onChange={(e) => setCardIpa(e.target.value)}
+                    placeholder="E.g. /frʊt/"
+                    className="flex-1 px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={autoGenIpa}
+                    disabled={ipaLoading || !cardFront.trim()}
+                    title="Auto-generate IPA from English word"
+                    className="shrink-0 px-3 py-2 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {ipaLoading ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Sparkles size={14} />
+                    )}
+                    {ipaLoading ? "..." : "AI"}
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">

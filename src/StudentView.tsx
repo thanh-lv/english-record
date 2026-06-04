@@ -59,19 +59,35 @@ export default function StudentView({
 
   useEffect(() => {
     if (topicsLoading || activeTopics.length === 0) return;
-    const uniqueCompleted = new Set(completedNumbers).size;
+
+    // Recompute fully-completed count inside the effect to avoid stale closure
+    const fullyCompletedCount = activeTopics.filter((topic: any) => {
+      const questions: any[] = topic.questions || [];
+      if (questions.length === 0) {
+        return myRecordings.some(
+          (r: any) => r.topicNumber === topic.order_index,
+        );
+      }
+      return questions.every((q: any) =>
+        myRecordings.some(
+          (r: any) =>
+            r.topicNumber === topic.order_index &&
+            (r.question_id === q.id || r.questionText === q.text),
+        ),
+      );
+    }).length;
 
     if (!isDataReady.current) {
       isDataReady.current = true;
-      prevCompletedCount.current = uniqueCompleted;
+      prevCompletedCount.current = fullyCompletedCount;
       return;
     }
 
-    if (uniqueCompleted > prevCompletedCount.current) {
+    if (fullyCompletedCount > prevCompletedCount.current) {
       setShowCelebration(true);
     }
-    prevCompletedCount.current = uniqueCompleted;
-  }, [completedNumbers, activeTopics, topicsLoading]);
+    prevCompletedCount.current = fullyCompletedCount;
+  }, [myRecordings, activeTopics, topicsLoading]);
 
   const retryRecordingRef = useRef<{ id: string; topicNumber: number } | null>(
     null,
@@ -237,6 +253,27 @@ export default function StudentView({
     (_, i) => i + 1,
   );
 
+  // A topic is "completed" only when ALL its questions have been answered.
+  // For standard (1-question) topics this equals having any recording.
+  // For Bông bé (multi-question) topics, every question must have a recording.
+  const completedTopicNumbers = activeTopics
+    .filter((topic: any) => {
+      const questions: any[] = topic.questions || [];
+      if (questions.length === 0) {
+        return myRecordings.some(
+          (r: any) => r.topicNumber === topic.order_index,
+        );
+      }
+      return questions.every((q: any) =>
+        myRecordings.some(
+          (r: any) =>
+            r.topicNumber === topic.order_index &&
+            (r.question_id === q.id || r.questionText === q.text),
+        ),
+      );
+    })
+    .map((topic: any) => topic.order_index);
+
   useKeyboardShortcuts({
     isModalOpen: !!selectedNumber,
     isRecording: recording.isRecording,
@@ -309,7 +346,7 @@ export default function StudentView({
         {activeTab === "achievements" && (
           <AchievementsTab
             totalNumbers={totalNumbers}
-            completedNumbers={completedNumbers}
+            completedNumbers={completedTopicNumbers}
           />
         )}
         {activeTab === "stories" && (
@@ -395,7 +432,7 @@ export default function StudentView({
 
       <CompletionCelebration
         show={showCelebration}
-        completedCount={new Set(completedNumbers).size}
+        completedCount={completedTopicNumbers.length}
         totalTopics={activeTopics.length}
         onClose={() => setShowCelebration(false)}
       />

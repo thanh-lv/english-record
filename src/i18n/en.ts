@@ -260,8 +260,7 @@ export const en = {
     // Login errors
     nameRequired: "Please enter your name (at least 2 characters)",
     passwordRequired: "Please enter your password (at least 3 characters)",
-    nameTaken:
-      "This name is already registered. Wrong password! Please try again.",
+    nameTaken: "Name not found or wrong password. Please try again.",
     nameUsed:
       "This name is already used by someone else. Please choose another name.",
     networkTimeout: "Network error: Connection timed out. Please try again!",
