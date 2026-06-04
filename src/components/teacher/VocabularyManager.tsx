@@ -28,6 +28,7 @@ interface VocabCard {
   set_id: string;
   front: string;
   back: string;
+  ipa: string | null;
   image_url: string | null;
   order_index: number;
   created_at: string;
@@ -54,6 +55,7 @@ export function VocabularyManager() {
   const [addCardSetId, setAddCardSetId] = useState<string | null>(null);
   const [cardFront, setCardFront] = useState("");
   const [cardBack, setCardBack] = useState("");
+  const [cardIpa, setCardIpa] = useState("");
   const [cardImageUrl, setCardImageUrl] = useState("");
   const [cardImageUploading, setCardImageUploading] = useState(false);
   const [cardImageDragging, setCardImageDragging] = useState(false);
@@ -135,7 +137,9 @@ export function VocabularyManager() {
     try {
       const { data, error } = await supabase
         .from("vocabulary_cards")
-        .select("id, set_id, front, back, image_url, order_index, created_at")
+        .select(
+          "id, set_id, front, back, ipa, image_url, order_index, created_at",
+        )
         .eq("set_id", setId)
         .order("order_index", { ascending: true });
       if (error) throw error;
@@ -223,6 +227,7 @@ export function VocabularyManager() {
           set_id: addCardSetId,
           front: cardFront.trim(),
           back: cardBack.trim(),
+          ipa: cardIpa.trim() || null,
           image_url: cardImageUrl.trim() || null,
           order_index: orderIndex,
         })
@@ -243,6 +248,7 @@ export function VocabularyManager() {
       setAddCardSetId(null);
       setCardFront("");
       setCardBack("");
+      setCardIpa("");
       setCardImageUrl("");
     } catch (err: any) {
       setAddCardError(err.message);
@@ -329,7 +335,10 @@ export function VocabularyManager() {
               className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden"
             >
               {/* Set header row */}
-              <div className="flex items-center gap-3 p-4">
+              <div
+                className="flex items-center gap-3 p-4 cursor-pointer hover:bg-slate-50 transition-colors"
+                onClick={() => handleToggleSet(set.id)}
+              >
                 <div className="w-12 h-12 rounded-xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-2xl shrink-0">
                   {set.emoji}
                 </div>
@@ -348,7 +357,8 @@ export function VocabularyManager() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setAddCardSetId(set.id);
                       setCardFront("");
                       setCardBack("");
@@ -361,7 +371,8 @@ export function VocabularyManager() {
                     <Plus size={12} /> Add Card
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setDeleteSetTarget(set);
                       setDeleteSetError("");
                     }}
@@ -369,16 +380,13 @@ export function VocabularyManager() {
                   >
                     <Trash2 size={12} />
                   </button>
-                  <button
-                    onClick={() => handleToggleSet(set.id)}
-                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors"
-                  >
+                  <span className="p-1.5 text-slate-400">
                     {isExpanded ? (
                       <ChevronUp size={16} />
                     ) : (
                       <ChevronDown size={16} />
                     )}
-                  </button>
+                  </span>
                 </div>
               </div>
 
@@ -397,7 +405,7 @@ export function VocabularyManager() {
                       No cards yet. Add the first one!
                     </p>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                       {cards.map((card) => (
                         <div
                           key={card.id}
@@ -412,6 +420,11 @@ export function VocabularyManager() {
                           )}
                           <p className="font-extrabold text-slate-800 text-sm">
                             {card.front}
+                            {card.ipa && (
+                              <span className="text-xs font-mono text-slate-400 ml-1">
+                                {card.ipa}
+                              </span>
+                            )}
                           </p>
                           <p className="font-bold text-blue-600 text-xs">
                             {card.back}
@@ -572,6 +585,17 @@ export function VocabularyManager() {
                   onChange={(e) => setCardBack(e.target.value)}
                   placeholder="E.g. Táo"
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                  IPA (optional)
+                </label>
+                <input
+                  value={cardIpa}
+                  onChange={(e) => setCardIpa(e.target.value)}
+                  placeholder="E.g. /frʊt/"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none font-mono"
                 />
               </div>
               <div>

@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Volume2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "../../lib/supabase";
@@ -15,6 +15,7 @@ interface VocabCard {
   id: string;
   front: string;
   back: string;
+  ipa: string | null;
   image_url: string | null;
   order_index: number;
 }
@@ -29,6 +30,15 @@ function FlipCard({ card }: { card: VocabCard }) {
   useEffect(() => {
     setFlipped(false);
   }, [card.id]);
+
+  const speak = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(card.front);
+    u.lang = "en-US";
+    u.rate = 0.85;
+    window.speechSynthesis.speak(u);
+  };
 
   return (
     <div
@@ -54,26 +64,33 @@ function FlipCard({ card }: { card: VocabCard }) {
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
           }}
-          className="rounded-[1.5rem] bg-gradient-to-br from-[#E3F2FD] to-[#BBDEFB] border-4 border-[#90CAF9] shadow-xl flex flex-col items-center justify-center p-6 gap-3"
+          className="rounded-[1.5rem] bg-gradient-to-br from-[#E3F2FD] to-[#BBDEFB] border-4 border-[#90CAF9] shadow-xl flex flex-col items-center justify-center p-6 gap-2"
         >
           {card.image_url && (
             <img
               src={card.image_url}
               alt=""
-              className="w-48 h-48 object-cover rounded-2xl shadow-md border-2 border-white"
+              className="w-40 h-40 object-cover rounded-2xl shadow-md border-2 border-white"
             />
           )}
           <p className="text-4xl font-black text-[#1E88E5] text-center leading-tight">
             {card.front}
           </p>
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className="w-5 h-5 rounded-full bg-[#1E88E5]/20 flex items-center justify-center">
-              <span className="text-[10px]">👆</span>
-            </span>
-            <p className="text-xs font-bold text-[#1E88E5]/60">
-              Tap to see meaning
+          {card.ipa && (
+            <p className="text-base font-mono text-[#1E88E5]/60 text-center">
+              {card.ipa}
             </p>
-          </div>
+          )}
+          <button
+            onClick={speak}
+            className="mt-1 flex items-center gap-1.5 px-4 py-2 bg-[#1E88E5]/10 hover:bg-[#1E88E5]/20 rounded-full transition-colors active:scale-95"
+          >
+            <Volume2 size={16} className="text-[#1E88E5]" />
+            <span className="text-xs font-bold text-[#1E88E5]">Listen</span>
+          </button>
+          <p className="text-xs font-bold text-[#1E88E5]/40 mt-1">
+            👆 Tap card to see meaning
+          </p>
         </div>
 
         {/* Back */}
@@ -93,6 +110,9 @@ function FlipCard({ card }: { card: VocabCard }) {
           <div className="px-4 py-2 bg-white/20 rounded-full">
             <p className="text-sm font-extrabold text-blue-100">{card.front}</p>
           </div>
+          {card.ipa && (
+            <p className="text-sm font-mono text-blue-300">{card.ipa}</p>
+          )}
           <p className="text-xs font-bold text-blue-300/70 mt-1">
             👆 Tap to flip back
           </p>
@@ -113,7 +133,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
       try {
         const { data, error } = await supabase
           .from("vocabulary_cards")
-          .select("id, front, back, image_url, order_index")
+          .select("id, front, back, ipa, image_url, order_index")
           .eq("set_id", set.id)
           .order("order_index", { ascending: true });
         if (error) throw error;
