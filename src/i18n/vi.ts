@@ -261,7 +261,7 @@ export const vi = {
     // Login errors
     nameRequired: "Vui lòng nhập tên của bạn (ít nhất 2 ký tự)",
     passwordRequired: "Vui lòng nhập mật khẩu (ít nhất 3 ký tự)",
-    nameTaken: "Tên này đã được đăng ký. Sai mật khẩu! Vui lòng thử lại.",
+    nameTaken: "Tên không tồn tại hoặc sai mật khẩu. Vui lòng thử lại.",
     nameUsed: "Tên này đã được người khác sử dụng. Vui lòng chọn tên khác.",
     networkTimeout: "Lỗi mạng: Thời gian kết nối quá lâu. Vui lòng thử lại!",
     systemInit:

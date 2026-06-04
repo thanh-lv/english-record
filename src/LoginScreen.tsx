@@ -71,20 +71,7 @@ export default function LoginScreen({
               .eq("id", existingUser.id);
             if (dbError) throw dbError;
           } else {
-            const { data: inserted, error: dbError } = await supabase
-              .from("profiles")
-              .insert({
-                auth_user_id: user.id,
-                name: trimmedName,
-                role,
-                password,
-                updated_at: new Date().toISOString(),
-              })
-              .select()
-              .single();
-            if (dbError?.code === "23505") throw new Error(t.common.nameUsed);
-            if (dbError) throw dbError;
-            profileData = inserted;
+            throw new Error(t.common.nameTaken);
           }
           return profileData;
         };
