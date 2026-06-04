@@ -1,17 +1,34 @@
 import { AlertCircle } from "lucide-react";
 import { useLanguage } from "./i18n/LanguageContext";
 import { RecordingsPanel } from "./components/teacher/RecordingsPanel";
-import { StoriesManager } from "./components/teacher/StoriesManager";
-import { StudentsManager } from "./components/teacher/StudentsManager";
 import {
   TeacherSidebar,
   TeacherTab,
 } from "./components/teacher/TeacherSidebar";
-import { TopicsManager } from "./components/teacher/TopicsManager";
-import { VocabularyManager } from "./components/teacher/VocabularyManager";
 import { DeleteConfirmModal } from "./components/teacher/DeleteConfirmModal";
 import { useRecordings } from "./components/teacher/hooks/useRecordings";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+
+const StoriesManager = lazy(() =>
+  import("./components/teacher/StoriesManager").then((m) => ({
+    default: m.StoriesManager,
+  })),
+);
+const StudentsManager = lazy(() =>
+  import("./components/teacher/StudentsManager").then((m) => ({
+    default: m.StudentsManager,
+  })),
+);
+const TopicsManager = lazy(() =>
+  import("./components/teacher/TopicsManager").then((m) => ({
+    default: m.TopicsManager,
+  })),
+);
+const VocabularyManager = lazy(() =>
+  import("./components/teacher/VocabularyManager").then((m) => ({
+    default: m.VocabularyManager,
+  })),
+);
 
 const formatDate = (timestamp: string) => {
   const d = new Date(timestamp);
@@ -78,10 +95,18 @@ export default function TeacherView({
               highlightRecordId={highlightRecordId}
             />
           )}
-          {activeTab === "topics" && <TopicsManager />}
-          {activeTab === "students" && <StudentsManager />}
-          {activeTab === "stories" && <StoriesManager />}
-          {activeTab === "vocabulary" && <VocabularyManager />}
+          <Suspense
+            fallback={
+              <div className="flex justify-center py-16">
+                <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
+              </div>
+            }
+          >
+            {activeTab === "topics" && <TopicsManager />}
+            {activeTab === "students" && <StudentsManager />}
+            {activeTab === "stories" && <StoriesManager />}
+            {activeTab === "vocabulary" && <VocabularyManager />}
+          </Suspense>
         </div>
       </div>
 

@@ -107,22 +107,18 @@ export function VocabularyManager() {
   const fetchSets = async () => {
     setLoading(true);
     try {
+      // Single query with card count via Supabase foreign table aggregation
       const { data, error } = await supabase
         .from("vocabulary_sets")
-        .select("id, title, emoji, age_group, created_at")
+        .select("id, title, emoji, age_group, created_at, vocabulary_cards(id)")
         .order("created_at", { ascending: false });
       if (error) throw error;
 
-      // Fetch card counts
-      const setsWithCounts = await Promise.all(
-        (data || []).map(async (set) => {
-          const { count } = await supabase
-            .from("vocabulary_cards")
-            .select("id", { count: "exact", head: true })
-            .eq("set_id", set.id);
-          return { ...set, card_count: count ?? 0 };
-        }),
-      );
+      const setsWithCounts = (data || []).map((set: any) => ({
+        ...set,
+        card_count: set.vocabulary_cards?.length ?? 0,
+        vocabulary_cards: undefined,
+      }));
       setSets(setsWithCounts);
     } catch (err: any) {
       console.error(err);

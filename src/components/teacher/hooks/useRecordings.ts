@@ -55,9 +55,7 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
           }
         },
       )
-      .subscribe((status) => {
-        console.log("[useRecordings] realtime status:", status);
-      });
+      .subscribe((status) => {});
 
     return () => {
       supabase.removeChannel(channel);
