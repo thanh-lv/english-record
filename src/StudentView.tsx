@@ -253,26 +253,26 @@ export default function StudentView({
     (_, i) => i + 1,
   );
 
-  // A topic is "completed" only when ALL its questions have been answered.
-  // For standard (1-question) topics this equals having any recording.
-  // For Bông bé (multi-question) topics, every question must have a recording.
+  // Standard topics: completed = any recording with matching topicNumber.
+  // Bông bé multi-question topics: every question must have a recording.
   const completedTopicNumbers = activeTopics
-    .filter((topic: any) => {
+    .filter((topic: any, idx: number) => {
+      const topicNum = idx + 1; // selectedNumber is 1-based, matches topicNumber in recordings
+      const hasRecording = myRecordings.some(
+        (r: any) => r.topicNumber === topicNum,
+      );
+      if (!isBongBe) return hasRecording;
       const questions: any[] = topic.questions || [];
-      if (questions.length === 0) {
-        return myRecordings.some(
-          (r: any) => r.topicNumber === topic.order_index,
-        );
-      }
+      if (questions.length === 0) return hasRecording;
       return questions.every((q: any) =>
         myRecordings.some(
           (r: any) =>
-            r.topicNumber === topic.order_index &&
+            r.topicNumber === topicNum &&
             (r.question_id === q.id || r.questionText === q.text),
         ),
       );
     })
-    .map((topic: any) => topic.order_index);
+    .map((_: any, idx: number) => idx + 1);
 
   useKeyboardShortcuts({
     isModalOpen: !!selectedNumber,

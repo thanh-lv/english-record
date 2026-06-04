@@ -42,7 +42,7 @@ export function TeacherSidebar({
       },
       {
         id: "vocabulary",
-        label: t.sidebar.flashcards,
+        label: t.teacherNav.flashcards,
         icon: <BookMarked size={18} />,
       },
     ];

@@ -106,6 +106,7 @@ export const vi = {
     topics: "Quản lý Topics",
     students: "Học sinh",
     stories: "Truyện kể",
+    flashcards: "Từ vựng",
   },
 
   // Teacher header
