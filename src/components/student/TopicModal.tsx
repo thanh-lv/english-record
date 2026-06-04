@@ -457,7 +457,8 @@ function BongBeQuestionPanel({
     <div className="bg-white rounded-[2rem] p-6 border-3 border-dashed border-[#FF8A80] space-y-6 shadow-sm text-center">
       <div className="bg-pink-50 border-2 border-pink-200 rounded-full py-2 px-5 inline-block">
         <span className="text-sm font-black text-pink-600 uppercase tracking-widest">
-          Câu hỏi {activeQuestionIndex + 1} / {currentTopic.questions.length}
+          {t.topic.question} {activeQuestionIndex + 1} {t.topic.of}{" "}
+          {currentTopic.questions.length}
         </span>
       </div>
 

@@ -278,5 +278,23 @@ export const en = {
     deleteStoryWarning:
       "Are you sure you want to delete this story? Students will no longer be able to read it.",
     saveStory: "Save Story",
+    // Flashcards
+    flashcardsTitle: "Vocabulary 📖",
+    flashcardsSubtitle: "Tap a set to start learning!",
+    flashcardsEmpty: "No vocabulary sets available for you yet.",
+    flashcardsNext: "Next",
+    flashcardsDone: "Done! 🎉",
+    flashcardsClose: "Close",
+    // VocabularyManager age groups
+    ageKindergarten: "Kindergarten",
+    agePrimary: "Primary",
+    ageAll: "All",
+    // TopicsManager filter
+    filterTopicPlaceholder: "Search topic...",
+    filterAll: "All",
+    noTopicsFound: "No topics found.",
+    noTopicsYet: "No topics yet.",
+    paginationPrev: "← Prev",
+    paginationNext: "Next →",
   },
 };

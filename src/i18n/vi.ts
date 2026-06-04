@@ -277,5 +277,23 @@ export const vi = {
     deleteStoryWarning:
       "Bạn có chắc chắn muốn xóa bộ truyện này không? Học sinh sẽ không thể đọc truyện này nữa.",
     saveStory: "Lưu Truyện",
+    // Flashcards
+    flashcardsTitle: "Từ vựng 📖",
+    flashcardsSubtitle: "Nhấn vào bộ thẻ để học từ vựng nhé!",
+    flashcardsEmpty: "Chưa có bộ từ vựng nào phù hợp với con.",
+    flashcardsNext: "Tiếp theo",
+    flashcardsDone: "Xong! 🎉",
+    flashcardsClose: "Đóng",
+    // VocabularyManager age groups
+    ageKindergarten: "Mầm non",
+    agePrimary: "Tiểu học",
+    ageAll: "Tất cả",
+    // TopicsManager filter
+    filterTopicPlaceholder: "Tìm topic...",
+    filterAll: "Tất cả",
+    noTopicsFound: "Không tìm thấy topic nào.",
+    noTopicsYet: "Chưa có topic nào.",
+    paginationPrev: "← Trước",
+    paginationNext: "Sau →",
   },
 };

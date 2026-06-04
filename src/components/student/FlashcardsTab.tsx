@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, Shuffle, Volume2, X } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "../../lib/supabase";
@@ -123,6 +124,7 @@ function FlipCard({ card }: { card: VocabCard }) {
 }
 
 function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
+  const { t } = useLanguage();
   const [cards, setCards] = useState<VocabCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -258,14 +260,14 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
                   onClick={onClose}
                   className="flex-1 h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black rounded-2xl transition-all shadow-lg border-b-4 border-emerald-700 active:scale-95 text-base"
                 >
-                  Xong! 🎉
+                  {t.teacherModal.flashcardsDone}
                 </button>
               ) : (
                 <button
                   onClick={handleNext}
                   className="flex-1 h-14 bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1E88E5] text-white font-black rounded-2xl transition-all shadow-lg border-b-4 border-blue-900 active:scale-95 flex items-center justify-center gap-2 text-base"
                 >
-                  Tiếp theo <ArrowRight size={18} />
+                  {t.teacherModal.flashcardsNext} <ArrowRight size={18} />
                 </button>
               )}
             </>
@@ -274,7 +276,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
               onClick={onClose}
               className="flex-1 h-14 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-2xl text-sm transition-colors"
             >
-              Đóng
+              {t.teacherModal.flashcardsClose}
             </button>
           ) : null}
         </div>
@@ -285,6 +287,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
 }
 
 export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
+  const { t } = useLanguage();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSet, setActiveSet] = useState<VocabSet | null>(null);
@@ -335,15 +338,17 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
   return (
     <div className="bg-white/80 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-white shadow-sm">
       <div className="mb-5">
-        <h2 className="text-xl font-black text-slate-800">Từ vựng 📖</h2>
+        <h2 className="text-xl font-black text-slate-800">
+          {t.teacherModal.flashcardsTitle}
+        </h2>
         <p className="text-sm font-bold text-slate-500 mt-1">
-          Nhấn vào bộ thẻ để học từ vựng nhé!
+          {t.teacherModal.flashcardsSubtitle}
         </p>
       </div>
 
       {sets.length === 0 ? (
         <div className="py-12 text-center text-slate-400 font-bold rounded-2xl border-2 border-dashed border-slate-200">
-          Chưa có bộ từ vựng nào phù hợp với con.
+          {t.teacherModal.flashcardsEmpty}
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

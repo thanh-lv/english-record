@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { s3Client, S3_BUCKET } from "../../lib/s3";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
@@ -35,6 +36,7 @@ interface VocabCard {
 }
 
 export function VocabularyManager() {
+  const { t } = useLanguage();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedSetId, setExpandedSetId] = useState<string | null>(null);
@@ -286,9 +288,9 @@ export function VocabularyManager() {
   };
 
   const ageGroupLabel = (ag: string) => {
-    if (ag === "kindergarten") return "Mầm non";
-    if (ag === "primary") return "Tiểu học";
-    return "Tất cả";
+    if (ag === "kindergarten") return t.teacherModal.ageKindergarten;
+    if (ag === "primary") return t.teacherModal.agePrimary;
+    return t.teacherModal.ageAll;
   };
 
   if (loading) {
@@ -506,9 +508,11 @@ export function VocabularyManager() {
                     }
                     className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
                   >
-                    <option value="kindergarten">Mầm non</option>
-                    <option value="primary">Tiểu học</option>
-                    <option value="all">Tất cả</option>
+                    <option value="kindergarten">
+                      {t.teacherModal.ageKindergarten}
+                    </option>
+                    <option value="primary">{t.teacherModal.agePrimary}</option>
+                    <option value="all">{t.teacherModal.ageAll}</option>
                   </select>
                 </div>
               </div>

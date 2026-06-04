@@ -318,7 +318,7 @@ export function TopicsManager() {
               setFilterText(e.target.value);
               setPage(0);
             }}
-            placeholder="Tìm topic..."
+            placeholder={t.teacherModal.filterTopicPlaceholder}
             className="w-full pl-3 pr-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
           />
         </div>
@@ -330,7 +330,9 @@ export function TopicsManager() {
           }}
           className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
         >
-          <option value="all">Tất cả ({filteredTopics.length})</option>
+          <option value="all">
+            {t.teacherModal.ageAll} ({filteredTopics.length})
+          </option>
           <option value="active">Active</option>
           <option value="hidden">Hidden</option>
         </select>
@@ -572,8 +574,8 @@ export function TopicsManager() {
           {pagedTopics.length === 0 && !loading && (
             <div className="py-12 text-center text-slate-400 font-bold bg-white rounded-2xl border-2 border-dashed border-slate-200">
               {filterText || filterStatus !== "all"
-                ? "Không tìm thấy topic nào."
-                : "Chưa có topic nào."}
+                ? t.teacherModal.noTopicsFound
+                : t.teacherModal.noTopicsYet}
             </div>
           )}
 
@@ -592,7 +594,7 @@ export function TopicsManager() {
                   disabled={page === 0}
                   className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40"
                 >
-                  ← Trước
+                  {t.teacherModal.paginationPrev}
                 </button>
                 {Array.from({ length: totalPages }).map((_, i) => (
                   <button
@@ -612,7 +614,7 @@ export function TopicsManager() {
                   disabled={page >= totalPages - 1}
                   className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40"
                 >
-                  Sau →
+                  {t.teacherModal.paginationNext}
                 </button>
               </div>
             </div>
