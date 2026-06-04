@@ -3,16 +3,15 @@ import { AchievementsTab } from "./components/student/AchievementsTab";
 import { AvatarSelectModal } from "./components/student/AvatarSelectModal";
 import { CompletionCelebration } from "./components/student/CompletionCelebration";
 import { ExercisesTab } from "./components/student/ExercisesTab";
+import { FlashcardsTab } from "./components/student/FlashcardsTab";
 import { StoriesTab } from "./components/student/StoriesTab";
 import { StoryModal } from "./components/student/StoryModal";
-import { StudentSidebar } from "./components/student/StudentSidebar";
+import { StudentSidebar, ActiveTab } from "./components/student/StudentSidebar";
 import { TopicModal } from "./components/student/TopicModal";
 import { useAvatar } from "./components/student/hooks/useAvatar";
 import { useRecording } from "./components/student/hooks/useRecording";
 import { useStudentData } from "./components/student/hooks/useStudentData";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-
-type ActiveTab = "exercises" | "stories" | "achievements";
 
 export default function StudentView({
   user,
@@ -320,6 +319,9 @@ export default function StudentView({
             studentAge={studentAge}
             onStoryClick={setSelectedStory}
           />
+        )}
+        {activeTab === "flashcards" && (
+          <FlashcardsTab studentAge={studentAge} />
         )}
       </div>
 

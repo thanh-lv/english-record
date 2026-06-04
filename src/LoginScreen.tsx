@@ -112,7 +112,7 @@ export default function LoginScreen({
   };
 
   return (
-    <div className="relative min-h-[80vh] flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative flex flex-col items-center justify-center overflow-hidden py-4 flex-1">
       {/* Floating decorations */}
       {FLOATING.map((emoji, i) => (
         <span
@@ -131,28 +131,28 @@ export default function LoginScreen({
 
       <div className="relative z-10 w-full max-w-sm mx-auto px-4 animate-in fade-in zoom-in-95 duration-500">
         {/* Mascot + title */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <div className="relative inline-block">
-            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-100 to-pink-100 rounded-full flex items-center justify-center text-5xl shadow-lg border-4 border-white mb-4 animate-in zoom-in duration-700">
+            <div className="w-16 h-16 md:w-24 md:h-24 mx-auto bg-gradient-to-br from-blue-100 to-pink-100 rounded-full flex items-center justify-center text-3xl md:text-5xl shadow-lg border-4 border-white mb-3 animate-in zoom-in duration-700">
               🎤
             </div>
-            <span className="absolute -top-1 -right-1 text-xl animate-bounce">
+            <span className="absolute -top-1 -right-1 text-lg animate-bounce">
               ✨
             </span>
           </div>
-          <h2 className="text-2xl font-black text-slate-800 leading-tight">
+          <h2 className="text-lg md:text-2xl font-black text-slate-800 leading-tight">
             {t.login.welcome}
           </h2>
-          <h1 className="text-3xl font-black bg-gradient-to-r from-[#1E88E5] to-[#F06292] bg-clip-text text-transparent">
+          <h1 className="text-xl md:text-3xl font-black bg-gradient-to-r from-[#1E88E5] to-[#F06292] bg-clip-text text-transparent">
             {t.appName}!
           </h1>
-          <p className="text-slate-400 text-sm font-bold mt-1">
+          <p className="text-slate-400 text-xs md:text-sm font-bold mt-1">
             {t.login.subtitle}
           </p>
         </div>
 
         {/* Form card */}
-        <div className="bg-white rounded-[2rem] shadow-xl shadow-blue-100/60 border-4 border-[#FFFDE7] p-6 space-y-4">
+        <div className="bg-white rounded-[2rem] shadow-xl shadow-blue-100/60 border-4 border-[#FFFDE7] p-4 md:p-6 space-y-3">
           {/* Name input */}
           <div className="space-y-1.5">
             <label className="block text-xs font-black text-slate-600 uppercase tracking-wide">
@@ -161,7 +161,7 @@ export default function LoginScreen({
             <input
               type="text"
               placeholder={t.login.namePlaceholder}
-              className="w-full px-4 py-3.5 bg-[#FFFDF6] border-2 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-100 focus:border-amber-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
+              className="w-full px-4 py-2.5 md:py-3.5 bg-[#FFFDF6] border-2 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-100 focus:border-amber-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);

@@ -132,7 +132,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] text-slate-800 font-sans selection:bg-pink-100">
+    <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] text-slate-800 font-sans selection:bg-pink-100 flex flex-col">
       <header className="bg-white/80 backdrop-blur-md shadow-sm px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-10 border-b-4 border-[#FFF0F0]">
         <h1 className="font-extrabold text-[#1E88E5] flex items-center gap-2">
           <span className="p-1.5 bg-[#E3F2FD] rounded-xl inline-block shadow-inner shrink-0">
@@ -195,7 +195,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-3 md:p-6 lg:p-8">
+      <main className="max-w-5xl mx-auto p-3 md:p-6 lg:p-8 flex-1 w-full flex flex-col">
         {!userProfile && <LoginScreen setProfile={setUserProfile} user={user} />}
         <Suspense fallback={null}>
           {userProfile?.role === "student" && <StudentView user={user} profile={userProfile} />}
@@ -208,6 +208,15 @@ export default function App() {
           )}
         </Suspense>
       </main>
+
+      <footer className="border-t border-slate-100 py-5 px-4 text-center space-y-1 mt-auto">
+        <p className="text-sm font-extrabold text-slate-500">
+          English with Ms My 🎤
+        </p>
+        <p className="text-xs text-slate-400 font-medium">
+          © {new Date().getFullYear()} · Made with ❤️ for young learners
+        </p>
+      </footer>
     </div>
   );
 }

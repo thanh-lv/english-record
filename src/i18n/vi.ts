@@ -28,6 +28,7 @@ export const vi = {
     exercises: "Bài tập",
     stories: "Truyện kể",
     achievements: "Thành tích",
+    flashcards: "Từ vựng",
   },
 
   // Exercises tab

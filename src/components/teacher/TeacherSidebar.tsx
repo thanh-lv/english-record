@@ -1,7 +1,12 @@
-import { BookOpen, Library, Mic, Users } from "lucide-react";
+import { BookMarked, BookOpen, Library, Mic, Users } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
 
-export type TeacherTab = "recordings" | "topics" | "students" | "stories";
+export type TeacherTab =
+  | "recordings"
+  | "topics"
+  | "students"
+  | "stories"
+  | "vocabulary";
 
 interface TeacherSidebarProps {
   activeTab: TeacherTab;
@@ -34,6 +39,11 @@ export function TeacherSidebar({
         id: "stories",
         label: t.teacherNav.stories,
         icon: <Library size={18} />,
+      },
+      {
+        id: "vocabulary",
+        label: t.sidebar.flashcards,
+        icon: <BookMarked size={18} />,
       },
     ];
 

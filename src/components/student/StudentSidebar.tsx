@@ -1,7 +1,14 @@
-import { Award, BookOpen, Flame, Library, Pencil } from "lucide-react";
+import {
+  Award,
+  BookMarked,
+  BookOpen,
+  Flame,
+  Library,
+  Pencil,
+} from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
 
-type ActiveTab = "exercises" | "stories" | "achievements";
+export type ActiveTab = "exercises" | "stories" | "achievements" | "flashcards";
 
 interface StudentSidebarProps {
   profile: any;
@@ -39,6 +46,11 @@ export function StudentSidebar({
       id: "achievements" as ActiveTab,
       label: t.sidebar.achievements,
       icon: <Award size={20} />,
+    },
+    {
+      id: "flashcards" as ActiveTab,
+      label: t.sidebar.flashcards,
+      icon: <BookMarked size={20} />,
     },
   ];
 

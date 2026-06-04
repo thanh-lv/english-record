@@ -8,6 +8,7 @@ import {
   TeacherTab,
 } from "./components/teacher/TeacherSidebar";
 import { TopicsManager } from "./components/teacher/TopicsManager";
+import { VocabularyManager } from "./components/teacher/VocabularyManager";
 import { DeleteConfirmModal } from "./components/teacher/DeleteConfirmModal";
 import { useRecordings } from "./components/teacher/hooks/useRecordings";
 import { useEffect, useState } from "react";
@@ -80,6 +81,7 @@ export default function TeacherView({
           {activeTab === "topics" && <TopicsManager />}
           {activeTab === "students" && <StudentsManager />}
           {activeTab === "stories" && <StoriesManager />}
+          {activeTab === "vocabulary" && <VocabularyManager />}
         </div>
       </div>
 

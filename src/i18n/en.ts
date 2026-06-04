@@ -28,6 +28,7 @@ export const en = {
     exercises: "Exercises",
     stories: "Stories",
     achievements: "Achievements",
+    flashcards: "Vocabulary",
   },
 
   // Exercises tab
@@ -102,6 +103,7 @@ export const en = {
     topics: "Manage Topics",
     students: "Students",
     stories: "Stories",
+    flashcards: "Vocabulary",
   },
 
   // Teacher header
