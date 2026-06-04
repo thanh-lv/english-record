@@ -52,6 +52,12 @@ export function TopicsManager() {
     "standard",
   );
   const [saving, setSaving] = useState(false);
+  const [filterText, setFilterText] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "hidden">(
+    "all",
+  );
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 20;
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "topic" | "question";
     id: string;
@@ -84,7 +90,23 @@ export function TopicsManager() {
     fetchTopics();
   }, []);
 
-  const filteredTopics = topics.filter((t) => t.type === activeType);
+  const filteredTopics = topics
+    .filter((t) => t.type === activeType)
+    .filter(
+      (t) =>
+        !filterText || t.title.toLowerCase().includes(filterText.toLowerCase()),
+    )
+    .filter((t) => {
+      if (filterStatus === "active") return t.is_active ?? true;
+      if (filterStatus === "hidden") return !(t.is_active ?? true);
+      return true;
+    });
+
+  const totalPages = Math.ceil(filteredTopics.length / PAGE_SIZE);
+  const pagedTopics = filteredTopics.slice(
+    page * PAGE_SIZE,
+    (page + 1) * PAGE_SIZE,
+  );
 
   const toggleTopicActive = async (topicId: string, currentValue: boolean) => {
     await supabase
@@ -261,12 +283,15 @@ export function TopicsManager() {
   return (
     <div className="space-y-4">
       {/* Tab type */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {(["standard", "bongbe"] as const).map((type) => (
           <button
             key={type}
             type="button"
-            onClick={() => setActiveType(type)}
+            onClick={() => {
+              setActiveType(type);
+              setPage(0);
+            }}
             className={`px-5 py-2 rounded-full font-extrabold text-sm border-2 transition-all ${activeType === type ? "bg-[#1E88E5] text-white border-blue-800 shadow" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
           >
             {type === "standard" ? `📚 ${t.teacherNav.students}` : "🌸 Bông bé"}
@@ -282,6 +307,33 @@ export function TopicsManager() {
         >
           <Plus size={15} /> {t.common.addTopic}
         </button>
+      </div>
+
+      {/* Filter bar */}
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[160px]">
+          <input
+            value={filterText}
+            onChange={(e) => {
+              setFilterText(e.target.value);
+              setPage(0);
+            }}
+            placeholder="Tìm topic..."
+            className="w-full pl-3 pr-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
+          />
+        </div>
+        <select
+          value={filterStatus}
+          onChange={(e) => {
+            setFilterStatus(e.target.value as any);
+            setPage(0);
+          }}
+          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
+        >
+          <option value="all">Tất cả ({filteredTopics.length})</option>
+          <option value="active">Active</option>
+          <option value="hidden">Hidden</option>
+        </select>
       </div>
 
       {/* Add topic form */}
@@ -319,7 +371,7 @@ export function TopicsManager() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredTopics.map((topic, idx) => (
+          {pagedTopics.map((topic, idx) => (
             <div
               key={topic.id}
               className={`bg-white rounded-2xl border-2 border-slate-100 overflow-hidden shadow-sm${!(topic.is_active ?? true) ? " opacity-60" : ""}`}
@@ -515,6 +567,56 @@ export function TopicsManager() {
               )}
             </div>
           ))}
+
+          {/* Empty state */}
+          {pagedTopics.length === 0 && !loading && (
+            <div className="py-12 text-center text-slate-400 font-bold bg-white rounded-2xl border-2 border-dashed border-slate-200">
+              {filterText || filterStatus !== "all"
+                ? "Không tìm thấy topic nào."
+                : "Chưa có topic nào."}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-xs font-bold text-slate-400">
+                {page * PAGE_SIZE + 1}–
+                {Math.min((page + 1) * PAGE_SIZE, filteredTopics.length)} /{" "}
+                {filteredTopics.length} topics
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40"
+                >
+                  ← Trước
+                </button>
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setPage(i)}
+                    className={`w-7 h-7 text-xs font-black rounded-lg transition-colors ${page === i ? "bg-[#1E88E5] text-white" : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"}`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPage((p) => Math.min(totalPages - 1, p + 1))
+                  }
+                  disabled={page >= totalPages - 1}
+                  className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40"
+                >
+                  Sau →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
