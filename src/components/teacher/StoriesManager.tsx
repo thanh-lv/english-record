@@ -63,7 +63,7 @@ export function StoriesManager() {
       const { data, error } = await supabase
         .from("stories")
         .select(
-          "id, title, type, emoji, image_url, content, age_group, created_at",
+          "id, title, type, emoji, image_url, content, age_group, created_at, is_active",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -231,6 +231,18 @@ export function StoriesManager() {
     }
   };
 
+  const toggleStoryActive = async (storyId: string, currentValue: boolean) => {
+    await supabase
+      .from("stories")
+      .update({ is_active: !currentValue })
+      .eq("id", storyId);
+    setStories((prev) =>
+      prev.map((s) =>
+        s.id === storyId ? { ...s, is_active: !currentValue } : s,
+      ),
+    );
+  };
+
   const openEditStory = (story: any) => {
     setEditingStory(story);
     setEditTitle(story.title);
@@ -329,6 +341,13 @@ export function StoriesManager() {
                   {story.emoji}
                 </div>
               )}
+              {!(story.is_active ?? true) && (
+                <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center rounded-t-[1.5rem]">
+                  <span className="text-white text-xs font-black bg-slate-800/70 px-2 py-1 rounded-full">
+                    Hidden
+                  </span>
+                </div>
+              )}
             </div>
             <div className="p-3 flex flex-col flex-1">
               <h4 className="font-extrabold text-slate-800 text-sm line-clamp-1 mb-0.5">
@@ -351,6 +370,19 @@ export function StoriesManager() {
                   <Trash2 size={12} /> {t.common.delete}
                 </button>
               </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleStoryActive(story.id, story.is_active ?? true);
+                }}
+                className={`w-full mt-1 py-1 rounded-lg text-[10px] font-black transition-colors ${
+                  (story.is_active ?? true)
+                    ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                    : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                }`}
+              >
+                {(story.is_active ?? true) ? "✓ Active" : "✕ Hidden"}
+              </button>
             </div>
           </div>
         ))}

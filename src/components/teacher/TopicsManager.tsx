@@ -86,6 +86,18 @@ export function TopicsManager() {
 
   const filteredTopics = topics.filter((t) => t.type === activeType);
 
+  const toggleTopicActive = async (topicId: string, currentValue: boolean) => {
+    await supabase
+      .from("topics")
+      .update({ is_active: !currentValue })
+      .eq("id", topicId);
+    setTopics((prev) =>
+      prev.map((t) =>
+        t.id === topicId ? { ...t, is_active: !currentValue } : t,
+      ),
+    );
+  };
+
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     isNew: boolean,
@@ -310,7 +322,7 @@ export function TopicsManager() {
           {filteredTopics.map((topic, idx) => (
             <div
               key={topic.id}
-              className="bg-white rounded-2xl border-2 border-slate-100 overflow-hidden shadow-sm"
+              className={`bg-white rounded-2xl border-2 border-slate-100 overflow-hidden shadow-sm${!(topic.is_active ?? true) ? " opacity-60" : ""}`}
             >
               {/* Topic header */}
               {editingTopic === topic.id ? (
@@ -371,9 +383,23 @@ export function TopicsManager() {
                     {topic.questions.length} {t.common.questionCount}
                   </span>
                   <div
-                    className="flex gap-1 shrink-0"
+                    className="flex gap-1 shrink-0 items-center"
                     onClick={(e) => e.stopPropagation()}
                   >
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleTopicActive(topic.id, topic.is_active ?? true);
+                      }}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-black transition-colors ${
+                        (topic.is_active ?? true)
+                          ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      {(topic.is_active ?? true) ? "Active" : "Hidden"}
+                    </button>
                     <button
                       type="button"
                       onClick={() => {

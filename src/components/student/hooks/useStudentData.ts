@@ -25,6 +25,7 @@ export function useStudentData(
           .from("topics")
           .select("*, questions(*)")
           .eq("type", topicType)
+          .eq("is_active", true)
           .order("order_index");
         if (error) throw error;
 
@@ -97,6 +98,7 @@ export function useStudentData(
           .from("stories")
           .select("id, title, type, emoji, image_url, content, age_group")
           .eq("age_group", targetAgeGroup)
+          .eq("is_active", true)
           .order("created_at", { ascending: false });
         if (error) throw error;
         setDbStories(data || []);
