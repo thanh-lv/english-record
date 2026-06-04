@@ -1,7 +1,7 @@
 export const en = {
   // App header
-  appName: "SpeakwithMsMy",
-  appNameShort: "MsMy",
+  appName: "English with Ms My",
+  appNameShort: "English with Ms My",
   logout: "Logout",
   teacher: "Teacher",
   student: "Student",

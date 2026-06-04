@@ -243,10 +243,16 @@ export default function StudentView({
     isRecording: recording.isRecording,
     onPlayPause: () => {
       if (!topicAudio || !currentTopic) return;
-      playTopicAudio({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent);
+      playTopicAudio({
+        preventDefault: () => {},
+        stopPropagation: () => {},
+      } as React.MouseEvent);
     },
     onStartRecord: () => {
-      recording.startRecording({ preventDefault: () => {}, stopPropagation: () => {} } as React.MouseEvent);
+      recording.startRecording({
+        preventDefault: () => {},
+        stopPropagation: () => {},
+      } as React.MouseEvent);
     },
     onStopRecord: () => {
       recording.stopRecording();

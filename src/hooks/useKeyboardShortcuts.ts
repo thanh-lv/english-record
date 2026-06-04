@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 
 interface ShortcutHandlers {
-  onPlayPause?: () => void;      // Space
-  onStartRecord?: () => void;    // R
-  onStopRecord?: () => void;     // R (when recording)
-  onClose?: () => void;          // Escape
+  onPlayPause?: () => void; // Space
+  onStartRecord?: () => void; // R
+  onStopRecord?: () => void; // R (when recording)
+  onClose?: () => void; // Escape
   isRecording?: boolean;
   isModalOpen?: boolean;
 }
@@ -44,5 +44,12 @@ export function useKeyboardShortcuts({
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [isModalOpen, isRecording, onPlayPause, onStartRecord, onStopRecord, onClose]);
+  }, [
+    isModalOpen,
+    isRecording,
+    onPlayPause,
+    onStartRecord,
+    onStopRecord,
+    onClose,
+  ]);
 }
