@@ -4,6 +4,7 @@ import { AvatarSelectModal } from "./components/student/AvatarSelectModal";
 import { CompletionCelebration } from "./components/student/CompletionCelebration";
 import { ExercisesTab } from "./components/student/ExercisesTab";
 import { FlashcardsTab } from "./components/student/FlashcardsTab";
+import { GamesTab } from "./components/student/GamesTab";
 import { StoriesTab } from "./components/student/StoriesTab";
 import { StoryModal } from "./components/student/StoryModal";
 import { StudentSidebar, ActiveTab } from "./components/student/StudentSidebar";
@@ -60,22 +61,24 @@ export default function StudentView({
   useEffect(() => {
     if (topicsLoading || activeTopics.length === 0) return;
 
-    // Recompute fully-completed count inside the effect to avoid stale closure
-    const fullyCompletedCount = activeTopics.filter((topic: any) => {
-      const questions: any[] = topic.questions || [];
-      if (questions.length === 0) {
-        return myRecordings.some(
-          (r: any) => r.topicNumber === topic.order_index,
+    const fullyCompletedCount = activeTopics.filter(
+      (topic: any, idx: number) => {
+        const topicNum = idx + 1;
+        const hasRecording = myRecordings.some(
+          (r: any) => r.topicNumber === topicNum,
         );
-      }
-      return questions.every((q: any) =>
-        myRecordings.some(
-          (r: any) =>
-            r.topicNumber === topic.order_index &&
-            (r.question_id === q.id || r.questionText === q.text),
-        ),
-      );
-    }).length;
+        if (!isBongBe) return hasRecording;
+        const questions: any[] = topic.questions || [];
+        if (questions.length === 0) return hasRecording;
+        return questions.every((q: any) =>
+          myRecordings.some(
+            (r: any) =>
+              r.topicNumber === topicNum &&
+              (r.question_id === q.id || r.questionText === q.text),
+          ),
+        );
+      },
+    ).length;
 
     if (!isDataReady.current) {
       isDataReady.current = true;
@@ -360,6 +363,7 @@ export default function StudentView({
         {activeTab === "flashcards" && (
           <FlashcardsTab studentAge={studentAge} />
         )}
+        {activeTab === "games" && <GamesTab studentAge={studentAge} />}
       </div>
 
       {selectedNumber && currentTopic && (

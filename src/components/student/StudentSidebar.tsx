@@ -3,12 +3,18 @@ import {
   BookMarked,
   BookOpen,
   Flame,
+  Gamepad2,
   Library,
   Pencil,
 } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
 
-export type ActiveTab = "exercises" | "stories" | "achievements" | "flashcards";
+export type ActiveTab =
+  | "exercises"
+  | "stories"
+  | "achievements"
+  | "flashcards"
+  | "games";
 
 interface StudentSidebarProps {
   profile: any;
@@ -51,6 +57,11 @@ export function StudentSidebar({
       id: "flashcards" as ActiveTab,
       label: t.sidebar.flashcards,
       icon: <BookMarked size={20} />,
+    },
+    {
+      id: "games" as ActiveTab,
+      label: "Games",
+      icon: <Gamepad2 size={20} />,
     },
   ];
 
