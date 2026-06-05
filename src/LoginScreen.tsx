@@ -48,9 +48,11 @@ export default function LoginScreen({
         .from("profiles")
         .select("id, name, role, password, avatar, year_born, auth_user_id")
         .ilike("name", trimmedName)
+        .eq("role", "student")
         .maybeSingle();
       if (searchError) throw searchError;
-      if (!existingUser) throw new Error(t.common.nameTaken);
+      if (!existingUser || existingUser.role !== "student")
+        throw new Error(t.common.nameTaken);
       if (existingUser.password && existingUser.password !== password) {
         throw new Error(t.common.nameTaken);
       }
