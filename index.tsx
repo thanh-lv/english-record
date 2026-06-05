@@ -70,6 +70,7 @@ export default function App() {
       const currentUser = session?.user || null;
       setUser(currentUser);
       const savedProfileId = localStorage.getItem("english_record_profile_id");
+
       if (currentUser && savedProfileId) {
         try {
           const { data, error } = await supabase
@@ -85,6 +86,24 @@ export default function App() {
           }
         } catch (err) {
           console.error("Error fetching persisted profile:", err);
+          setUserProfile(null);
+        }
+      } else if (currentUser && !session?.user.is_anonymous) {
+        // Teacher logged in via Supabase Auth — load profile by auth_uid
+        try {
+          const { data } = await supabase
+            .from("profiles").select("*").eq("auth_uid", currentUser.id).eq("role", "teacher").maybeSingle();
+          if (data) {
+            localStorage.setItem("english_record_profile_id", data.id);
+            setUserProfile(data);
+            if (data.language === "vi" || data.language === "en") {
+              setLang(data.language);
+            }
+          } else {
+            setUserProfile(null);
+          }
+        } catch (err) {
+          console.error("Error fetching teacher profile:", err);
           setUserProfile(null);
         }
       } else {

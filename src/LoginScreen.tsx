@@ -1,4 +1,11 @@
-import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
+import {
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Loader2,
+  GraduationCap,
+  User,
+} from "lucide-react";
 import React, { useState } from "react";
 import { supabase } from "./lib/supabase";
 import { useLanguage } from "./i18n/LanguageContext";
@@ -13,18 +20,15 @@ export default function LoginScreen({
   user: any;
 }) {
   const { t } = useLanguage();
+  const [loginMode, setLoginMode] = useState<"student" | "teacher">("student");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
+  const handleStudentLogin = async () => {
     const trimmedName = name.trim();
     if (trimmedName.length < 2) {
       setError(t.common.nameRequired);
@@ -34,65 +38,99 @@ export default function LoginScreen({
       setError(t.common.passwordRequired);
       return;
     }
+    if (!user) {
+      setError(t.common.systemInit);
+      return;
+    }
+
+    const dbOperation = async () => {
+      const { data: existingUser, error: searchError } = await supabase
+        .from("profiles")
+        .select("id, name, role, password, avatar, year_born, auth_user_id")
+        .ilike("name", trimmedName)
+        .maybeSingle();
+      if (searchError) throw searchError;
+      if (!existingUser) throw new Error(t.common.nameTaken);
+      if (existingUser.password && existingUser.password !== password) {
+        throw new Error(t.common.nameTaken);
+      }
+      const profileData = {
+        ...existingUser,
+        auth_user_id: user.id,
+        password,
+        updated_at: new Date().toISOString(),
+      };
+      const { error: dbError } = await supabase
+        .from("profiles")
+        .update({
+          auth_user_id: user.id,
+          password,
+          updated_at: profileData.updated_at,
+        })
+        .eq("id", existingUser.id);
+      if (dbError) throw dbError;
+      return profileData;
+    };
+
+    const profileData = await Promise.race([
+      dbOperation(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(t.common.networkTimeout)), 8000),
+      ),
+    ]);
+    localStorage.setItem("english_record_profile_id", (profileData as any).id);
+    setProfile(profileData);
+  };
+
+  const handleTeacherLogin = async () => {
+    if (!email.trim() || !email.includes("@")) {
+      setError("Vui lòng nhập email hợp lệ.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Mật khẩu phải có ít nhất 6 ký tự.");
+      return;
+    }
+
+    const { data, error: signInError } = await supabase.auth.signInWithPassword(
+      {
+        email: email.trim().toLowerCase(),
+        password,
+      },
+    );
+    if (signInError || !data.user) {
+      throw new Error("Email hoặc mật khẩu không đúng. Vui lòng thử lại.");
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, name, role, avatar, year_born")
+      .eq("auth_uid", data.user.id)
+      .eq("role", "teacher")
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile) throw new Error("Tài khoản giáo viên không tồn tại.");
+
+    localStorage.setItem("english_record_profile_id", profile.id);
+    setProfile(profile);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setError("");
     setIsLoggingIn(true);
-
-    const role =
-      trimmedName.toLowerCase() === "my admin" ? "teacher" : "student";
-
     try {
-      if (user) {
-        const dbOperation = async () => {
-          const { data: existingUser, error: searchError } = await supabase
-            .from("profiles")
-            .select("id, name, role, password, avatar, year_born, auth_user_id")
-            .ilike("name", trimmedName)
-            .maybeSingle();
-          if (searchError) throw searchError;
-
-          let profileData;
-          if (existingUser) {
-            if (existingUser.password && existingUser.password !== password) {
-              throw new Error(t.common.nameTaken);
-            }
-            profileData = {
-              ...existingUser,
-              auth_user_id: user.id,
-              password,
-              updated_at: new Date().toISOString(),
-            };
-            const { error: dbError } = await supabase
-              .from("profiles")
-              .update({
-                auth_user_id: user.id,
-                password,
-                updated_at: profileData.updated_at,
-              })
-              .eq("id", existingUser.id);
-            if (dbError) throw dbError;
-          } else {
-            throw new Error(t.common.nameTaken);
-          }
-          return profileData;
-        };
-
-        const profileData = await Promise.race([
-          dbOperation(),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error(t.common.networkTimeout)), 8000),
-          ),
-        ]);
-        localStorage.setItem(
-          "english_record_profile_id",
-          (profileData as any).id,
-        );
-        setProfile(profileData);
+      if (loginMode === "teacher") {
+        await handleTeacherLogin();
       } else {
-        setError(t.common.systemInit);
+        await handleStudentLogin();
       }
     } catch (err: any) {
-      console.error("Lưu thông tin đăng nhập thất bại:", err);
-      setError(err.message || "Không thể khởi tạo tài khoản trên hệ thống.");
+      console.error("Login error:", err);
+      setError(err.message || "Không thể đăng nhập. Vui lòng thử lại.");
     } finally {
       setIsLoggingIn(false);
     }
@@ -140,24 +178,79 @@ export default function LoginScreen({
 
         {/* Form card */}
         <div className="bg-white rounded-[2rem] shadow-xl shadow-blue-100/60 border-4 border-[#FFFDE7] p-4 md:p-6 space-y-3">
-          {/* Name input */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-black text-slate-600 uppercase tracking-wide">
-              {t.login.nameLabel}
-            </label>
-            <input
-              type="text"
-              placeholder={t.login.namePlaceholder}
-              className="w-full px-4 py-2.5 md:py-3.5 bg-[#FFFDF6] border-2 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-100 focus:border-amber-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
+          {/* Mode tabs */}
+          <div className="flex gap-2 p-1 bg-slate-100 rounded-2xl">
+            <button
+              type="button"
+              onClick={() => {
+                setLoginMode("student");
                 setError("");
               }}
-              disabled={isLoggingIn}
-              autoComplete="username"
-            />
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-extrabold transition-all ${
+                loginMode === "student"
+                  ? "bg-white text-[#1E88E5] shadow-sm"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              <User size={13} /> Học sinh
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLoginMode("teacher");
+                setError("");
+              }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-extrabold transition-all ${
+                loginMode === "teacher"
+                  ? "bg-white text-[#F06292] shadow-sm"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              <GraduationCap size={13} /> Giáo viên
+            </button>
           </div>
+
+          {/* Student: Name input */}
+          {loginMode === "student" && (
+            <div className="space-y-1.5">
+              <label className="block text-xs font-black text-slate-600 uppercase tracking-wide">
+                {t.login.nameLabel}
+              </label>
+              <input
+                type="text"
+                placeholder={t.login.namePlaceholder}
+                className="w-full px-4 py-2.5 md:py-3.5 bg-[#FFFDF6] border-2 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-100 focus:border-amber-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setError("");
+                }}
+                disabled={isLoggingIn}
+                autoComplete="username"
+              />
+            </div>
+          )}
+
+          {/* Teacher: Email input */}
+          {loginMode === "teacher" && (
+            <div className="space-y-1.5">
+              <label className="block text-xs font-black text-slate-600 uppercase tracking-wide">
+                Email
+              </label>
+              <input
+                type="email"
+                placeholder="email@example.com"
+                className="w-full px-4 py-2.5 md:py-3.5 bg-[#FFFDF6] border-2 border-pink-200 rounded-2xl focus:ring-4 focus:ring-pink-100 focus:border-pink-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
+                disabled={isLoggingIn}
+                autoComplete="email"
+              />
+            </div>
+          )}
 
           {/* Password input */}
           <div className="space-y-1.5">
@@ -168,7 +261,11 @@ export default function LoginScreen({
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder={t.login.passwordPlaceholder}
-                className="w-full px-4 py-3.5 pr-12 bg-[#FFFDF6] border-2 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-100 focus:border-amber-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
+                className={`w-full px-4 py-3.5 pr-12 bg-[#FFFDF6] border-2 rounded-2xl focus:ring-4 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300 ${
+                  loginMode === "teacher"
+                    ? "border-pink-200 focus:ring-pink-100 focus:border-pink-400"
+                    : "border-amber-200 focus:ring-amber-100 focus:border-amber-400"
+                }`}
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -199,8 +296,16 @@ export default function LoginScreen({
           <button
             type="button"
             onClick={handleLogin}
-            disabled={isLoggingIn || !name.trim() || !password}
-            className="w-full py-4 bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1E88E5] disabled:from-slate-300 disabled:to-slate-300 text-white rounded-full font-black text-lg transition-all shadow-lg shadow-blue-200 hover:shadow-xl active:scale-95 border-b-4 border-blue-800 disabled:border-slate-400 flex items-center justify-center gap-2 mt-2"
+            disabled={
+              isLoggingIn ||
+              (loginMode === "student" ? !name.trim() : !email.trim()) ||
+              !password
+            }
+            className={`w-full py-4 text-white rounded-full font-black text-lg transition-all shadow-lg hover:shadow-xl active:scale-95 border-b-4 disabled:border-slate-400 disabled:from-slate-300 disabled:to-slate-300 flex items-center justify-center gap-2 mt-2 ${
+              loginMode === "teacher"
+                ? "bg-gradient-to-r from-[#E91E63] to-[#F06292] hover:from-[#C2185B] hover:to-[#E91E63] shadow-pink-200 border-pink-900"
+                : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1E88E5] shadow-blue-200 border-blue-800"
+            }`}
           >
             {isLoggingIn ? (
               <>
@@ -208,14 +313,16 @@ export default function LoginScreen({
                 {t.login.submitting}
               </>
             ) : (
-              <>{t.login.submit}</>
+              <>{loginMode === "teacher" ? "Đăng nhập 👩‍🏫" : t.login.submit}</>
             )}
           </button>
         </div>
 
-        <p className="text-center text-xs text-slate-400 font-bold mt-4">
-          {t.login.hint}
-        </p>
+        {loginMode === "student" && (
+          <p className="text-center text-xs text-slate-400 font-bold mt-4">
+            {t.login.hint}
+          </p>
+        )}
       </div>
     </div>
   );
