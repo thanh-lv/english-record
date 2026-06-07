@@ -1,5 +1,14 @@
-import { AlertCircle, Check, Loader2, Sparkles, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import {
+  AlertCircle,
+  Check,
+  ImageIcon,
+  Loader2,
+  Sparkles,
+  Trash2,
+  Type,
+  X,
+} from "lucide-react";
+import { useRef, useState } from "react";
 
 const WORKER_URL =
   "https://free-image-generation-api.levanthanh29111999.workers.dev/";
@@ -18,45 +27,103 @@ export function AIQuestionParserModal({
   onAddAll,
   onClose,
 }: AIQuestionParserModalProps) {
+  const [mode, setMode] = useState<"text" | "image">("text");
   const [rawText, setRawText] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [parsing, setParsing] = useState(false);
   const [error, setError] = useState("");
   const [questions, setQuestions] = useState<ParsedQuestion[]>([]);
   const [adding, setAdding] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSelectImage = (file: File | null) => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(file);
+    setImagePreview(file ? URL.createObjectURL(file) : "");
+    setError("");
+  };
+
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(",")[1] || "");
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const applyParsedQuestions = (data: any) => {
+    if (!data.questions || data.questions.length === 0) {
+      console.warn("AI parse raw response:", data.raw, data.error);
+      setError("AI không tách được câu hỏi nào. Hãy thử nội dung khác.");
+      return;
+    }
+    setQuestions(
+      data.questions.map((q: any) => ({
+        text: q.text || "",
+        sample_answer: q.sample_answer || "",
+      })),
+    );
+  };
 
   const handleParse = async () => {
-    const text = rawText.trim();
-    if (!text) return;
     const apiKey = import.meta.env.VITE_AI_API_KEY;
     if (!apiKey) {
       setError("Thiếu cấu hình AI API key.");
       return;
     }
+
+    if (mode === "text") {
+      const text = rawText.trim();
+      if (!text) return;
+      setParsing(true);
+      setError("");
+      setQuestions([]);
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({ type: "parse_questions", prompt: text }),
+        });
+        if (!res.ok) throw new Error("Failed");
+        const data = await res.json();
+        applyParsedQuestions(data);
+      } catch {
+        setError("Không thể kết nối AI. Vui lòng thử lại.");
+      } finally {
+        setParsing(false);
+      }
+      return;
+    }
+
+    if (!imageFile) return;
     setParsing(true);
     setError("");
     setQuestions([]);
     try {
+      const base64 = await fileToBase64(imageFile);
       const res = await fetch(WORKER_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({ type: "parse_questions", prompt: text }),
+        body: JSON.stringify({
+          type: "read_exam",
+          image: base64,
+          prompt:
+            "Read this exam question sheet and extract every question along with its sample/expected answer if present. Return ONLY a JSON array, no explanation, no markdown fences, in this exact shape: [{\"text\": \"question text\", \"sample_answer\": \"answer text or empty string\"}]",
+        }),
       });
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
-      if (!data.questions || data.questions.length === 0) {
-        console.warn("AI parse_questions raw response:", data.raw, data.error);
-        setError("AI không tách được câu hỏi nào. Hãy thử nội dung khác.");
-        return;
-      }
-      setQuestions(
-        data.questions.map((q: any) => ({
-          text: q.text || "",
-          sample_answer: q.sample_answer || "",
-        })),
-      );
+      applyParsedQuestions(data);
     } catch {
       setError("Không thể kết nối AI. Vui lòng thử lại.");
     } finally {
@@ -95,8 +162,8 @@ export function AIQuestionParserModal({
       className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
       style={{ marginTop: "0px !important" }}
     >
-      <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-violet-100 p-6 space-y-4 my-4 overscroll-contain">
-        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+      <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-violet-100 my-4 max-h-[90vh] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between border-b-2 border-slate-100 px-6 pt-6 pb-3 shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-9 h-9 rounded-2xl bg-violet-50 border-2 border-violet-200 text-violet-600 flex items-center justify-center">
               <Sparkles size={18} />
@@ -119,32 +186,98 @@ export function AIQuestionParserModal({
           </button>
         </div>
 
-        {/* Input */}
-        <div className="space-y-2">
-          <label className="text-xs font-black text-slate-600 uppercase block">
-            Nội dung đề bài (paste text vào đây)
-          </label>
-          <textarea
-            value={rawText}
-            onChange={(e) => setRawText(e.target.value)}
-            placeholder={`Examiner says this\nMinimum response expected from child\nWhat's this?\nflower\nWhat colour is it?\nyellow\n...`}
-            rows={8}
-            className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-mono focus:outline-none focus:border-violet-400 resize-y"
-          />
+        <div className="space-y-4 px-6 py-4 overflow-y-auto overscroll-contain">
+
+        {/* Mode tabs */}
+        <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
           <button
             type="button"
-            onClick={handleParse}
-            disabled={parsing || !rawText.trim()}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-extrabold rounded-xl text-sm transition-colors shadow-md border-b-4 border-violet-900"
+            onClick={() => setMode("text")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-colors ${mode === "text" ? "bg-white text-violet-700 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
           >
-            {parsing ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Sparkles size={16} />
-            )}
-            {parsing ? "AI đang phân tích..." : "Tách câu hỏi bằng AI"}
+            <Type size={14} /> Văn bản
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("image")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-colors ${mode === "image" ? "bg-white text-violet-700 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+          >
+            <ImageIcon size={14} /> Ảnh đề bài
           </button>
         </div>
+
+        {/* Input */}
+        {mode === "text" ? (
+          <div className="space-y-2">
+            <label className="text-xs font-black text-slate-600 uppercase block">
+              Nội dung đề bài (paste text vào đây)
+            </label>
+            <textarea
+              value={rawText}
+              onChange={(e) => setRawText(e.target.value)}
+              placeholder={`Examiner says this\nMinimum response expected from child\nWhat's this?\nflower\nWhat colour is it?\nyellow\n...`}
+              rows={8}
+              className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-mono focus:outline-none focus:border-violet-400 resize-y"
+            />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <label className="text-xs font-black text-slate-600 uppercase block">
+              Ảnh đề bài (chụp / chọn ảnh từ máy)
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleSelectImage(e.target.files?.[0] || null)}
+            />
+            {imagePreview ? (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Đề bài"
+                  className="w-full max-h-64 object-contain rounded-xl border-2 border-slate-200 bg-slate-50"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleSelectImage(null)}
+                  className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-full shadow-md transition-colors"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full py-8 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 text-slate-400 hover:border-violet-400 hover:text-violet-500 transition-colors"
+              >
+                <ImageIcon size={28} />
+                <span className="text-sm font-bold">
+                  Bấm để chọn ảnh đề bài
+                </span>
+              </button>
+            )}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handleParse}
+          disabled={
+            parsing ||
+            (mode === "text" ? !rawText.trim() : !imageFile)
+          }
+          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-extrabold rounded-xl text-sm transition-colors shadow-md border-b-4 border-violet-900"
+        >
+          {parsing ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Sparkles size={16} />
+          )}
+          {parsing ? "AI đang phân tích..." : "Tách câu hỏi bằng AI"}
+        </button>
 
         {error && (
           <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
@@ -200,8 +333,10 @@ export function AIQuestionParserModal({
           </div>
         )}
 
+        </div>
+
         {/* Actions */}
-        <div className="flex gap-3 pt-1 border-t-2 border-slate-100">
+        <div className="flex gap-3 px-6 py-4 border-t-2 border-slate-100 shrink-0">
           <button
             type="button"
             onClick={onClose}
