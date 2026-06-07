@@ -7,11 +7,13 @@ import {
   Loader2,
   Pencil,
   Plus,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { AIQuestionParserModal } from "./AIQuestionParserModal";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { S3_BUCKET, s3Client } from "../../lib/s3";
 import { supabase } from "../../lib/supabase";
@@ -42,6 +44,7 @@ export function TopicsManager() {
     image_url: "",
   });
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [aiParserTopicId, setAiParserTopicId] = useState<string | null>(null);
   const [editingTopic, setEditingTopic] = useState<string | null>(null);
   const [editTopicTitle, setEditTopicTitle] = useState("");
   const [addingTopic, setAddingTopic] = useState<"standard" | "bongbe" | null>(
@@ -227,6 +230,23 @@ export function TopicsManager() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const addParsedQuestions = async (
+    topicId: string,
+    parsed: { text: string; sample_answer: string }[],
+  ) => {
+    const topic = topics.find((t) => t.id === topicId);
+    let nextOrder = topic?.questions?.length || 0;
+    const rows = parsed.map((q) => ({
+      topic_id: topicId,
+      text: q.text,
+      sample_answer: q.sample_answer || null,
+      order_index: nextOrder++,
+    }));
+    const { error } = await supabase.from("questions").insert(rows);
+    if (error) throw error;
+    fetchTopics();
   };
 
   const saveTopic = async (topicId: string) => {
@@ -542,8 +562,8 @@ export function TopicsManager() {
                     </div>
                   ))}
 
-                  {/* Add question button */}
-                  <div className="px-4 py-2">
+                  {/* Add question buttons */}
+                  <div className="px-4 py-2 flex items-center gap-4">
                     <button
                       type="button"
                       onClick={() => {
@@ -563,6 +583,13 @@ export function TopicsManager() {
                       className="text-sm text-slate-400 hover:text-emerald-600 font-bold flex items-center gap-1 py-1"
                     >
                       <Plus size={14} /> {t.common.addQuestion}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAiParserTopicId(topic.id)}
+                      className="text-sm text-violet-400 hover:text-violet-600 font-bold flex items-center gap-1 py-1"
+                    >
+                      <Sparkles size={14} /> AI Tách câu hỏi
                     </button>
                   </div>
                 </div>
@@ -822,6 +849,13 @@ export function TopicsManager() {
             </div>
           </div>
         </div>
+      )}
+
+      {aiParserTopicId && (
+        <AIQuestionParserModal
+          onAddAll={(qs) => addParsedQuestions(aiParserTopicId, qs)}
+          onClose={() => setAiParserTopicId(null)}
+        />
       )}
 
       {deleteTarget && (

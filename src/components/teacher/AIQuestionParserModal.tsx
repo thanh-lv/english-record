@@ -1,0 +1,231 @@
+import { AlertCircle, Check, Loader2, Sparkles, Trash2, X } from "lucide-react";
+import { useState } from "react";
+
+const WORKER_URL =
+  "https://free-image-generation-api.levanthanh29111999.workers.dev/";
+
+interface ParsedQuestion {
+  text: string;
+  sample_answer: string;
+}
+
+interface AIQuestionParserModalProps {
+  onAddAll: (questions: ParsedQuestion[]) => Promise<void>;
+  onClose: () => void;
+}
+
+export function AIQuestionParserModal({
+  onAddAll,
+  onClose,
+}: AIQuestionParserModalProps) {
+  const [rawText, setRawText] = useState("");
+  const [parsing, setParsing] = useState(false);
+  const [error, setError] = useState("");
+  const [questions, setQuestions] = useState<ParsedQuestion[]>([]);
+  const [adding, setAdding] = useState(false);
+
+  const handleParse = async () => {
+    const text = rawText.trim();
+    if (!text) return;
+    const apiKey = import.meta.env.VITE_AI_API_KEY;
+    if (!apiKey) {
+      setError("Thiếu cấu hình AI API key.");
+      return;
+    }
+    setParsing(true);
+    setError("");
+    setQuestions([]);
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ type: "parse_questions", prompt: text }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
+      if (!data.questions || data.questions.length === 0) {
+        console.warn("AI parse_questions raw response:", data.raw, data.error);
+        setError("AI không tách được câu hỏi nào. Hãy thử nội dung khác.");
+        return;
+      }
+      setQuestions(
+        data.questions.map((q: any) => ({
+          text: q.text || "",
+          sample_answer: q.sample_answer || "",
+        })),
+      );
+    } catch {
+      setError("Không thể kết nối AI. Vui lòng thử lại.");
+    } finally {
+      setParsing(false);
+    }
+  };
+
+  const updateQuestion = (
+    idx: number,
+    field: keyof ParsedQuestion,
+    value: string,
+  ) => {
+    setQuestions((prev) =>
+      prev.map((q, i) => (i === idx ? { ...q, [field]: value } : q)),
+    );
+  };
+
+  const removeQuestion = (idx: number) => {
+    setQuestions((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleAddAll = async () => {
+    const valid = questions.filter((q) => q.text.trim());
+    if (valid.length === 0) return;
+    setAdding(true);
+    try {
+      await onAddAll(valid);
+      onClose();
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
+      style={{ marginTop: "0px !important" }}
+    >
+      <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-violet-100 p-6 space-y-4 my-4 overscroll-contain">
+        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="w-9 h-9 rounded-2xl bg-violet-50 border-2 border-violet-200 text-violet-600 flex items-center justify-center">
+              <Sparkles size={18} />
+            </span>
+            <div>
+              <h4 className="font-black text-lg text-slate-800">
+                AI Tách câu hỏi
+              </h4>
+              <p className="text-xs text-slate-400 font-medium">
+                Dán nội dung đề bài, AI sẽ tự tách thành câu hỏi + câu trả lời
+                mẫu
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Input */}
+        <div className="space-y-2">
+          <label className="text-xs font-black text-slate-600 uppercase block">
+            Nội dung đề bài (paste text vào đây)
+          </label>
+          <textarea
+            value={rawText}
+            onChange={(e) => setRawText(e.target.value)}
+            placeholder={`Examiner says this\nMinimum response expected from child\nWhat's this?\nflower\nWhat colour is it?\nyellow\n...`}
+            rows={8}
+            className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-mono focus:outline-none focus:border-violet-400 resize-y"
+          />
+          <button
+            type="button"
+            onClick={handleParse}
+            disabled={parsing || !rawText.trim()}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-extrabold rounded-xl text-sm transition-colors shadow-md border-b-4 border-violet-900"
+          >
+            {parsing ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Sparkles size={16} />
+            )}
+            {parsing ? "AI đang phân tích..." : "Tách câu hỏi bằng AI"}
+          </button>
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            <AlertCircle size={14} className="shrink-0" /> {error}
+          </div>
+        )}
+
+        {/* Preview & edit */}
+        {questions.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-slate-600 uppercase">
+                Xem trước & chỉnh sửa ({questions.length} câu hỏi)
+              </label>
+            </div>
+            <div className="space-y-2 max-h-80 overflow-y-auto overscroll-contain pr-1">
+              {questions.map((q, idx) => (
+                <div
+                  key={idx}
+                  className="flex gap-2 items-start bg-slate-50 border-2 border-slate-100 rounded-xl p-3"
+                >
+                  <span className="w-6 h-6 mt-1 shrink-0 rounded-lg bg-violet-100 text-violet-700 text-xs font-black flex items-center justify-center">
+                    {idx + 1}
+                  </span>
+                  <div className="flex-1 space-y-1.5">
+                    <input
+                      value={q.text}
+                      onChange={(e) =>
+                        updateQuestion(idx, "text", e.target.value)
+                      }
+                      placeholder="Câu hỏi*"
+                      className="w-full px-3 py-2 rounded-lg border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
+                    />
+                    <input
+                      value={q.sample_answer}
+                      onChange={(e) =>
+                        updateQuestion(idx, "sample_answer", e.target.value)
+                      }
+                      placeholder="Câu trả lời mẫu"
+                      className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 text-sm focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeQuestion(idx)}
+                    className="p-2 mt-1 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-3 pt-1 border-t-2 border-slate-100">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            onClick={handleAddAll}
+            disabled={
+              adding || questions.filter((q) => q.text.trim()).length === 0
+            }
+            className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-emerald-900 flex items-center justify-center gap-2"
+          >
+            {adding ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Check size={15} />
+            )}
+            Thêm tất cả vào Topic
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
