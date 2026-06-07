@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { supabase } from "../../lib/supabase";
 
 interface CreateStudentModalProps {
@@ -27,6 +28,7 @@ export function CreateStudentModal({
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const { t } = useLanguage();
+  useEscapeToClose(onClose);
 
   const handleCreate = async () => {
     const trimName = name.trim();
@@ -74,14 +76,22 @@ export function CreateStudentModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div
+      className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="create-student-title"
+    >
       <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
             <UserPlus size={20} />
           </div>
           <div>
-            <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+            <h4
+              id="create-student-title"
+              className="font-extrabold text-slate-800 text-lg leading-tight"
+            >
               {t.teacherModal.addStudentTitle}
             </h4>
             <p className="text-xs text-slate-400 font-medium">
@@ -91,6 +101,7 @@ export function CreateStudentModal({
           <button
             type="button"
             onClick={onClose}
+            aria-label={t.common.close}
             className="ml-auto p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
           >
             <X size={18} />
@@ -149,6 +160,9 @@ export function CreateStudentModal({
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
+                aria-label={
+                  showPassword ? t.common.hidePassword : t.common.showPassword
+                }
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}

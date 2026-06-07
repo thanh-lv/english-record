@@ -17,6 +17,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { AudioPlayer } from "../common/AudioPlayer";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { StudentSummary } from "./hooks/useRecordings";
 
 export function RecordingsPanel({
@@ -231,6 +232,7 @@ export function RecordingItem({
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
+  useEscapeToClose(() => setIsEditing(false), isEditing);
 
   useEffect(() => {
     if (!isHighlighted) return;
@@ -308,6 +310,7 @@ export function RecordingItem({
                 : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50"
             }`}
             title={t.common.comment}
+            aria-label={t.common.comment}
           >
             <MessageSquare size={16} />
           </button>
@@ -320,6 +323,7 @@ export function RecordingItem({
             }}
             className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-transparent"
             title={t.common.delete}
+            aria-label={t.common.delete}
           >
             <Trash2 size={16} />
           </button>
@@ -346,19 +350,26 @@ export function RecordingItem({
         <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
           onClick={() => setIsEditing(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`feedback-modal-title-${rec.id}`}
         >
           <div
             className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border-4 border-blue-100 my-4 animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b-2 border-slate-100 px-6 pt-6 pb-3">
-              <h4 className="text-sm font-black text-slate-700 flex items-center gap-2">
+              <h4
+                id={`feedback-modal-title-${rec.id}`}
+                className="text-sm font-black text-slate-700 flex items-center gap-2"
+              >
                 <Star size={16} className="text-amber-400 fill-amber-400" />{" "}
                 {t.recordings.feedback}
               </h4>
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
+                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
               >
                 <X size={18} />
@@ -366,12 +377,19 @@ export function RecordingItem({
             </div>
 
             <div className="px-6 py-4 space-y-3">
-              <div className="flex items-center gap-2">
+              <div
+                className="flex items-center gap-2"
+                role="radiogroup"
+                aria-label={t.recordings.feedback}
+              >
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     type="button"
                     onClick={() => setRating(star)}
+                    role="radio"
+                    aria-checked={star === rating}
+                    aria-label={`${star} ${star === 1 ? "star" : "stars"}`}
                     className="transition-transform hover:scale-110 focus:outline-none"
                   >
                     <Star

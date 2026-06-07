@@ -306,6 +306,7 @@ export function StudentsManager() {
                             }}
                             className="p-1.5 text-slate-300 hover:text-[#4CAF50] hover:bg-[#E8F5E9] rounded-lg transition-all"
                             title={t.common.edit}
+                            aria-label={t.common.edit}
                           >
                             <Pencil size={13} />
                           </button>
@@ -318,6 +319,7 @@ export function StudentsManager() {
                             }}
                             className="p-1.5 text-slate-300 hover:text-[#1E88E5] hover:bg-[#E3F2FD] rounded-lg transition-all"
                             title={t.common.changePassword}
+                            aria-label={t.common.changePassword}
                           >
                             <Key size={13} />
                           </button>
@@ -336,6 +338,7 @@ export function StudentsManager() {
                             }}
                             className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
                             title={t.common.delete}
+                            aria-label={t.common.delete}
                           >
                             <Trash2 size={13} />
                           </button>
@@ -347,6 +350,10 @@ export function StudentsManager() {
                           onClick={() =>
                             setExpandedStudent(isExpanded ? null : student.id)
                           }
+                          aria-label={
+                            isExpanded ? t.common.collapse : t.common.expand
+                          }
+                          aria-expanded={isExpanded}
                           className="p-1 text-slate-400 hover:text-slate-600 transition-all"
                         >
                           <ChevronDown

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 
 const WORKER_URL =
   "https://free-image-generation-api.levanthanh29111999.workers.dev/";
@@ -29,6 +30,7 @@ export function AIQuestionParserModal({
   onClose,
 }: AIQuestionParserModalProps) {
   const { t } = useLanguage();
+  useEscapeToClose(onClose);
   const [mode, setMode] = useState<"text" | "image">("text");
   const [rawText, setRawText] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -163,6 +165,9 @@ export function AIQuestionParserModal({
     <div
       className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
       style={{ marginTop: "0px !important" }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ai-parser-title"
     >
       <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-violet-100 my-4 max-h-[90vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b-2 border-slate-100 px-6 pt-6 pb-3 shrink-0">
@@ -171,7 +176,10 @@ export function AIQuestionParserModal({
               <Sparkles size={18} />
             </span>
             <div>
-              <h4 className="font-black text-lg text-slate-800">
+              <h4
+                id="ai-parser-title"
+                className="font-black text-lg text-slate-800"
+              >
                 {t.aiParser.title}
               </h4>
               <p className="text-xs text-slate-400 font-medium">
@@ -181,6 +189,7 @@ export function AIQuestionParserModal({
           </div>
           <button
             onClick={onClose}
+            aria-label={t.common.close}
             className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
           >
             <X size={18} />
@@ -242,6 +251,7 @@ export function AIQuestionParserModal({
                   <button
                     type="button"
                     onClick={() => handleSelectImage(null)}
+                    aria-label={t.common.delete}
                     className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-full shadow-md transition-colors"
                   >
                     <Trash2 size={14} />
@@ -322,6 +332,7 @@ export function AIQuestionParserModal({
                     <button
                       type="button"
                       onClick={() => removeQuestion(idx)}
+                      aria-label={t.common.delete}
                       className="p-2 mt-1 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                     >
                       <Trash2 size={15} />

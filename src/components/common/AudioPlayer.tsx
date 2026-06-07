@@ -74,6 +74,7 @@ export function AudioPlayer({ src }: { src: string }) {
       <button
         type="button"
         onClick={togglePlay}
+        aria-label={isPlaying ? t.common.pause : t.common.play}
         className={`w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-white transition-all shadow-md active:scale-95 border-b-4 ${
           isPlaying
             ? "bg-[#FFB74D] border-orange-800 hover:bg-[#FFA726]"
@@ -89,6 +90,7 @@ export function AudioPlayer({ src }: { src: string }) {
           max={duration || 100}
           value={currentTime}
           onChange={handleSeek}
+          aria-label={t.common.seek}
           className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#1E88E5]"
         />
         <div className="flex justify-between items-center text-[10px] font-extrabold text-slate-400">
@@ -109,6 +111,7 @@ export function AudioPlayer({ src }: { src: string }) {
                 : "bg-rose-100 border-rose-300 text-rose-600"
         }`}
         title={t.common.changeSpeed}
+        aria-label={`${t.common.changeSpeed}: ${playbackRate}x`}
       >
         {playbackRate}x
       </button>

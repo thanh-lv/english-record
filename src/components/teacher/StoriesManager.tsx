@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { S3_BUCKET, s3Client } from "../../lib/s3";
 import { supabase } from "../../lib/supabase";
 
@@ -58,6 +59,11 @@ export function StoriesManager() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEscapeToClose(() => setEditingStory(null), !!editingStory);
+  useEscapeToClose(() => setDeleteStoryTarget(null), !!deleteStoryTarget);
+  useEscapeToClose(() => setShowManual(false), showManual);
+  useEscapeToClose(() => setShowCreate(false), showCreate);
 
   useEffect(() => {
     fetchStories();
@@ -445,14 +451,23 @@ export function StoriesManager() {
       </div>
 
       {editingStory && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-story-title"
+        >
           <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-amber-100 p-6 space-y-5 my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
-              <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
+              <h4
+                id="edit-story-title"
+                className="font-black text-xl text-slate-800 flex items-center gap-2"
+              >
                 <Pencil className="text-amber-500" /> {t.common.editStoryInfo}
               </h4>
               <button
                 onClick={() => setEditingStory(null)}
+                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
               >
                 <X size={20} />
@@ -515,14 +530,22 @@ export function StoriesManager() {
       )}
 
       {deleteStoryTarget && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-story-title"
+        >
           <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertCircle size={20} />
               </div>
               <div>
-                <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+                <h4
+                  id="delete-story-title"
+                  className="font-extrabold text-slate-800 text-lg leading-tight"
+                >
                   {t.common.deleteStoryConfirm}
                 </h4>
                 <p className="text-sm text-slate-600 font-bold mt-0.5 line-clamp-1">
@@ -570,14 +593,23 @@ export function StoriesManager() {
 
       {/* Manual Write Modal */}
       {showManual && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="manual-story-title"
+        >
           <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-emerald-100 p-5 space-y-4 my-4">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
-              <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
+              <h4
+                id="manual-story-title"
+                className="font-black text-lg text-slate-800 flex items-center gap-2"
+              >
                 <Pencil className="text-emerald-500" size={20} /> Write a Story
               </h4>
               <button
                 onClick={() => setShowManual(false)}
+                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
               >
                 <X size={18} />
@@ -673,14 +705,23 @@ export function StoriesManager() {
       )}
 
       {showCreate && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ai-story-title"
+        >
           <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-purple-100 p-4 sm:p-6 space-y-4 my-4 sm:my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
-              <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
+              <h4
+                id="ai-story-title"
+                className="font-black text-xl text-slate-800 flex items-center gap-2"
+              >
                 <Wand2 className="text-purple-500" /> {t.common.aiStoryCreate}
               </h4>
               <button
                 onClick={() => setShowCreate(false)}
+                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
               >
                 <X size={20} />

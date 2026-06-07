@@ -16,6 +16,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { s3Client, S3_BUCKET } from "../../lib/s3";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 
 interface VocabSet {
   id: string;
@@ -136,6 +137,11 @@ export function VocabularyManager() {
   );
   const [deleteCardSaving, setDeleteCardSaving] = useState(false);
   const [deleteCardError, setDeleteCardError] = useState("");
+
+  useEscapeToClose(() => setShowCreateSet(false), showCreateSet);
+  useEscapeToClose(() => setAddCardSetId(null), !!addCardSetId);
+  useEscapeToClose(() => setDeleteSetTarget(null), !!deleteSetTarget);
+  useEscapeToClose(() => setDeleteCardTarget(null), !!deleteCardTarget);
 
   useEffect(() => {
     fetchSets();
@@ -449,6 +455,7 @@ export function VocabularyManager() {
                       setDeleteSetTarget(set);
                       setDeleteSetError("");
                     }}
+                    aria-label={t.common.delete}
                     className="py-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
                   >
                     <Trash2 size={12} />
@@ -534,15 +541,24 @@ export function VocabularyManager() {
 
       {/* Create Set Modal */}
       {showCreateSet && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="create-set-title"
+        >
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
-              <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
+              <h4
+                id="create-set-title"
+                className="font-black text-lg text-slate-800 flex items-center gap-2"
+              >
                 <BookMarked className="text-blue-500" size={20} /> New
                 Vocabulary Set
               </h4>
               <button
                 onClick={() => setShowCreateSet(false)}
+                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
               >
                 <X size={18} />
@@ -627,14 +643,23 @@ export function VocabularyManager() {
 
       {/* Add Card Modal */}
       {addCardSetId && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-card-title"
+        >
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
-              <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
+              <h4
+                id="add-card-title"
+                className="font-black text-lg text-slate-800 flex items-center gap-2"
+              >
                 <Plus className="text-blue-500" size={20} /> Add Vocabulary Card
               </h4>
               <button
                 onClick={() => setAddCardSetId(null)}
+                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
               >
                 <X size={18} />
@@ -748,6 +773,7 @@ export function VocabularyManager() {
                           e.stopPropagation();
                           setCardImageUrl("");
                         }}
+                        aria-label={t.common.delete}
                         className="shrink-0 p-1 text-rose-400 hover:text-rose-600 rounded"
                       >
                         <X size={14} />
@@ -804,14 +830,22 @@ export function VocabularyManager() {
 
       {/* Delete Set Confirm Modal */}
       {deleteSetTarget && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-set-title"
+        >
           <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertCircle size={20} />
               </div>
               <div>
-                <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+                <h4
+                  id="delete-set-title"
+                  className="font-extrabold text-slate-800 text-lg leading-tight"
+                >
                   Delete Vocabulary Set?
                 </h4>
                 <p className="text-sm text-slate-600 font-bold mt-0.5 line-clamp-1">
@@ -853,14 +887,22 @@ export function VocabularyManager() {
 
       {/* Delete Card Confirm Modal */}
       {deleteCardTarget && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-card-title"
+        >
           <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertCircle size={20} />
               </div>
               <div>
-                <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+                <h4
+                  id="delete-card-title"
+                  className="font-extrabold text-slate-800 text-lg leading-tight"
+                >
                   Delete Card?
                 </h4>
                 <p className="text-sm text-slate-600 font-bold mt-0.5">

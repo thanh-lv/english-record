@@ -1,6 +1,7 @@
 import { AlertCircle, Check, Eye, EyeOff, Key, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { supabase } from "../../lib/supabase";
 
 interface ResetPasswordModalProps {
@@ -18,6 +19,7 @@ export function ResetPasswordModal({
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const { t } = useLanguage();
+  useEscapeToClose(onClose);
 
   const handleReset = async () => {
     const trimPass = password.trim();
@@ -43,14 +45,22 @@ export function ResetPasswordModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div
+      className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reset-password-title"
+    >
       <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-blue-50 border-2 border-blue-200 text-blue-600 flex items-center justify-center">
             <Key size={20} />
           </div>
           <div>
-            <h4 className="font-extrabold text-slate-800 text-lg leading-tight">
+            <h4
+              id="reset-password-title"
+              className="font-extrabold text-slate-800 text-lg leading-tight"
+            >
               {t.common.resetPasswordTitle}
             </h4>
             <p className="text-sm font-bold text-slate-500">{student.name}</p>
@@ -77,6 +87,9 @@ export function ResetPasswordModal({
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
+                aria-label={
+                  showPassword ? t.common.hidePassword : t.common.showPassword
+                }
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}

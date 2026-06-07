@@ -15,6 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { AIQuestionParserModal } from "./AIQuestionParserModal";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { S3_BUCKET, s3Client } from "../../lib/s3";
 import { supabase } from "../../lib/supabase";
 
@@ -29,6 +30,7 @@ export function TopicsManager() {
     topicType: string;
     question?: any;
   } | null>(null);
+  useEscapeToClose(() => setQuestionModal(null), !!questionModal);
   const [editValues, setEditValues] = useState({
     text: "",
     translation: "",
@@ -373,6 +375,7 @@ export function TopicsManager() {
             type="button"
             onClick={addTopic}
             disabled={saving}
+            aria-label={t.common.confirm}
             className="p-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:opacity-50"
           >
             <Check size={16} />
@@ -380,6 +383,7 @@ export function TopicsManager() {
           <button
             type="button"
             onClick={() => setAddingTopic(null)}
+            aria-label={t.common.cancel}
             className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200"
           >
             <X size={16} />
@@ -415,6 +419,7 @@ export function TopicsManager() {
                     type="button"
                     onClick={() => saveTopic(topic.id)}
                     disabled={saving}
+                    aria-label={t.common.save}
                     className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shrink-0"
                   >
                     <Check size={14} />
@@ -422,6 +427,7 @@ export function TopicsManager() {
                   <button
                     type="button"
                     onClick={() => setEditingTopic(null)}
+                    aria-label={t.common.cancel}
                     className="p-2 bg-white text-slate-500 rounded-xl hover:bg-slate-100 border border-slate-200 shrink-0"
                   >
                     <X size={14} />
@@ -651,10 +657,18 @@ export function TopicsManager() {
 
       {/* Question modal (add / edit) */}
       {questionModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="question-modal-title"
+        >
           <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl border-4 border-blue-100 p-6 space-y-4 my-4">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
-              <h4 className="font-black text-lg text-slate-800">
+              <h4
+                id="question-modal-title"
+                className="font-black text-lg text-slate-800"
+              >
                 {questionModal.mode === "add"
                   ? t.common.addQuestion
                   : t.common.edit +
@@ -663,6 +677,7 @@ export function TopicsManager() {
               </h4>
               <button
                 onClick={() => setQuestionModal(null)}
+                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
               >
                 <X size={18} />
@@ -811,6 +826,7 @@ export function TopicsManager() {
                             ? setNewQuestion({ ...newQuestion, image_url: "" })
                             : setEditValues({ ...editValues, image_url: "" })
                         }
+                        aria-label={t.common.delete}
                         className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <X size={12} />

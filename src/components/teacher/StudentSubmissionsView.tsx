@@ -68,6 +68,7 @@ export function StudentSubmissionsView({
         <button
           type="button"
           onClick={onBack}
+          aria-label={t.common.back}
           className="p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors shrink-0"
         >
           <ArrowLeft size={18} />

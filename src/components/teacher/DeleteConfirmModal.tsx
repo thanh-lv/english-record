@@ -1,5 +1,6 @@
 import { AlertCircle, Loader2, Trash2 } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 
 interface DeleteConfirmModalProps {
   title: string;
@@ -23,15 +24,26 @@ export function DeleteConfirmModal({
   children,
 }: DeleteConfirmModalProps) {
   const { t } = useLanguage();
+  useEscapeToClose(onCancel);
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div
+      className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-confirm-title"
+    >
       <div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 p-6 border-4 border-rose-100 space-y-5">
         <div className="flex items-start gap-3">
           <div className="p-3 bg-rose-50 text-rose-600 rounded-2xl border border-rose-100 shadow-sm shrink-0">
             <AlertCircle size={24} />
           </div>
           <div className="space-y-1">
-            <h4 className="font-extrabold text-slate-800 text-lg">{title}</h4>
+            <h4
+              id="delete-confirm-title"
+              className="font-extrabold text-slate-800 text-lg"
+            >
+              {title}
+            </h4>
             <p className="text-sm text-slate-500 font-medium">{description}</p>
           </div>
         </div>
