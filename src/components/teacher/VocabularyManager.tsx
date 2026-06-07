@@ -6,11 +6,12 @@ import {
   ImagePlus,
   Loader2,
   Plus,
+  Search,
   Sparkles,
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { s3Client, S3_BUCKET } from "../../lib/s3";
@@ -40,6 +41,10 @@ export function VocabularyManager() {
   const { t } = useLanguage();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterText, setFilterText] = useState("");
+  const [filterAgeGroup, setFilterAgeGroup] = useState<
+    "all" | "kindergarten" | "primary"
+  >("all");
   const [expandedSetId, setExpandedSetId] = useState<string | null>(null);
   const [cardsBySet, setCardsBySet] = useState<Record<string, VocabCard[]>>({});
   const [cardsLoading, setCardsLoading] = useState<Record<string, boolean>>({});
@@ -317,6 +322,21 @@ export function VocabularyManager() {
     }
   };
 
+  const filteredSets = useMemo(() => {
+    return sets.filter((set) => {
+      if (
+        filterText &&
+        !set.title.toLowerCase().includes(filterText.toLowerCase())
+      ) {
+        return false;
+      }
+      if (filterAgeGroup !== "all" && set.age_group !== filterAgeGroup) {
+        return false;
+      }
+      return true;
+    });
+  }, [sets, filterText, filterAgeGroup]);
+
   const ageGroupLabel = (ag: string) => {
     if (ag === "kindergarten") return t.teacherModal.ageKindergarten;
     if (ag === "primary") return t.teacherModal.agePrimary;
@@ -350,9 +370,34 @@ export function VocabularyManager() {
         </button>
       </div>
 
+      {/* Filter bar */}
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[160px]">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+          <input
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+            placeholder={t.teacherModal.filterVocabPlaceholder}
+            className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
+          />
+        </div>
+        <select
+          value={filterAgeGroup}
+          onChange={(e) => setFilterAgeGroup(e.target.value as any)}
+          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
+        >
+          <option value="all">{t.teacherModal.filterVocabAgeAll}</option>
+          <option value="kindergarten">{t.teacherModal.ageKindergarten}</option>
+          <option value="primary">{t.teacherModal.agePrimary}</option>
+        </select>
+      </div>
+
       {/* Sets grid */}
       <div className="space-y-3">
-        {sets.map((set) => {
+        {filteredSets.map((set) => {
           const isExpanded = expandedSetId === set.id;
           const cards = cardsBySet[set.id] || [];
           const isCardsLoading = cardsLoading[set.id];
@@ -478,9 +523,11 @@ export function VocabularyManager() {
           );
         })}
 
-        {sets.length === 0 && (
+        {filteredSets.length === 0 && (
           <div className="py-12 text-center text-slate-400 font-bold bg-white rounded-2xl border-2 border-dashed border-slate-200">
-            No vocabulary sets yet. Create the first one!
+            {sets.length === 0
+              ? "No vocabulary sets yet. Create the first one!"
+              : t.teacherModal.noVocabSetsFound}
           </div>
         )}
       </div>

@@ -5,11 +5,12 @@ import {
   Loader2,
   Pencil,
   Save,
+  Search,
   Trash2,
   Wand2,
   X,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { S3_BUCKET, s3Client } from "../../lib/s3";
 import { supabase } from "../../lib/supabase";
@@ -18,6 +19,10 @@ export function StoriesManager() {
   const { t } = useLanguage();
   const [stories, setStories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterText, setFilterText] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "hidden">(
+    "all",
+  );
   const [showCreate, setShowCreate] = useState(false);
   const [editingStory, setEditingStory] = useState<any>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -291,6 +296,21 @@ export function StoriesManager() {
     }
   };
 
+  const filteredStories = useMemo(() => {
+    return stories.filter((story) => {
+      if (
+        filterText &&
+        !story.title.toLowerCase().includes(filterText.toLowerCase())
+      ) {
+        return false;
+      }
+      const isActive = story.is_active ?? true;
+      if (filterStatus === "active" && !isActive) return false;
+      if (filterStatus === "hidden" && isActive) return false;
+      return true;
+    });
+  }, [stories, filterText, filterStatus]);
+
   if (loading)
     return (
       <div className="p-8 text-center">
@@ -323,8 +343,37 @@ export function StoriesManager() {
         </div>
       </div>
 
+      {/* Filter bar */}
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[160px]">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+          <input
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+            placeholder={t.teacherModal.filterStoryPlaceholder}
+            className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-purple-400"
+          />
+        </div>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value as any)}
+          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-purple-400"
+        >
+          <option value="all">{t.teacherModal.filterStoryStatusAll}</option>
+          <option value="active">
+            {t.teacherModal.filterStoryStatusActive}
+          </option>
+          <option value="hidden">
+            {t.teacherModal.filterStoryStatusHidden}
+          </option>
+        </select>
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
-        {stories.map((story) => (
+        {filteredStories.map((story) => (
           <div
             key={story.id}
             className="bg-white rounded-[1.5rem] border-2 border-slate-100 overflow-hidden shadow-sm flex flex-col"
@@ -386,9 +435,11 @@ export function StoriesManager() {
             </div>
           </div>
         ))}
-        {stories.length === 0 && (
+        {filteredStories.length === 0 && (
           <div className="col-span-full py-10 text-center text-slate-400 font-bold bg-white rounded-[1.5rem] border-2 border-dashed border-slate-200">
-            {t.common.storyEmpty}
+            {stories.length === 0
+              ? t.common.storyEmpty
+              : t.teacherModal.noStoriesFound}
           </div>
         )}
       </div>

@@ -134,6 +134,7 @@ export const en = {
     topic: "Topic:",
     question: "Q:",
     feedback: "Feedback & Rating",
+    closeFeedback: "Close",
     saveFeedback: "Save feedback",
     saved: "Saved successfully!",
     feedbackPlaceholder: "Enter praise or feedback for student...",
@@ -295,6 +296,16 @@ export const en = {
     noTopicsYet: "No topics yet.",
     paginationPrev: "← Prev",
     paginationNext: "Next →",
+    // StoriesManager filter
+    filterStoryPlaceholder: "Search by story title...",
+    filterStoryStatusAll: "All",
+    filterStoryStatusActive: "Active",
+    filterStoryStatusHidden: "Hidden",
+    noStoriesFound: "No stories found.",
+    // VocabularyManager filter
+    filterVocabPlaceholder: "Search by set title...",
+    filterVocabAgeAll: "All ages",
+    noVocabSetsFound: "No vocabulary sets found.",
   },
   aiParser: {
     openButton: "AI Question Parser",

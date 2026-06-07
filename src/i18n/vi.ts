@@ -137,6 +137,7 @@ export const vi = {
     topic: "Topic:",
     question: "Q:",
     feedback: "Nhận xét & Chấm điểm",
+    closeFeedback: "Đóng",
     saveFeedback: "Lưu nhận xét",
     saved: "Đã lưu thành công!",
     feedbackPlaceholder: "Nhập lời khen hoặc nhận xét cho con...",
@@ -296,6 +297,16 @@ export const vi = {
     noTopicsYet: "Chưa có topic nào.",
     paginationPrev: "← Trước",
     paginationNext: "Sau →",
+    // StoriesManager filter
+    filterStoryPlaceholder: "Tìm theo tên truyện...",
+    filterStoryStatusAll: "Tất cả",
+    filterStoryStatusActive: "Đang hiện",
+    filterStoryStatusHidden: "Đã ẩn",
+    noStoriesFound: "Không tìm thấy truyện nào.",
+    // VocabularyManager filter
+    filterVocabPlaceholder: "Tìm theo tên bộ từ vựng...",
+    filterVocabAgeAll: "Tất cả độ tuổi",
+    noVocabSetsFound: "Không tìm thấy bộ từ vựng nào.",
   },
   aiParser: {
     openButton: "AI Tách câu hỏi",

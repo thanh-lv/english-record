@@ -11,6 +11,7 @@ import {
   Search,
   Star,
   Trash2,
+  X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
@@ -340,49 +341,74 @@ export function RecordingItem({
       {/* Row 3: audio player full width */}
       <AudioPlayer src={rec.audioUrl} />
 
-      {/* Grading / Feedback Form */}
+      {/* Grading / Feedback Modal */}
       {isEditing && (
-        <div className="pl-13 mt-2 animate-in slide-in-from-top-2 duration-300">
-          <div className="bg-[#F8FBFF] border-2 border-[#E3F2FD] rounded-2xl p-4 space-y-3 relative">
-            <h4 className="text-sm font-black text-slate-700 flex items-center gap-2">
-              <Star size={16} className="text-amber-400 fill-amber-400" />{" "}
-              {t.recordings.feedback}
-            </h4>
-
-            <div className="flex items-center gap-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRating(star)}
-                  className="transition-transform hover:scale-110 focus:outline-none"
-                >
-                  <Star
-                    size={28}
-                    className={`${
-                      star <= rating
-                        ? "text-amber-400 fill-amber-400 drop-shadow-sm"
-                        : "text-slate-200 fill-slate-200"
-                    }`}
-                  />
-                </button>
-              ))}
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
+          onClick={() => setIsEditing(false)}
+        >
+          <div
+            className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border-4 border-blue-100 my-4 animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b-2 border-slate-100 px-6 pt-6 pb-3">
+              <h4 className="text-sm font-black text-slate-700 flex items-center gap-2">
+                <Star size={16} className="text-amber-400 fill-amber-400" />{" "}
+                {t.recordings.feedback}
+              </h4>
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+              >
+                <X size={18} />
+              </button>
             </div>
 
-            <textarea
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder={t.recordings.feedbackPlaceholder}
-              className="w-full px-4 py-3 bg-white border-2 border-[#90CAF9] rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all resize-none"
-              rows={2}
-            />
+            <div className="px-6 py-4 space-y-3">
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    className="transition-transform hover:scale-110 focus:outline-none"
+                  >
+                    <Star
+                      size={28}
+                      className={`${
+                        star <= rating
+                          ? "text-amber-400 fill-amber-400 drop-shadow-sm"
+                          : "text-slate-200 fill-slate-200"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
 
-            <div className="flex justify-end pt-1">
+              <textarea
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                placeholder={t.recordings.feedbackPlaceholder}
+                className="w-full px-4 py-3 bg-white border-2 border-[#90CAF9] rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all resize-none"
+                rows={3}
+                autoFocus
+              />
+            </div>
+
+            <div className="flex gap-3 px-6 py-4 border-t-2 border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+              >
+                {t.recordings.closeFeedback}
+              </button>
               <button
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className={`px-5 py-2.5 rounded-full font-extrabold text-sm transition-all shadow-md flex items-center gap-2 ${
+                className={`flex-1 py-2.5 rounded-full font-extrabold text-sm transition-all shadow-md flex items-center justify-center gap-2 ${
                   saveSuccess
                     ? "bg-emerald-500 text-white border-b-4 border-emerald-700"
                     : "bg-[#1E88E5] hover:bg-[#1565C0] text-white border-b-4 border-blue-800 disabled:opacity-50"
