@@ -127,7 +127,7 @@ export function AIQuestionParserModal({
       const data = await res.json();
       applyParsedQuestions(data);
     } catch {
-      setError("Không thể kết nối AI. Vui lòng thử lại.");
+      setError(t.aiParser.errorConnection);
     } finally {
       setParsing(false);
     }

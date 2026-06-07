@@ -1,9 +1,9 @@
 import {
   Check,
   ChevronDown,
+  ChevronRight,
   Clock,
   Filter,
-  Heart,
   Loader2,
   MessageSquare,
   Mic,
@@ -16,37 +16,24 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { AudioPlayer } from "../common/AudioPlayer";
+import { StudentSummary } from "./hooks/useRecordings";
 
 export function RecordingsPanel({
-  recordings,
+  summaries,
   loading,
   formatDate,
   onDeleteRequest,
-  highlightRecordId,
+  onSelectStudent,
 }: {
-  recordings: any[];
+  summaries: StudentSummary[];
   loading: boolean;
   formatDate: (ts: string) => string;
   onDeleteRequest: (id: string) => void;
-  highlightRecordId?: string | null;
+  onSelectStudent: (studentName: string, avatar?: string) => void;
 }) {
   const { t } = useLanguage();
 
-  const [expandedStudents, setExpandedStudents] = useState<Set<string>>(
-    new Set(),
-  );
-
-  useEffect(() => {
-    if (!highlightRecordId) return;
-    // tìm studentName của record đó rồi expand group
-    const rec = recordings.find((r) => r.id === highlightRecordId);
-    if (!rec) return;
-    const key = (rec.studentName || "").trim().toLowerCase();
-    setExpandedStudents((prev) => new Set([...prev, key]));
-  }, [highlightRecordId]);
-
   const [filterName, setFilterName] = useState("");
-  const [filterTopic, setFilterTopic] = useState("");
   const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'graded', 'ungraded'
   const [showFilters, setShowFilters] = useState(false);
   const [studentAvatars, setStudentAvatars] = useState<Record<string, string>>(
@@ -76,62 +63,19 @@ export function RecordingsPanel({
     fetchAvatars();
   }, []);
 
-  const toggleStudent = (key: string) => {
-    setExpandedStudents((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
-      return next;
-    });
-  };
-
-  const studentGroups = React.useMemo(() => {
-    const map = new Map<
-      string,
-      { key: string; studentName: string; records: any[] }
-    >();
-
-    const filteredRecordings = recordings.filter((rec) => {
+  const filteredSummaries = React.useMemo(() => {
+    return summaries.filter((s) => {
       if (
         filterName &&
-        !rec.studentName.toLowerCase().includes(filterName.toLowerCase())
+        !s.studentName.toLowerCase().includes(filterName.toLowerCase())
       ) {
         return false;
       }
-      if (filterTopic && String(rec.topicNumber) !== filterTopic.trim()) {
-        return false;
-      }
-      if (filterStatus !== "all") {
-        const hasFeedback =
-          rec.teacher_rating > 0 ||
-          (rec.teacher_feedback && rec.teacher_feedback.trim().length > 0);
-        if (filterStatus === "graded" && !hasFeedback) return false;
-        if (filterStatus === "ungraded" && hasFeedback) return false;
-      }
+      if (filterStatus === "graded" && s.hasUngraded) return false;
+      if (filterStatus === "ungraded" && !s.hasUngraded) return false;
       return true;
     });
-
-    for (const rec of filteredRecordings) {
-      // Always group by studentName (normalized) — userId changes per browser session
-      const key = (rec.studentName || "").trim().toLowerCase();
-      if (!map.has(key)) {
-        map.set(key, {
-          key,
-          studentName: rec.studentName,
-          records: [],
-        });
-      }
-      map.get(key)!.records.push(rec);
-    }
-    return Array.from(map.values()).sort(
-      (a, b) =>
-        new Date(b.records[0].createdAt).getTime() -
-        new Date(a.records[0].createdAt).getTime(),
-    );
-  }, [recordings, filterName, filterTopic, filterStatus]);
+  }, [summaries, filterName, filterStatus]);
 
   const avatarColors = [
     "bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]",
@@ -155,7 +99,7 @@ export function RecordingsPanel({
           type="button"
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-extrabold transition-colors border-2 ${
-            showFilters || filterName || filterTopic || filterStatus !== "all"
+            showFilters || filterName || filterStatus !== "all"
               ? "bg-amber-50 text-amber-700 border-amber-200"
               : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
           }`}
@@ -165,7 +109,7 @@ export function RecordingsPanel({
       </div>
 
       {showFilters && (
-        <div className="p-4 bg-slate-50 border-b-2 border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="p-4 bg-slate-50 border-b-2 border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-500 uppercase">
               {t.recordings.filterName}
@@ -182,18 +126,6 @@ export function RecordingsPanel({
                 className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
               />
             </div>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-500 uppercase">
-              {t.recordings.filterTopic}
-            </label>
-            <input
-              value={filterTopic}
-              onChange={(e) => setFilterTopic(e.target.value)}
-              placeholder={t.recordings.topicPlaceholder}
-              type="number"
-              className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
-            />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-500 uppercase">
@@ -216,7 +148,7 @@ export function RecordingsPanel({
         <div className="p-12 text-center text-slate-400 font-bold animate-pulse">
           {t.recordings.loading}
         </div>
-      ) : recordings.length === 0 ? (
+      ) : filteredSummaries.length === 0 ? (
         <div className="p-12 text-center">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mic size={24} className="text-slate-400" />
@@ -225,73 +157,53 @@ export function RecordingsPanel({
         </div>
       ) : (
         <div className="divide-y divide-slate-100">
-          {studentGroups.map((group, groupIdx) => {
-            const isExpanded = expandedStudents.has(group.key);
-            const avatar = studentAvatars[group.key];
-            const colorClass = avatarColors[groupIdx % avatarColors.length];
-            const initials = group.studentName
+          {filteredSummaries.map((s, idx) => {
+            const avatar = studentAvatars[s.key];
+            const colorClass = avatarColors[idx % avatarColors.length];
+            const initials = s.studentName
               .split(" ")
               .map((w: string) => w[0])
               .join("")
               .toUpperCase()
               .slice(0, 2);
-            const latestDate = formatDate(group.records[0].createdAt);
+            const latestDate = formatDate(s.latestCreatedAt);
 
             return (
-              <div key={group.key}>
-                <button
-                  type="button"
-                  onClick={() => toggleStudent(group.key)}
-                  className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => onSelectStudent(s.studentName, avatar)}
+                className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
+              >
+                <span
+                  className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
+                    avatar
+                      ? "bg-amber-50 text-2xl shadow-sm border-amber-200"
+                      : `text-sm ${colorClass}`
+                  }`}
                 >
-                  <span
-                    className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
-                      avatar
-                        ? "bg-amber-50 text-2xl shadow-sm border-amber-200"
-                        : `text-sm ${colorClass}`
-                    }`}
-                  >
-                    {avatar || initials}
-                  </span>
+                  {avatar || initials}
+                </span>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="font-extrabold text-slate-800 text-base truncate">
-                      {group.studentName}
-                    </p>
-                    <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
-                      {/* {group.userId ? `ID: ${group.userId} · ` : ""} */}
-                      {t.recordings.latest} {latestDate}
-                    </p>
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-extrabold text-slate-800 text-base truncate">
+                    {s.studentName}
+                  </p>
+                  <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
+                    {t.recordings.latest} {latestDate}
+                  </p>
+                </div>
 
-                  <span className="shrink-0 px-3 py-1 bg-[#E3F2FD] text-[#1E88E5] text-xs font-black rounded-full border border-[#90CAF9]">
-                    {group.records.length} {t.recordings.lessons}
-                  </span>
-
-                  <span
-                    className="shrink-0 text-slate-400 transition-transform duration-200"
-                    style={{
-                      transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                    }}
-                  >
-                    <ChevronDown size={18} />
-                  </span>
-                </button>
-
-                {isExpanded && (
-                  <div className="divide-y divide-slate-100 bg-slate-50/50 border-t border-slate-100">
-                    {group.records.map((rec: any) => (
-                      <RecordingItem
-                        key={rec.id}
-                        rec={rec}
-                        isHighlighted={rec.id === highlightRecordId}
-                        formatDate={formatDate}
-                        onDeleteRequest={onDeleteRequest}
-                      />
-                    ))}
-                  </div>
+                {s.hasUngraded && (
+                  <span className="shrink-0 w-2.5 h-2.5 rounded-full bg-rose-400" />
                 )}
-              </div>
+
+                <span className="shrink-0 px-3 py-1 bg-[#E3F2FD] text-[#1E88E5] text-xs font-black rounded-full border border-[#90CAF9]">
+                  {s.count} {t.recordings.lessons}
+                </span>
+
+                <ChevronRight size={18} className="shrink-0 text-slate-400" />
+              </button>
             );
           })}
         </div>

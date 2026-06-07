@@ -5,8 +5,19 @@ interface UseRecordingsOptions {
   onNewRecording?: (record: any) => void;
 }
 
+const RECORDING_COLUMNS =
+  "id, studentName, topicNumber, topic, questionText, audioUrl, createdAt, teacher_rating, teacher_feedback, student_reaction, userId";
+
+export interface StudentSummary {
+  key: string;
+  studentName: string;
+  count: number;
+  latestCreatedAt: string;
+  hasUngraded: boolean;
+}
+
 export function useRecordings(user: any, options?: UseRecordingsOptions) {
-  const [recordings, setRecordings] = useState<any[]>([]);
+  const [summaries, setSummaries] = useState<StudentSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [appError, setAppError] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -14,16 +25,41 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
   const onNewRecordingRef = useRef(options?.onNewRecording);
   onNewRecordingRef.current = options?.onNewRecording;
 
-  const fetchRecordings = async () => {
+  const fetchSummaries = async () => {
     try {
       const { data, error } = await supabase
         .from("recordings")
-        .select(
-          "id, studentName, topicNumber, topic, questionText, audioUrl, createdAt, teacher_rating, teacher_feedback, student_reaction, userId",
-        )
+        .select("studentName, createdAt, teacher_rating, teacher_feedback")
         .order("createdAt", { ascending: false });
       if (error) throw error;
-      if (data) setRecordings(data);
+
+      const map = new Map<string, StudentSummary>();
+      for (const rec of data || []) {
+        const key = (rec.studentName || "").trim().toLowerCase();
+        const hasFeedback =
+          (rec.teacher_rating || 0) > 0 ||
+          (rec.teacher_feedback && rec.teacher_feedback.trim().length > 0);
+        const existing = map.get(key);
+        if (!existing) {
+          map.set(key, {
+            key,
+            studentName: rec.studentName,
+            count: 1,
+            latestCreatedAt: rec.createdAt,
+            hasUngraded: !hasFeedback,
+          });
+        } else {
+          existing.count += 1;
+          if (!hasFeedback) existing.hasUngraded = true;
+        }
+      }
+      setSummaries(
+        Array.from(map.values()).sort(
+          (a, b) =>
+            new Date(b.latestCreatedAt).getTime() -
+            new Date(a.latestCreatedAt).getTime(),
+        ),
+      );
     } catch (error) {
       console.error("Error fetching recordings: ", error);
       setAppError("Không thể kết nối lấy dữ liệu bài nộp từ hệ thống.");
@@ -35,7 +71,7 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
   useEffect(() => {
     if (!user) return;
 
-    fetchRecordings().then(() => {
+    fetchSummaries().then(() => {
       isInitialLoad.current = false;
     });
 
@@ -45,7 +81,7 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
         "postgres_changes",
         { event: "*", schema: "public", table: "recordings" },
         (payload) => {
-          fetchRecordings();
+          fetchSummaries();
           if (
             payload.eventType === "INSERT" &&
             !isInitialLoad.current &&
@@ -72,8 +108,8 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
         .delete()
         .eq("id", deleteTargetId);
       if (error) throw error;
-      setRecordings((prev) => prev.filter((r) => r.id !== deleteTargetId));
       setDeleteTargetId(null);
+      fetchSummaries();
     } catch (err) {
       console.error("Lỗi khi xóa: ", err);
       setAppError("Không thể xóa bài nộp này.");
@@ -81,11 +117,44 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
   };
 
   return {
-    recordings,
+    summaries,
     loading,
     appError,
     deleteTargetId,
     setDeleteTargetId,
     confirmDelete,
   };
+}
+
+export async function fetchStudentRecordings(
+  studentName: string,
+  page: number,
+  pageSize: number,
+) {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const { data, error, count } = await supabase
+    .from("recordings")
+    .select(RECORDING_COLUMNS, { count: "exact" })
+    .ilike("studentName", studentName)
+    .order("createdAt", { ascending: false })
+    .range(from, to);
+  if (error) throw error;
+  return { records: data || [], total: count || 0 };
+}
+
+export async function fetchRecordingPage(
+  studentName: string,
+  recordId: string,
+  pageSize: number,
+) {
+  const { data, error } = await supabase
+    .from("recordings")
+    .select("id, createdAt")
+    .ilike("studentName", studentName)
+    .order("createdAt", { ascending: false });
+  if (error) throw error;
+  const idx = (data || []).findIndex((r) => r.id === recordId);
+  if (idx === -1) return 1;
+  return Math.floor(idx / pageSize) + 1;
 }

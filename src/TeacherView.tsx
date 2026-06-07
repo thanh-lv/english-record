@@ -1,13 +1,25 @@
 import { AlertCircle } from "lucide-react";
 import { useLanguage } from "./i18n/LanguageContext";
 import { RecordingsPanel } from "./components/teacher/RecordingsPanel";
+import { StudentSubmissionsView } from "./components/teacher/StudentSubmissionsView";
 import {
   TeacherSidebar,
   TeacherTab,
 } from "./components/teacher/TeacherSidebar";
 import { DeleteConfirmModal } from "./components/teacher/DeleteConfirmModal";
 import { useRecordings } from "./components/teacher/hooks/useRecordings";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { supabase } from "./lib/supabase";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+
+const STUDENT_PARAM = "student";
+
+const readStudentFromUrl = (): string | null => {
+  try {
+    return new URLSearchParams(window.location.search).get(STUDENT_PARAM);
+  } catch {
+    return null;
+  }
+};
 
 const StoriesManager = lazy(() =>
   import("./components/teacher/StoriesManager").then((m) => ({
@@ -49,6 +61,51 @@ export default function TeacherView({
   const [highlightRecordId, setHighlightRecordId] = useState<string | null>(
     null,
   );
+  const [selectedStudent, setSelectedStudent] = useState<{
+    name: string;
+    avatar?: string;
+  } | null>(() => {
+    const name = readStudentFromUrl();
+    return name ? { name } : null;
+  });
+  const skipNextUrlPush = useRef(true);
+
+  // Keep the URL's `student` param in sync with the selected student so the
+  // browser back/forward buttons can navigate between the list and detail views
+  useEffect(() => {
+    if (skipNextUrlPush.current) {
+      skipNextUrlPush.current = false;
+      return;
+    }
+    const url = new URL(window.location.href);
+    if (selectedStudent) {
+      url.searchParams.set(STUDENT_PARAM, selectedStudent.name);
+    } else {
+      url.searchParams.delete(STUDENT_PARAM);
+    }
+    if (url.toString() !== window.location.href) {
+      window.history.pushState(
+        { studentName: selectedStudent?.name ?? null },
+        "",
+        url,
+      );
+    }
+  }, [selectedStudent]);
+
+  // React to browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const name = readStudentFromUrl();
+      skipNextUrlPush.current = true;
+      setSelectedStudent((prev) => {
+        if (!name) return null;
+        if (prev?.name === name) return prev;
+        return { name };
+      });
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   useEffect(() => {
     if (!activeTabSignal) return;
@@ -56,14 +113,15 @@ export default function TeacherView({
       const recordId = activeTabSignal.replace("recordings:", "");
       setActiveTab("recordings");
       setHighlightRecordId(recordId);
-      setTimeout(() => setHighlightRecordId(null), 2000);
     } else {
       setActiveTab(activeTabSignal as TeacherTab);
+      setSelectedStudent(null);
+      setHighlightRecordId(null);
     }
   }, [activeTabSignal]);
 
   const {
-    recordings,
+    summaries,
     loading,
     appError,
     deleteTargetId,
@@ -72,6 +130,31 @@ export default function TeacherView({
   } = useRecordings(user, {
     onNewRecording: addNotification,
   });
+
+  // When a notification points to a record, resolve its student and open the detail view
+  useEffect(() => {
+    if (!highlightRecordId || selectedStudent) return;
+    let cancelled = false;
+    supabase
+      .from("recordings")
+      .select("studentName")
+      .eq("id", highlightRecordId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled || !data?.studentName) return;
+        setSelectedStudent({ name: data.studentName });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [highlightRecordId, selectedStudent]);
+
+  // Fade out the highlight a few seconds after the student view has had time to scroll to it
+  useEffect(() => {
+    if (!highlightRecordId || !selectedStudent) return;
+    const timer = setTimeout(() => setHighlightRecordId(null), 4000);
+    return () => clearTimeout(timer);
+  }, [highlightRecordId, selectedStudent]);
 
   return (
     <div className="animate-in fade-in duration-500 min-h-screen flex flex-col">
@@ -86,15 +169,30 @@ export default function TeacherView({
             </div>
           )}
 
-          {activeTab === "recordings" && (
-            <RecordingsPanel
-              recordings={recordings}
-              loading={loading}
-              formatDate={formatDate}
-              onDeleteRequest={(id) => setDeleteTargetId(id)}
-              highlightRecordId={highlightRecordId}
-            />
-          )}
+          {activeTab === "recordings" &&
+            (selectedStudent ? (
+              <StudentSubmissionsView
+                studentName={selectedStudent.name}
+                avatar={selectedStudent.avatar}
+                formatDate={formatDate}
+                onDeleteRequest={(id) => setDeleteTargetId(id)}
+                onBack={() => {
+                  setSelectedStudent(null);
+                  setHighlightRecordId(null);
+                }}
+                highlightRecordId={highlightRecordId}
+              />
+            ) : (
+              <RecordingsPanel
+                summaries={summaries}
+                loading={loading}
+                formatDate={formatDate}
+                onDeleteRequest={(id) => setDeleteTargetId(id)}
+                onSelectStudent={(name, avatar) =>
+                  setSelectedStudent({ name, avatar })
+                }
+              />
+            ))}
           <Suspense
             fallback={
               <div className="flex justify-center py-16">
