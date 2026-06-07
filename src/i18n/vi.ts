@@ -297,4 +297,28 @@ export const vi = {
     paginationPrev: "← Trước",
     paginationNext: "Sau →",
   },
+  aiParser: {
+    openButton: "AI Tách câu hỏi",
+    title: "AI Tách câu hỏi",
+    subtitle:
+      "Dán nội dung đề bài, AI sẽ tự tách thành câu hỏi + câu trả lời mẫu",
+    tabText: "Văn bản",
+    tabImage: "Ảnh đề bài",
+    textLabel: "Nội dung đề bài (paste text vào đây)",
+    textPlaceholder:
+      "Examiner says this\nMinimum response expected from child\nWhat's this?\nflower\nWhat colour is it?\nyellow\n...",
+    imageLabel: "Ảnh đề bài (chụp / chọn ảnh từ máy)",
+    imagePickPrompt: "Bấm để chọn ảnh đề bài",
+    imageAlt: "Đề bài",
+    parseButton: "Tách câu hỏi bằng AI",
+    parsing: "AI đang phân tích...",
+    previewLabel: "Xem trước & chỉnh sửa",
+    questionPlaceholder: "Câu hỏi*",
+    answerPlaceholder: "Câu trả lời mẫu",
+    cancel: "Hủy",
+    addAll: "Thêm tất cả vào Topic",
+    errorMissingApiKey: "Thiếu cấu hình AI API key.",
+    errorNoQuestions: "AI không tách được câu hỏi nào. Hãy thử nội dung khác.",
+    errorConnection: "Không thể kết nối AI. Vui lòng thử lại.",
+  },
 };

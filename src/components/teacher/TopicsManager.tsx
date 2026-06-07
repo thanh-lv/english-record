@@ -589,7 +589,7 @@ export function TopicsManager() {
                       onClick={() => setAiParserTopicId(topic.id)}
                       className="text-sm text-violet-400 hover:text-violet-600 font-bold flex items-center gap-1 py-1"
                     >
-                      <Sparkles size={14} /> AI Tách câu hỏi
+                      <Sparkles size={14} /> {t.aiParser.openButton}
                     </button>
                   </div>
                 </div>

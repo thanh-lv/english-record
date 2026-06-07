@@ -296,4 +296,29 @@ export const en = {
     paginationPrev: "← Prev",
     paginationNext: "Next →",
   },
+  aiParser: {
+    openButton: "AI Question Parser",
+    title: "AI Question Parser",
+    subtitle:
+      "Paste exam content and AI will split it into questions + sample answers",
+    tabText: "Text",
+    tabImage: "Question image",
+    textLabel: "Exam content (paste text here)",
+    textPlaceholder:
+      "Examiner says this\nMinimum response expected from child\nWhat's this?\nflower\nWhat colour is it?\nyellow\n...",
+    imageLabel: "Question image (capture / pick from device)",
+    imagePickPrompt: "Tap to choose a question image",
+    imageAlt: "Exam content",
+    parseButton: "Parse questions with AI",
+    parsing: "AI is analyzing...",
+    previewLabel: "Preview & edit",
+    questionPlaceholder: "Question*",
+    answerPlaceholder: "Sample answer",
+    cancel: "Cancel",
+    addAll: "Add all to topic",
+    errorMissingApiKey: "Missing AI API key configuration.",
+    errorNoQuestions:
+      "AI couldn't extract any questions. Try different content.",
+    errorConnection: "Couldn't connect to AI. Please try again.",
+  },
 };
