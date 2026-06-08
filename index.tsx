@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import LoginScreen from "./src/LoginScreen";
 
 const TeacherView = lazy(() => import("./src/TeacherView"));
@@ -25,8 +26,8 @@ export default function App() {
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [teacherActiveTab, setTeacherActiveTab] = useState<string>("recordings");
   const { t, lang, setLang } = useLanguage();
+  const navigate = useNavigate();
 
   const {
     notifications,
@@ -194,8 +195,7 @@ export default function App() {
                     onMarkAllRead={markAllRead}
                     onClearAll={clearAll}
                     onNavigate={(recordId) => {
-                      setTeacherActiveTab("recordings:" + recordId);
-                      setTimeout(() => setTeacherActiveTab("recordings"), 2100);
+                      navigate(`/teacher/recordings?highlight=${recordId}`);
                     }}
                   />
                 </div>
@@ -215,16 +215,54 @@ export default function App() {
       </header>
 
       <main className="max-w-5xl mx-auto p-3 md:p-6 lg:p-8 flex-1 w-full flex flex-col">
-        {!userProfile && <LoginScreen setProfile={setUserProfile} user={user} />}
         <Suspense fallback={null}>
-          {userProfile?.role === "student" && <StudentView user={user} profile={userProfile} />}
-          {isTeacher && (
-            <TeacherView
-              user={user}
-              addNotification={addNotification}
-              activeTabSignal={teacherActiveTab}
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                userProfile ? (
+                  <Navigate to={isTeacher ? "/teacher" : "/student"} replace />
+                ) : (
+                  <LoginScreen setProfile={setUserProfile} user={user} />
+                )
+              }
             />
-          )}
+            <Route
+              path="/student/*"
+              element={
+                userProfile?.role === "student" ? (
+                  <StudentView user={user} profile={userProfile} />
+                ) : (
+                  <Navigate to={userProfile ? "/teacher" : "/login"} replace />
+                )
+              }
+            />
+            <Route
+              path="/teacher/*"
+              element={
+                isTeacher ? (
+                  <TeacherView user={user} addNotification={addNotification} />
+                ) : (
+                  <Navigate to={userProfile ? "/student" : "/login"} replace />
+                )
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to={
+                    !userProfile
+                      ? "/login"
+                      : isTeacher
+                        ? "/teacher"
+                        : "/student"
+                  }
+                  replace
+                />
+              }
+            />
+          </Routes>
         </Suspense>
       </main>
 

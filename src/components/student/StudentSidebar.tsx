@@ -7,6 +7,7 @@ import {
   Library,
   Pencil,
 } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 export type ActiveTab =
@@ -21,8 +22,6 @@ interface StudentSidebarProps {
   currentAvatar: string;
   completedNumbers: number[];
   streak: number;
-  activeTab: ActiveTab;
-  onTabChange: (tab: ActiveTab) => void;
   onAvatarClick: () => void;
 }
 
@@ -31,11 +30,12 @@ export function StudentSidebar({
   currentAvatar,
   completedNumbers,
   streak,
-  activeTab,
-  onTabChange,
   onAvatarClick,
 }: StudentSidebarProps) {
   const { t } = useLanguage();
+  const location = useLocation();
+  const activeTab = (location.pathname.split("/")[2] ||
+    "exercises") as ActiveTab;
 
   const NAV_ITEMS = [
     {
@@ -109,10 +109,9 @@ export function StudentSidebar({
 
         <nav className="bg-white/80 backdrop-blur-sm p-3 rounded-[2rem] border-3 border-slate-100 shadow-sm flex flex-col gap-2">
           {NAV_ITEMS.map((item) => (
-            <button
+            <Link
               key={item.id}
-              type="button"
-              onClick={() => onTabChange(item.id)}
+              to={`/student/${item.id}`}
               className={`flex items-center gap-3 px-5 py-4 rounded-xl font-extrabold text-sm transition-all ${
                 activeTab === item.id
                   ? "bg-[#E3F2FD] text-[#1E88E5] shadow-sm"
@@ -130,7 +129,7 @@ export function StudentSidebar({
               {activeTab === item.id && (
                 <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />
               )}
-            </button>
+            </Link>
           ))}
         </nav>
       </aside>
@@ -168,10 +167,9 @@ export function StudentSidebar({
           {NAV_ITEMS.map((item) => {
             const active = activeTab === item.id;
             return (
-              <button
+              <Link
                 key={item.id}
-                type="button"
-                onClick={() => onTabChange(item.id)}
+                to={`/student/${item.id}`}
                 className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-extrabold transition-all ${active ? "text-[#1E88E5]" : "text-slate-400"}`}
               >
                 <span
@@ -180,7 +178,7 @@ export function StudentSidebar({
                   {item.icon}
                 </span>
                 {item.label}
-              </button>
+              </Link>
             );
           })}
         </div>

@@ -1,4 +1,5 @@
 import { BookMarked, BookOpen, Library, Mic, Users } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 export type TeacherTab =
@@ -8,16 +9,11 @@ export type TeacherTab =
   | "stories"
   | "vocabulary";
 
-interface TeacherSidebarProps {
-  activeTab: TeacherTab;
-  onTabChange: (tab: TeacherTab) => void;
-}
-
-export function TeacherSidebar({
-  activeTab,
-  onTabChange,
-}: TeacherSidebarProps) {
+export function TeacherSidebar() {
   const { t } = useLanguage();
+  const location = useLocation();
+  const activeTab = (location.pathname.split("/")[2] ||
+    "recordings") as TeacherTab;
   const NAV_ITEMS: { id: TeacherTab; label: string; icon: React.ReactNode }[] =
     [
       {
@@ -60,10 +56,9 @@ export function TeacherSidebar({
           {NAV_ITEMS.map((item) => {
             const active = activeTab === item.id;
             return (
-              <button
+              <Link
                 key={item.id}
-                type="button"
-                onClick={() => onTabChange(item.id)}
+                to={`/teacher/${item.id}`}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-extrabold text-sm transition-all ${
                   active
                     ? "bg-[#E3F2FD] text-[#1E88E5] shadow-sm"
@@ -77,7 +72,7 @@ export function TeacherSidebar({
                 {active && (
                   <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />
                 )}
-              </button>
+              </Link>
             );
           })}
         </nav>
@@ -89,10 +84,9 @@ export function TeacherSidebar({
           {NAV_ITEMS.map((item) => {
             const active = activeTab === item.id;
             return (
-              <button
+              <Link
                 key={item.id}
-                type="button"
-                onClick={() => onTabChange(item.id)}
+                to={`/teacher/${item.id}`}
                 className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-extrabold transition-all ${
                   active ? "text-[#1E88E5]" : "text-slate-400"
                 }`}
@@ -103,7 +97,7 @@ export function TeacherSidebar({
                   {item.icon}
                 </span>
                 {item.label}
-              </button>
+              </Link>
             );
           })}
         </div>

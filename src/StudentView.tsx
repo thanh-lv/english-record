@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { AchievementsTab } from "./components/student/AchievementsTab";
 import { AvatarSelectModal } from "./components/student/AvatarSelectModal";
 import { CompletionCelebration } from "./components/student/CompletionCelebration";
@@ -7,7 +8,7 @@ import { FlashcardsTab } from "./components/student/FlashcardsTab";
 import { GamesTab } from "./components/student/GamesTab";
 import { StoriesTab } from "./components/student/StoriesTab";
 import { StoryModal } from "./components/student/StoryModal";
-import { StudentSidebar, ActiveTab } from "./components/student/StudentSidebar";
+import { StudentSidebar } from "./components/student/StudentSidebar";
 import { OfflineBanner } from "./components/common/OfflineBanner";
 import { TopicModal } from "./components/student/TopicModal";
 import { useAvatar } from "./components/student/hooks/useAvatar";
@@ -39,7 +40,6 @@ export default function StudentView({
   const { currentAvatar, showAvatarSelect, setShowAvatarSelect, changeAvatar } =
     useAvatar(profile);
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>("exercises");
   const [showCelebration, setShowCelebration] = useState(false);
   const prevCompletedCount = useRef(0);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
@@ -334,39 +334,51 @@ export default function StudentView({
         currentAvatar={currentAvatar}
         completedNumbers={completedNumbers}
         streak={streak}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
         onAvatarClick={() => setShowAvatarSelect(true)}
       />
 
       <div className="flex-1 min-w-0 space-y-6">
-        {activeTab === "exercises" && (
-          <ExercisesTab
-            activeTopics={activeTopics}
-            isBongBe={isBongBe}
-            completedNumbers={completedNumbers}
-            myRecordings={myRecordings}
-            onTopicClick={handleNumberClick}
+        <Routes>
+          <Route index element={<Navigate to="exercises" replace />} />
+          <Route
+            path="exercises"
+            element={
+              <ExercisesTab
+                activeTopics={activeTopics}
+                isBongBe={isBongBe}
+                completedNumbers={completedNumbers}
+                myRecordings={myRecordings}
+                onTopicClick={handleNumberClick}
+              />
+            }
           />
-        )}
-        {activeTab === "achievements" && (
-          <AchievementsTab
-            totalNumbers={totalNumbers}
-            completedNumbers={completedTopicNumbers}
+          <Route
+            path="achievements"
+            element={
+              <AchievementsTab
+                totalNumbers={totalNumbers}
+                completedNumbers={completedTopicNumbers}
+              />
+            }
           />
-        )}
-        {activeTab === "stories" && (
-          <StoriesTab
-            dbStories={dbStories}
-            profile={profile}
-            studentAge={studentAge}
-            onStoryClick={setSelectedStory}
+          <Route
+            path="stories"
+            element={
+              <StoriesTab
+                dbStories={dbStories}
+                profile={profile}
+                studentAge={studentAge}
+                onStoryClick={setSelectedStory}
+              />
+            }
           />
-        )}
-        {activeTab === "flashcards" && (
-          <FlashcardsTab studentAge={studentAge} />
-        )}
-        {activeTab === "games" && <GamesTab studentAge={studentAge} />}
+          <Route
+            path="flashcards"
+            element={<FlashcardsTab studentAge={studentAge} />}
+          />
+          <Route path="games" element={<GamesTab studentAge={studentAge} />} />
+          <Route path="*" element={<Navigate to="/student/exercises" replace />} />
+        </Routes>
       </div>
 
       {selectedNumber && currentTopic && (
