@@ -122,7 +122,7 @@ export function NotificationBell({
             </div>
           </div>
 
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto overscroll-contain">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2 text-slate-400">
                 <Bell size={28} className="opacity-30" />

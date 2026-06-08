@@ -170,7 +170,7 @@ export default function App() {
             onClick={() => setLang(lang === "vi" ? "en" : "vi", userProfile?.id)}
             className="text-xs font-black px-2.5 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
           >
-            {lang === "vi" ? "🇬🇧 EN" : "🇻🇳 VI"}
+            {lang === "vi" ? "🇬🇧 English" : "🇻🇳 Vietnamese"}
           </button>
 
           {userProfile && (

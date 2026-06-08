@@ -468,7 +468,7 @@ export function StoriesManager() {
 
       {editingStory && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
           role="dialog"
           aria-modal="true"
           aria-labelledby="edit-story-title"
@@ -554,7 +554,7 @@ export function StoriesManager() {
 
       {deleteStoryTarget && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overscroll-contain"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-story-title"
@@ -617,7 +617,7 @@ export function StoriesManager() {
       {/* Manual Write Modal */}
       {showManual && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
           role="dialog"
           aria-modal="true"
           aria-labelledby="manual-story-title"
@@ -729,7 +729,7 @@ export function StoriesManager() {
 
       {showCreate && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
           role="dialog"
           aria-modal="true"
           aria-labelledby="ai-story-title"
@@ -751,7 +751,7 @@ export function StoriesManager() {
               </button>
             </div>
 
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto overscroll-contain pr-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">

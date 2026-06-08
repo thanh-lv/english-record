@@ -85,7 +85,7 @@ export function TopicModal({
   useEscapeToClose(onClose, !isRecording && !isSaving);
   return (
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-50 overflow-y-auto items-start py-8"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-50 overflow-y-auto overscroll-contain items-start py-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby="topic-modal-title"

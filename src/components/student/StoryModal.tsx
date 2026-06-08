@@ -19,7 +19,7 @@ export function StoryModal({
   useEscapeToClose(onClose);
   return (
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-[60] overflow-y-auto items-start py-8"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-[60] overflow-y-auto overscroll-contain items-start py-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby="story-modal-title"
@@ -100,7 +100,7 @@ export function StoryModal({
               )}
             </button>
           </div>
-          <div className="bg-purple-50/50 p-4 md:p-6 rounded-[1.5rem] border-2 border-purple-100 max-h-[50vh] overflow-y-auto">
+          <div className="bg-purple-50/50 p-4 md:p-6 rounded-[1.5rem] border-2 border-purple-100 max-h-[50vh] overflow-y-auto overscroll-contain">
             <p className="text-sm md:text-base font-medium text-slate-700 leading-7 whitespace-pre-wrap">
               {story.content}
             </p>

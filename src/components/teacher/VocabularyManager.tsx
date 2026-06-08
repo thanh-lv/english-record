@@ -546,7 +546,7 @@ export function VocabularyManager() {
       {/* Create Set Modal */}
       {showCreateSet && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overscroll-contain"
           role="dialog"
           aria-modal="true"
           aria-labelledby="create-set-title"
@@ -662,12 +662,12 @@ export function VocabularyManager() {
       {/* Add Card Modal */}
       {addCardSetId && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
           role="dialog"
           aria-modal="true"
           aria-labelledby="add-card-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
               <h4
                 id="add-card-title"
@@ -873,7 +873,7 @@ export function VocabularyManager() {
       {/* Delete Set Confirm Modal */}
       {deleteSetTarget && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overscroll-contain"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-set-title"
@@ -930,7 +930,7 @@ export function VocabularyManager() {
       {/* Delete Card Confirm Modal */}
       {deleteCardTarget && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overscroll-contain"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-card-title"

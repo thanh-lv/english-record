@@ -64,7 +64,7 @@ export function CompletionCelebration({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-400 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-400 overscroll-contain ${
         visible ? "opacity-100" : "opacity-0"
       }`}
     >

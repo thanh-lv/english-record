@@ -184,7 +184,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4 overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="flashcards-study-title"

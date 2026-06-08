@@ -161,7 +161,7 @@ function MatchingGame({
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4 overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="matching-game-title"
@@ -366,7 +366,7 @@ function QuizGame({
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4 overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="quiz-game-title"
@@ -636,7 +636,7 @@ function ScrambleGame({
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4 overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="scramble-game-title"

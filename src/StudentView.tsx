@@ -377,7 +377,10 @@ export default function StudentView({
             element={<FlashcardsTab studentAge={studentAge} />}
           />
           <Route path="games" element={<GamesTab studentAge={studentAge} />} />
-          <Route path="*" element={<Navigate to="/student/exercises" replace />} />
+          <Route
+            path="*"
+            element={<Navigate to="/student/exercises" replace />}
+          />
         </Routes>
       </div>
 

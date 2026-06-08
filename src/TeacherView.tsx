@@ -173,10 +173,7 @@ export default function TeacherView({
             }
           >
             <Routes>
-              <Route
-                index
-                element={<Navigate to="recordings" replace />}
-              />
+              <Route index element={<Navigate to="recordings" replace />} />
               <Route
                 path="recordings"
                 element={
