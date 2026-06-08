@@ -362,8 +362,8 @@ export function TopicsManager() {
           <option value="all">
             {t.teacherModal.ageAll} ({filteredTopics.length})
           </option>
-          <option value="active">Active</option>
-          <option value="hidden">Hidden</option>
+          <option value="active">{t.teacherModal.topicStatusActive}</option>
+          <option value="hidden">{t.teacherModal.topicStatusHidden}</option>
         </select>
       </div>
 
@@ -485,7 +485,9 @@ export function TopicsManager() {
                           : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                       }`}
                     >
-                      {(topic.is_active ?? true) ? "Active" : "Hidden"}
+                      {(topic.is_active ?? true)
+                        ? t.teacherModal.topicStatusActive
+                        : t.teacherModal.topicStatusHidden}
                     </button>
                     <button
                       type="button"

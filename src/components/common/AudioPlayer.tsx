@@ -1,4 +1,4 @@
-import { Pause, Play } from "lucide-react";
+import { AlertCircle, Pause, Play } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 
@@ -9,11 +9,13 @@ export function AudioPlayer({ src }: { src: string }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const [playError, setPlayError] = useState(false);
 
   useEffect(() => {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
+    setPlayError(false);
     if (audioRef.current) {
       audioRef.current.playbackRate = playbackRate;
     }
@@ -29,9 +31,11 @@ export function AudioPlayer({ src }: { src: string }) {
       document.querySelectorAll("audio").forEach((el) => {
         if (el !== audioRef.current) el.pause();
       });
-      audioRef.current
-        .play()
-        .catch((err) => console.error("Lỗi phát âm thanh:", err));
+      setPlayError(false);
+      audioRef.current.play().catch((err) => {
+        console.error("Lỗi phát âm thanh:", err);
+        setPlayError(true);
+      });
     }
   };
 
@@ -60,6 +64,27 @@ export function AudioPlayer({ src }: { src: string }) {
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
+  if (playError) {
+    return (
+      <div className="flex items-center gap-2 bg-rose-50 border-2 border-rose-200 rounded-2xl p-3 w-full max-w-sm sm:max-w-md text-rose-600 text-xs font-bold">
+        <AlertCircle size={16} className="shrink-0" />
+        <span className="flex-1">{t.common.audioPlayError}</span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setPlayError(false);
+            audioRef.current?.load();
+          }}
+          className="shrink-0 px-3 py-1.5 bg-rose-100 hover:bg-rose-200 rounded-xl font-black transition-colors"
+        >
+          {t.common.retry}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-row items-center gap-3 bg-slate-50 border-2 border-slate-200 rounded-2xl p-2.5 w-full max-w-sm sm:max-w-md shadow-inner">
       <audio
@@ -70,6 +95,7 @@ export function AudioPlayer({ src }: { src: string }) {
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
         onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
         onEnded={() => setIsPlaying(false)}
+        onError={() => setPlayError(true)}
       />
       <button
         type="button"

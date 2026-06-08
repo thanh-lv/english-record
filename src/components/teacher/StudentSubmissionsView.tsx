@@ -1,4 +1,10 @@
-import { ChevronLeft, ChevronRight, Loader2, Mic } from "lucide-react";
+import {
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Mic,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import {
@@ -30,6 +36,8 @@ export function StudentSubmissionsView({
   const [records, setRecords] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const initialJump = useRef(false);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -45,20 +53,24 @@ export function StudentSubmissionsView({
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setLoadError(false);
     fetchStudentRecordings(studentName, page, PAGE_SIZE)
       .then(({ records, total }) => {
         if (cancelled) return;
         setRecords(records);
         setTotal(total);
       })
-      .catch((err) => console.error("Error fetching student recordings:", err))
+      .catch((err) => {
+        console.error("Error fetching student recordings:", err);
+        if (!cancelled) setLoadError(true);
+      })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [studentName, page]);
+  }, [studentName, page, reloadKey]);
 
   const goToPage = (p: number) => setPage(Math.min(Math.max(p, 1), totalPages));
 
@@ -101,6 +113,20 @@ export function StudentSubmissionsView({
       {loading ? (
         <div className="p-12 text-center text-slate-400 font-bold animate-pulse">
           {t.recordings.loading}
+        </div>
+      ) : loadError ? (
+        <div className="p-12 text-center flex flex-col items-center gap-3">
+          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center">
+            <AlertCircle size={24} className="text-rose-400" />
+          </div>
+          <p className="text-slate-500 font-bold">{t.common.loadDataError}</p>
+          <button
+            type="button"
+            onClick={() => setReloadKey((k) => k + 1)}
+            className="px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-600 font-black text-sm rounded-xl transition-colors"
+          >
+            {t.common.retry}
+          </button>
         </div>
       ) : records.length === 0 ? (
         <div className="p-12 text-center">

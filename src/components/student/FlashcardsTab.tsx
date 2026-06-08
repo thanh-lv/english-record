@@ -27,6 +27,7 @@ interface FlashcardsTabProps {
 }
 
 function FlipCard({ card }: { card: VocabCard }) {
+  const { t } = useLanguage();
   const [flipped, setFlipped] = useState(false);
 
   useEffect(() => {
@@ -50,7 +51,7 @@ function FlipCard({ card }: { card: VocabCard }) {
       role="button"
       tabIndex={0}
       aria-pressed={flipped}
-      aria-label={`${card.front} – ${flipped ? card.back : "Tap to flip"}`}
+      aria-label={`${card.front} – ${flipped ? card.back : t.teacherModal.flashcardsTapToFlip}`}
       onKeyDown={(e) => {
         if (e.code === "Enter" || e.code === "Space") {
           e.preventDefault();
@@ -98,10 +99,12 @@ function FlipCard({ card }: { card: VocabCard }) {
             className="mt-1 flex items-center gap-1.5 px-4 py-2 bg-[#1E88E5]/10 hover:bg-[#1E88E5]/20 rounded-full transition-colors active:scale-95"
           >
             <Volume2 size={16} className="text-[#1E88E5]" />
-            <span className="text-xs font-bold text-[#1E88E5]">Listen</span>
+            <span className="text-xs font-bold text-[#1E88E5]">
+              {t.teacherModal.flashcardsListen}
+            </span>
           </button>
           <p className="text-xs font-bold text-[#1E88E5]/40 mt-1">
-            👆 Tap card to see meaning
+            {t.teacherModal.flashcardsTapToSeeMeaning}
           </p>
         </div>
 
@@ -126,7 +129,7 @@ function FlipCard({ card }: { card: VocabCard }) {
             <p className="text-sm font-mono text-blue-300">{card.ipa}</p>
           )}
           <p className="text-xs font-bold text-blue-300/70 mt-1">
-            👆 Tap to flip back
+            {t.teacherModal.flashcardsTapToFlipBack}
           </p>
         </div>
       </div>

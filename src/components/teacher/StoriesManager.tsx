@@ -90,7 +90,7 @@ export function StoriesManager() {
   const handleGenerate = async () => {
     if (!prompt) return setError(t.common.promptRequired);
     const aiApiKey = import.meta.env.VITE_AI_API_KEY;
-    if (!aiApiKey) return setError("Thiếu VITE_AI_API_KEY trong file .env");
+    if (!aiApiKey) return setError(t.common.missingAiApiKey);
 
     setIsGenerating(true);
     setError("");
@@ -116,8 +116,7 @@ export function StoriesManager() {
           body: JSON.stringify({ prompt: textPrompt, type: "text" }),
         },
       );
-      if (!textRes.ok)
-        throw new Error("Lỗi khi tạo chữ. Kiểm tra lại API Key.");
+      if (!textRes.ok) throw new Error(t.common.aiTextError);
       const textData = await textRes.json();
       setGeneratedStory(textData.story);
 
@@ -133,7 +132,7 @@ export function StoriesManager() {
           body: JSON.stringify({ prompt, type: "image" }),
         },
       );
-      if (!imgRes.ok) throw new Error("Lỗi khi tạo ảnh.");
+      if (!imgRes.ok) throw new Error(t.common.aiImageError);
       const imgBlob = await imgRes.blob();
       setGeneratedImageBlob(imgBlob);
       setGeneratedImageUrl(URL.createObjectURL(imgBlob));

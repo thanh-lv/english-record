@@ -242,6 +242,9 @@ export const en = {
     storyPreview: "Preview result:",
     promptRequired: "Please enter a topic (Prompt).",
     storyRequired: "Please enter a story title and generate content.",
+    missingAiApiKey: "Missing AI API key configuration in the .env file",
+    aiTextError: "Error generating text. Please check your API key.",
+    aiImageError: "Error generating image.",
     // Topics Manager
     questionCount: "questions",
     questionLabel: "Question:",
@@ -271,6 +274,9 @@ export const en = {
       "Cannot access Microphone. Please tap 'Allow' when the browser asks for permission.",
     submitError:
       "Cannot submit recording. Please check your internet connection.",
+    audioPlayError: "Couldn't play this audio. Please try again.",
+    retry: "Retry",
+    loadDataError: "Couldn't load data. Please try again.",
     offlineError: "You're offline. Please reconnect and try submitting again.",
     offlineBanner: "You're offline — some features may not work",
     onlineBanner: "Back online",
@@ -313,6 +319,10 @@ export const en = {
     flashcardsNext: "Next",
     flashcardsDone: "Done! 🎉",
     flashcardsClose: "Close",
+    flashcardsListen: "Listen",
+    flashcardsTapToFlip: "Tap to flip",
+    flashcardsTapToSeeMeaning: "👆 Tap card to see meaning",
+    flashcardsTapToFlipBack: "👆 Tap to flip back",
     // VocabularyManager age groups
     ageKindergarten: "Kindergarten",
     agePrimary: "Primary",
@@ -329,6 +339,8 @@ export const en = {
     filterStoryStatusAll: "All",
     filterStoryStatusActive: "Active",
     filterStoryStatusHidden: "Hidden",
+    topicStatusActive: "Active",
+    topicStatusHidden: "Hidden",
     noStoriesFound: "No stories found.",
     // VocabularyManager filter
     filterVocabPlaceholder: "Search by set title...",

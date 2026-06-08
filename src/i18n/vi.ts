@@ -245,6 +245,9 @@ export const vi = {
     storyPreview: "Kết quả xem trước:",
     promptRequired: "Vui lòng nhập chủ đề (Prompt).",
     storyRequired: "Vui lòng nhập tên truyện và tạo nội dung.",
+    missingAiApiKey: "Thiếu cấu hình AI API Key trong file .env",
+    aiTextError: "Lỗi khi tạo chữ. Kiểm tra lại API Key.",
+    aiImageError: "Lỗi khi tạo ảnh.",
     // Topics Manager
     questionCount: "câu",
     questionLabel: "Câu hỏi:",
@@ -272,6 +275,9 @@ export const vi = {
     micError:
       "Không thể bật Micro. Hãy chọn 'Cho phép' khi trình duyệt hỏi quyền Microphone.",
     submitError: "Không thể nộp bài. Hãy kiểm tra kết nối mạng.",
+    audioPlayError: "Không thể phát âm thanh này. Vui lòng thử lại.",
+    retry: "Thử lại",
+    loadDataError: "Không thể tải dữ liệu. Vui lòng thử lại.",
     offlineError: "Bạn đang mất kết nối mạng. Hãy kết nối lại rồi thử nộp bài.",
     offlineBanner: "Mất kết nối mạng — một số tính năng có thể không hoạt động",
     onlineBanner: "Đã kết nối lại mạng",
@@ -313,6 +319,10 @@ export const vi = {
     flashcardsNext: "Tiếp theo",
     flashcardsDone: "Xong! 🎉",
     flashcardsClose: "Đóng",
+    flashcardsListen: "Nghe",
+    flashcardsTapToFlip: "Chạm để lật thẻ",
+    flashcardsTapToSeeMeaning: "👆 Chạm vào thẻ để xem nghĩa",
+    flashcardsTapToFlipBack: "👆 Chạm để lật lại",
     // VocabularyManager age groups
     ageKindergarten: "Mầm non",
     agePrimary: "Tiểu học",
@@ -329,6 +339,8 @@ export const vi = {
     filterStoryStatusAll: "Tất cả",
     filterStoryStatusActive: "Đang hiện",
     filterStoryStatusHidden: "Đã ẩn",
+    topicStatusActive: "Đang hiện",
+    topicStatusHidden: "Đã ẩn",
     noStoriesFound: "Không tìm thấy truyện nào.",
     // VocabularyManager filter
     filterVocabPlaceholder: "Tìm theo tên bộ từ vựng...",
