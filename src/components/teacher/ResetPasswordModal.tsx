@@ -38,7 +38,7 @@ export function ResetPasswordModal({
       setSuccess(true);
       setTimeout(() => onClose(), 1500);
     } catch (err: any) {
-      setError(err.message || "Không thể đổi mật khẩu. Vui lòng thử lại.");
+      setError(err.message || t.common.changePasswordError);
     } finally {
       setSaving(false);
     }

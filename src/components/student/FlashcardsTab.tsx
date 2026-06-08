@@ -249,7 +249,9 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
           ) : total === 0 ? (
             <div className="h-[340px] flex flex-col items-center justify-center gap-3 text-slate-400">
               <span className="text-5xl opacity-30">📭</span>
-              <p className="font-bold text-sm">No cards in this set yet.</p>
+              <p className="font-bold text-sm">
+                {t.teacherModal.flashcardsNoCardsInSet}
+              </p>
             </div>
           ) : currentCard ? (
             <FlipCard key={currentCard.id} card={currentCard} />

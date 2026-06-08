@@ -67,6 +67,7 @@ export function VocabularyManager() {
   const [cardIpa, setCardIpa] = useState("");
   const [cardImageUrl, setCardImageUrl] = useState("");
   const [cardImageUploading, setCardImageUploading] = useState(false);
+  const [cardImageError, setCardImageError] = useState("");
   const [cardImageDragging, setCardImageDragging] = useState(false);
   const [addCardSaving, setAddCardSaving] = useState(false);
   const [addCardError, setAddCardError] = useState("");
@@ -103,6 +104,7 @@ export function VocabularyManager() {
 
   const uploadCardImage = async (file: File) => {
     setCardImageUploading(true);
+    setCardImageError("");
     try {
       const ext = file.name.split(".").pop() || "jpg";
       const fileName = `vocab_images/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
@@ -121,6 +123,7 @@ export function VocabularyManager() {
       setCardImageUrl(url);
     } catch (err) {
       console.error("Upload error:", err);
+      setCardImageError(t.vocabManager.uploadCardImageError);
     } finally {
       setCardImageUploading(false);
     }
@@ -201,7 +204,7 @@ export function VocabularyManager() {
 
   const handleCreateSet = async () => {
     if (!newTitle.trim()) {
-      setCreateSetError("Please enter a title.");
+      setCreateSetError(t.vocabManager.titleRequired);
       return;
     }
     setCreateSetSaving(true);
@@ -251,7 +254,7 @@ export function VocabularyManager() {
 
   const handleAddCard = async () => {
     if (!cardFront.trim() || !cardBack.trim()) {
-      setAddCardError("Please enter both front (EN) and back (VI) text.");
+      setAddCardError(t.vocabManager.cardFieldsRequired);
       return;
     }
     if (!addCardSetId) return;
@@ -363,7 +366,7 @@ export function VocabularyManager() {
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
           <BookMarked className="text-blue-500" size={22} />
-          Vocabulary Sets
+          {t.vocabManager.title}
         </h3>
         <button
           onClick={() => {
@@ -372,7 +375,7 @@ export function VocabularyManager() {
           }}
           className="bg-[#1E88E5] hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md text-sm"
         >
-          <Plus size={16} /> New Set
+          <Plus size={16} /> {t.vocabManager.newSet}
         </button>
       </div>
 
@@ -430,7 +433,7 @@ export function VocabularyManager() {
                       {ageGroupLabel(set.age_group)}
                     </span>
                     <span className="text-xs font-bold text-slate-400">
-                      {set.card_count} cards
+                      {set.card_count} {t.vocabManager.cardCount}
                     </span>
                   </div>
                 </div>
@@ -443,11 +446,12 @@ export function VocabularyManager() {
                       setCardBack("");
                       setCardImageUrl("");
                       setAddCardError("");
+                      setCardImageError("");
                       if (!isExpanded) handleToggleSet(set.id);
                     }}
                     className="py-1.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
                   >
-                    <Plus size={12} /> Add Card
+                    <Plus size={12} /> {t.vocabManager.addCard}
                   </button>
                   <button
                     onClick={(e) => {
@@ -482,7 +486,7 @@ export function VocabularyManager() {
                     </div>
                   ) : cards.length === 0 ? (
                     <p className="text-center text-slate-400 text-sm font-bold py-4">
-                      No cards yet. Add the first one!
+                      {t.vocabManager.noCardsYet}
                     </p>
                   ) : (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
@@ -517,7 +521,7 @@ export function VocabularyManager() {
                               }}
                               className="w-full py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1"
                             >
-                              <Trash2 size={11} /> Delete
+                              <Trash2 size={11} /> {t.vocabManager.deleteCard}
                             </button>
                           </div>
                         </div>
@@ -533,7 +537,7 @@ export function VocabularyManager() {
         {filteredSets.length === 0 && (
           <div className="py-12 text-center text-slate-400 font-bold bg-white rounded-2xl border-2 border-dashed border-slate-200">
             {sets.length === 0
-              ? "No vocabulary sets yet. Create the first one!"
+              ? t.vocabManager.noSetsYet
               : t.teacherModal.noVocabSetsFound}
           </div>
         )}
@@ -553,8 +557,8 @@ export function VocabularyManager() {
                 id="create-set-title"
                 className="font-black text-lg text-slate-800 flex items-center gap-2"
               >
-                <BookMarked className="text-blue-500" size={20} /> New
-                Vocabulary Set
+                <BookMarked className="text-blue-500" size={20} />{" "}
+                {t.vocabManager.createSetTitle}
               </h4>
               <button
                 onClick={() => setShowCreateSet(false)}
@@ -567,32 +571,46 @@ export function VocabularyManager() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  Title
+                <label
+                  id="create-set-title-label"
+                  className="block text-xs font-black text-slate-600 mb-1.5 uppercase"
+                >
+                  {t.vocabManager.titleLabel}
                 </label>
                 <input
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="E.g. Animals, Colors..."
+                  onKeyDown={(e) => e.key === "Enter" && handleCreateSet()}
+                  placeholder={t.vocabManager.titlePlaceholder}
+                  aria-labelledby="create-set-title-label"
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Emoji
+                  <label
+                    id="create-set-emoji-label"
+                    className="block text-xs font-black text-slate-600 mb-1.5 uppercase"
+                  >
+                    {t.vocabManager.emojiLabel}
                   </label>
                   <input
                     value={newEmoji}
                     onChange={(e) => setNewEmoji(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleCreateSet()}
+                    aria-labelledby="create-set-emoji-label"
                     className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Age Group
+                  <label
+                    id="create-set-age-label"
+                    className="block text-xs font-black text-slate-600 mb-1.5 uppercase"
+                  >
+                    {t.vocabManager.ageGroupLabel}
                   </label>
                   <select
+                    aria-labelledby="create-set-age-label"
                     value={newAgeGroup}
                     onChange={(e) =>
                       setNewAgeGroup(
@@ -622,7 +640,7 @@ export function VocabularyManager() {
                 onClick={() => setShowCreateSet(false)}
                 className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors"
               >
-                Cancel
+                {t.vocabManager.cancel}
               </button>
               <button
                 onClick={handleCreateSet}
@@ -634,7 +652,7 @@ export function VocabularyManager() {
                 ) : (
                   <Plus size={15} />
                 )}
-                Create Set
+                {t.vocabManager.createSet}
               </button>
             </div>
           </div>
@@ -655,7 +673,8 @@ export function VocabularyManager() {
                 id="add-card-title"
                 className="font-black text-lg text-slate-800 flex items-center gap-2"
               >
-                <Plus className="text-blue-500" size={20} /> Add Vocabulary Card
+                <Plus className="text-blue-500" size={20} />{" "}
+                {t.vocabManager.addCardTitle}
               </h4>
               <button
                 onClick={() => setAddCardSetId(null)}
@@ -668,43 +687,59 @@ export function VocabularyManager() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  Front (English)
+                <label
+                  id="add-card-front-label"
+                  className="block text-xs font-black text-slate-600 mb-1.5 uppercase"
+                >
+                  {t.vocabManager.frontLabel}
                 </label>
                 <input
                   value={cardFront}
                   onChange={(e) => setCardFront(e.target.value)}
-                  placeholder="E.g. Apple"
+                  onKeyDown={(e) => e.key === "Enter" && handleAddCard()}
+                  placeholder={t.vocabManager.frontPlaceholder}
+                  aria-labelledby="add-card-front-label"
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  Back (Vietnamese)
+                <label
+                  id="add-card-back-label"
+                  className="block text-xs font-black text-slate-600 mb-1.5 uppercase"
+                >
+                  {t.vocabManager.backLabel}
                 </label>
                 <input
                   value={cardBack}
                   onChange={(e) => setCardBack(e.target.value)}
-                  placeholder="E.g. Táo"
+                  onKeyDown={(e) => e.key === "Enter" && handleAddCard()}
+                  placeholder={t.vocabManager.backPlaceholder}
+                  aria-labelledby="add-card-back-label"
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  IPA (optional)
+                <label
+                  id="add-card-ipa-label"
+                  className="block text-xs font-black text-slate-600 mb-1.5 uppercase"
+                >
+                  {t.vocabManager.ipaLabel}
                 </label>
                 <div className="flex gap-2">
                   <input
                     value={cardIpa}
                     onChange={(e) => setCardIpa(e.target.value)}
-                    placeholder="E.g. /frʊt/"
+                    onKeyDown={(e) => e.key === "Enter" && handleAddCard()}
+                    placeholder={t.vocabManager.ipaPlaceholder}
+                    aria-labelledby="add-card-ipa-label"
                     className="flex-1 px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none font-mono"
                   />
                   <button
                     type="button"
                     onClick={autoGenIpa}
                     disabled={ipaLoading || !cardFront.trim()}
-                    title="Auto-generate IPA from English word"
+                    title={t.vocabManager.ipaAutoGenTitle}
+                    aria-label={t.vocabManager.ipaAutoGenTitle}
                     className="shrink-0 px-3 py-2 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {ipaLoading ? (
@@ -712,13 +747,13 @@ export function VocabularyManager() {
                     ) : (
                       <Sparkles size={14} />
                     )}
-                    {ipaLoading ? "..." : "AI"}
+                    {ipaLoading ? "..." : t.vocabManager.ipaAutoGenShort}
                   </button>
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  Image (optional)
+                  {t.vocabManager.imageLabel}
                 </label>
                 {/* Drag & drop zone */}
                 <div
@@ -755,7 +790,7 @@ export function VocabularyManager() {
                   {cardImageUploading ? (
                     <div className="flex items-center justify-center gap-2 text-blue-500 text-xs font-bold">
                       <Loader2 size={16} className="animate-spin" />{" "}
-                      Uploading...
+                      {t.vocabManager.uploading}
                     </div>
                   ) : cardImageUrl ? (
                     <div className="flex items-center gap-3">
@@ -783,16 +818,23 @@ export function VocabularyManager() {
                     <div className="flex flex-col items-center gap-1 text-slate-400">
                       <ImagePlus size={20} />
                       <span className="text-xs font-bold">
-                        Drop image or click to upload
+                        {t.vocabManager.dropImageHint}
                       </span>
                     </div>
                   )}
                 </div>
+                {cardImageError && (
+                  <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2 mt-2">
+                    <AlertCircle size={14} className="shrink-0" />{" "}
+                    {cardImageError}
+                  </div>
+                )}
                 {/* URL fallback */}
                 <input
                   value={cardImageUrl}
                   onChange={(e) => setCardImageUrl(e.target.value)}
-                  placeholder="or paste URL: https://..."
+                  onKeyDown={(e) => e.key === "Enter" && handleAddCard()}
+                  placeholder={t.vocabManager.imageUrlPlaceholder}
                   className="w-full mt-2 px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-xs font-bold focus:border-blue-400 focus:outline-none text-slate-600"
                 />
               </div>
@@ -809,7 +851,7 @@ export function VocabularyManager() {
                 onClick={() => setAddCardSetId(null)}
                 className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors"
               >
-                Cancel
+                {t.vocabManager.cancel}
               </button>
               <button
                 onClick={handleAddCard}
@@ -821,7 +863,7 @@ export function VocabularyManager() {
                 ) : (
                   <Plus size={15} />
                 )}
-                Add Card
+                {t.vocabManager.addCard}
               </button>
             </div>
           </div>
@@ -846,7 +888,7 @@ export function VocabularyManager() {
                   id="delete-set-title"
                   className="font-extrabold text-slate-800 text-lg leading-tight"
                 >
-                  Delete Vocabulary Set?
+                  {t.vocabManager.deleteSetTitle}
                 </h4>
                 <p className="text-sm text-slate-600 font-bold mt-0.5 line-clamp-1">
                   {deleteSetTarget.emoji} {deleteSetTarget.title}
@@ -854,7 +896,7 @@ export function VocabularyManager() {
               </div>
             </div>
             <p className="text-sm text-slate-500 font-medium">
-              This will permanently delete the set and all its cards.
+              {t.vocabManager.deleteSetWarning}
             </p>
             {deleteSetError && (
               <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
@@ -866,7 +908,7 @@ export function VocabularyManager() {
                 onClick={() => setDeleteSetTarget(null)}
                 className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
               >
-                Cancel
+                {t.vocabManager.cancel}
               </button>
               <button
                 onClick={handleDeleteSet}
@@ -878,7 +920,7 @@ export function VocabularyManager() {
                 ) : (
                   <Trash2 size={15} />
                 )}
-                Delete
+                {t.vocabManager.deleteSetConfirm}
               </button>
             </div>
           </div>
@@ -903,7 +945,7 @@ export function VocabularyManager() {
                   id="delete-card-title"
                   className="font-extrabold text-slate-800 text-lg leading-tight"
                 >
-                  Delete Card?
+                  {t.vocabManager.deleteCardTitle}
                 </h4>
                 <p className="text-sm text-slate-600 font-bold mt-0.5">
                   {deleteCardTarget.front} → {deleteCardTarget.back}
@@ -920,7 +962,7 @@ export function VocabularyManager() {
                 onClick={() => setDeleteCardTarget(null)}
                 className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
               >
-                Cancel
+                {t.vocabManager.cancel}
               </button>
               <button
                 onClick={handleDeleteCard}
@@ -932,7 +974,7 @@ export function VocabularyManager() {
                 ) : (
                   <Trash2 size={15} />
                 )}
-                Delete
+                {t.vocabManager.deleteCard}
               </button>
             </div>
           </div>

@@ -227,6 +227,7 @@ export default function LoginScreen({
                   setName(e.target.value);
                   setError("");
                 }}
+                onKeyDown={(e) => e.key === "Enter" && handleLogin(e as any)}
                 disabled={isLoggingIn}
                 autoComplete="username"
               />
@@ -248,6 +249,7 @@ export default function LoginScreen({
                   setEmail(e.target.value);
                   setError("");
                 }}
+                onKeyDown={(e) => e.key === "Enter" && handleLogin(e as any)}
                 disabled={isLoggingIn}
                 autoComplete="email"
               />

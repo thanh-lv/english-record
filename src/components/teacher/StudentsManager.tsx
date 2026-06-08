@@ -106,9 +106,7 @@ export function StudentsManager() {
       );
       setDeleteStudentTarget(null);
     } catch (err: any) {
-      setDeleteError(
-        err.message || "Không thể xóa học sinh. Vui lòng thử lại.",
-      );
+      setDeleteError(err.message || t.common.deleteStudentError);
     } finally {
       setDeleteSaving(false);
     }
@@ -164,7 +162,9 @@ export function StudentsManager() {
             <p className="text-2xl font-black text-slate-800">
               {topics.length}
             </p>
-            <p className="text-xs font-bold text-slate-400">Topics</p>
+            <p className="text-xs font-bold text-slate-400">
+              {t.common.totalTopics}
+            </p>
           </div>
         </div>
       </div>

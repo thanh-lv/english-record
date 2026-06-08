@@ -52,7 +52,7 @@ export function EditStudentModal({
       onUpdated(data);
       onClose();
     } catch (err: any) {
-      setError(err.message || "Không thể cập nhật. Vui lòng thử lại.");
+      setError(err.message || t.common.updateStudentError);
     } finally {
       setSaving(false);
     }

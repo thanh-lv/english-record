@@ -1,4 +1,4 @@
-import { Heart, MessageSquare, Star } from "lucide-react";
+import { AlertCircle, Heart, MessageSquare, Star } from "lucide-react";
 import React, { useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
@@ -8,6 +8,7 @@ export function TeacherFeedback({ recording }: { recording: any }) {
   const [reacting, setReacting] = useState(false);
   const [reacted, setReacted] = useState(!!recording?.student_reaction);
   const [showEffect, setShowEffect] = useState(false);
+  const [reactionError, setReactionError] = useState("");
 
   if (!recording) return null;
   const hasRating = recording.teacher_rating > 0;
@@ -19,6 +20,7 @@ export function TeacherFeedback({ recording }: { recording: any }) {
   const handleReact = async () => {
     if (reacted) return;
     setReacting(true);
+    setReactionError("");
     try {
       const { error } = await supabase
         .from("recordings")
@@ -30,6 +32,7 @@ export function TeacherFeedback({ recording }: { recording: any }) {
       setTimeout(() => setShowEffect(false), 2000);
     } catch (err) {
       console.error("Error reacting to feedback", err);
+      setReactionError(t.feedback.reactionError);
     } finally {
       setReacting(false);
     }
@@ -67,6 +70,11 @@ export function TeacherFeedback({ recording }: { recording: any }) {
           </p>
         )}
 
+        {reactionError && (
+          <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            <AlertCircle size={14} className="shrink-0" /> {reactionError}
+          </div>
+        )}
         <div className="pt-2 flex justify-end relative">
           {showEffect && (
             <div className="absolute bottom-full right-10 pointer-events-none z-50 flex items-center justify-center">

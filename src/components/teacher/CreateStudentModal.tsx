@@ -83,7 +83,7 @@ export function CreateStudentModal({
       onCreated(inserted);
       onClose();
     } catch (err: any) {
-      setError(err.message || "Không thể tạo học sinh. Vui lòng thử lại.");
+      setError(err.message || t.common.createStudentError);
     } finally {
       setSaving(false);
     }
