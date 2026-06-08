@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../../lib/supabase";
+import { useLanguage } from "../../../i18n/LanguageContext";
 
 interface UseRecordingsOptions {
   onNewRecording?: (record: any) => void;
@@ -17,6 +18,7 @@ export interface StudentSummary {
 }
 
 export function useRecordings(user: any, options?: UseRecordingsOptions) {
+  const { t } = useLanguage();
   const [summaries, setSummaries] = useState<StudentSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [appError, setAppError] = useState("");
@@ -62,7 +64,7 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
       );
     } catch (error) {
       console.error("Error fetching recordings: ", error);
-      setAppError("Không thể kết nối lấy dữ liệu bài nộp từ hệ thống.");
+      setAppError(t.common.loadRecordingsError);
     } finally {
       setLoading(false);
     }
@@ -112,7 +114,7 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
       fetchSummaries();
     } catch (err) {
       console.error("Lỗi khi xóa: ", err);
-      setAppError("Không thể xóa bài nộp này.");
+      setAppError(t.common.deleteRecordingError);
     }
   };
 

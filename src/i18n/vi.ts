@@ -323,6 +323,8 @@ export const vi = {
     updateStudentError: "Không thể cập nhật. Vui lòng thử lại.",
     deleteStudentError: "Không thể xóa học sinh. Vui lòng thử lại.",
     createStudentError: "Không thể tạo học sinh. Vui lòng thử lại.",
+    loadRecordingsError: "Không thể kết nối lấy dữ liệu bài nộp từ hệ thống.",
+    deleteRecordingError: "Không thể xóa bài nộp này. Vui lòng thử lại.",
     offlineError: "Bạn đang mất kết nối mạng. Hãy kết nối lại rồi thử nộp bài.",
     offlineBanner: "Mất kết nối mạng — một số tính năng có thể không hoạt động",
     onlineBanner: "Đã kết nối lại mạng",

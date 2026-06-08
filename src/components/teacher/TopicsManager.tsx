@@ -48,6 +48,7 @@ export function TopicsManager() {
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageUploadError, setImageUploadError] = useState("");
+  const [loadError, setLoadError] = useState(false);
   const [aiParserTopicId, setAiParserTopicId] = useState<string | null>(null);
   const [editingTopic, setEditingTopic] = useState<string | null>(null);
   const [editTopicTitle, setEditTopicTitle] = useState("");
@@ -73,6 +74,7 @@ export function TopicsManager() {
 
   const fetchTopics = async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const { data, error } = await supabase
         .from("topics")
@@ -88,6 +90,7 @@ export function TopicsManager() {
       setTopics(normalized);
     } catch (err) {
       console.error(err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -401,6 +404,20 @@ export function TopicsManager() {
       {loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-[#1E88E5]" />
+        </div>
+      ) : loadError ? (
+        <div className="flex flex-col items-center gap-3 py-12 text-rose-500">
+          <AlertCircle size={28} />
+          <p className="font-bold text-sm text-center">
+            {t.common.loadDataError}
+          </p>
+          <button
+            type="button"
+            onClick={fetchTopics}
+            className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm rounded-xl border border-rose-200 transition-colors"
+          >
+            {t.common.retry}
+          </button>
         </div>
       ) : (
         <div className="space-y-3">
