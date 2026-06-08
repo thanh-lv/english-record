@@ -413,7 +413,7 @@ export function StoriesManager() {
               {!(story.is_active ?? true) && (
                 <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center rounded-t-[1.5rem]">
                   <span className="text-white text-xs font-black bg-slate-800/70 px-2 py-1 rounded-full">
-                    Hidden
+                    {t.teacherModal.filterStoryStatusHidden}
                   </span>
                 </div>
               )}
@@ -450,7 +450,9 @@ export function StoriesManager() {
                     : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                 }`}
               >
-                {(story.is_active ?? true) ? "✓ Active" : "✕ Hidden"}
+                {(story.is_active ?? true)
+                  ? t.teacherModal.filterStoryStatusActive
+                  : t.teacherModal.filterStoryStatusHidden}
               </button>
             </div>
           </div>

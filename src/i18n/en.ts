@@ -321,7 +321,8 @@ export const en = {
     updateStudentError: "Couldn't update. Please try again.",
     deleteStudentError: "Couldn't delete the student. Please try again.",
     createStudentError: "Couldn't create the student. Please try again.",
-    loadRecordingsError: "Couldn't connect to load submissions. Please try again.",
+    loadRecordingsError:
+      "Couldn't connect to load submissions. Please try again.",
     deleteRecordingError: "Couldn't delete this submission. Please try again.",
     offlineError: "You're offline. Please reconnect and try submitting again.",
     offlineBanner: "You're offline — some features may not work",
