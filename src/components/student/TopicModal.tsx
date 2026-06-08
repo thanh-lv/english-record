@@ -110,7 +110,7 @@ export function TopicModal({
               </span>
               <h3
                 id="topic-modal-title"
-                className="text-lg md:text-3xl font-black text-slate-800 leading-tight tracking-tight truncate"
+                className="text-lg md:text-2xl font-black text-slate-800 leading-tight tracking-tight truncate"
               >
                 {currentTopic.title}
               </h3>
@@ -584,7 +584,7 @@ function BongBeQuestionPanel({
 function StandardQuestionsPanel({ currentTopic }: { currentTopic: any }) {
   const { t } = useLanguage();
   return (
-    <div className="bg-white rounded-[2rem] p-6 border-3 border-[#FFF0F0] space-y-5 shadow-sm">
+    <div className="bg-white rounded-[2rem] border-3 border-[#FFF0F0] space-y-5">
       <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b-2 border-dashed border-slate-100 pb-3">
         <HelpCircle size={16} className="text-[#FF8A80]" />{" "}
         {t.common.questionNav}
@@ -605,13 +605,11 @@ function StandardQuestionsPanel({ currentTopic }: { currentTopic: any }) {
               </p>
             </div>
             {q.sample_answer && (
-              <div className="bg-[#FFFDF6] rounded-2xl p-4 border-2 border-[#FFF59D]">
-                <p className="text-sm font-extrabold text-slate-600 leading-relaxed bg-white px-4 py-2.5 rounded-xl border border-amber-100">
-                  <span className="text-[#FFB74D] inline-flex items-center gap-1 mr-1.5 align-middle">
-                    <Award size={14} /> Example:
-                  </span>
-                  {q.sample_answer}
-                </p>
+              <div className="text-sm font-extrabold text-slate-600 leading-relaxed bg-white px-4 py-2.5 rounded-xl border border-amber-100">
+                <span className="text-[#FFB74D] inline-flex items-center gap-1 mr-1.5 align-middle">
+                  <Award size={14} /> Example:
+                </span>
+                {q.sample_answer}
               </div>
             )}
           </div>
