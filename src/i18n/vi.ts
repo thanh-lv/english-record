@@ -17,6 +17,11 @@ export const vi = {
     submit: "Bắt đầu học! 🚀",
     submitting: "Đang vào...",
     hint: "Nếu con chưa có tài khoản, hãy nhờ thầy cô tạo nhé! 💌",
+    studentTab: "Học sinh",
+    teacherTab: "Giáo viên",
+    emailLabel: "Email",
+    emailPlaceholder: "email@example.com",
+    teacherSubmit: "Đăng nhập 👩‍🏫",
   },
 
   // Student sidebar
@@ -158,6 +163,9 @@ export const vi = {
     minutesAgo: "phút trước",
     hoursAgo: "giờ trước",
     daysAgo: "ngày trước",
+    toggleLabel: "Thông báo",
+    unreadCount: "{count} thông báo chưa đọc",
+    clearAll: "Xóa tất cả",
   },
 
   // Teacher feedback (student side)
@@ -267,6 +275,13 @@ export const vi = {
     offlineError: "Bạn đang mất kết nối mạng. Hãy kết nối lại rồi thử nộp bài.",
     offlineBanner: "Mất kết nối mạng — một số tính năng có thể không hoạt động",
     onlineBanner: "Đã kết nối lại mạng",
+    uploadImageError: "Không thể upload ảnh, vui lòng thử lại.",
+    saveFeedbackError: "Không thể lưu nhận xét. Vui lòng thử lại!",
+    emailInvalid: "Vui lòng nhập email hợp lệ.",
+    teacherPasswordMin: "Mật khẩu phải có ít nhất 6 ký tự.",
+    teacherLoginError: "Email hoặc mật khẩu không đúng. Vui lòng thử lại.",
+    teacherAccountNotFound: "Tài khoản giáo viên không tồn tại.",
+    loginGenericError: "Không thể đăng nhập. Vui lòng thử lại.",
     newTopicPlaceholder: "Tên topic mới...",
     questionPlaceholder: "Câu hỏi*",
     translationPlaceholder: "Dịch nghĩa",

@@ -1,7 +1,8 @@
 import { Bell, Check, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Notification } from "./hooks/useNotifications";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 
 interface NotificationBellProps {
   notifications: Notification[];
@@ -37,6 +38,7 @@ export function NotificationBell({
     return `${Math.floor(diff / 86400)} ${t.notifications.daysAgo}`;
   }
   const ref = useRef<HTMLDivElement>(null);
+  useEscapeToClose(() => setOpen(false), open);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -58,20 +60,38 @@ export function NotificationBell({
       <button
         type="button"
         onClick={handleOpen}
+        aria-label={
+          unreadCount > 0
+            ? interpolate(t.notifications.unreadCount, { count: unreadCount })
+            : t.notifications.toggleLabel
+        }
+        aria-expanded={open}
+        aria-haspopup="true"
         className="relative w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors border border-white/20"
       >
         <Bell size={20} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+          <span
+            aria-hidden="true"
+            className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm"
+          >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="fixed md:absolute left-2 right-2 md:left-auto md:right-0 top-16 md:top-12 md:w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="notification-bell-title"
+          className="fixed md:absolute left-2 right-2 md:left-auto md:right-0 top-16 md:top-12 md:w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200"
+        >
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <span className="font-extrabold text-slate-800 text-sm">
+            <span
+              id="notification-bell-title"
+              className="font-extrabold text-slate-800 text-sm"
+            >
               {t.notifications.title}
               {unreadCount > 0 && (
                 <span className="ml-2 px-1.5 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-black rounded-full">
@@ -84,8 +104,9 @@ export function NotificationBell({
                 <button
                   type="button"
                   onClick={onClearAll}
+                  aria-label={t.notifications.clearAll}
                   className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                  title={t.common.delete}
+                  title={t.notifications.clearAll}
                 >
                   <Trash2 size={13} />
                 </button>
@@ -93,6 +114,7 @@ export function NotificationBell({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
+                aria-label={t.common.close}
                 className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
               >
                 <X size={13} />
@@ -109,21 +131,38 @@ export function NotificationBell({
             ) : (
               notifications.map((n) => {
                 const isRead = readIds.has(n.id);
+                const itemLabel = `${n.studentName} ${t.notifications.submitted}${
+                  n.topicNumber !== undefined
+                    ? ` ${t.notifications.topic} ${n.topicNumber}`
+                    : ""
+                } — ${timeAgo(n.createdAt)}`;
                 return (
                   <div
                     key={n.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={itemLabel}
                     onClick={() => {
                       onMarkRead(n.id);
                       onNavigate(n.id, n.studentName);
                       setOpen(false);
                     }}
-                    className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors border-b border-slate-50 last:border-0 ${
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onMarkRead(n.id);
+                        onNavigate(n.id, n.studentName);
+                        setOpen(false);
+                      }
+                    }}
+                    className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors border-b border-slate-50 last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-400 ${
                       isRead
                         ? "bg-white hover:bg-slate-50"
                         : "bg-emerald-50 hover:bg-emerald-100"
                     }`}
                   >
                     <div
+                      aria-hidden="true"
                       className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
                         isRead
                           ? "bg-slate-100 text-slate-400"
@@ -149,7 +188,10 @@ export function NotificationBell({
                       </p>
                     </div>
                     {!isRead && (
-                      <span className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 mt-2" />
+                      <span
+                        aria-hidden="true"
+                        className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 mt-2"
+                      />
                     )}
                   </div>
                 );

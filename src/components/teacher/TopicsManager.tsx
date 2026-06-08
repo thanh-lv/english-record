@@ -1,5 +1,6 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import {
+  AlertCircle,
   Check,
   ChevronDown,
   ChevronRight,
@@ -46,6 +47,7 @@ export function TopicsManager() {
     image_url: "",
   });
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState("");
   const [aiParserTopicId, setAiParserTopicId] = useState<string | null>(null);
   const [editingTopic, setEditingTopic] = useState<string | null>(null);
   const [editTopicTitle, setEditTopicTitle] = useState("");
@@ -133,6 +135,7 @@ export function TopicsManager() {
     if (!file) return;
 
     setUploadingImage(true);
+    setImageUploadError("");
     try {
       const ext = file.name.split(".").pop() || "jpg";
       const fileName = `question_images/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
@@ -164,7 +167,7 @@ export function TopicsManager() {
       }
     } catch (err) {
       console.error("Lỗi upload ảnh:", err);
-      alert("Không thể upload ảnh, vui lòng thử lại.");
+      setImageUploadError(t.common.uploadImageError);
     } finally {
       setUploadingImage(false);
       // Reset input value so same file can be selected again
@@ -842,6 +845,12 @@ export function TopicsManager() {
                     </span>
                   )}
                 </div>
+                {imageUploadError && (
+                  <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2 mt-2">
+                    <AlertCircle size={14} className="shrink-0" />{" "}
+                    {imageUploadError}
+                  </div>
+                )}
               </div>
             </div>
 

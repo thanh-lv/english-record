@@ -1,4 +1,5 @@
 import {
+  AlertCircle,
   Check,
   ChevronDown,
   ChevronRight,
@@ -231,6 +232,7 @@ export function RecordingItem({
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const itemRef = useRef<HTMLDivElement>(null);
   useEscapeToClose(() => setIsEditing(false), isEditing);
 
@@ -244,6 +246,7 @@ export function RecordingItem({
   const handleSave = async () => {
     setSaving(true);
     setSaveSuccess(false);
+    setSaveError("");
     try {
       const { error } = await supabase
         .from("recordings")
@@ -259,7 +262,7 @@ export function RecordingItem({
       }, 1500);
     } catch (err) {
       console.error("Lỗi lưu nhận xét:", err);
-      alert("Không thể lưu nhận xét. Vui lòng thử lại!");
+      setSaveError(t.common.saveFeedbackError);
     } finally {
       setSaving(false);
     }
@@ -303,7 +306,10 @@ export function RecordingItem({
         <div className="ml-auto flex items-center gap-1">
           <button
             type="button"
-            onClick={() => setIsEditing(!isEditing)}
+            onClick={() => {
+              setSaveError("");
+              setIsEditing(!isEditing);
+            }}
             className={`p-2 rounded-xl transition-all border border-transparent ${
               isEditing || hasFeedback
                 ? "text-emerald-500 bg-emerald-50"
@@ -412,6 +418,11 @@ export function RecordingItem({
                 rows={3}
                 autoFocus
               />
+              {saveError && (
+                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                  <AlertCircle size={14} className="shrink-0" /> {saveError}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 px-6 py-4 border-t-2 border-slate-100">

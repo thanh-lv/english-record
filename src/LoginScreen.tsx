@@ -86,11 +86,11 @@ export default function LoginScreen({
 
   const handleTeacherLogin = async () => {
     if (!email.trim() || !email.includes("@")) {
-      setError("Vui lòng nhập email hợp lệ.");
+      setError(t.common.emailInvalid);
       return;
     }
     if (password.length < 6) {
-      setError("Mật khẩu phải có ít nhất 6 ký tự.");
+      setError(t.common.teacherPasswordMin);
       return;
     }
 
@@ -101,7 +101,7 @@ export default function LoginScreen({
       },
     );
     if (signInError || !data.user) {
-      throw new Error("Email hoặc mật khẩu không đúng. Vui lòng thử lại.");
+      throw new Error(t.common.teacherLoginError);
     }
 
     const { data: profile, error: profileError } = await supabase
@@ -111,7 +111,7 @@ export default function LoginScreen({
       .eq("role", "teacher")
       .maybeSingle();
     if (profileError) throw profileError;
-    if (!profile) throw new Error("Tài khoản giáo viên không tồn tại.");
+    if (!profile) throw new Error(t.common.teacherAccountNotFound);
 
     localStorage.setItem("english_record_profile_id", profile.id);
     setProfile(profile);
@@ -132,7 +132,7 @@ export default function LoginScreen({
       }
     } catch (err: any) {
       console.error("Login error:", err);
-      setError(err.message || "Không thể đăng nhập. Vui lòng thử lại.");
+      setError(err.message || t.common.loginGenericError);
     } finally {
       setIsLoggingIn(false);
     }
@@ -194,7 +194,7 @@ export default function LoginScreen({
                   : "text-slate-400 hover:text-slate-600"
               }`}
             >
-              <User size={13} /> Học sinh
+              <User size={13} /> {t.login.studentTab}
             </button>
             <button
               type="button"
@@ -208,7 +208,7 @@ export default function LoginScreen({
                   : "text-slate-400 hover:text-slate-600"
               }`}
             >
-              <GraduationCap size={13} /> Giáo viên
+              <GraduationCap size={13} /> {t.login.teacherTab}
             </button>
           </div>
 
@@ -237,11 +237,11 @@ export default function LoginScreen({
           {loginMode === "teacher" && (
             <div className="space-y-1.5">
               <label className="block text-xs font-black text-slate-600 uppercase tracking-wide">
-                Email
+                {t.login.emailLabel}
               </label>
               <input
                 type="email"
-                placeholder="email@example.com"
+                placeholder={t.login.emailPlaceholder}
                 className="w-full px-4 py-2.5 md:py-3.5 bg-[#FFFDF6] border-2 border-pink-200 rounded-2xl focus:ring-4 focus:ring-pink-100 focus:border-pink-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
                 value={email}
                 onChange={(e) => {
@@ -315,7 +315,11 @@ export default function LoginScreen({
                 {t.login.submitting}
               </>
             ) : (
-              <>{loginMode === "teacher" ? "Đăng nhập 👩‍🏫" : t.login.submit}</>
+              <>
+                {loginMode === "teacher"
+                  ? t.login.teacherSubmit
+                  : t.login.submit}
+              </>
             )}
           </button>
         </div>

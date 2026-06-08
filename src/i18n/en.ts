@@ -17,6 +17,11 @@ export const en = {
     submit: "Start learning! 🚀",
     submitting: "Loading...",
     hint: "If you don't have an account yet, ask your teacher to create one! 💌",
+    studentTab: "Student",
+    teacherTab: "Teacher",
+    emailLabel: "Email",
+    emailPlaceholder: "email@example.com",
+    teacherSubmit: "Login 👩‍🏫",
   },
 
   // Student sidebar
@@ -155,6 +160,9 @@ export const en = {
     minutesAgo: "min ago",
     hoursAgo: "hr ago",
     daysAgo: "days ago",
+    toggleLabel: "Notifications",
+    unreadCount: "{count} unread notifications",
+    clearAll: "Clear all",
   },
 
   // Teacher feedback (student side)
@@ -266,6 +274,13 @@ export const en = {
     offlineError: "You're offline. Please reconnect and try submitting again.",
     offlineBanner: "You're offline — some features may not work",
     onlineBanner: "Back online",
+    uploadImageError: "Couldn't upload the image. Please try again.",
+    saveFeedbackError: "Couldn't save the feedback. Please try again!",
+    emailInvalid: "Please enter a valid email.",
+    teacherPasswordMin: "Password must be at least 6 characters.",
+    teacherLoginError: "Wrong email or password. Please try again.",
+    teacherAccountNotFound: "Teacher account not found.",
+    loginGenericError: "Couldn't log in. Please try again.",
     newTopicPlaceholder: "New topic name...",
     questionPlaceholder: "Question*",
     translationPlaceholder: "Translation",
