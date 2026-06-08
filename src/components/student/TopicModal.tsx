@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { TeacherFeedback } from "../common/TeacherFeedback";
 
 interface TopicModalProps {
@@ -81,8 +82,14 @@ export function TopicModal({
   formatTime,
 }: TopicModalProps) {
   const { t } = useLanguage();
+  useEscapeToClose(onClose, !isRecording && !isSaving);
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-50 overflow-y-auto items-start py-8">
+    <div
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-50 overflow-y-auto items-start py-8"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="topic-modal-title"
+    >
       <div className="bg-white rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border-4 border-[#FFF59D] my-auto relative">
         <div className="p-4 md:p-8 space-y-4 md:space-y-6">
           <div className="flex items-center gap-3 border-b-4 border-dashed border-[#FFF0F0] pb-3 md:pb-4 pr-10">
@@ -101,7 +108,10 @@ export function TopicModal({
                     ? t.topic.done
                     : "Topic"}
               </span>
-              <h3 className="text-lg md:text-3xl font-black text-slate-800 leading-tight tracking-tight truncate">
+              <h3
+                id="topic-modal-title"
+                className="text-lg md:text-3xl font-black text-slate-800 leading-tight tracking-tight truncate"
+              >
                 {currentTopic.title}
               </h3>
             </div>
@@ -110,6 +120,7 @@ export function TopicModal({
           <button
             type="button"
             onClick={onClose}
+            aria-label={t.common.close}
             className="absolute top-4 right-4 md:top-6 md:right-6 p-1.5 md:p-2 text-slate-400 hover:text-rose-500 hover:bg-[#FFF0F0] rounded-full transition-all border-2 border-transparent hover:border-[#FFCDD2] z-10"
           >
             <X size={20} />
@@ -283,6 +294,7 @@ export function TopicModal({
               <button
                 type="button"
                 onClick={onDismissError}
+                aria-label={t.common.close}
                 className="absolute top-3.5 right-3.5 text-rose-400 hover:text-rose-600"
               >
                 <X size={18} />
@@ -370,6 +382,7 @@ function RecordingControls({
           <button
             type="button"
             onClick={onStart}
+            aria-label={t.topic.startRecord}
             className={`${btnSize} bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800`}
           >
             <Mic size={iconSize} />
@@ -389,6 +402,7 @@ function RecordingControls({
             <button
               type="button"
               onClick={onStop}
+              aria-label={t.topic.stopAudio}
               className={`${btnSize} bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900`}
             >
               <Square size={size === "lg" ? 28 : 24} />
@@ -484,6 +498,7 @@ function BongBeQuestionPanel({
                 <button
                   type="button"
                   onClick={onStart}
+                  aria-label={t.topic.startRecord}
                   className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
                 >
                   <Mic size={36} />
@@ -501,6 +516,7 @@ function BongBeQuestionPanel({
                   <button
                     type="button"
                     onClick={onStop}
+                    aria-label={t.topic.stopAudio}
                     className="w-16 h-16 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900"
                   >
                     <Square size={24} />

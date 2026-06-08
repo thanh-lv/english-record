@@ -56,6 +56,7 @@ export function useRecording({
   const startRecording = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isRecording || isSaving) return;
     setAppError("");
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -111,7 +112,7 @@ export function useRecording({
   const saveRecording = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) return;
+    if (!user || isSaving) return;
 
     const audiosToSave: { questionIndex: number; blob: Blob }[] = isBongBe
       ? Object.entries(bongBeAudios).map(([idx, blob]) => ({
@@ -123,6 +124,11 @@ export function useRecording({
         : [];
 
     if (audiosToSave.length === 0) return;
+
+    if (!navigator.onLine) {
+      setAppError(t.common.offlineError);
+      return;
+    }
 
     setIsSaving(true);
     setAppError("");
@@ -195,7 +201,9 @@ export function useRecording({
       setAudioBase64(null);
     } catch (error) {
       console.error("Lỗi khi gửi bài:", error);
-      setAppError(t.common.submitError);
+      setAppError(
+        navigator.onLine ? t.common.submitError : t.common.offlineError,
+      );
     } finally {
       setIsSaving(false);
     }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLanguage, interpolate } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 
 const EMOJIS = ["🎉", "⭐", "🌟", "🎈", "🏆", "💫", "🎊", "✨", "🥳", "🎀"];
 
@@ -57,6 +58,8 @@ export function CompletionCelebration({
     setTimeout(onClose, 400);
   };
 
+  useEscapeToClose(handleClose, show || visible);
+
   if (!show && !visible) return null;
 
   return (
@@ -92,11 +95,20 @@ export function CompletionCelebration({
       </div>
 
       {/* card */}
-      <div className="relative z-10 bg-white rounded-[2.5rem] shadow-2xl border-4 border-yellow-200 px-10 py-10 flex flex-col items-center gap-4 max-w-sm w-full mx-4 animate-in zoom-in-75 duration-500">
-        <div className="text-7xl animate-bounce">
+      <div
+        className="relative z-10 bg-white rounded-[2.5rem] shadow-2xl border-4 border-yellow-200 px-10 py-10 flex flex-col items-center gap-4 max-w-sm w-full mx-4 animate-in zoom-in-75 duration-500"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="celebration-title"
+        aria-live="polite"
+      >
+        <div className="text-7xl animate-bounce" aria-hidden="true">
           {completedCount === totalTopics ? "🏆" : "🎉"}
         </div>
-        <h2 className="text-3xl font-black text-slate-800 text-center leading-tight">
+        <h2
+          id="celebration-title"
+          className="text-3xl font-black text-slate-800 text-center leading-tight"
+        >
           {completedCount === totalTopics
             ? t.celebration.excellent
             : t.celebration.goodJob}

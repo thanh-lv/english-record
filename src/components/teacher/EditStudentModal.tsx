@@ -1,6 +1,6 @@
 import { AlertCircle, Loader2, Pencil, Save, X } from "lucide-react";
 import { useState } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { supabase } from "../../lib/supabase";
 
@@ -24,12 +24,27 @@ export function EditStudentModal({
   useEscapeToClose(onClose);
 
   const handleSave = async () => {
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 15;
+    const maxYear = currentYear - 2;
+    const parsedYear = parseInt(yearBorn);
+    if (
+      !Number.isInteger(parsedYear) ||
+      parsedYear < minYear ||
+      parsedYear > maxYear
+    ) {
+      setError(
+        interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear }),
+      );
+      return;
+    }
+
     setSaving(true);
     setError("");
     try {
       const { data, error: updateError } = await supabase
         .from("profiles")
-        .update({ year_born: parseInt(yearBorn) || 2015 })
+        .update({ year_born: parsedYear })
         .eq("id", student.id)
         .select()
         .single();

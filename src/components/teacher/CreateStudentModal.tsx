@@ -8,7 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { supabase } from "../../lib/supabase";
 
@@ -41,6 +41,20 @@ export function CreateStudentModal({
       setError(t.common.passwordMin);
       return;
     }
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 15;
+    const maxYear = currentYear - 2;
+    const parsedYear = parseInt(yearBorn);
+    if (
+      !Number.isInteger(parsedYear) ||
+      parsedYear < minYear ||
+      parsedYear > maxYear
+    ) {
+      setError(
+        interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear }),
+      );
+      return;
+    }
 
     setSaving(true);
     setError("");
@@ -61,7 +75,7 @@ export function CreateStudentModal({
           name: trimName,
           role: "student",
           password: trimPass,
-          year_born: parseInt(yearBorn) || 2015,
+          year_born: parsedYear,
         })
         .select()
         .single();

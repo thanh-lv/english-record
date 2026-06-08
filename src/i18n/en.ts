@@ -250,6 +250,8 @@ export const en = {
     yearBornPlaceholder: "E.g: 2015",
     nameMin: "Name must be at least 2 characters.",
     nameDuplicate: "This name already exists. Please choose another.",
+    yearBornInvalid:
+      "Invalid birth year. Please enter a value between {min} and {max}.",
     selectAvatar: "Choose your Avatar",
     prevQuestion: "⬅️ Previous",
     nextQuestion: "Next ➡️",
@@ -261,6 +263,9 @@ export const en = {
       "Cannot access Microphone. Please tap 'Allow' when the browser asks for permission.",
     submitError:
       "Cannot submit recording. Please check your internet connection.",
+    offlineError: "You're offline. Please reconnect and try submitting again.",
+    offlineBanner: "You're offline — some features may not work",
+    onlineBanner: "Back online",
     newTopicPlaceholder: "New topic name...",
     questionPlaceholder: "Question*",
     translationPlaceholder: "Translation",

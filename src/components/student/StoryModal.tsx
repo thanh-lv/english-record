@@ -1,5 +1,6 @@
 import { BookOpen, Square, Volume2, X } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 
 interface StoryModalProps {
   story: any;
@@ -15,8 +16,14 @@ export function StoryModal({
   onPlayAudio,
 }: StoryModalProps) {
   const { t } = useLanguage();
+  useEscapeToClose(onClose);
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-[60] overflow-y-auto items-start py-8">
+    <div
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-[60] overflow-y-auto items-start py-8"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="story-modal-title"
+    >
       <div className="bg-white rounded-[2.5rem] w-full max-w-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative my-auto">
         {story.image_url ? (
           <div className="w-full h-64 md:h-80 relative">
@@ -28,6 +35,7 @@ export function StoryModal({
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <button
               onClick={onClose}
+              aria-label={t.common.close}
               className="absolute top-4 right-4 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-full p-2 transition-colors"
             >
               <X size={24} />
@@ -36,7 +44,10 @@ export function StoryModal({
               <span className="text-xs font-black bg-purple-500 text-white px-3 py-1 rounded-full mb-2 inline-block">
                 {story.type}
               </span>
-              <h3 className="text-3xl md:text-4xl font-black text-white leading-tight drop-shadow-md">
+              <h3
+                id="story-modal-title"
+                className="text-3xl md:text-4xl font-black text-white leading-tight drop-shadow-md"
+              >
                 {story.title}
               </h3>
             </div>
@@ -47,12 +58,16 @@ export function StoryModal({
               <span className="text-xs font-black bg-purple-100 text-purple-700 px-3 py-1 rounded-full mb-2 inline-block">
                 {story.type}
               </span>
-              <h3 className="text-3xl md:text-4xl font-black text-slate-800 leading-tight">
+              <h3
+                id="story-modal-title"
+                className="text-3xl md:text-4xl font-black text-slate-800 leading-tight"
+              >
                 {story.emoji} {story.title}
               </h3>
             </div>
             <button
               onClick={onClose}
+              aria-label={t.common.close}
               className="bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full p-2 transition-colors shrink-0"
             >
               <X size={24} />

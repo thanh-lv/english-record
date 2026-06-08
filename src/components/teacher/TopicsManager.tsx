@@ -173,11 +173,12 @@ export function TopicsManager() {
   };
 
   const saveQuestion = async () => {
+    const trimText = editValues.text.trim();
     if (
       !questionModal ||
       questionModal.mode !== "edit" ||
       !questionModal.question ||
-      !editValues.text.trim()
+      trimText.length < 2
     )
       return;
     setSaving(true);
@@ -185,10 +186,10 @@ export function TopicsManager() {
       const { error } = await supabase
         .from("questions")
         .update({
-          text: editValues.text,
-          translation: editValues.translation || null,
-          sample_answer: editValues.sample_answer || null,
-          target: editValues.target || null,
+          text: trimText,
+          translation: editValues.translation.trim() || null,
+          sample_answer: editValues.sample_answer.trim() || null,
+          target: editValues.target.trim() || null,
           image_url: editValues.image_url || null,
         })
         .eq("id", questionModal.question.id);
@@ -205,17 +206,18 @@ export function TopicsManager() {
   };
 
   const addQuestion = async (topicId: string) => {
-    if (!newQuestion.text.trim()) return;
+    const trimText = newQuestion.text.trim();
+    if (trimText.length < 2) return;
     setSaving(true);
     try {
       const topic = topics.find((t) => t.id === topicId);
       const maxOrder = topic?.questions?.length || 0;
       const { error } = await supabase.from("questions").insert({
         topic_id: topicId,
-        text: newQuestion.text,
-        translation: newQuestion.translation || null,
-        sample_answer: newQuestion.sample_answer || null,
-        target: newQuestion.target || null,
+        text: trimText,
+        translation: newQuestion.translation.trim() || null,
+        sample_answer: newQuestion.sample_answer.trim() || null,
+        target: newQuestion.target.trim() || null,
         image_url: newQuestion.image_url || null,
         order_index: maxOrder,
       });
@@ -252,12 +254,13 @@ export function TopicsManager() {
   };
 
   const saveTopic = async (topicId: string) => {
-    if (!editTopicTitle.trim()) return;
+    const trimTitle = editTopicTitle.trim();
+    if (trimTitle.length < 2) return;
     setSaving(true);
     try {
       const { error } = await supabase
         .from("topics")
-        .update({ title: editTopicTitle })
+        .update({ title: trimTitle })
         .eq("id", topicId);
       if (error) throw error;
       setEditingTopic(null);
@@ -284,12 +287,13 @@ export function TopicsManager() {
   };
 
   const addTopic = async () => {
-    if (!newTopicTitle.trim() || !addingTopic) return;
+    const trimTitle = newTopicTitle.trim();
+    if (trimTitle.length < 2 || !addingTopic) return;
     setSaving(true);
     try {
       const maxOrder = topics.filter((t) => t.type === addingTopic).length + 1;
       const { error } = await supabase.from("topics").insert({
-        title: newTopicTitle,
+        title: trimTitle,
         type: addingTopic,
         order_index: maxOrder,
       });

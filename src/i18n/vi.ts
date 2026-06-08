@@ -253,6 +253,7 @@ export const vi = {
     yearBornPlaceholder: "Ví dụ: 2015",
     nameMin: "Tên phải có ít nhất 2 ký tự.",
     nameDuplicate: "Tên này đã tồn tại. Vui lòng chọn tên khác.",
+    yearBornInvalid: "Năm sinh không hợp lệ. Vui lòng nhập từ {min} đến {max}.",
     selectAvatar: "Chọn Avatar của con",
     prevQuestion: "⬅️ Câu trước",
     nextQuestion: "Câu tiếp theo ➡️",
@@ -263,6 +264,9 @@ export const vi = {
     micError:
       "Không thể bật Micro. Hãy chọn 'Cho phép' khi trình duyệt hỏi quyền Microphone.",
     submitError: "Không thể nộp bài. Hãy kiểm tra kết nối mạng.",
+    offlineError: "Bạn đang mất kết nối mạng. Hãy kết nối lại rồi thử nộp bài.",
+    offlineBanner: "Mất kết nối mạng — một số tính năng có thể không hoạt động",
+    onlineBanner: "Đã kết nối lại mạng",
     newTopicPlaceholder: "Tên topic mới...",
     questionPlaceholder: "Câu hỏi*",
     translationPlaceholder: "Dịch nghĩa",

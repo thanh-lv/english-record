@@ -8,6 +8,7 @@ import { GamesTab } from "./components/student/GamesTab";
 import { StoriesTab } from "./components/student/StoriesTab";
 import { StoryModal } from "./components/student/StoryModal";
 import { StudentSidebar, ActiveTab } from "./components/student/StudentSidebar";
+import { OfflineBanner } from "./components/common/OfflineBanner";
 import { TopicModal } from "./components/student/TopicModal";
 import { useAvatar } from "./components/student/hooks/useAvatar";
 import { useRecording } from "./components/student/hooks/useRecording";
@@ -302,6 +303,7 @@ export default function StudentView({
   if (topicsLoading) {
     return (
       <div className="flex flex-col md:flex-row gap-4 md:gap-6 pb-20 md:pb-0 animate-pulse">
+        <OfflineBanner />
         {/* Sidebar skeleton */}
         <div className="hidden md:block w-64 shrink-0 space-y-4">
           <div className="h-48 bg-slate-100 rounded-[2rem]" />
@@ -326,6 +328,7 @@ export default function StudentView({
 
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-6 animate-in fade-in duration-500 pb-20 md:pb-0">
+      <OfflineBanner />
       <StudentSidebar
         profile={profile}
         currentAvatar={currentAvatar}

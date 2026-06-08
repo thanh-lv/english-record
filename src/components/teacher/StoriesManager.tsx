@@ -29,6 +29,7 @@ export function StoriesManager() {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editEmoji, setEditEmoji] = useState("");
+  const [editError, setEditError] = useState("");
 
   const [deleteStoryTarget, setDeleteStoryTarget] = useState<any>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
@@ -205,8 +206,10 @@ export function StoriesManager() {
   };
 
   const handleManualSave = async () => {
-    if (!manualTitle.trim() || !manualContent.trim()) {
-      setManualError("Please enter both title and content.");
+    const trimTitle = manualTitle.trim();
+    const trimContent = manualContent.trim();
+    if (trimTitle.length < 2 || trimContent.length < 10) {
+      setManualError(t.common.storyRequired);
       return;
     }
     setManualSaving(true);
@@ -219,11 +222,11 @@ export function StoriesManager() {
       const { data, error } = await supabase
         .from("stories")
         .insert({
-          title: manualTitle,
+          title: trimTitle,
           age_group: ageGroup,
           type: manualType,
-          emoji: manualEmoji,
-          content: manualContent,
+          emoji: manualEmoji.trim() || "📚",
+          content: trimContent,
           image_url: null,
         })
         .select()
@@ -259,13 +262,25 @@ export function StoriesManager() {
     setEditTitle(story.title);
     setEditContent(story.content);
     setEditEmoji(story.emoji);
+    setEditError("");
   };
 
   const handleUpdateStory = async () => {
+    const trimTitle = editTitle.trim();
+    const trimContent = editContent.trim();
+    if (trimTitle.length < 2 || trimContent.length < 10) {
+      setEditError(t.common.storyRequired);
+      return;
+    }
+    setEditError("");
     try {
       const { data, error } = await supabase
         .from("stories")
-        .update({ title: editTitle, content: editContent, emoji: editEmoji })
+        .update({
+          title: trimTitle,
+          content: trimContent,
+          emoji: editEmoji.trim() || "📚",
+        })
         .eq("id", editingStory.id)
         .select()
         .single();
@@ -273,7 +288,7 @@ export function StoriesManager() {
       setStories(stories.map((s) => (s.id === data.id ? data : s)));
       setEditingStory(null);
     } catch (err: any) {
-      alert("Lỗi sửa truyện: " + err.message);
+      setEditError(err.message);
     }
   };
 
@@ -508,6 +523,11 @@ export function StoriesManager() {
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:border-amber-400 focus:outline-none"
                 />
               </div>
+              {editError && (
+                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                  <AlertCircle size={14} className="shrink-0" /> {editError}
+                </div>
+              )}
             </div>
 
             <div className="pt-4 border-t-2 border-slate-100 flex justify-end gap-3">
@@ -519,7 +539,9 @@ export function StoriesManager() {
               </button>
               <button
                 onClick={handleUpdateStory}
-                disabled={!editTitle || !editContent}
+                disabled={
+                  editTitle.trim().length < 2 || editContent.trim().length < 10
+                }
                 className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black disabled:opacity-50 flex items-center gap-2"
               >
                 <CheckCircle size={18} /> {t.common.saveChanges}

@@ -7,6 +7,7 @@ import {
   TeacherTab,
 } from "./components/teacher/TeacherSidebar";
 import { DeleteConfirmModal } from "./components/teacher/DeleteConfirmModal";
+import { OfflineBanner } from "./components/common/OfflineBanner";
 import { useRecordings } from "./components/teacher/hooks/useRecordings";
 import { supabase } from "./lib/supabase";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
@@ -158,6 +159,7 @@ export default function TeacherView({
 
   return (
     <div className="animate-in fade-in duration-500 min-h-screen flex flex-col">
+      <OfflineBanner />
       <div className="flex gap-5 flex-1 items-start">
         <TeacherSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 

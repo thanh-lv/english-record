@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, Shuffle, Volume2, X } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "../../lib/supabase";
@@ -46,6 +47,16 @@ function FlipCard({ card }: { card: VocabCard }) {
       className="cursor-pointer select-none w-full"
       style={{ perspective: "1200px" }}
       onClick={() => setFlipped((f) => !f)}
+      role="button"
+      tabIndex={0}
+      aria-pressed={flipped}
+      aria-label={`${card.front} – ${flipped ? card.back : "Tap to flip"}`}
+      onKeyDown={(e) => {
+        if (e.code === "Enter" || e.code === "Space") {
+          e.preventDefault();
+          setFlipped((f) => !f);
+        }
+      }}
     >
       <div
         style={{
@@ -166,15 +177,27 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
   const handlePrev = () => setCurrentIndex((i) => Math.max(0, i - 1));
   const handleNext = () => setCurrentIndex((i) => Math.min(total - 1, i + 1));
 
+  useEscapeToClose(onClose);
+
   return createPortal(
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4">
+    <div
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-end sm:items-center justify-center sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="flashcards-study-title"
+    >
       <div className="bg-white w-full sm:max-w-lg rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3">
           <div className="flex items-center gap-3">
-            <span className="text-4xl">{set.emoji}</span>
+            <span className="text-4xl" aria-hidden="true">
+              {set.emoji}
+            </span>
             <div>
-              <h3 className="font-black text-slate-800 text-lg leading-tight">
+              <h3
+                id="flashcards-study-title"
+                className="font-black text-slate-800 text-lg leading-tight"
+              >
                 {set.title}
               </h3>
               {!loading && total > 0 && (
@@ -199,11 +222,14 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
               onClick={toggleShuffle}
               className={`p-2 rounded-full transition-colors ${shuffled ? "bg-blue-100 text-[#1E88E5]" : "hover:bg-slate-100 text-slate-400"}`}
               title="Shuffle"
+              aria-label="Shuffle"
+              aria-pressed={shuffled}
             >
               <Shuffle size={18} />
             </button>
             <button
               onClick={onClose}
+              aria-label={t.common.close}
               className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
             >
               <X size={20} />
@@ -234,6 +260,8 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
               <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
+                aria-label={`${t.topic.question} ${i + 1}`}
+                aria-current={i === currentIndex}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   i === currentIndex
                     ? "bg-[#1E88E5] w-6"
@@ -251,6 +279,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
               <button
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
+                aria-label={t.common.prevQuestion}
                 className="w-14 h-14 shrink-0 rounded-2xl bg-slate-100 hover:bg-slate-200 disabled:opacity-30 text-slate-600 transition-colors flex items-center justify-center border-b-4 border-slate-200"
               >
                 <ArrowLeft size={20} />
