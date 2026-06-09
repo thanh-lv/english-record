@@ -6,19 +6,15 @@ import {
   Clock,
   Filter,
   Loader2,
-  MessageSquare,
   Mic,
-  Save,
   Search,
   Star,
   Trash2,
-  X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { AudioPlayer } from "../common/AudioPlayer";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { StudentSummary } from "./hooks/useRecordings";
 
 export function RecordingsPanel({
@@ -229,12 +225,11 @@ export function RecordingItem({
   const { t } = useLanguage();
   const [rating, setRating] = useState<number>(rec.teacher_rating || 0);
   const [feedback, setFeedback] = useState<string>(rec.teacher_feedback || "");
-  const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState("");
   const itemRef = useRef<HTMLDivElement>(null);
-  useEscapeToClose(() => setIsEditing(false), isEditing);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!isHighlighted) return;
@@ -243,23 +238,20 @@ export function RecordingItem({
     }, 150);
   }, [isHighlighted]);
 
-  const handleSave = async () => {
+  const doSave = async (newRating: number, newFeedback: string) => {
     setSaving(true);
     setSaveSuccess(false);
     setSaveError("");
     try {
       const { error } = await supabase
         .from("recordings")
-        .update({ teacher_rating: rating, teacher_feedback: feedback })
+        .update({ teacher_rating: newRating, teacher_feedback: newFeedback })
         .eq("id", rec.id);
       if (error) throw error;
-      rec.teacher_rating = rating;
-      rec.teacher_feedback = feedback;
+      rec.teacher_rating = newRating;
+      rec.teacher_feedback = newFeedback;
       setSaveSuccess(true);
-      setTimeout(() => {
-        setSaveSuccess(false);
-        setIsEditing(false);
-      }, 1500);
+      setTimeout(() => setSaveSuccess(false), 1500);
     } catch (err) {
       console.error("Lỗi lưu nhận xét:", err);
       setSaveError(t.common.saveFeedbackError);
@@ -268,9 +260,21 @@ export function RecordingItem({
     }
   };
 
-  const hasFeedback =
-    rec.teacher_rating > 0 ||
-    (rec.teacher_feedback && rec.teacher_feedback.length > 0);
+  const handleRatingClick = (star: number) => {
+    setRating(star);
+    doSave(star, feedback);
+  };
+
+  const handleFeedbackBlur = () => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    doSave(rating, feedback);
+  };
+
+  const handleFeedbackChange = (val: string) => {
+    setFeedback(val);
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => doSave(rating, val), 1500);
+  };
 
   return (
     <div
@@ -289,37 +293,10 @@ export function RecordingItem({
         <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded font-bold">
           {formatDate(rec.createdAt)}
         </span>
-        {hasFeedback && !isEditing && (
-          <span className="text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full font-bold flex items-center gap-1">
-            <Check size={11} /> {t.recordings.graded}
-          </span>
-        )}
         {rec.student_reaction === "heart" && (
-          <span
-            className="text-xs text-rose-500"
-            title={t.recordings.heartReaction}
-          >
-            ❤️
-          </span>
+          <span className="text-xs text-rose-500" title={t.recordings.heartReaction}>❤️</span>
         )}
-        {/* action buttons pushed to right */}
         <div className="ml-auto flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => {
-              setSaveError("");
-              setIsEditing(!isEditing);
-            }}
-            className={`p-2 rounded-xl transition-all border border-transparent ${
-              isEditing || hasFeedback
-                ? "text-emerald-500 bg-emerald-50"
-                : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50"
-            }`}
-            title={t.common.comment}
-            aria-label={t.common.comment}
-          >
-            <MessageSquare size={16} />
-          </button>
           <button
             type="button"
             onClick={(e) => {
@@ -336,126 +313,48 @@ export function RecordingItem({
         </div>
       </div>
 
-      {/* Row 2: topic + question text */}
-      <div className="space-y-1">
-        <p className="text-slate-600 text-xs font-bold bg-white px-3 py-2 rounded-xl border border-slate-100">
-          <span className="text-slate-400">{t.recordings.topic}</span>{" "}
-          {rec.topic}
-        </p>
-        <p className="text-slate-600 text-xs font-bold bg-white px-3 py-2 rounded-xl border border-slate-100">
-          <span className="text-slate-400">{t.recordings.question}</span>{" "}
-          {rec.questionText}
-        </p>
+      {/* Row 2: topic + question + audio inline */}
+      <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-xl px-3 py-2 min-w-0">
+        <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">{t.recordings.topic}</span>
+        <span className="text-xs font-bold text-slate-700 shrink-0 max-w-[80px] truncate">{rec.topic}</span>
+        <span className="text-slate-200 shrink-0">·</span>
+        <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">{t.recordings.question.replace(":", "")}</span>
+        <span className="text-xs font-bold text-slate-600 flex-1 min-w-0 truncate">{rec.questionText}</span>
+        <AudioPlayer src={rec.audioUrl} compact />
       </div>
 
-      {/* Row 3: audio player full width */}
-      <AudioPlayer src={rec.audioUrl} />
-
-      {/* Grading / Feedback Modal */}
-      {isEditing && (
-        <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
-          onClick={() => setIsEditing(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={`feedback-modal-title-${rec.id}`}
-        >
-          <div
-            className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border-4 border-blue-100 my-4 animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b-2 border-slate-100 px-6 pt-6 pb-3">
-              <h4
-                id={`feedback-modal-title-${rec.id}`}
-                className="text-sm font-black text-slate-700 flex items-center gap-2"
-              >
-                <Star size={16} className="text-amber-400 fill-amber-400" />{" "}
-                {t.recordings.feedback}
-              </h4>
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                aria-label={t.common.close}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="px-6 py-4 space-y-3">
-              <div
-                className="flex items-center gap-2"
-                role="radiogroup"
-                aria-label={t.recordings.feedback}
-              >
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setRating(star)}
-                    role="radio"
-                    aria-checked={star === rating}
-                    aria-label={`${star} ${star === 1 ? "star" : "stars"}`}
-                    className="transition-transform hover:scale-110 focus:outline-none"
-                  >
-                    <Star
-                      size={28}
-                      className={`${
-                        star <= rating
-                          ? "text-amber-400 fill-amber-400 drop-shadow-sm"
-                          : "text-slate-200 fill-slate-200"
-                      }`}
-                    />
-                  </button>
-                ))}
-              </div>
-
-              <textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder={t.recordings.feedbackPlaceholder}
-                className="w-full px-4 py-3 bg-white border-2 border-[#90CAF9] rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all resize-none"
-                rows={3}
-                autoFocus
+      {/* Inline feedback panel */}
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-0.5" role="radiogroup" aria-label={t.recordings.feedback}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => handleRatingClick(star)}
+              role="radio"
+              aria-checked={star === rating}
+              aria-label={`${star} star`}
+              className="transition-transform hover:scale-110 focus:outline-none"
+            >
+              <Star
+                size={16}
+                className={star <= rating ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}
               />
-              {saveError && (
-                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
-                  <AlertCircle size={14} className="shrink-0" /> {saveError}
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-3 px-6 py-4 border-t-2 border-slate-100">
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
-              >
-                {t.recordings.closeFeedback}
-              </button>
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={saving}
-                className={`flex-1 py-2.5 rounded-full font-extrabold text-sm transition-all shadow-md flex items-center justify-center gap-2 ${
-                  saveSuccess
-                    ? "bg-emerald-500 text-white border-b-4 border-emerald-700"
-                    : "bg-[#1E88E5] hover:bg-[#1565C0] text-white border-b-4 border-blue-800 disabled:opacity-50"
-                }`}
-              >
-                {saving ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : saveSuccess ? (
-                  <Check size={16} />
-                ) : (
-                  <Save size={16} />
-                )}
-                {saveSuccess ? t.recordings.saved : t.recordings.saveFeedback}
-              </button>
-            </div>
-          </div>
+            </button>
+          ))}
         </div>
-      )}
+        <input
+          type="text"
+          value={feedback}
+          onChange={(e) => handleFeedbackChange(e.target.value)}
+          onBlur={handleFeedbackBlur}
+          placeholder={t.recordings.feedbackPlaceholder}
+          className="flex-1 px-2.5 py-1 bg-white border border-slate-200 focus:border-blue-300 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+        />
+        {saving && <Loader2 size={12} className="animate-spin text-slate-400 shrink-0" />}
+        {saveSuccess && <Check size={12} className="text-emerald-500 shrink-0" />}
+        {saveError && <span title={saveError}><AlertCircle size={12} className="text-rose-500 shrink-0" /></span>}
+      </div>
     </div>
   );
 }

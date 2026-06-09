@@ -2,7 +2,7 @@ import { AlertCircle, Pause, Play } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 
-export function AudioPlayer({ src }: { src: string }) {
+export function AudioPlayer({ src, compact }: { src: string; compact?: boolean }) {
   const { t } = useLanguage();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -81,6 +81,37 @@ export function AudioPlayer({ src }: { src: string }) {
         >
           {t.common.retry}
         </button>
+      </div>
+    );
+  }
+
+  if (compact) {
+    return (
+      <div className="flex items-center gap-1.5 shrink-0">
+        <audio
+          ref={audioRef}
+          src={src}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
+          onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
+          onEnded={() => setIsPlaying(false)}
+          onError={() => setPlayError(true)}
+        />
+        <button
+          type="button"
+          onClick={togglePlay}
+          aria-label={isPlaying ? t.common.pause : t.common.play}
+          className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-white transition-all shadow-sm active:scale-95 ${
+            isPlaying ? "bg-amber-400 hover:bg-amber-500" : "bg-[#1E88E5] hover:bg-blue-700"
+          }`}
+        >
+          {isPlaying ? <Pause size={12} /> : <Play size={12} className="ml-0.5" />}
+        </button>
+        <span className="text-[10px] font-bold text-slate-400 tabular-nums">
+          {isPlaying ? formatTime(currentTime) : formatTime(duration)}
+        </span>
+        {playError && <AlertCircle size={12} className="text-rose-500 shrink-0" />}
       </div>
     );
   }
