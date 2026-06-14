@@ -196,7 +196,7 @@ export function AIQuestionParserModal({
           </button>
         </div>
 
-        <div className="space-y-4 px-6 py-4 overflow-y-auto overscroll-contain">
+        <div className="space-y-4 px-6 py-4 pb-6 overflow-y-auto overscroll-contain">
           {/* Mode tabs */}
           <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
             <button
@@ -302,7 +302,7 @@ export function AIQuestionParserModal({
                   {t.aiParser.previewLabel} ({questions.length})
                 </label>
               </div>
-              <div className="space-y-2 max-h-80 overflow-y-auto overscroll-contain pr-1">
+              <div className="space-y-2 max-h-60 overflow-y-auto overscroll-contain pr-1 pb-1">
                 {questions.map((q, idx) => (
                   <div
                     key={idx}
