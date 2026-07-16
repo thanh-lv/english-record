@@ -294,7 +294,12 @@ export function RecordingItem({
           {formatDate(rec.createdAt)}
         </span>
         {rec.student_reaction === "heart" && (
-          <span className="text-xs text-rose-500" title={t.recordings.heartReaction}>❤️</span>
+          <span
+            className="text-xs text-rose-500"
+            title={t.recordings.heartReaction}
+          >
+            ❤️
+          </span>
         )}
         <div className="ml-auto flex items-center gap-1">
           <button
@@ -315,17 +320,29 @@ export function RecordingItem({
 
       {/* Row 2: topic + question + audio inline */}
       <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-xl px-3 py-2 min-w-0">
-        <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">{t.recordings.topic}</span>
-        <span className="text-xs font-bold text-slate-700 shrink-0 max-w-[80px] truncate">{rec.topic}</span>
+        <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">
+          {t.recordings.topic}
+        </span>
+        <span className="text-xs font-bold text-slate-700 shrink-0 max-w-[80px] truncate">
+          {rec.topic}
+        </span>
         <span className="text-slate-200 shrink-0">·</span>
-        <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">{t.recordings.question.replace(":", "")}</span>
-        <span className="text-xs font-bold text-slate-600 flex-1 min-w-0 truncate">{rec.questionText}</span>
+        <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">
+          {t.recordings.question.replace(":", "")}
+        </span>
+        <span className="text-xs font-bold text-slate-600 flex-1 min-w-0 truncate">
+          {rec.questionText}
+        </span>
         <AudioPlayer src={rec.audioUrl} compact />
       </div>
 
       {/* Inline feedback panel */}
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-0.5" role="radiogroup" aria-label={t.recordings.feedback}>
+        <div
+          className="flex items-center gap-0.5"
+          role="radiogroup"
+          aria-label={t.recordings.feedback}
+        >
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
@@ -338,7 +355,11 @@ export function RecordingItem({
             >
               <Star
                 size={16}
-                className={star <= rating ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}
+                className={
+                  star <= rating
+                    ? "text-amber-400 fill-amber-400"
+                    : "text-slate-200 fill-slate-200"
+                }
               />
             </button>
           ))}
@@ -351,9 +372,17 @@ export function RecordingItem({
           placeholder={t.recordings.feedbackPlaceholder}
           className="flex-1 px-2.5 py-1 bg-white border border-slate-200 focus:border-blue-300 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
         />
-        {saving && <Loader2 size={12} className="animate-spin text-slate-400 shrink-0" />}
-        {saveSuccess && <Check size={12} className="text-emerald-500 shrink-0" />}
-        {saveError && <span title={saveError}><AlertCircle size={12} className="text-rose-500 shrink-0" /></span>}
+        {saving && (
+          <Loader2 size={12} className="animate-spin text-slate-400 shrink-0" />
+        )}
+        {saveSuccess && (
+          <Check size={12} className="text-emerald-500 shrink-0" />
+        )}
+        {saveError && (
+          <span title={saveError}>
+            <AlertCircle size={12} className="text-rose-500 shrink-0" />
+          </span>
+        )}
       </div>
     </div>
   );

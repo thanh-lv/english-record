@@ -79,7 +79,7 @@ export function useRecording({
         const audioBlob = new Blob(audioChunksRef.current, {
           type: mediaRecorder.mimeType || "audio/webm",
         });
-        if (isBongBe) {
+        if (true) {
           setBongBeAudios((prev) => ({
             ...prev,
             [capturedQuestionIndex]: audioBlob,
@@ -114,7 +114,7 @@ export function useRecording({
     e.stopPropagation();
     if (!user || isSaving) return;
 
-    const audiosToSave: { questionIndex: number; blob: Blob }[] = isBongBe
+    const audiosToSave: { questionIndex: number; blob: Blob }[] = true
       ? Object.entries(bongBeAudios).map(([idx, blob]) => ({
           questionIndex: parseInt(idx),
           blob,
@@ -214,7 +214,7 @@ export function useRecording({
     setBongBeAudios({});
   };
 
-  const hasPendingAudios = isBongBe
+  const hasPendingAudios = true
     ? Object.keys(bongBeAudios).length > 0
     : !!audioBase64;
 

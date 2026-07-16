@@ -61,9 +61,23 @@ export function ExercisesTab({
           let isPartiallyCompleted = false;
           let progressText = t.exercises.done;
 
-          if (isBongBe && topic && topic.questions) {
-            const totalQs = topic.questions.length;
-            const answeredQs = topic.questions.filter((q: any) =>
+          const hasGlobalRecording = myRecordings.some(
+            (r: any) =>
+              r.topicNumber === num && !r.question_id && !r.questionText,
+          );
+
+          let totalQs = 1;
+          let answeredQs = 0;
+
+          if (hasGlobalRecording) {
+            isCompleted = true;
+            isPartiallyCompleted = false;
+            totalQs = 1;
+            answeredQs = 1;
+            progressText = t.exercises.done;
+          } else if (topic && topic.questions && topic.questions.length > 0) {
+            totalQs = topic.questions.length;
+            answeredQs = topic.questions.filter((q: any) =>
               myRecordings.some(
                 (rec) =>
                   rec.topicNumber === num &&
@@ -71,27 +85,19 @@ export function ExercisesTab({
               ),
             ).length;
 
-            isCompleted = answeredQs === totalQs && totalQs > 0;
+            isCompleted = answeredQs === totalQs;
             isPartiallyCompleted = answeredQs > 0 && answeredQs < totalQs;
-            if (answeredQs > 0) {
+
+            if (isCompleted) {
+              progressText = t.exercises.done;
+            } else if (answeredQs > 0) {
               progressText = `${answeredQs}/${totalQs}`;
             }
+          } else {
+            isCompleted = completedNumbers.includes(num);
+            answeredQs = isCompleted ? 1 : 0;
           }
 
-          const totalQs =
-            isBongBe && topic?.questions ? topic.questions.length : 1;
-          const answeredQs =
-            isBongBe && topic?.questions
-              ? topic.questions.filter((q: any) =>
-                  myRecordings.some(
-                    (rec) =>
-                      rec.topicNumber === num &&
-                      (rec.question_id === q.id || rec.questionText === q.text),
-                  ),
-                ).length
-              : isCompleted
-                ? 1
-                : 0;
           const progressPct =
             totalQs > 0 ? Math.round((answeredQs / totalQs) * 100) : 0;
 

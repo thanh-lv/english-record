@@ -65,12 +65,14 @@ export default function StudentView({
     const fullyCompletedCount = activeTopics.filter(
       (topic: any, idx: number) => {
         const topicNum = idx + 1;
-        const hasRecording = myRecordings.some(
-          (r: any) => r.topicNumber === topicNum,
+        const hasGlobalRecording = myRecordings.some(
+          (r: any) =>
+            r.topicNumber === topicNum && !r.question_id && !r.questionText,
         );
-        if (!isBongBe) return hasRecording;
+        if (hasGlobalRecording) return true;
         const questions: any[] = topic.questions || [];
-        if (questions.length === 0) return hasRecording;
+        if (questions.length === 0)
+          return myRecordings.some((r: any) => r.topicNumber === topicNum);
         return questions.every((q: any) =>
           myRecordings.some(
             (r: any) =>
@@ -169,9 +171,7 @@ export default function StudentView({
       setIsPlayingTopicAudio(false);
     } else {
       const activeQuestion = currentTopic.questions?.[activeQuestionIndex];
-      const questionsText = isBongBe
-        ? activeQuestion?.text || currentTopic.title
-        : currentTopic.questions.map((q: any) => q.text).join("... ");
+      const questionsText = activeQuestion?.text || currentTopic.title;
 
       const utterance = new SpeechSynthesisUtterance(questionsText);
       utterance.lang = "en-US";
@@ -232,7 +232,7 @@ export default function StudentView({
       : null;
 
   const matchedQuestionRecording =
-    isBongBe && currentTopic && currentQuestionId
+    currentTopic && currentQuestionId
       ? myRecordings.find(
           (rec) =>
             rec.topicNumber === selectedNumber &&
@@ -241,16 +241,18 @@ export default function StudentView({
         )
       : null;
 
-  const isTopicFullyRecorded =
-    isBongBe && currentTopic
-      ? currentTopic.questions.every((q: any) =>
-          myRecordings.some(
-            (rec) =>
-              rec.topicNumber === selectedNumber &&
-              (rec.question_id === q.id || rec.questionText === q.text),
-          ),
-        )
-      : !!matchedRecording;
+  const isTopicFullyRecorded = currentTopic
+    ? currentTopic.questions.every((q: any) =>
+        myRecordings.some(
+          (rec) =>
+            rec.topicNumber === selectedNumber &&
+            (rec.question_id === q.id || rec.questionText === q.text),
+        ),
+      ) ||
+      (!!matchedRecording &&
+        !matchedRecording.question_id &&
+        !matchedRecording.questionText)
+    : false;
 
   const totalNumbers = Array.from(
     { length: activeTopics.length },
@@ -262,12 +264,14 @@ export default function StudentView({
   const completedTopicNumbers = activeTopics
     .filter((topic: any, idx: number) => {
       const topicNum = idx + 1; // selectedNumber is 1-based, matches topicNumber in recordings
-      const hasRecording = myRecordings.some(
-        (r: any) => r.topicNumber === topicNum,
+      const hasGlobalRecording = myRecordings.some(
+        (r: any) =>
+          r.topicNumber === topicNum && !r.question_id && !r.questionText,
       );
-      if (!isBongBe) return hasRecording;
+      if (hasGlobalRecording) return true;
       const questions: any[] = topic.questions || [];
-      if (questions.length === 0) return hasRecording;
+      if (questions.length === 0)
+        return myRecordings.some((r: any) => r.topicNumber === topicNum);
       return questions.every((q: any) =>
         myRecordings.some(
           (r: any) =>
