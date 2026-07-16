@@ -333,7 +333,7 @@ function QuestionPanel({
   const q = currentTopic?.questions?.[activeQuestionIndex];
 
   return (
-    <div className="bg-white rounded-[2rem] p-6 border-3 border-dashed border-[#FF8A80] space-y-6 shadow-sm text-center">
+    <div className="bg-white rounded-[2rem] p-3 md:p-6 border-3 border-dashed border-[#FF8A80] space-y-6 shadow-sm text-center">
       <div className="bg-pink-50 border-2 border-pink-200 rounded-full py-2 px-5 inline-block">
         <span className="text-sm font-black text-pink-600 uppercase tracking-widest">
           {t.topic.question} {activeQuestionIndex + 1} {t.topic.of}{" "}
