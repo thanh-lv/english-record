@@ -129,37 +129,32 @@ export function TopicModal({
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
             <div className="md:col-span-5 space-y-5 flex flex-col items-center bg-[#F4F9FF] p-5 rounded-[2rem] border-2 border-[#E3F2FD] shadow-inner">
               {/* Ẩn image box trên mobile khi không có ảnh */}
-              <div
-                className={`w-full aspect-square bg-white rounded-3xl border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}
-              >
-                {imageLoading ? (
+              {imageLoading ? (
+                <div
+                  className={`w-full aspect-square bg-white rounded-3xl border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}
+                >
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="w-10 h-10 text-[#FF8A80] animate-spin" />
                     <span className="text-xs text-slate-400 font-extrabold animate-pulse">
                       {t.topic.loadingImage}
                     </span>
                   </div>
-                ) : topicImage ? (
+                </div>
+              ) : topicImage ? (
+                <div
+                  className={`w-full aspect-square bg-white rounded-3xl border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}
+                >
                   <img
                     src={topicImage}
                     alt={currentTopic.title}
                     className="w-full h-full object-contain p-4 animate-in fade-in duration-500"
                   />
-                ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <ImageOff
-                      size={48}
-                      className="text-slate-200"
-                      strokeWidth={1.5}
-                    />
-                    <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
-                      {t.topic.noImage}
-                    </span>
-                  </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2"></div>
+              )}
 
-              <div className="md:col-span-7 space-y-6">
+              <div className="md:col-span-7 space-y-6 md:hidden">
                 {isBongBe ? (
                   <BongBeQuestionPanel
                     currentTopic={currentTopic}
@@ -262,6 +257,26 @@ export function TopicModal({
                     {t.topic.note}
                   </p>
                 </div>
+              )}
+            </div>
+
+            <div className="md:col-span-7 space-y-6">
+              {isBongBe ? (
+                <BongBeQuestionPanel
+                  currentTopic={currentTopic}
+                  activeQuestionIndex={activeQuestionIndex}
+                  isRecording={isRecording}
+                  recordingTime={recordingTime}
+                  bongBeAudios={bongBeAudios}
+                  matchedQuestionRecording={matchedQuestionRecording}
+                  onStart={onStartRecording}
+                  onStop={onStopRecording}
+                  onDeleteBongBeAudio={onDeleteBongBeAudio}
+                  onQuestionChange={onQuestionChange}
+                  formatTime={formatTime}
+                />
+              ) : (
+                <StandardQuestionsPanel currentTopic={currentTopic} />
               )}
             </div>
           </div>
