@@ -260,7 +260,7 @@ export function TopicModal({
               )}
             </div>
 
-            <div className="md:col-span-7 space-y-6">
+            <div className="md:col-span-7 space-y-6 hidden md:block">
               {isBongBe ? (
                 <BongBeQuestionPanel
                   currentTopic={currentTopic}
@@ -599,7 +599,7 @@ function BongBeQuestionPanel({
 function StandardQuestionsPanel({ currentTopic }: { currentTopic: any }) {
   const { t } = useLanguage();
   return (
-    <div className="bg-white rounded-[2rem] border-3 border-[#FFF0F0] space-y-5">
+    <div className="bg-white rounded-md border-3 border-[#FFF0F0] space-y-5 p-2">
       <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 border-b-2 border-dashed border-slate-100 pb-3">
         <HelpCircle size={16} className="text-[#FF8A80]" />{" "}
         {t.common.questionNav}
