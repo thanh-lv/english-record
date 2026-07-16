@@ -159,6 +159,26 @@ export function TopicModal({
                 )}
               </div>
 
+              <div className="md:col-span-7 space-y-6">
+                {isBongBe ? (
+                  <BongBeQuestionPanel
+                    currentTopic={currentTopic}
+                    activeQuestionIndex={activeQuestionIndex}
+                    isRecording={isRecording}
+                    recordingTime={recordingTime}
+                    bongBeAudios={bongBeAudios}
+                    matchedQuestionRecording={matchedQuestionRecording}
+                    onStart={onStartRecording}
+                    onStop={onStopRecording}
+                    onDeleteBongBeAudio={onDeleteBongBeAudio}
+                    onQuestionChange={onQuestionChange}
+                    formatTime={formatTime}
+                  />
+                ) : (
+                  <StandardQuestionsPanel currentTopic={currentTopic} />
+                )}
+              </div>
+
               {ttsLoading ? (
                 <button
                   type="button"
@@ -242,26 +262,6 @@ export function TopicModal({
                     {t.topic.note}
                   </p>
                 </div>
-              )}
-            </div>
-
-            <div className="md:col-span-7 space-y-6">
-              {isBongBe ? (
-                <BongBeQuestionPanel
-                  currentTopic={currentTopic}
-                  activeQuestionIndex={activeQuestionIndex}
-                  isRecording={isRecording}
-                  recordingTime={recordingTime}
-                  bongBeAudios={bongBeAudios}
-                  matchedQuestionRecording={matchedQuestionRecording}
-                  onStart={onStartRecording}
-                  onStop={onStopRecording}
-                  onDeleteBongBeAudio={onDeleteBongBeAudio}
-                  onQuestionChange={onQuestionChange}
-                  formatTime={formatTime}
-                />
-              ) : (
-                <StandardQuestionsPanel currentTopic={currentTopic} />
               )}
             </div>
           </div>
@@ -594,7 +594,7 @@ function StandardQuestionsPanel({ currentTopic }: { currentTopic: any }) {
         {currentTopic.questions.map((q: any, i: number) => (
           <div
             key={q.id || i}
-            className="space-y-3 pl-4 border-l-4 border-[#FF8A80]"
+            className="space-y-3 pl-2 border-l-4 border-[#FF8A80]"
           >
             <div className="space-y-1">
               <p className="text-lg font-black text-slate-700 leading-snug">
@@ -605,7 +605,7 @@ function StandardQuestionsPanel({ currentTopic }: { currentTopic: any }) {
               </p>
             </div>
             {q.sample_answer && (
-              <div className="text-sm font-extrabold text-slate-600 leading-relaxed bg-white px-4 py-2.5 rounded-xl border border-amber-100">
+              <div className="text-sm font-extrabold text-slate-600 leading-relaxed">
                 <span className="text-[#FFB74D] inline-flex items-center gap-1 mr-1.5 align-middle">
                   <Award size={14} /> Example:
                 </span>
