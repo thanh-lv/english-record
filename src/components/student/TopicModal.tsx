@@ -85,13 +85,13 @@ export function TopicModal({
   useEscapeToClose(onClose, !isRecording && !isSaving);
   return (
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-50 overflow-y-auto overscroll-contain items-start py-8"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-50 overflow-y-auto overscroll-contain items-start"
       role="dialog"
       aria-modal="true"
       aria-labelledby="topic-modal-title"
     >
-      <div className="bg-white rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border-4 border-[#FFF59D] my-auto relative">
-        <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <div className="bg-white sm:rounded-[2.5rem] rounded-lg w-full max-w-4xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border-4 border-[#FFF59D] my-auto relative">
+        <div className="p-2 sm:p-4 md:p-8 space-y-4 md:space-y-6">
           <div className="flex items-center gap-3 border-b-4 border-dashed border-[#FFF0F0] pb-3 md:pb-4 pr-10">
             <div
               className={`inline-flex items-center justify-center w-10 h-10 md:w-16 md:h-16 text-white rounded-[1rem] md:rounded-[1.5rem] font-black text-base md:text-2xl shadow-lg border-b-4 shrink-0 ${matchedRecording ? "bg-gradient-to-br from-[#81C784] to-[#4CAF50] border-[#388E3C]" : "bg-gradient-to-br from-[#64B5F6] to-[#1E88E5] border-blue-800"}`}
@@ -121,13 +121,13 @@ export function TopicModal({
             type="button"
             onClick={onClose}
             aria-label={t.common.close}
-            className="absolute top-4 right-4 md:top-6 md:right-6 p-1.5 md:p-2 text-slate-400 hover:text-rose-500 hover:bg-[#FFF0F0] rounded-full transition-all border-2 border-transparent hover:border-[#FFCDD2] z-10"
+            className="absolute top-0 right-4 md:top-6 md:right-6 p-1.5 md:p-2 text-slate-400 hover:text-rose-500 hover:bg-[#FFF0F0] rounded-full transition-all border-2 border-transparent hover:border-[#FFCDD2] z-10"
           >
-            <X size={20} />
+            <X size={25} />
           </button>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-            <div className="md:col-span-5 space-y-5 flex flex-col items-center bg-[#F4F9FF] p-5 rounded-[2rem] border-2 border-[#E3F2FD] shadow-inner">
+            <div className="md:col-span-5 space-y-5 flex flex-col items-center sm:bg-[#F4F9FF] sm:p-5 sm:rounded-[2rem] rounded-lg sm:border-2 sm:border-[#E3F2FD] shadow-inner">
               {/* Ẩn image box trên mobile khi không có ảnh */}
               {imageLoading ? (
                 <div
@@ -155,6 +155,15 @@ export function TopicModal({
               )}
 
               <div className="md:col-span-7 space-y-6 md:hidden">
+                <div className="w-full bg-[#FFFDE7] border-3 border-[#FFF59D] rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+                  <AlertCircle
+                    className="text-amber-500 shrink-0 mt-0.5"
+                    size={24}
+                  />
+                  <p className="text-sm font-black text-amber-900 leading-relaxed text-left">
+                    {t.topic.note}
+                  </p>
+                </div>
                 <QuestionPanel
                   currentTopic={currentTopic}
                   activeQuestionIndex={activeQuestionIndex}
@@ -197,16 +206,6 @@ export function TopicModal({
                   {t.topic.loadingAudio}
                 </div>
               )}
-
-              <div className="w-full bg-[#FFFDE7] border-3 border-[#FFF59D] rounded-2xl p-4 flex items-start gap-3 shadow-sm">
-                <AlertCircle
-                  className="text-amber-500 shrink-0 mt-0.5"
-                  size={24}
-                />
-                <p className="text-sm font-black text-amber-900 leading-relaxed text-left">
-                  {t.topic.note}
-                </p>
-              </div>
             </div>
 
             <div className="md:col-span-7 space-y-6 hidden md:block">
@@ -333,7 +332,7 @@ function QuestionPanel({
   const q = currentTopic?.questions?.[activeQuestionIndex];
 
   return (
-    <div className="bg-white rounded-[2rem] p-3 md:p-6 border-3 border-dashed border-[#FF8A80] space-y-6 shadow-sm text-center">
+    <div className="sm:bg-white sm:rounded-[2rem] rounded-lg md:p-6 sm:border-3 sm:border-dashed sm:border-[#FF8A80] space-y-6 sm:shadow-sm text-center">
       <div className="bg-pink-50 border-2 border-pink-200 rounded-full py-2 px-5 inline-block">
         <span className="text-sm font-black text-pink-600 uppercase tracking-widest">
           {t.topic.question} {activeQuestionIndex + 1} {t.topic.of}{" "}
@@ -342,7 +341,7 @@ function QuestionPanel({
       </div>
 
       {q && (
-        <div className="text-left bg-[#FAFAFA] rounded-2xl p-4 border-2 border-slate-100">
+        <div className="text-left bg-[#FAFAFA] rounded-2xl p-2 sm:p-4 border-2 border-slate-100">
           <p className="text-lg font-black text-slate-700 leading-snug">
             {q.text}
           </p>
@@ -362,7 +361,7 @@ function QuestionPanel({
         </div>
       )}
 
-      <div className="py-6 space-y-5 bg-[#FAFAFA] rounded-3xl p-5 border-2 border-slate-100">
+      <div className="space-y-5 bg-[#FAFAFA] rounded-3xl p-2 sm:p-4 border-2 border-slate-100">
         {matchedQuestionRecording ? (
           <div className="space-y-3">
             <div className="bg-[#E8F5E9] border-2 border-[#A5D6A7] rounded-2xl p-4 flex flex-col items-center gap-3 shadow-inner">

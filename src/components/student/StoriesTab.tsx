@@ -16,10 +16,10 @@ export function StoriesTab({
 }: StoriesTabProps) {
   const { t } = useLanguage();
   return (
-    <div className="bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] border-3 border-white shadow-md">
-      <div className="mb-8 space-y-2 text-center">
-        <h3 className="text-3xl font-black text-purple-500 flex items-center justify-center gap-3">
-          <Library size={32} /> {t.stories.title} <Library size={32} />
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
+      <div className="mb-6 space-y-1">
+        <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+          <Library size={22} /> {t.stories.title}
         </h3>
         <p className="text-slate-500 font-bold text-sm">
           {interpolate(t.stories.subtitle, {
@@ -29,12 +29,12 @@ export function StoriesTab({
         </p>
       </div>
 
+      {dbStories.length === 0 && (
+        <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-2xl border-2 border-dashed border-slate-200">
+          {t.stories.empty}
+        </div>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
-        {dbStories.length === 0 && (
-          <div className="col-span-full py-12 text-center text-slate-400 font-bold bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-            {t.stories.empty}
-          </div>
-        )}
         {dbStories.map((story) => (
           <div
             key={story.id}

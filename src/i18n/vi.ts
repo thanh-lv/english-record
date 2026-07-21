@@ -1,7 +1,7 @@
 export const vi = {
   // App header
   appName: "English with Ms My",
-  appNameShort: "English with Ms My",
+  appNameShort: "English with My",
   logout: "Đăng xuất",
   teacher: "Cô Giáo",
   student: "Học sinh",

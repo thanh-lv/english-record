@@ -12,6 +12,7 @@ import {
   Gamepad2,
   Zap,
 } from "lucide-react";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 interface VocabCard {
   id: string;
@@ -806,6 +807,7 @@ function ScrambleGame({
 }
 // ─── GAMES TAB ───────────────────────────────────────────────────
 export function GamesTab({ studentAge }: { studentAge: number }) {
+  const { t } = useLanguage();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null);
@@ -878,7 +880,7 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
 
   if (loading) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-white shadow-sm animate-pulse">
+      <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
         <div className="h-6 w-32 bg-slate-100 rounded-xl mb-4" />
         <div className="space-y-3">
           {[0, 1].map((i) => (
@@ -890,18 +892,18 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
   }
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-white shadow-sm space-y-5">
-      <div>
-        <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
+      <div className="mb-6 space-y-1">
+        <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
           <Gamepad2 size={22} className="text-violet-500" /> Games
-        </h2>
-        <p className="text-sm font-bold text-slate-500 mt-1">
+        </h3>
+        <p className="text-slate-500 font-bold text-sm">
           Choose a vocabulary set and play!
         </p>
       </div>
 
       {sets.length === 0 ? (
-        <div className="py-12 text-center text-slate-400 font-bold rounded-2xl border-2 border-dashed border-slate-200">
+        <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-2xl border-2 border-dashed border-slate-200">
           No vocabulary sets available yet.
         </div>
       ) : (

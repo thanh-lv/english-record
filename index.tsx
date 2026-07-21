@@ -159,7 +159,7 @@ export default function App() {
             <Mic size={16} className="text-[#1E88E5]" />
           </span>
           <span className="text-base md:text-2xl tracking-wide">
-            <span className="sm:hidden">{t.appNameShort}</span>
+            <span className="sm:hidden text-sm">{t.appNameShort}</span>
             <span className="hidden sm:inline">{t.appName}</span>
           </span>
         </h1>
@@ -214,7 +214,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-3 md:p-6 lg:p-8 flex-1 w-full flex flex-col">
+      <main className="max-w-6xl mx-auto p-3 md:p-6 lg:p-8 flex-1 w-full flex flex-col">
         <Suspense fallback={null}>
           <Routes>
             <Route

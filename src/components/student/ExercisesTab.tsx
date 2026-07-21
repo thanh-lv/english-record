@@ -44,7 +44,7 @@ export function ExercisesTab({
   );
 
   return (
-    <div className="bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] border-3 border-white shadow-md">
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
       <div className="mb-6 space-y-1">
         <h3 className="text-2xl font-black text-slate-800">
           {t.exercises.title}
@@ -112,7 +112,7 @@ export function ExercisesTab({
               key={num}
               type="button"
               onClick={(e) => onTopicClick(num, e)}
-              className={`cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-[2rem] flex flex-col items-center justify-center gap-1 group border-3 relative px-2 py-3 h-28 ${
+              className={`cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-lg flex flex-col items-center justify-center gap-1 group border-3 relative p-2 sm:h-28 h-24 ${
                 needsRetry
                   ? "bg-amber-50 text-amber-600 border-amber-300 hover:bg-amber-100"
                   : isCompleted
@@ -127,7 +127,7 @@ export function ExercisesTab({
                   {getPrizeForTopic(num)}
                 </span>
               )}
-              <span className="text-3xl font-black tracking-tight group-hover:scale-125 transition-transform duration-300">
+              <span className="sm:text-3xl text-xl font-black tracking-tight group-hover:scale-125 transition-transform duration-300">
                 {isBongBe ? `Test ${num}` : num}
               </span>
 
@@ -161,7 +161,7 @@ export function ExercisesTab({
                 )
               )}
 
-              <div className="w-full px-1 mt-auto">
+              <div className="w-full px-1">
                 <div className="w-full h-1.5 bg-black/10 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${

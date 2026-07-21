@@ -358,7 +358,7 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
 
   if (loading) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-white shadow-sm animate-pulse">
+      <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
         <div className="h-6 w-40 bg-slate-100 rounded-xl mb-4" />
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -370,7 +370,7 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
   }
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm p-6 rounded-[2rem] border-3 border-white shadow-sm">
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
       <div className="mb-5">
         <h2 className="text-xl font-black text-slate-800">
           {t.teacherModal.flashcardsTitle}
@@ -381,7 +381,7 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
       </div>
 
       {sets.length === 0 ? (
-        <div className="py-12 text-center text-slate-400 font-bold rounded-2xl border-2 border-dashed border-slate-200">
+        <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-2xl border-2 border-dashed border-slate-200">
           {t.teacherModal.flashcardsEmpty}
         </div>
       ) : (
