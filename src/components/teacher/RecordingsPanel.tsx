@@ -319,22 +319,34 @@ export function RecordingItem({
       </div>
 
       {/* Row 2: topic + question + audio inline */}
-      <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-xl px-3 py-2 min-w-0">
-        <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">
-          {t.recordings.topic}
-        </span>
-        <span className="text-xs font-bold text-slate-700 shrink-0 max-w-[80px] truncate">
-          {rec.topic}
-        </span>
-        <span className="text-slate-200 shrink-0">·</span>
-        <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">
-          {t.recordings.question.replace(":", "")}
-        </span>
-        <span className="text-xs font-bold text-slate-600 flex-1 min-w-0 truncate">
-          {rec.questionText}
-        </span>
-        <AudioPlayer src={rec.audioUrl} compact />
-      </div>
+      {rec.shadowing_video_id ? (
+        <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-xl px-3 py-2 min-w-0">
+          <span className="text-[10px] font-black text-indigo-400 shrink-0 uppercase tracking-wide">
+            🎬
+          </span>
+          <span className="text-xs font-bold text-slate-700 flex-1 min-w-0 truncate">
+            {rec.topic}
+          </span>
+          <AudioPlayer src={rec.audioUrl} compact />
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-xl px-3 py-2 min-w-0">
+          <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">
+            {t.recordings.topic}
+          </span>
+          <span className="text-xs font-bold text-slate-700 shrink-0 max-w-[80px] truncate">
+            {rec.topic}
+          </span>
+          <span className="text-slate-200 shrink-0">·</span>
+          <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">
+            {t.recordings.question.replace(":", "")}
+          </span>
+          <span className="text-xs font-bold text-slate-600 flex-1 min-w-0 truncate">
+            {rec.questionText}
+          </span>
+          <AudioPlayer src={rec.audioUrl} compact />
+        </div>
+      )}
 
       {/* Inline feedback panel */}
       <div className="flex items-center gap-2">

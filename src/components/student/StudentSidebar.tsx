@@ -6,6 +6,7 @@ import {
   Gamepad2,
   Library,
   Pencil,
+  Video,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
@@ -15,7 +16,8 @@ export type ActiveTab =
   | "stories"
   | "achievements"
   | "flashcards"
-  | "games";
+  | "games"
+  | "shadowing";
 
 interface StudentSidebarProps {
   profile: any;
@@ -62,6 +64,11 @@ export function StudentSidebar({
       id: "games" as ActiveTab,
       label: "Games",
       icon: <Gamepad2 size={20} />,
+    },
+    {
+      id: "shadowing" as ActiveTab,
+      label: t.sidebar.shadowing,
+      icon: <Video size={20} />,
     },
   ];
 

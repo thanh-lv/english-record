@@ -8,6 +8,8 @@ import { FlashcardsTab } from "./components/student/FlashcardsTab";
 import { GamesTab } from "./components/student/GamesTab";
 import { StoriesTab } from "./components/student/StoriesTab";
 import { StoryModal } from "./components/student/StoryModal";
+import { ShadowingTab } from "./components/student/ShadowingTab";
+import { ShadowingModal } from "./components/student/ShadowingModal";
 import { StudentSidebar } from "./components/student/StudentSidebar";
 import { OfflineBanner } from "./components/common/OfflineBanner";
 import { TopicModal } from "./components/student/TopicModal";
@@ -54,6 +56,8 @@ export default function StudentView({
 
   const [selectedStory, setSelectedStory] = useState<any>(null);
   const [isPlayingStoryAudio, setIsPlayingStoryAudio] = useState(false);
+
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
 
   const topicAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -102,7 +106,6 @@ export default function StudentView({
   const recording = useRecording({
     user,
     profile,
-    isBongBe,
     selectedNumber,
     currentTopic,
     activeQuestionIndex,
@@ -121,6 +124,23 @@ export default function StudentView({
       });
       setSelectedNumber(null);
       setCurrentTopic(null);
+      setSelectedVideo(null); // Close shadowing modal
+    },
+  });
+
+  // Separate hook for shadowing recordings
+  const shadowingRecording = useRecording({
+    user,
+    profile,
+    selectedNumber: null,
+    currentTopic: selectedVideo
+      ? { id: selectedVideo.id, title: selectedVideo.title }
+      : null,
+    activeQuestionIndex: 0,
+    shadowingVideoId: selectedVideo?.id ?? null,
+    onSaveSuccess: (saved) => {
+      setMyRecordings((prev) => [...prev, ...saved]);
+      setSelectedVideo(null);
     },
   });
 
@@ -382,6 +402,18 @@ export default function StudentView({
           />
           <Route path="games" element={<GamesTab studentAge={studentAge} />} />
           <Route
+            path="shadowing"
+            element={
+              <ShadowingTab
+                onVideoClick={(v) => {
+                  setSelectedVideo(v);
+                  shadowingRecording.resetAudio();
+                  shadowingRecording.setAppError("");
+                }}
+              />
+            }
+          />
+          <Route
             path="*"
             element={<Navigate to="/student/exercises" replace />}
           />
@@ -453,6 +485,35 @@ export default function StudentView({
           isPlayingAudio={isPlayingStoryAudio}
           onClose={closeStoryModal}
           onPlayAudio={playStoryAudio}
+        />
+      )}
+
+      {selectedVideo && (
+        <ShadowingModal
+          video={selectedVideo}
+          onClose={() => {
+            setSelectedVideo(null);
+            shadowingRecording.stopRecording();
+          }}
+          isRecording={shadowingRecording.isRecording}
+          recordingTime={shadowingRecording.recordingTime}
+          bongBeAudios={shadowingRecording.bongBeAudios}
+          isSaving={shadowingRecording.isSaving}
+          appError={shadowingRecording.appError}
+          onStartRecording={shadowingRecording.startRecording}
+          onStopRecording={shadowingRecording.stopRecording}
+          onSaveRecording={shadowingRecording.saveRecording}
+          onDeleteAudio={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            shadowingRecording.setBongBeAudios({});
+          }}
+          onDismissError={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            shadowingRecording.setAppError("");
+          }}
+          formatTime={shadowingRecording.formatTime}
         />
       )}
 

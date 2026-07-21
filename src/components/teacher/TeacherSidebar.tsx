@@ -1,4 +1,4 @@
-import { BookMarked, BookOpen, Library, Mic, Users } from "lucide-react";
+import { BookMarked, BookOpen, Library, Mic, Users, Video } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 
@@ -7,7 +7,8 @@ export type TeacherTab =
   | "topics"
   | "students"
   | "stories"
-  | "vocabulary";
+  | "vocabulary"
+  | "shadowing";
 
 export function TeacherSidebar() {
   const { t } = useLanguage();
@@ -40,6 +41,11 @@ export function TeacherSidebar() {
         id: "vocabulary",
         label: t.teacherNav.flashcards,
         icon: <BookMarked size={18} />,
+      },
+      {
+        id: "shadowing",
+        label: t.teacherNav.shadowing,
+        icon: <Video size={18} />,
       },
     ];
 

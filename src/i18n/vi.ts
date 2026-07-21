@@ -34,6 +34,7 @@ export const vi = {
     stories: "Truyện kể",
     achievements: "Thành tích",
     flashcards: "Từ vựng",
+    shadowing: "Shadowing",
   },
 
   // Exercises tab
@@ -112,6 +113,7 @@ export const vi = {
     students: "Học sinh",
     stories: "Truyện kể",
     flashcards: "Từ vựng",
+    shadowing: "Shadowing",
   },
 
   // Teacher header
@@ -135,6 +137,7 @@ export const vi = {
     topicPlaceholder: "VD: 1, 2...",
     loading: "Đang tải dữ liệu...",
     empty: "Chưa có bài nộp nào từ học sinh.",
+    emptyShadowing: "Chưa có bài shadowing nào.",
     latest: "Mới nhất:",
     lessons: "bài",
     graded: "Đã nhận xét",
@@ -150,6 +153,8 @@ export const vi = {
     next: "Sau →",
     of: "/",
     students: "học sinh",
+    tabTopicAnswers: "Trả lời chủ đề",
+    tabShadowing: "Shadowing",
   },
 
   // Notification bell
@@ -214,6 +219,20 @@ export const vi = {
       "Hành động này sẽ xóa vĩnh viễn bộ từ vựng và toàn bộ thẻ trong bộ.",
     deleteSetConfirm: "Xóa",
     deleteCardTitle: "Xóa thẻ từ vựng?",
+  },
+
+  // Shadowing
+  shadowing: {
+    title: "Luyện Shadowing 🎤",
+    subtitle: "Con hãy xem video và luyện nói theo nhé!",
+    empty: "Chưa có video nào.",
+    play: "Phát Video",
+    record: "Ghi âm",
+    stop: "Dừng",
+    save: "Lưu",
+    reRecord: "Ghi âm lại",
+    saved: "Bài ghi âm đã được lưu!",
+    close: "Đóng",
   },
 
   // Common
@@ -394,6 +413,15 @@ export const vi = {
     filterVocabPlaceholder: "Tìm theo tên bộ từ vựng...",
     filterVocabAgeAll: "Tất cả độ tuổi",
     noVocabSetsFound: "Không tìm thấy bộ từ vựng nào.",
+    manageShadowing: "Quản lý Video Shadowing",
+    addVideoTitle: "Thêm Video YouTube",
+    videoUrl: "Link YouTube",
+    videoTitle: "Tên Video",
+    videoUrlPlaceholder: "https://www.youtube.com/watch?v=...",
+    videoTitleRequired: "Vui lòng nhập tên video",
+    videoUrlRequired: "Vui lòng nhập link YouTube hợp lệ",
+    videoConfirmDelete: "Đồng ý xóa",
+    deleteVideoWarning: "Bạn có chắc chắn muốn xóa video này không?",
   },
   aiParser: {
     openButton: "AI Tách câu hỏi",

@@ -7,7 +7,7 @@ interface UseRecordingsOptions {
 }
 
 const RECORDING_COLUMNS =
-  "id, studentName, topicNumber, topic, questionText, audioUrl, createdAt, teacher_rating, teacher_feedback, student_reaction, userId";
+  "id, studentName, topicNumber, topic, questionText, audioUrl, createdAt, teacher_rating, teacher_feedback, student_reaction, userId, shadowing_video_id";
 
 export interface StudentSummary {
   key: string;
@@ -132,15 +132,24 @@ export async function fetchStudentRecordings(
   studentName: string,
   page: number,
   pageSize: number,
+  type: "topic" | "shadowing" = "topic",
 ) {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
-  const { data, error, count } = await supabase
+  let query = supabase
     .from("recordings")
     .select(RECORDING_COLUMNS, { count: "exact" })
     .ilike("studentName", studentName)
     .order("createdAt", { ascending: false })
     .range(from, to);
+
+  if (type === "shadowing") {
+    query = query.not("shadowing_video_id", "is", null);
+  } else {
+    query = query.is("shadowing_video_id", null);
+  }
+
+  const { data, error, count } = await query;
   if (error) throw error;
   return { records: data || [], total: count || 0 };
 }

@@ -34,6 +34,7 @@ export const en = {
     stories: "Stories",
     achievements: "Achievements",
     flashcards: "Vocabulary",
+    shadowing: "Shadowing",
   },
 
   // Exercises tab
@@ -109,6 +110,7 @@ export const en = {
     students: "Students",
     stories: "Stories",
     flashcards: "Vocabulary",
+    shadowing: "Shadowing",
   },
 
   // Teacher header
@@ -132,6 +134,7 @@ export const en = {
     topicPlaceholder: "E.g: 1, 2...",
     loading: "Loading data...",
     empty: "No submissions yet.",
+    emptyShadowing: "No shadowing recordings yet.",
     latest: "Latest:",
     lessons: "submissions",
     graded: "Reviewed",
@@ -147,6 +150,8 @@ export const en = {
     next: "Next →",
     of: "/",
     students: "students",
+    tabTopicAnswers: "Topic Answers",
+    tabShadowing: "Shadowing",
   },
 
   // Notification bell
@@ -210,6 +215,20 @@ export const en = {
     deleteSetWarning: "This will permanently delete the set and all its cards.",
     deleteSetConfirm: "Delete",
     deleteCardTitle: "Delete Card?",
+  },
+
+  // Shadowing
+  shadowing: {
+    title: "Shadowing Practice 🎤",
+    subtitle: "Watch the video and practice speaking along!",
+    empty: "No videos available yet.",
+    play: "Play Video",
+    record: "Record",
+    stop: "Stop",
+    save: "Save Recording",
+    reRecord: "Re-record",
+    saved: "Your recording is saved!",
+    close: "Close",
   },
 
   // Common
@@ -394,6 +413,15 @@ export const en = {
     filterVocabPlaceholder: "Search by set title...",
     filterVocabAgeAll: "All ages",
     noVocabSetsFound: "No vocabulary sets found.",
+    manageShadowing: "Manage Shadowing Videos",
+    addVideoTitle: "Add YouTube Video",
+    videoUrl: "YouTube URL",
+    videoTitle: "Video Title",
+    videoUrlPlaceholder: "https://www.youtube.com/watch?v=...",
+    videoTitleRequired: "Please enter a title",
+    videoUrlRequired: "Please enter a valid YouTube URL",
+    videoConfirmDelete: "Confirm delete",
+    deleteVideoWarning: "Are you sure you want to delete this video?",
   },
   aiParser: {
     openButton: "AI Question Parser",

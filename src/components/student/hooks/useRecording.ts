@@ -5,22 +5,22 @@ import { useLanguage } from "../../../i18n/LanguageContext";
 interface UseRecordingOptions {
   user: any;
   profile: any;
-  isBongBe: boolean;
   selectedNumber: number | null;
   currentTopic: any;
   activeQuestionIndex: number;
   existingRecordingId?: string | null;
+  shadowingVideoId?: string | null;
   onSaveSuccess: (recordings: any[], completedNumber: number | null) => void;
 }
 
 export function useRecording({
   user,
   profile,
-  isBongBe,
   selectedNumber,
   currentTopic,
   activeQuestionIndex,
   existingRecordingId,
+  shadowingVideoId,
   onSaveSuccess,
 }: UseRecordingOptions) {
   const { t } = useLanguage();
@@ -114,14 +114,11 @@ export function useRecording({
     e.stopPropagation();
     if (!user || isSaving) return;
 
-    const audiosToSave: { questionIndex: number; blob: Blob }[] = true
-      ? Object.entries(bongBeAudios).map(([idx, blob]) => ({
-          questionIndex: parseInt(idx),
-          blob,
-        }))
-      : audioBase64
-        ? [{ questionIndex: 0, blob: audioBase64 }]
-        : [];
+    const audiosToSave: { questionIndex: number; blob: Blob }[] =
+      Object.entries(bongBeAudios).map(([idx, blob]) => ({
+        questionIndex: parseInt(idx),
+        blob,
+      }));
 
     if (audiosToSave.length === 0) return;
 
@@ -141,7 +138,9 @@ export function useRecording({
 
       for (const { questionIndex, blob } of audiosToSave) {
         const fileExt = blob.type.includes("mp4") ? "mp4" : "webm";
-        const fileName = `${user.id}/${Date.now()}_topic_${selectedNumber}_q${questionIndex}.${fileExt}`;
+        const prefix =
+          selectedNumber != null ? `topic_${selectedNumber}` : `shadowing`;
+        const fileName = `${user.id}/${Date.now()}_${prefix}_q${questionIndex}.${fileExt}`;
 
         const s3Command = new PutObjectCommand({
           Bucket: S3_BUCKET,
@@ -163,8 +162,11 @@ export function useRecording({
         }
 
         const questionText = currentTopic?.questions?.[questionIndex]?.text;
-        const questionId = currentTopic?.questions?.[questionIndex]?.id;
-        const topicId = currentTopic?.id;
+        const questionId =
+          selectedNumber != null
+            ? currentTopic?.questions?.[questionIndex]?.id
+            : null;
+        const topicId = selectedNumber != null ? currentTopic?.id : null;
 
         const newRecording = {
           studentName: profile.name,
@@ -176,6 +178,7 @@ export function useRecording({
           questionText,
           topic_id: topicId,
           question_id: questionId,
+          shadowing_video_id: shadowingVideoId ?? null,
         };
 
         if (existingRecordingId) {
