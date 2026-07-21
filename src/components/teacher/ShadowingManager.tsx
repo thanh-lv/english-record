@@ -136,7 +136,7 @@ export function ShadowingManager() {
             setShowCreate(true);
             setError("");
           }}
-          className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md text-sm"
+          className="bg-[#1E88E5] hover:bg-[#1565C0] text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md text-sm"
         >
           <Plus size={16} /> {t.teacherModal.addVideoTitle}
         </button>
@@ -191,13 +191,13 @@ export function ShadowingManager() {
                     }
                     className={`flex-1 py-1.5 rounded-lg text-xs font-black transition-colors ${
                       (video.is_active ?? true)
-                        ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                        ? "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                        : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                     }`}
                   >
                     {(video.is_active ?? true)
-                      ? t.teacherModal.filterStoryStatusActive
-                      : t.teacherModal.filterStoryStatusHidden}
+                      ? t.teacherModal.filterStoryStatusHidden
+                      : t.teacherModal.filterStoryStatusActive}
                   </button>
                 </div>
               </div>
@@ -264,7 +264,7 @@ export function ShadowingManager() {
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-2 bg-[#1E88E5] hover:bg-[#1565C0] text-white rounded-xl font-black disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -302,7 +302,7 @@ export function ShadowingManager() {
               <button
                 onClick={confirmDelete}
                 disabled={deleteSaving}
-                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-full text-sm disabled:opacity-50 flex justify-center items-center gap-2"
+                className="flex-1 py-2.5 bg-[#1E88E5] hover:bg-[#1565C0] text-white font-extrabold rounded-full text-sm disabled:opacity-50 flex justify-center items-center gap-2"
               >
                 {deleteSaving ? (
                   <Loader2 size={16} className="animate-spin" />
