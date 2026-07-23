@@ -325,7 +325,7 @@ export function RecordingItem({
           <span className="text-[10px] font-black text-indigo-400 shrink-0 uppercase tracking-wide">
             🎬
           </span>
-          <span className="text-xs font-bold text-slate-700 flex-1 min-w-0 truncate">
+          <span className="text-xs font-bold text-slate-700 shrink-0 truncate">
             {rec.topic}
           </span>
           <YouTubePlayer
@@ -335,7 +335,7 @@ export function RecordingItem({
               rec.shadowing_video?.youtube_url ??
               null
             }
-            className="w-full h-full"
+            className="w-50 h-full"
           />
           <AudioPlayer src={rec.audioUrl} compact />
         </div>
