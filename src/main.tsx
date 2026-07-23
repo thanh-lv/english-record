@@ -1,17 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import App from "../index";
 import "./index.css";
 import { LanguageProvider } from "./i18n/LanguageContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <HashRouter>
+    <BrowserRouter>
       <LanguageProvider>
         <App />
       </LanguageProvider>
-    </HashRouter>
+    </BrowserRouter>
   </React.StrictMode>,
 );
 
