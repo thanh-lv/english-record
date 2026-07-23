@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Clock,
   Filter,
+  GraduationCap,
   Loader2,
   Mic,
   Search,
@@ -12,7 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { AudioPlayer } from "../common/AudioPlayer";
 import { StudentSummary } from "./hooks/useRecordings";
@@ -35,32 +36,39 @@ export function RecordingsPanel({
 
   const [filterName, setFilterName] = useState("");
   const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'graded', 'ungraded'
+  const [filterGrade, setFilterGrade] = useState("all"); // 'all', '1'..'12', 'unassigned'
   const [showFilters, setShowFilters] = useState(false);
-  const [studentAvatars, setStudentAvatars] = useState<Record<string, string>>(
-    {},
-  );
+  const [studentInfo, setStudentInfo] = useState<
+    Record<string, { avatar?: string; grade?: string | number }>
+  >({});
 
   useEffect(() => {
-    const fetchAvatars = async () => {
+    const fetchStudentProfiles = async () => {
       try {
         const { data } = await supabase
           .from("profiles")
-          .select("name, avatar")
+          .select("name, avatar, grade")
           .eq("role", "student");
         if (data) {
-          const map: Record<string, string> = {};
+          const map: Record<
+            string,
+            { avatar?: string; grade?: string | number }
+          > = {};
           data.forEach((p: any) => {
-            if (p.name && p.avatar) {
-              map[p.name.trim().toLowerCase()] = p.avatar;
+            if (p.name) {
+              map[p.name.trim().toLowerCase()] = {
+                avatar: p.avatar || undefined,
+                grade: p.grade || undefined,
+              };
             }
           });
-          setStudentAvatars(map);
+          setStudentInfo(map);
         }
       } catch (err) {
-        console.error("Error fetching avatars", err);
+        console.error("Error fetching student profiles", err);
       }
     };
-    fetchAvatars();
+    fetchStudentProfiles();
   }, []);
 
   const filteredSummaries = React.useMemo(() => {
@@ -73,9 +81,37 @@ export function RecordingsPanel({
       }
       if (filterStatus === "graded" && s.hasUngraded) return false;
       if (filterStatus === "ungraded" && !s.hasUngraded) return false;
+
+      const info = studentInfo[s.key];
+      const gStr = info?.grade ? String(info.grade) : "unassigned";
+      if (filterGrade !== "all" && gStr !== filterGrade) {
+        return false;
+      }
+
       return true;
     });
-  }, [summaries, filterName, filterStatus]);
+  }, [summaries, filterName, filterStatus, filterGrade, studentInfo]);
+
+  const groupedSummaries = React.useMemo(() => {
+    const groups: Record<string, StudentSummary[]> = {};
+    for (const s of filteredSummaries) {
+      const info = studentInfo[s.key];
+      const gradeKey = info?.grade ? String(info.grade) : "other";
+      if (!groups[gradeKey]) {
+        groups[gradeKey] = [];
+      }
+      groups[gradeKey].push(s);
+    }
+    const sortedKeys = Object.keys(groups).sort((a, b) => {
+      if (a === "other") return 1;
+      if (b === "other") return -1;
+      return parseInt(a, 10) - parseInt(b, 10);
+    });
+    return sortedKeys.map((key) => ({
+      gradeKey: key,
+      items: groups[key],
+    }));
+  }, [filteredSummaries, studentInfo]);
 
   const avatarColors = [
     "bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]",
@@ -99,7 +135,10 @@ export function RecordingsPanel({
           type="button"
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-extrabold transition-colors border-2 ${
-            showFilters || filterName || filterStatus !== "all"
+            showFilters ||
+            filterName ||
+            filterStatus !== "all" ||
+            filterGrade !== "all"
               ? "bg-amber-50 text-amber-700 border-amber-200"
               : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
           }`}
@@ -109,7 +148,7 @@ export function RecordingsPanel({
       </div>
 
       {showFilters && (
-        <div className="p-4 bg-slate-50 border-b-2 border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="p-4 bg-slate-50 border-b-2 border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-500 uppercase">
               {t.recordings.filterName}
@@ -129,12 +168,30 @@ export function RecordingsPanel({
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-500 uppercase">
+              {t.recordings.filterGrade}
+            </label>
+            <select
+              value={filterGrade}
+              onChange={(e) => setFilterGrade(e.target.value)}
+              className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
+            >
+              <option value="all">{t.recordings.filterAllGrades}</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+                <option key={g} value={String(g)}>
+                  {interpolate(t.common.gradeLabel, { grade: g })}
+                </option>
+              ))}
+              <option value="unassigned">{t.recordings.unassignedGrade}</option>
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-black text-slate-500 uppercase">
               {t.recordings.filterStatus}
             </label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400 appearance-none"
+              className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
             >
               <option value="all">{t.recordings.filterAll}</option>
               <option value="ungraded">{t.recordings.filterUngraded}</option>
@@ -157,53 +214,94 @@ export function RecordingsPanel({
         </div>
       ) : (
         <div className="divide-y divide-slate-100">
-          {filteredSummaries.map((s, idx) => {
-            const avatar = studentAvatars[s.key];
-            const colorClass = avatarColors[idx % avatarColors.length];
-            const initials = s.studentName
-              .split(" ")
-              .map((w: string) => w[0])
-              .join("")
-              .toUpperCase()
-              .slice(0, 2);
-            const latestDate = formatDate(s.latestCreatedAt);
+          {groupedSummaries.map((group) => {
+            const isOther = group.gradeKey === "other";
+            const groupTitle = isOther
+              ? t.recordings.unassignedGrade
+              : interpolate(t.common.gradeLabel, { grade: group.gradeKey });
 
             return (
-              <button
-                key={s.key}
-                type="button"
-                onClick={() => onSelectStudent(s.studentName, avatar)}
-                className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
-              >
-                <span
-                  className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
-                    avatar
-                      ? "bg-amber-50 text-2xl shadow-sm border-amber-200"
-                      : `text-sm ${colorClass}`
-                  }`}
-                >
-                  {avatar || initials}
-                </span>
-
-                <div className="flex-1 min-w-0">
-                  <p className="font-extrabold text-slate-800 text-base truncate">
-                    {s.studentName}
-                  </p>
-                  <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
-                    {t.recordings.latest} {latestDate}
-                  </p>
+              <div key={group.gradeKey} className="bg-white">
+                {/* Group section header */}
+                <div className="bg-slate-100/90 px-5 py-2 flex items-center justify-between border-y border-slate-200/60 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap size={15} className="text-emerald-600" />
+                    <span className="font-extrabold text-xs text-slate-700 uppercase tracking-wide">
+                      {groupTitle}
+                    </span>
+                  </div>
+                  <span className="bg-white px-2 py-0.5 rounded-full border border-slate-200 text-[11px] font-extrabold text-slate-600 shadow-xs">
+                    {group.items.length} {t.recordings.students}
+                  </span>
                 </div>
 
-                {s.hasUngraded && (
-                  <span className="shrink-0 w-2.5 h-2.5 rounded-full bg-rose-400" />
-                )}
+                {/* Group items */}
+                <div className="divide-y divide-slate-100">
+                  {group.items.map((s, idx) => {
+                    const info = studentInfo[s.key];
+                    const avatar = info?.avatar;
+                    const grade = info?.grade;
+                    const colorClass = avatarColors[idx % avatarColors.length];
+                    const initials = s.studentName
+                      .split(" ")
+                      .map((w: string) => w[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2);
+                    const latestDate = formatDate(s.latestCreatedAt);
 
-                <span className="shrink-0 px-3 py-1 bg-[#E3F2FD] text-[#1E88E5] text-xs font-black rounded-full border border-[#90CAF9]">
-                  {s.count} {t.recordings.lessons}
-                </span>
+                    return (
+                      <button
+                        key={s.key}
+                        type="button"
+                        onClick={() => onSelectStudent(s.studentName, avatar)}
+                        className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
+                      >
+                        <span
+                          className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
+                            avatar
+                              ? "bg-amber-50 text-2xl shadow-sm border-amber-200"
+                              : `text-sm ${colorClass}`
+                          }`}
+                        >
+                          {avatar || initials}
+                        </span>
 
-                <ChevronRight size={18} className="shrink-0 text-slate-400" />
-              </button>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="font-extrabold text-slate-800 text-base truncate">
+                              {s.studentName}
+                            </p>
+                            {grade && (
+                              <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-extrabold shrink-0 border border-emerald-200">
+                                {interpolate(t.common.gradeLabel, {
+                                  grade,
+                                })}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
+                            {t.recordings.latest} {latestDate}
+                          </p>
+                        </div>
+
+                        {s.hasUngraded && (
+                          <span className="shrink-0 w-2.5 h-2.5 rounded-full bg-rose-400" />
+                        )}
+
+                        <span className="shrink-0 px-3 py-1 bg-[#E3F2FD] text-[#1E88E5] text-xs font-black rounded-full border border-[#90CAF9]">
+                          {s.count} {t.recordings.lessons}
+                        </span>
+
+                        <ChevronRight
+                          size={18}
+                          className="shrink-0 text-slate-400"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </div>
