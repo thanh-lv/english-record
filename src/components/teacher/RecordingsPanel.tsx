@@ -16,6 +16,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { AudioPlayer } from "../common/AudioPlayer";
 import { StudentSummary } from "./hooks/useRecordings";
+import YouTubePlayer from "../common/YouTubePlayer";
 
 export function RecordingsPanel({
   summaries,
@@ -327,6 +328,15 @@ export function RecordingItem({
           <span className="text-xs font-bold text-slate-700 flex-1 min-w-0 truncate">
             {rec.topic}
           </span>
+          <YouTubePlayer
+            url={
+              rec.youtube_url ??
+              rec.shadowing_videos?.youtube_url ??
+              rec.shadowing_video?.youtube_url ??
+              null
+            }
+            className="w-full h-full"
+          />
           <AudioPlayer src={rec.audioUrl} compact />
         </div>
       ) : (

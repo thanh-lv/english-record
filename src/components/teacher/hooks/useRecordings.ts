@@ -136,9 +136,16 @@ export async function fetchStudentRecordings(
 ) {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
+  // When requesting shadowing records, include only the related video's `youtube_url`.
+  // For other types, keep the standard recording columns.
+  let selectStr = RECORDING_COLUMNS;
+  if (type === "shadowing") {
+    selectStr = `${RECORDING_COLUMNS}, shadowing_videos(youtube_url)`;
+  }
+
   let query = supabase
     .from("recordings")
-    .select(RECORDING_COLUMNS, { count: "exact" })
+    .select(selectStr, { count: "exact" })
     .ilike("studentName", studentName)
     .order("createdAt", { ascending: false })
     .range(from, to);
@@ -151,7 +158,16 @@ export async function fetchStudentRecordings(
 
   const { data, error, count } = await query;
   if (error) throw error;
-  return { records: data || [], total: count || 0 };
+
+  const records = (data || []).map((rec: any) => {
+    if (type === "shadowing") {
+      const url = rec.shadowing_videos?.youtube_url ?? null;
+      return { ...rec, youtube_url: url };
+    }
+    return rec;
+  });
+
+  return { records, total: count || 0 };
 }
 
 export async function fetchRecordingPage(

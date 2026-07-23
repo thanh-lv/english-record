@@ -11,6 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { useRecording } from "./hooks/useRecording";
+import YouTubePlayer from "../common/YouTubePlayer";
 
 interface ShadowingDetailProps {
   user: any;
@@ -123,18 +124,7 @@ export function ShadowingDetail({
 
       <div className="grid gap-6">
         <div className="aspect-video w-full overflow-hidden shadow-inner">
-          {ytId ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${ytId}?rel=0`}
-              className="w-full h-full"
-              allowFullScreen
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-white font-bold">
-              Invalid Video URL
-            </div>
-          )}
+          <YouTubePlayer url={video.youtube_url} className="w-full h-full" />
         </div>
 
         <div className="bg-slate-50 rounded-[2rem] sm:p-4 p-2 border-2 border-slate-200">
