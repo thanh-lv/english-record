@@ -18,6 +18,7 @@ export function EditStudentModal({
   const [yearBorn, setYearBorn] = useState(
     student.year_born?.toString() || "2015",
   );
+  const [grade, setGrade] = useState(student.grade || "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const { t } = useLanguage();
@@ -42,13 +43,36 @@ export function EditStudentModal({
     setSaving(true);
     setError("");
     try {
-      const { data, error: updateError } = await supabase
+      const updatePayload: any = {
+        year_born: parsedYear,
+        grade: grade.trim() || null,
+      };
+      let data: any = null;
+      const res = await supabase
         .from("profiles")
-        .update({ year_born: parsedYear })
+        .update(updatePayload)
         .eq("id", student.id)
         .select()
         .single();
-      if (updateError) throw updateError;
+
+      if (res.error) {
+        if (res.error.message?.includes("grade")) {
+          delete updatePayload.grade;
+          const retryRes = await supabase
+            .from("profiles")
+            .update(updatePayload)
+            .eq("id", student.id)
+            .select()
+            .single();
+          if (retryRes.error) throw retryRes.error;
+          data = retryRes.data;
+        } else {
+          throw res.error;
+        }
+      } else {
+        data = res.data;
+      }
+
       onUpdated(data);
       onClose();
     } catch (err: any) {
@@ -106,6 +130,26 @@ export function EditStudentModal({
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
               className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
             />
+          </div>
+          <div>
+            <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+              {t.common.grade}
+            </label>
+            <select
+              value={grade}
+              onChange={(e) => {
+                setGrade(e.target.value);
+                setError("");
+              }}
+              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+            >
+              <option value="">{t.common.selectGrade}</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+                <option key={g} value={g}>
+                  {interpolate(t.common.gradeLabel, { grade: g })}
+                </option>
+              ))}
+            </select>
           </div>
           {error && (
             <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">

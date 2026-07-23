@@ -23,6 +23,7 @@ export function CreateStudentModal({
 }: CreateStudentModalProps) {
   const [name, setName] = useState("");
   const [yearBorn, setYearBorn] = useState("2015");
+  const [grade, setGrade] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -33,6 +34,7 @@ export function CreateStudentModal({
   const handleCreate = async () => {
     const trimName = name.trim();
     const trimPass = password.trim();
+    const trimGrade = grade.trim();
     if (trimName.length < 2) {
       setError(t.common.nameMin);
       return;
@@ -56,6 +58,16 @@ export function CreateStudentModal({
       return;
     }
 
+    let parsedGrade: string | number | null = null;
+    if (trimGrade) {
+      const gNum = parseInt(trimGrade, 10);
+      if (isNaN(gNum) || gNum < 1 || gNum > 12) {
+        setError(t.common.gradeInvalid);
+        return;
+      }
+      parsedGrade = gNum;
+    }
+
     setSaving(true);
     setError("");
     try {
@@ -69,17 +81,39 @@ export function CreateStudentModal({
         return;
       }
 
-      const { data: inserted, error: insertError } = await supabase
+      const insertPayload: any = {
+        name: trimName,
+        role: "student",
+        password: trimPass,
+        year_born: parsedYear,
+        grade: parsedGrade,
+      };
+
+      let inserted: any = null;
+      const res = await supabase
         .from("profiles")
-        .insert({
-          name: trimName,
-          role: "student",
-          password: trimPass,
-          year_born: parsedYear,
-        })
+        .insert(insertPayload)
         .select()
         .single();
-      if (insertError) throw insertError;
+
+      if (res.error) {
+        if (res.error.message?.includes("grade")) {
+          // Fallback if grade column doesn't exist on profiles relation yet
+          delete insertPayload.grade;
+          const retryRes = await supabase
+            .from("profiles")
+            .insert(insertPayload)
+            .select()
+            .single();
+          if (retryRes.error) throw retryRes.error;
+          inserted = retryRes.data;
+        } else {
+          throw res.error;
+        }
+      } else {
+        inserted = res.data;
+      }
+
       onCreated(inserted);
       onClose();
     } catch (err: any) {
@@ -154,6 +188,26 @@ export function CreateStudentModal({
               placeholder={t.common.yearBornPlaceholder}
               className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
             />
+          </div>
+          <div>
+            <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+              {t.common.grade}
+            </label>
+            <select
+              value={grade}
+              onChange={(e) => {
+                setGrade(e.target.value);
+                setError("");
+              }}
+              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+            >
+              <option value="">{t.common.selectGrade}</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+                <option key={g} value={g}>
+                  {interpolate(t.common.gradeLabel, { grade: g })}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">

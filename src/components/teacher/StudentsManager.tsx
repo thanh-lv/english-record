@@ -15,7 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { calculateStreak } from "../../utils";
 import { CreateStudentModal } from "./CreateStudentModal";
@@ -65,7 +65,7 @@ export function StudentsManager() {
         const [studRes, recRes, topRes] = await Promise.all([
           supabase
             .from("profiles")
-            .select("id, name, role, avatar, year_born, password")
+            .select("id, name, role, avatar, year_born, password, grade")
             .eq("role", "student")
             .order("name"),
           supabase
@@ -249,6 +249,13 @@ export function StudentsManager() {
                           {student.year_born && (
                             <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-medium shrink-0">
                               {student.year_born}
+                            </span>
+                          )}
+                          {student.grade && (
+                            <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-extrabold shrink-0 border border-emerald-200">
+                              {interpolate(t.common.gradeLabel, {
+                                grade: student.grade,
+                              })}
                             </span>
                           )}
                         </div>
