@@ -160,7 +160,7 @@ export default function LoginScreen({
         {/* Mascot + title */}
         <div className="text-center mb-4">
           <div className="relative inline-block">
-            <div className="w-16 h-16 md:w-24 md:h-24 mx-auto bg-gradient-to-br from-blue-100 to-pink-100 rounded-full flex items-center justify-center text-3xl md:text-5xl shadow-lg border-4 border-white mb-3 animate-in zoom-in duration-700">
+            <div className="w-16 h-16 md:w-24 md:h-24 mx-auto bg-gradient-to-br from-blue-100 to-pink-100 rounded-full flex items-center justify-center text-3xl md:text-5xl shadow-md border-4 border-white mb-3 animate-in zoom-in duration-700">
               🎤
             </div>
             <span className="absolute -top-1 -right-1 text-lg animate-bounce">
@@ -179,7 +179,7 @@ export default function LoginScreen({
         </div>
 
         {/* Form card */}
-        <div className="bg-white rounded-[2rem] shadow-xl shadow-blue-100/60 border-4 border-[#FFFDE7] p-4 md:p-6 space-y-3">
+        <div className="bg-white rounded-lg shadow-xl shadow-blue-100/60 border-4 border-[#FFFDE7] p-4 md:p-6 space-y-3">
           {/* Mode tabs */}
           <div className="flex gap-2 p-1 bg-slate-100 rounded-2xl">
             <button
@@ -188,9 +188,9 @@ export default function LoginScreen({
                 setLoginMode("student");
                 setError("");
               }}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-extrabold transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-extrabold transition-all ${
                 loginMode === "student"
-                  ? "bg-white text-[#1E88E5] shadow-sm"
+                  ? "bg-white text-[#1E88E5] shadow-md"
                   : "text-slate-400 hover:text-slate-600"
               }`}
             >
@@ -202,9 +202,9 @@ export default function LoginScreen({
                 setLoginMode("teacher");
                 setError("");
               }}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-extrabold transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-extrabold transition-all ${
                 loginMode === "teacher"
-                  ? "bg-white text-[#F06292] shadow-sm"
+                  ? "bg-white text-[#F06292] shadow-md"
                   : "text-slate-400 hover:text-slate-600"
               }`}
             >
@@ -291,7 +291,7 @@ export default function LoginScreen({
 
           {/* Error */}
           {error && (
-            <div className="flex items-start gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2.5">
+            <div className="flex items-start gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2.5">
               <AlertCircle size={14} className="shrink-0 mt-0.5" /> {error}
             </div>
           )}
@@ -305,7 +305,7 @@ export default function LoginScreen({
               (loginMode === "student" ? !name.trim() : !email.trim()) ||
               !password
             }
-            className={`w-full py-4 text-white rounded-full font-black text-lg transition-all shadow-lg hover:shadow-xl active:scale-95 border-b-4 disabled:border-slate-400 disabled:from-slate-300 disabled:to-slate-300 flex items-center justify-center gap-2 mt-2 ${
+            className={`w-full py-4 text-white rounded-full font-black text-lg transition-all shadow-md hover:shadow-xl active:scale-95 border-b-4 disabled:border-slate-400 disabled:from-slate-300 disabled:to-slate-300 flex items-center justify-center gap-2 mt-2 ${
               loginMode === "teacher"
                 ? "bg-gradient-to-r from-[#E91E63] to-[#F06292] hover:from-[#C2185B] hover:to-[#E91E63] shadow-pink-200 border-pink-900"
                 : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1E88E5] shadow-blue-200 border-blue-800"

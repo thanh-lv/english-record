@@ -39,7 +39,7 @@ export function TeacherFeedback({ recording }: { recording: any }) {
   };
 
   return (
-    <div className="w-full mt-3 bg-gradient-to-br from-[#FFF8E1] to-[#FFF9C4] border-2 border-[#FFD54F] rounded-2xl p-4 shadow-sm relative overflow-hidden">
+    <div className="w-full mt-3 bg-gradient-to-br from-[#FFF8E1] to-[#FFF9C4] border-2 border-[#FFD54F] rounded-2xl p-4 shadow-md relative overflow-hidden">
       <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-bl-full -mr-2 -mt-2 blur-md"></div>
 
       <h4 className="text-sm font-black text-amber-800 flex items-center gap-2 mb-3 relative z-10">
@@ -49,14 +49,14 @@ export function TeacherFeedback({ recording }: { recording: any }) {
 
       <div className="space-y-3 relative z-10">
         {hasRating && (
-          <div className="flex items-center gap-1.5 bg-white/50 w-fit px-3 py-1.5 rounded-xl border border-amber-200">
+          <div className="flex items-center gap-1.5 bg-white/50 w-fit px-3 py-1.5 rounded-lg border border-amber-200">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
                 size={20}
                 className={
                   star <= recording.teacher_rating
-                    ? "text-amber-400 fill-amber-400 drop-shadow-sm"
+                    ? "text-amber-400 fill-amber-400 drop-shadow-md"
                     : "text-amber-100 fill-amber-100"
                 }
               />
@@ -65,13 +65,13 @@ export function TeacherFeedback({ recording }: { recording: any }) {
         )}
 
         {hasText && (
-          <p className="text-slate-700 font-bold bg-white p-3 rounded-xl border border-amber-200 text-sm italic">
+          <p className="text-slate-700 font-bold bg-white p-3 rounded-lg border border-amber-200 text-sm italic">
             "{recording.teacher_feedback}"
           </p>
         )}
 
         {reactionError && (
-          <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+          <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
             <AlertCircle size={14} className="shrink-0" /> {reactionError}
           </div>
         )}
@@ -110,7 +110,7 @@ export function TeacherFeedback({ recording }: { recording: any }) {
             onClick={handleReact}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition-all ${
               reacted
-                ? "bg-rose-100 text-rose-600 border border-rose-200 shadow-sm"
+                ? "bg-rose-100 text-rose-600 border border-rose-200 shadow-md"
                 : "bg-white text-slate-500 border border-slate-200 hover:border-rose-300 hover:text-rose-500 hover:bg-rose-50"
             }`}
           >

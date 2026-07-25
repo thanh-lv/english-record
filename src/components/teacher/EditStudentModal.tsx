@@ -89,7 +89,7 @@ export function EditStudentModal({
       aria-modal="true"
       aria-labelledby="edit-student-title"
     >
-      <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
+      <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
             <Pencil size={20} />
@@ -109,7 +109,7 @@ export function EditStudentModal({
             type="button"
             onClick={onClose}
             aria-label={t.common.close}
-            className="ml-auto p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+            className="ml-auto p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
           >
             <X size={18} />
           </button>
@@ -128,7 +128,7 @@ export function EditStudentModal({
                 setError("");
               }}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
-              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
             />
           </div>
           <div>
@@ -141,7 +141,7 @@ export function EditStudentModal({
                 setGrade(e.target.value);
                 setError("");
               }}
-              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
             >
               <option value="">{t.common.selectGrade}</option>
               {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
@@ -152,7 +152,7 @@ export function EditStudentModal({
             </select>
           </div>
           {error && (
-            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
               <AlertCircle size={14} className="shrink-0" /> {error}
             </div>
           )}
@@ -162,7 +162,7 @@ export function EditStudentModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="px-5 py-2.5 rounded-lg font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             {t.common.cancel}
           </button>
@@ -170,7 +170,7 @@ export function EditStudentModal({
             type="button"
             disabled={saving}
             onClick={handleSave}
-            className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 text-white font-black text-sm rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 text-white font-black text-sm rounded-lg transition-all shadow-md hover:shadow-md disabled:opacity-50 flex items-center gap-2"
           >
             {saving ? (
               <Loader2 size={16} className="animate-spin" />

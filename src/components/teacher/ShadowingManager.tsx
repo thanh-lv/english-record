@@ -136,7 +136,7 @@ export function ShadowingManager() {
             setShowCreate(true);
             setError("");
           }}
-          className="bg-[#1E88E5] hover:bg-[#1565C0] text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md text-sm"
+          className="bg-[#1E88E5] hover:bg-[#1565C0] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md text-sm"
         >
           <Plus size={16} /> {t.teacherModal.addVideoTitle}
         </button>
@@ -152,7 +152,7 @@ export function ShadowingManager() {
           return (
             <div
               key={video.id}
-              className="bg-white rounded-[1.5rem] border-2 border-slate-100 overflow-hidden shadow-sm flex flex-col"
+              className="bg-white rounded-lg border-2 border-slate-100 overflow-hidden shadow-md flex flex-col"
             >
               <div className="aspect-video bg-slate-100 relative">
                 {thumb ? (
@@ -205,7 +205,7 @@ export function ShadowingManager() {
           );
         })}
         {videos.length === 0 && (
-          <div className="col-span-full py-10 text-center text-slate-400 font-bold bg-white rounded-[1.5rem] border-2 border-dashed border-slate-200">
+          <div className="col-span-full py-10 text-center text-slate-400 font-bold bg-white rounded-lg border-2 border-dashed border-slate-200">
             {t.shadowing.empty}
           </div>
         )}
@@ -213,7 +213,7 @@ export function ShadowingManager() {
 
       {showCreate && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl p-6 space-y-4">
+          <div className="bg-white rounded-lg w-full max-w-md shadow-2xl p-6 space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
                 <Youtube className="text-rose-600" />{" "}
@@ -234,7 +234,7 @@ export function ShadowingManager() {
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-rose-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                 />
               </div>
               <div>
@@ -245,11 +245,11 @@ export function ShadowingManager() {
                   value={youtubeUrl}
                   onChange={(e) => setYoutubeUrl(e.target.value)}
                   placeholder={t.teacherModal.videoUrlPlaceholder}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-rose-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                 />
               </div>
               {error && (
-                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
                   <AlertCircle size={14} /> {error}
                 </div>
               )}
@@ -257,14 +257,14 @@ export function ShadowingManager() {
             <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => setShowCreate(false)}
-                className="px-4 py-2 rounded-xl font-bold text-slate-500 hover:bg-slate-100"
+                className="px-4 py-2 rounded-lg font-bold text-slate-500 hover:bg-slate-100"
               >
                 {t.common.cancel}
               </button>
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="px-5 py-2 bg-[#1E88E5] hover:bg-[#1565C0] text-white rounded-xl font-black disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-2 bg-[#1E88E5] hover:bg-[#1565C0] text-white rounded-lg font-black disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -280,7 +280,7 @@ export function ShadowingManager() {
 
       {deleteTarget && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5">
+          <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5">
             <h4 className="font-extrabold text-slate-800 text-lg">
               {t.teacherModal.videoConfirmDelete}
             </h4>
@@ -288,7 +288,7 @@ export function ShadowingManager() {
               {t.teacherModal.deleteVideoWarning}
             </p>
             {deleteError && (
-              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
                 <AlertCircle size={14} /> {deleteError}
               </div>
             )}

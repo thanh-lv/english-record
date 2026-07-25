@@ -351,7 +351,7 @@ export function TopicsManager() {
               setPage(0);
             }}
             placeholder={t.teacherModal.filterTopicPlaceholder}
-            className="w-full pl-3 pr-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
+            className="w-full pl-3 pr-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-blue-400"
           />
         </div>
         <select
@@ -360,7 +360,7 @@ export function TopicsManager() {
             setFilterStatus(e.target.value as any);
             setPage(0);
           }}
-          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
+          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-blue-400"
         >
           <option value="all">
             {t.teacherModal.ageAll} ({filteredTopics.length})
@@ -379,14 +379,14 @@ export function TopicsManager() {
             onChange={(e) => setNewTopicTitle(e.target.value)}
             placeholder={t.common.newTopicPlaceholder}
             onKeyDown={(e) => e.key === "Enter" && addTopic()}
-            className="flex-1 px-4 py-2 rounded-xl border-2 border-emerald-200 text-sm font-bold focus:outline-none focus:border-emerald-400"
+            className="flex-1 px-4 py-2 rounded-lg border-2 border-emerald-200 text-sm font-bold focus:outline-none focus:border-emerald-400"
           />
           <button
             type="button"
             onClick={addTopic}
             disabled={saving}
             aria-label={t.common.confirm}
-            className="p-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:opacity-50"
+            className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
           >
             <Check size={16} />
           </button>
@@ -394,7 +394,7 @@ export function TopicsManager() {
             type="button"
             onClick={() => setAddingTopic(null)}
             aria-label={t.common.cancel}
-            className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200"
+            className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200"
           >
             <X size={16} />
           </button>
@@ -414,7 +414,7 @@ export function TopicsManager() {
           <button
             type="button"
             onClick={fetchTopics}
-            className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm rounded-xl border border-rose-200 transition-colors"
+            className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm rounded-lg border border-rose-200 transition-colors"
           >
             {t.common.retry}
           </button>
@@ -424,12 +424,12 @@ export function TopicsManager() {
           {pagedTopics.map((topic, idx) => (
             <div
               key={topic.id}
-              className={`bg-white rounded-2xl border-2 border-slate-100 overflow-hidden shadow-sm${!(topic.is_active ?? true) ? " opacity-60" : ""}`}
+              className={`bg-white rounded-2xl border-2 border-slate-100 overflow-hidden shadow-md${!(topic.is_active ?? true) ? " opacity-60" : ""}`}
             >
               {/* Topic header */}
               {editingTopic === topic.id ? (
                 <div className="flex items-center gap-2 p-3 bg-blue-50 border-b-2 border-blue-100">
-                  <span className="w-7 h-7 rounded-xl bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
+                  <span className="w-7 h-7 rounded-lg bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
                     {idx + 1}
                   </span>
                   <input
@@ -437,14 +437,14 @@ export function TopicsManager() {
                     value={editTopicTitle}
                     onChange={(e) => setEditTopicTitle(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && saveTopic(topic.id)}
-                    className="flex-1 px-3 py-2 rounded-xl border-2 border-blue-300 text-sm font-bold focus:outline-none focus:border-blue-500 bg-white"
+                    className="flex-1 px-3 py-2 rounded-lg border-2 border-blue-300 text-sm font-bold focus:outline-none focus:border-blue-500 bg-white"
                   />
                   <button
                     type="button"
                     onClick={() => saveTopic(topic.id)}
                     disabled={saving}
                     aria-label={t.common.save}
-                    className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shrink-0"
+                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shrink-0"
                   >
                     <Check size={14} />
                   </button>
@@ -452,7 +452,7 @@ export function TopicsManager() {
                     type="button"
                     onClick={() => setEditingTopic(null)}
                     aria-label={t.common.cancel}
-                    className="p-2 bg-white text-slate-500 rounded-xl hover:bg-slate-100 border border-slate-200 shrink-0"
+                    className="p-2 bg-white text-slate-500 rounded-lg hover:bg-slate-100 border border-slate-200 shrink-0"
                   >
                     <X size={14} />
                   </button>
@@ -477,7 +477,7 @@ export function TopicsManager() {
                       className="text-slate-400 shrink-0"
                     />
                   )}
-                  <span className="w-7 h-7 rounded-xl bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
+                  <span className="w-7 h-7 rounded-lg bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
                     {idx + 1}
                   </span>
                   <span className="flex-1 font-extrabold text-slate-800 truncate">
@@ -557,7 +557,7 @@ export function TopicsManager() {
                           <img
                             src={q.image_url}
                             alt="Question"
-                            className="w-12 h-12 object-cover rounded-xl border-2 border-slate-100 shrink-0 ml-2"
+                            className="w-12 h-12 object-cover rounded-lg border-2 border-slate-100 shrink-0 ml-2"
                           />
                         )}
                         <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
@@ -689,7 +689,7 @@ export function TopicsManager() {
           aria-modal="true"
           aria-labelledby="question-modal-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl border-4 border-blue-100 p-6 space-y-4 my-4">
+          <div className="bg-white rounded-lg w-full max-w-lg shadow-2xl border-4 border-blue-100 p-6 space-y-4 my-4">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
               <h4
                 id="question-modal-title"
@@ -729,7 +729,7 @@ export function TopicsManager() {
                       : setEditValues({ ...editValues, text: e.target.value })
                   }
                   placeholder={t.common.questionPlaceholder}
-                  className="w-full px-3 py-2.5 rounded-xl border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
+                  className="w-full px-3 py-2.5 rounded-lg border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
                 />
               </div>
               <div>
@@ -754,7 +754,7 @@ export function TopicsManager() {
                         })
                   }
                   placeholder={t.common.translationPlaceholder}
-                  className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
+                  className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 text-sm focus:outline-none"
                 />
               </div>
               <div>
@@ -779,7 +779,7 @@ export function TopicsManager() {
                         })
                   }
                   placeholder={t.common.sampleAnswerPlaceholder}
-                  className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
+                  className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 text-sm focus:outline-none"
                 />
               </div>
               {questionModal.topicType === "bongbe" && (
@@ -805,7 +805,7 @@ export function TopicsManager() {
                           })
                     }
                     placeholder={t.common.targetPlaceholder}
-                    className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none"
+                    className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 text-sm focus:outline-none"
                   />
                 </div>
               )}
@@ -814,7 +814,7 @@ export function TopicsManager() {
                   {t.common.imageOptional.replace(":", "")}
                 </label>
                 <div className="flex items-center gap-3">
-                  <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer border-2 border-slate-200 transition-colors">
+                  <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg cursor-pointer border-2 border-slate-200 transition-colors">
                     {uploadingImage ? (
                       <Loader2 size={18} className="animate-spin" />
                     ) : (
@@ -865,7 +865,7 @@ export function TopicsManager() {
                   )}
                 </div>
                 {imageUploadError && (
-                  <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2 mt-2">
+                  <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 mt-2">
                     <AlertCircle size={14} className="shrink-0" />{" "}
                     {imageUploadError}
                   </div>

@@ -128,8 +128,8 @@ export function StudentsManager() {
     <div className="space-y-4">
       {/* Summary bar */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
-          <span className="w-10 h-10 rounded-xl bg-[#E3F2FD] text-[#1E88E5] flex items-center justify-center">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-4 flex items-center gap-3">
+          <span className="w-10 h-10 rounded-lg bg-[#E3F2FD] text-[#1E88E5] flex items-center justify-center">
             <Users size={20} />
           </span>
           <div>
@@ -141,8 +141,8 @@ export function StudentsManager() {
             </p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
-          <span className="w-10 h-10 rounded-xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-4 flex items-center gap-3">
+          <span className="w-10 h-10 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
             <BarChart2 size={20} />
           </span>
           <div>
@@ -154,8 +154,8 @@ export function StudentsManager() {
             </p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
-          <span className="w-10 h-10 rounded-xl bg-[#FFF3E0] text-[#E65100] flex items-center justify-center">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-4 flex items-center gap-3">
+          <span className="w-10 h-10 rounded-lg bg-[#FFF3E0] text-[#E65100] flex items-center justify-center">
             <BookOpen size={20} />
           </span>
           <div>
@@ -179,12 +179,12 @@ export function StudentsManager() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t.common.searchStudent}
-          className="w-full pl-9 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] shadow-sm"
+          className="w-full pl-9 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] shadow-md"
         />
       </div>
 
       {/* Student list */}
-      <div className="bg-white rounded-[2rem] shadow-md border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-md border border-slate-100 overflow-hidden">
         <div className="p-4 border-b-2 border-slate-100 flex items-center gap-2 bg-slate-50">
           <Users size={16} className="text-slate-500" />
           <h3 className="font-extrabold text-slate-700 text-sm">
@@ -193,7 +193,7 @@ export function StudentsManager() {
           <button
             type="button"
             onClick={() => setShowCreateForm(true)}
-            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border-2 border-emerald-200 hover:bg-emerald-100 rounded-xl text-xs font-extrabold transition-all"
+            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border-2 border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-extrabold transition-all"
           >
             <UserPlus size={14} /> {t.common.addStudent}
           </button>
@@ -235,7 +235,7 @@ export function StudentsManager() {
                     <div className="flex items-center gap-3">
                       {/* Avatar */}
                       <span
-                        className={`w-11 h-11 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${student.avatar ? "bg-amber-50 text-2xl shadow-sm border-amber-200" : `text-sm ${colorClass}`}`}
+                        className={`w-11 h-11 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${student.avatar ? "bg-amber-50 text-2xl shadow-md border-amber-200" : `text-sm ${colorClass}`}`}
                       >
                         {student.avatar || initials}
                       </span>
@@ -394,7 +394,7 @@ export function StudentsManager() {
                           return (
                             <div
                               key={topic.id}
-                              className={`rounded-xl p-2.5 border-2 flex flex-col gap-1 ${done ? "bg-[#E8F5E9] border-[#A5D6A7]" : "bg-white border-slate-100"}`}
+                              className={`rounded-lg p-2.5 border-2 flex flex-col gap-1 ${done ? "bg-[#E8F5E9] border-[#A5D6A7]" : "bg-white border-slate-100"}`}
                             >
                               <div className="flex items-center gap-1.5">
                                 {done ? (

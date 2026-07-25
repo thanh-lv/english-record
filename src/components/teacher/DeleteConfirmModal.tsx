@@ -32,9 +32,9 @@ export function DeleteConfirmModal({
       aria-modal="true"
       aria-labelledby="delete-confirm-title"
     >
-      <div className="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 p-6 border-4 border-rose-100 space-y-5">
+      <div className="bg-white rounded-lg w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 p-6 border-4 border-rose-100 space-y-5">
         <div className="flex items-start gap-3">
-          <div className="p-3 bg-rose-50 text-rose-600 rounded-2xl border border-rose-100 shadow-sm shrink-0">
+          <div className="p-3 bg-rose-50 text-rose-600 rounded-2xl border border-rose-100 shadow-md shrink-0">
             <AlertCircle size={24} />
           </div>
           <div className="space-y-1">
@@ -51,7 +51,7 @@ export function DeleteConfirmModal({
         {children}
 
         {error && (
-          <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+          <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
             <AlertCircle size={14} className="shrink-0" />
             {error}
           </div>
@@ -61,7 +61,7 @@ export function DeleteConfirmModal({
           <button
             type="button"
             onClick={onCancel}
-            className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200 shadow-sm"
+            className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200 shadow-md"
           >
             {t.common.cancel}
           </button>

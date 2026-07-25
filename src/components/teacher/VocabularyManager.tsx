@@ -373,7 +373,7 @@ export function VocabularyManager() {
             setShowCreateSet(true);
             setCreateSetError("");
           }}
-          className="bg-[#1E88E5] hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md text-sm"
+          className="bg-[#1E88E5] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md text-sm"
         >
           <Plus size={16} /> {t.vocabManager.newSet}
         </button>
@@ -390,13 +390,13 @@ export function VocabularyManager() {
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
             placeholder={t.teacherModal.filterVocabPlaceholder}
-            className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
+            className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-blue-400"
           />
         </div>
         <select
           value={filterAgeGroup}
           onChange={(e) => setFilterAgeGroup(e.target.value as any)}
-          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-400"
+          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-blue-400"
         >
           <option value="all">{t.teacherModal.filterVocabAgeAll}</option>
           <option value="kindergarten">{t.teacherModal.ageKindergarten}</option>
@@ -414,14 +414,14 @@ export function VocabularyManager() {
           return (
             <div
               key={set.id}
-              className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden"
+              className="bg-white rounded-2xl border-2 border-slate-100 shadow-md overflow-hidden"
             >
               {/* Set header row */}
               <div
                 className="flex items-center gap-3 p-4 cursor-pointer hover:bg-slate-50 transition-colors"
                 onClick={() => handleToggleSet(set.id)}
               >
-                <div className="w-12 h-12 rounded-xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-2xl shrink-0">
+                <div className="w-12 h-12 rounded-lg bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-2xl shrink-0">
                   {set.emoji}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -493,7 +493,7 @@ export function VocabularyManager() {
                       {cards.map((card) => (
                         <div
                           key={card.id}
-                          className="bg-slate-50 border-2 border-slate-100 rounded-xl p-3 flex flex-col gap-1"
+                          className="bg-slate-50 border-2 border-slate-100 rounded-lg p-3 flex flex-col gap-1"
                         >
                           {card.image_url && (
                             <img
@@ -551,7 +551,7 @@ export function VocabularyManager() {
           aria-modal="true"
           aria-labelledby="create-set-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
               <h4
                 id="create-set-title"
@@ -583,7 +583,7 @@ export function VocabularyManager() {
                   onKeyDown={(e) => e.key === "Enter" && handleCreateSet()}
                   placeholder={t.vocabManager.titlePlaceholder}
                   aria-labelledby="create-set-title-label"
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-blue-400 focus:outline-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -599,7 +599,7 @@ export function VocabularyManager() {
                     onChange={(e) => setNewEmoji(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleCreateSet()}
                     aria-labelledby="create-set-emoji-label"
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-blue-400 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -617,7 +617,7 @@ export function VocabularyManager() {
                         e.target.value as "kindergarten" | "primary" | "all",
                       )
                     }
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-blue-400 focus:outline-none"
                   >
                     <option value="kindergarten">
                       {t.teacherModal.ageKindergarten}
@@ -630,7 +630,7 @@ export function VocabularyManager() {
             </div>
 
             {createSetError && (
-              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
                 <AlertCircle size={14} /> {createSetError}
               </div>
             )}
@@ -667,7 +667,7 @@ export function VocabularyManager() {
           aria-modal="true"
           aria-labelledby="add-card-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
+          <div className="bg-white rounded-lg w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
               <h4
                 id="add-card-title"
@@ -699,7 +699,7 @@ export function VocabularyManager() {
                   onKeyDown={(e) => e.key === "Enter" && handleAddCard()}
                   placeholder={t.vocabManager.frontPlaceholder}
                   aria-labelledby="add-card-front-label"
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-blue-400 focus:outline-none"
                 />
               </div>
               <div>
@@ -715,7 +715,7 @@ export function VocabularyManager() {
                   onKeyDown={(e) => e.key === "Enter" && handleAddCard()}
                   placeholder={t.vocabManager.backPlaceholder}
                   aria-labelledby="add-card-back-label"
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-blue-400 focus:outline-none"
                 />
               </div>
               <div>
@@ -732,7 +732,7 @@ export function VocabularyManager() {
                     onKeyDown={(e) => e.key === "Enter" && handleAddCard()}
                     placeholder={t.vocabManager.ipaPlaceholder}
                     aria-labelledby="add-card-ipa-label"
-                    className="flex-1 px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-400 focus:outline-none font-mono"
+                    className="flex-1 px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-blue-400 focus:outline-none font-mono"
                   />
                   <button
                     type="button"
@@ -740,7 +740,7 @@ export function VocabularyManager() {
                     disabled={ipaLoading || !cardFront.trim()}
                     title={t.vocabManager.ipaAutoGenTitle}
                     aria-label={t.vocabManager.ipaAutoGenTitle}
-                    className="shrink-0 px-3 py-2 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="shrink-0 px-3 py-2 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {ipaLoading ? (
                       <Loader2 size={14} className="animate-spin" />
@@ -770,7 +770,7 @@ export function VocabularyManager() {
                       uploadCardImage(file);
                   }}
                   onClick={() => cardImageInputRef.current?.click()}
-                  className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
+                  className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
                     cardImageDragging
                       ? "border-blue-400 bg-blue-50"
                       : "border-slate-200 hover:border-blue-300 hover:bg-slate-50"
@@ -824,7 +824,7 @@ export function VocabularyManager() {
                   )}
                 </div>
                 {cardImageError && (
-                  <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2 mt-2">
+                  <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 mt-2">
                     <AlertCircle size={14} className="shrink-0" />{" "}
                     {cardImageError}
                   </div>
@@ -835,13 +835,13 @@ export function VocabularyManager() {
                   onChange={(e) => setCardImageUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAddCard()}
                   placeholder={t.vocabManager.imageUrlPlaceholder}
-                  className="w-full mt-2 px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-xs font-bold focus:border-blue-400 focus:outline-none text-slate-600"
+                  className="w-full mt-2 px-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-xs font-bold focus:border-blue-400 focus:outline-none text-slate-600"
                 />
               </div>
             </div>
 
             {addCardError && (
-              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
                 <AlertCircle size={14} /> {addCardError}
               </div>
             )}
@@ -878,7 +878,7 @@ export function VocabularyManager() {
           aria-modal="true"
           aria-labelledby="delete-set-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertCircle size={20} />
@@ -899,7 +899,7 @@ export function VocabularyManager() {
               {t.vocabManager.deleteSetWarning}
             </p>
             {deleteSetError && (
-              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
                 <AlertCircle size={14} /> {deleteSetError}
               </div>
             )}
@@ -935,7 +935,7 @@ export function VocabularyManager() {
           aria-modal="true"
           aria-labelledby="delete-card-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertCircle size={20} />
@@ -953,7 +953,7 @@ export function VocabularyManager() {
               </div>
             </div>
             {deleteCardError && (
-              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
                 <AlertCircle size={14} /> {deleteCardError}
               </div>
             )}

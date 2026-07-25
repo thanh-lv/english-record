@@ -68,7 +68,7 @@ function RecordingsListRoute({
   return (
     <>
       {appError && (
-        <div className="bg-[#FFEBEE] border-2 border-[#FFCDD2] text-rose-700 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+        <div className="bg-[#FFEBEE] border-2 border-[#FFCDD2] text-rose-700 text-sm px-4 py-3 rounded-lg flex items-center gap-2">
           <AlertCircle size={18} className="shrink-0" />
           <span className="font-bold">{appError}</span>
         </div>

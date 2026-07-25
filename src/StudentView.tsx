@@ -313,18 +313,18 @@ export default function StudentView({
         <OfflineBanner />
         {/* Sidebar skeleton */}
         <div className="hidden md:block w-64 shrink-0 space-y-4">
-          <div className="h-48 bg-slate-100 rounded-[2rem]" />
-          <div className="h-36 bg-slate-100 rounded-[2rem]" />
+          <div className="h-48 bg-slate-100 rounded-lg" />
+          <div className="h-36 bg-slate-100 rounded-lg" />
         </div>
         {/* Mobile profile bar skeleton */}
-        <div className="md:hidden h-16 bg-slate-100 rounded-[1.5rem] mb-1" />
+        <div className="md:hidden h-16 bg-slate-100 rounded-lg mb-1" />
         {/* Content skeleton */}
         <div className="flex-1 space-y-4">
-          <div className="bg-white/70 p-6 rounded-[2rem] border-3 border-white shadow-sm space-y-4">
-            <div className="h-6 w-40 bg-slate-100 rounded-xl" />
+          <div className="bg-white/70 p-6 rounded-lg border-3 border-white shadow-md space-y-4">
+            <div className="h-6 w-40 bg-slate-100 rounded-lg" />
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-28 bg-slate-100 rounded-[2rem]" />
+                <div key={i} className="h-28 bg-slate-100 rounded-lg" />
               ))}
             </div>
           </div>

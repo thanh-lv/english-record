@@ -130,7 +130,7 @@ export function CreateStudentModal({
       aria-modal="true"
       aria-labelledby="create-student-title"
     >
-      <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
+      <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
             <UserPlus size={20} />
@@ -150,7 +150,7 @@ export function CreateStudentModal({
             type="button"
             onClick={onClose}
             aria-label={t.common.close}
-            className="ml-auto p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+            className="ml-auto p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
           >
             <X size={18} />
           </button>
@@ -170,7 +170,7 @@ export function CreateStudentModal({
               }}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
               placeholder={t.login.namePlaceholder}
-              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
             />
           </div>
           <div>
@@ -186,7 +186,7 @@ export function CreateStudentModal({
               }}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
               placeholder={t.common.yearBornPlaceholder}
-              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
             />
           </div>
           <div>
@@ -199,7 +199,7 @@ export function CreateStudentModal({
                 setGrade(e.target.value);
                 setError("");
               }}
-              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
             >
               <option value="">{t.common.selectGrade}</option>
               {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
@@ -223,7 +223,7 @@ export function CreateStudentModal({
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleCreate()}
                 placeholder={t.login.passwordPlaceholder}
-                className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+                className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
               />
               <button
                 type="button"
@@ -238,7 +238,7 @@ export function CreateStudentModal({
             </div>
           </div>
           {error && (
-            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
               <AlertCircle size={14} className="shrink-0" /> {error}
             </div>
           )}

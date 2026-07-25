@@ -42,19 +42,24 @@ export default function App() {
   useEffect(() => {
     const safetyTimeout = setTimeout(() => {
       setAuthLoading((prev) => {
-        if (prev) console.warn("Auth timeout: forcing loading to stop after 5 seconds");
+        if (prev)
+          console.warn("Auth timeout: forcing loading to stop after 5 seconds");
         return false;
       });
     }, 5000);
 
     const initAuth = async () => {
       try {
-        const { data: { user: currentUser }, error: getUserError } = await supabase.auth.getUser();
+        const {
+          data: { user: currentUser },
+          error: getUserError,
+        } = await supabase.auth.getUser();
         if (getUserError && getUserError.name !== "AuthSessionMissingError") {
           console.warn("GetUser warning:", getUserError.message);
         }
         if (!currentUser) {
-          const { error: signInError } = await supabase.auth.signInAnonymously();
+          const { error: signInError } =
+            await supabase.auth.signInAnonymously();
           if (signInError) {
             console.error("Anonymous sign-in error:", signInError);
             setAuthLoading(false);
@@ -67,7 +72,9 @@ export default function App() {
     };
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const currentUser = session?.user || null;
       setUser(currentUser);
       const savedProfileId = localStorage.getItem("english_record_profile_id");
@@ -75,7 +82,10 @@ export default function App() {
       if (currentUser && savedProfileId) {
         try {
           const { data, error } = await supabase
-            .from("profiles").select("*").eq("id", savedProfileId).maybeSingle();
+            .from("profiles")
+            .select("*")
+            .eq("id", savedProfileId)
+            .maybeSingle();
           if (!error && data) {
             setUserProfile(data);
             if (data.language === "vi" || data.language === "en") {
@@ -93,7 +103,11 @@ export default function App() {
         // Teacher logged in via Supabase Auth — load profile by auth_uid
         try {
           const { data } = await supabase
-            .from("profiles").select("*").eq("auth_uid", currentUser.id).eq("role", "teacher").maybeSingle();
+            .from("profiles")
+            .select("*")
+            .eq("auth_uid", currentUser.id)
+            .eq("role", "teacher")
+            .maybeSingle();
           if (data) {
             localStorage.setItem("english_record_profile_id", data.id);
             setUserProfile(data);
@@ -133,10 +147,12 @@ export default function App() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] flex flex-col items-center justify-center gap-5">
         <div className="relative">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-pink-100 rounded-full flex items-center justify-center text-5xl shadow-lg border-4 border-white">
+          <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-pink-100 rounded-full flex items-center justify-center text-5xl shadow-md border-4 border-white">
             🎤
           </div>
-          <span className="absolute -top-1 -right-1 text-xl animate-bounce">✨</span>
+          <span className="absolute -top-1 -right-1 text-xl animate-bounce">
+            ✨
+          </span>
         </div>
         <div className="text-center space-y-1">
           <p className="text-xl font-black bg-gradient-to-r from-[#1E88E5] to-[#F06292] bg-clip-text text-transparent">
@@ -153,9 +169,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] text-slate-800 font-sans selection:bg-pink-100 flex flex-col">
-      <header className="bg-white/80 backdrop-blur-md shadow-sm px-4 md:px-6 py-3 h-[68px] sm:height-auto flex justify-between items-center sticky top-0 z-10 border-b-4 border-[#FFF0F0]">
+      <header className="bg-white/80 backdrop-blur-md shadow-md px-4 md:px-6 py-3 h-[68px] sm:height-auto flex justify-between items-center sticky top-0 z-10 border-b-4 border-[#FFF0F0]">
         <h1 className="font-extrabold text-[#1E88E5] items-center gap-2 hidden sm:flex">
-          <span className="p-1.5 bg-[#E3F2FD] rounded-xl inline-block shadow-inner shrink-0">
+          <span className="p-1.5 bg-[#E3F2FD] rounded-lg inline-block shadow-inner shrink-0">
             <Mic size={16} className="text-[#1E88E5]" />
           </span>
           <span className="text-base md:text-2xl tracking-wide">
@@ -166,7 +182,9 @@ export default function App() {
           {/* Language switcher */}
           <button
             type="button"
-            onClick={() => setLang(lang === "vi" ? "en" : "vi", userProfile?.id)}
+            onClick={() =>
+              setLang(lang === "vi" ? "en" : "vi", userProfile?.id)
+            }
             className="text-xs font-black px-2.5 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
           >
             {lang === "vi" ? "🇬🇧 English" : "🇻🇳 Vietnamese"}
@@ -174,7 +192,7 @@ export default function App() {
 
           {userProfile && (
             <>
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#FFFDE7] border-2 border-[#FFF59D] rounded-full shadow-sm">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#FFFDE7] border-2 border-[#FFF59D] rounded-full shadow-md">
                 <User size={14} className="text-[#FFB74D]" />
                 <span className="text-sm font-bold text-slate-700">
                   {userProfile.name}

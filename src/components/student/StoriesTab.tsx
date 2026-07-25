@@ -16,7 +16,7 @@ export function StoriesTab({
 }: StoriesTabProps) {
   const { t } = useLanguage();
   return (
-    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
       <div className="mb-6 space-y-1">
         <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
           <Library size={22} /> {t.stories.title}
@@ -38,7 +38,7 @@ export function StoriesTab({
         {dbStories.map((story) => (
           <div
             key={story.id}
-            className="bg-white rounded-[1.5rem] border-3 border-purple-100 shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col overflow-hidden"
+            className="bg-white rounded-lg border-3 border-purple-100 shadow-md hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col overflow-hidden"
             onClick={() => onStoryClick(story)}
           >
             <div className="w-full aspect-square bg-slate-100 relative">

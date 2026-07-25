@@ -77,7 +77,7 @@ function FlipCard({ card }: { card: VocabCard }) {
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
           }}
-          className="rounded-[1.5rem] bg-gradient-to-br from-[#E3F2FD] to-[#BBDEFB] border-4 border-[#90CAF9] shadow-xl flex flex-col items-center justify-center p-6 gap-2"
+          className="rounded-lg bg-gradient-to-br from-[#E3F2FD] to-[#BBDEFB] border-4 border-[#90CAF9] shadow-xl flex flex-col items-center justify-center p-6 gap-2"
         >
           {card.image_url && (
             <img
@@ -117,7 +117,7 @@ function FlipCard({ card }: { card: VocabCard }) {
             WebkitBackfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
           }}
-          className="rounded-[1.5rem] bg-gradient-to-br from-[#1E88E5] to-[#1565C0] border-4 border-[#1976D2] shadow-xl flex flex-col items-center justify-center p-6 gap-3"
+          className="rounded-lg bg-gradient-to-br from-[#1E88E5] to-[#1565C0] border-4 border-[#1976D2] shadow-xl flex flex-col items-center justify-center p-6 gap-3"
         >
           <p className="text-4xl font-black text-white text-center leading-tight">
             {card.back}
@@ -189,7 +189,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
       aria-modal="true"
       aria-labelledby="flashcards-study-title"
     >
-      <div className="bg-white w-full sm:max-w-lg rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300">
+      <div className="bg-white w-full sm:max-w-lg rounded-lg sm:rounded-lg shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3">
           <div className="flex items-center gap-3">
@@ -292,14 +292,14 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
               {currentIndex === total - 1 ? (
                 <button
                   onClick={onClose}
-                  className="flex-1 h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black rounded-2xl transition-all shadow-lg border-b-4 border-emerald-700 active:scale-95 text-base"
+                  className="flex-1 h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black rounded-2xl transition-all shadow-md border-b-4 border-emerald-700 active:scale-95 text-base"
                 >
                   {t.teacherModal.flashcardsDone}
                 </button>
               ) : (
                 <button
                   onClick={handleNext}
-                  className="flex-1 h-14 bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1E88E5] text-white font-black rounded-2xl transition-all shadow-lg border-b-4 border-blue-900 active:scale-95 flex items-center justify-center gap-2 text-base"
+                  className="flex-1 h-14 bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1E88E5] text-white font-black rounded-2xl transition-all shadow-md border-b-4 border-blue-900 active:scale-95 flex items-center justify-center gap-2 text-base"
                 >
                   {t.teacherModal.flashcardsNext} <ArrowRight size={18} />
                 </button>
@@ -358,8 +358,8 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
 
   if (loading) {
     return (
-      <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
-        <div className="h-6 w-40 bg-slate-100 rounded-xl mb-4" />
+      <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
+        <div className="h-6 w-40 bg-slate-100 rounded-lg mb-4" />
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-28 bg-slate-100 rounded-2xl" />
@@ -370,7 +370,7 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
   }
 
   return (
-    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
       <div className="mb-5">
         <h2 className="text-xl font-black text-slate-800">
           {t.teacherModal.flashcardsTitle}

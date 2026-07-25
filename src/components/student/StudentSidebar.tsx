@@ -83,9 +83,9 @@ export function StudentSidebar({
         key={item.id}
         to={`/student/${item.id}`}
         onClick={() => setMobileOpen(false)}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-extrabold text-sm transition-all ${
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-extrabold text-sm transition-all ${
           active
-            ? "bg-[#E3F2FD] text-[#1E88E5] shadow-sm"
+            ? "bg-[#E3F2FD] text-[#1E88E5] shadow-md"
             : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
         }`}
       >
@@ -104,11 +104,11 @@ export function StudentSidebar({
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-64 shrink-0 space-y-4">
-        <div className="bg-white/80 backdrop-blur-sm p-3 rounded-[2rem] border-3 border-[#E3F2FD] shadow-md text-center relative group">
+        <div className="bg-white/80 backdrop-blur-sm p-3 rounded-lg border-3 border-[#E3F2FD] shadow-md text-center relative group">
           <button
             type="button"
             onClick={onAvatarClick}
-            className="w-20 h-20 mx-auto bg-white border-4 border-amber-200 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all rounded-full flex items-center justify-center text-4xl shadow-sm relative mb-4"
+            className="w-20 h-20 mx-auto bg-white border-4 border-amber-200 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all rounded-full flex items-center justify-center text-4xl shadow-md relative mb-4"
             title={t.common.changeAvatar}
           >
             {currentAvatar}
@@ -121,11 +121,11 @@ export function StudentSidebar({
             <span className="text-[#FF8A80]">{profile.name}</span>! 👋
           </h2>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full text-amber-700 text-sm font-bold shadow-sm">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full text-amber-700 text-sm font-bold shadow-md">
               <Award size={16} /> {completedNumbers.length} {t.sidebar.prizes}
             </div>
             <div
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-sm border ${streak > 0 ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-md border ${streak > 0 ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}
             >
               <Flame
                 size={16}
@@ -142,14 +142,14 @@ export function StudentSidebar({
           </div>
         </div>
 
-        <nav className="bg-white/80 backdrop-blur-sm p-3 rounded-[2rem] border-3 border-slate-100 shadow-sm flex flex-col gap-2">
+        <nav className="bg-white/80 backdrop-blur-sm p-3 rounded-lg border-3 border-slate-100 shadow-md flex flex-col gap-2">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.id}
               to={`/student/${item.id}`}
-              className={`flex items-center gap-3 px-5 py-4 rounded-xl font-extrabold text-sm transition-all ${
+              className={`flex items-center gap-3 px-5 py-4 rounded-lg font-extrabold text-sm transition-all ${
                 activeTab === item.id
-                  ? "bg-[#E3F2FD] text-[#1E88E5] shadow-sm"
+                  ? "bg-[#E3F2FD] text-[#1E88E5] shadow-md"
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
               }`}
             >
@@ -170,11 +170,11 @@ export function StudentSidebar({
       </aside>
 
       {/* Mobile: compact profile bar at top */}
-      <div className="md:hidden bg-white/80 backdrop-blur-sm px-4 py-3 rounded-[1.5rem] border-2 border-[#E3F2FD] shadow-sm flex items-center gap-3 mb-3">
+      <div className="md:hidden bg-white/80 backdrop-blur-sm px-4 py-3 rounded-lg border-2 border-[#E3F2FD] shadow-md flex items-center gap-3 mb-3">
         <button
           type="button"
           onClick={onAvatarClick}
-          className="w-11 h-11 bg-white border-2 border-amber-200 rounded-full flex items-center justify-center text-2xl shadow-sm shrink-0"
+          className="w-11 h-11 bg-white border-2 border-amber-200 rounded-full flex items-center justify-center text-2xl shadow-md shrink-0"
         >
           {currentAvatar}
         </button>
@@ -199,7 +199,7 @@ export function StudentSidebar({
       {/* Mobile: hamburger button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 rounded-xl bg-white shadow-md border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"
+        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 rounded-lg bg-white shadow-md border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"
         aria-label="Open menu"
       >
         <Menu size={20} />

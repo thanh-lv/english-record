@@ -123,7 +123,7 @@ export function RecordingsPanel({
   ];
 
   return (
-    <div className="bg-white rounded-[2rem] shadow-md border-3 border-[#FFF59D] overflow-hidden">
+    <div className="bg-white rounded-lg shadow-md border-3 border-[#FFF59D] overflow-hidden">
       <div className="p-4 border-b-2 border-slate-100 flex items-center justify-between bg-[#FFFDF6]">
         <div className="flex items-center gap-2">
           <Clock size={18} className="text-slate-500" />
@@ -134,7 +134,7 @@ export function RecordingsPanel({
         <button
           type="button"
           onClick={() => setShowFilters(!showFilters)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-extrabold transition-colors border-2 ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-extrabold transition-colors border-2 ${
             showFilters ||
             filterName ||
             filterStatus !== "all" ||
@@ -260,7 +260,7 @@ export function RecordingsPanel({
                         <span
                           className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
                             avatar
-                              ? "bg-amber-50 text-2xl shadow-sm border-amber-200"
+                              ? "bg-amber-50 text-2xl shadow-md border-amber-200"
                               : `text-sm ${colorClass}`
                           }`}
                         >
@@ -386,7 +386,7 @@ export function RecordingItem({
     >
       {/* Row 1: topic number + date + badges + action buttons */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[#E3F2FD] border border-[#90CAF9] text-[#1E88E5] font-black text-xs shadow-sm shrink-0">
+        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#E3F2FD] border border-[#90CAF9] text-[#1E88E5] font-black text-xs shadow-md shrink-0">
           {rec.topicNumber}
         </span>
         <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded font-bold">
@@ -408,7 +408,7 @@ export function RecordingItem({
               e.stopPropagation();
               onDeleteRequest(rec.id);
             }}
-            className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-transparent"
+            className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all border border-transparent"
             title={t.common.delete}
             aria-label={t.common.delete}
           >
@@ -419,7 +419,7 @@ export function RecordingItem({
 
       {/* Row 2: topic + question + audio inline */}
       {rec.shadowing_video_id ? (
-        <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-xl px-3 py-2 min-w-0">
+        <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-lg px-3 py-2 min-w-0">
           <span className="text-[10px] font-black text-indigo-400 shrink-0 uppercase tracking-wide">
             🎬
           </span>
@@ -438,7 +438,7 @@ export function RecordingItem({
           <AudioPlayer src={rec.audioUrl} compact />
         </div>
       ) : (
-        <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-xl px-3 py-2 min-w-0">
+        <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-lg px-3 py-2 min-w-0">
           <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">
             {t.recordings.topic}
           </span>

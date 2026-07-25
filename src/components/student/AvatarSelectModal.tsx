@@ -23,7 +23,7 @@ export function AvatarSelectModal({
       aria-modal="true"
       aria-labelledby="avatar-select-title"
     >
-      <div className="bg-white rounded-[2rem] w-full max-w-sm p-6 border-4 border-amber-200 shadow-2xl animate-in zoom-in-95 duration-200 relative my-8">
+      <div className="bg-white rounded-lg w-full max-w-sm p-6 border-4 border-amber-200 shadow-2xl animate-in zoom-in-95 duration-200 relative my-8">
         <button
           type="button"
           onClick={onClose}

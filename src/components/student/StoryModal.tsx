@@ -24,7 +24,7 @@ export function StoryModal({
       aria-modal="true"
       aria-labelledby="story-modal-title"
     >
-      <div className="bg-white rounded-[2.5rem] w-full max-w-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative my-auto">
+      <div className="bg-white rounded-lg w-full max-w-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative my-auto">
         {story.image_url ? (
           <div className="w-full h-64 md:h-80 relative">
             <img
@@ -83,7 +83,7 @@ export function StoryModal({
             </h4>
             <button
               onClick={onPlayAudio}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-sm transition-all shadow-md ${
                 isPlayingAudio
                   ? "bg-rose-100 text-rose-600 hover:bg-rose-200"
                   : "bg-purple-100 text-purple-600 hover:bg-purple-200"
@@ -100,7 +100,7 @@ export function StoryModal({
               )}
             </button>
           </div>
-          <div className="bg-purple-50/50 p-4 md:p-6 rounded-[1.5rem] border-2 border-purple-100 max-h-[50vh] overflow-y-auto overscroll-contain">
+          <div className="bg-purple-50/50 p-4 md:p-6 rounded-lg border-2 border-purple-100 max-h-[50vh] overflow-y-auto overscroll-contain">
             <p className="text-sm md:text-base font-medium text-slate-700 leading-7 whitespace-pre-wrap">
               {story.content}
             </p>
@@ -110,7 +110,7 @@ export function StoryModal({
         <div className="p-3 md:p-5 bg-slate-50 border-t-2 border-slate-100 flex justify-center">
           <button
             onClick={onClose}
-            className="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-base transition-all shadow-md hover:shadow-lg active:scale-95"
+            className="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-base transition-all shadow-md hover:shadow-md active:scale-95"
           >
             {t.stories.close}
           </button>

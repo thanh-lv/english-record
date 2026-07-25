@@ -44,7 +44,7 @@ export function ExercisesTab({
   );
 
   return (
-    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
       <div className="mb-6 space-y-1">
         <h3 className="text-2xl font-black text-slate-800">
           {t.exercises.title}

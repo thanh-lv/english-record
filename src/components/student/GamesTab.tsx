@@ -167,7 +167,7 @@ function MatchingGame({
       aria-modal="true"
       aria-labelledby="matching-game-title"
     >
-      <div className="bg-white w-full sm:max-w-2xl rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl">
+      <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-7 pt-6 pb-4">
           <div>
@@ -254,7 +254,7 @@ function MatchingGame({
                           <img
                             src={tile.image_url}
                             alt=""
-                            className="w-12 h-12 object-cover rounded-xl"
+                            className="w-12 h-12 object-cover rounded-lg"
                           />
                         )}
                         <span className="text-center text-sm leading-tight line-clamp-2 font-black">
@@ -372,7 +372,7 @@ function QuizGame({
       aria-modal="true"
       aria-labelledby="quiz-game-title"
     >
-      <div className="bg-white w-full sm:max-w-2xl rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl">
+      <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-7 pt-6 pb-3">
           <div>
@@ -471,7 +471,7 @@ function QuizGame({
               </div>
 
               {/* Question card */}
-              <div className="bg-gradient-to-br from-[#E3F2FD] to-[#BBDEFB] border-4 border-[#90CAF9] rounded-[1.5rem] p-6 flex flex-col items-center gap-4 min-h-[160px] justify-center">
+              <div className="bg-gradient-to-br from-[#E3F2FD] to-[#BBDEFB] border-4 border-[#90CAF9] rounded-lg p-6 flex flex-col items-center gap-4 min-h-[160px] justify-center">
                 {current.image_url && (
                   <img
                     src={current.image_url}
@@ -642,7 +642,7 @@ function ScrambleGame({
       aria-modal="true"
       aria-labelledby="scramble-game-title"
     >
-      <div className="bg-white w-full sm:max-w-2xl rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl">
+      <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-2xl">
         <div className="flex items-center justify-between px-7 pt-6 pb-3">
           <div>
             <h3
@@ -712,7 +712,7 @@ function ScrambleGame({
 
               {/* Hint: meaning + image */}
               <div
-                className={`border-4 rounded-[1.5rem] p-5 flex flex-col items-center gap-3 min-h-[140px] justify-center transition-colors ${result === "correct" ? "bg-emerald-50 border-emerald-300" : result === "wrong" ? "bg-rose-50 border-rose-300" : "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200"}`}
+                className={`border-4 rounded-lg p-5 flex flex-col items-center gap-3 min-h-[140px] justify-center transition-colors ${result === "correct" ? "bg-emerald-50 border-emerald-300" : result === "wrong" ? "bg-rose-50 border-rose-300" : "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200"}`}
               >
                 {current.image_url && (
                   <img
@@ -750,7 +750,7 @@ function ScrambleGame({
                     onClick={() => handleRemoveLetter(i)}
                     disabled={!!result}
                     aria-label={`Remove letter ${letter}`}
-                    className="w-12 h-12 rounded-xl bg-[#1E88E5] text-white font-black text-lg shadow-md border-b-4 border-blue-900 active:scale-95 transition-all disabled:opacity-70"
+                    className="w-12 h-12 rounded-lg bg-[#1E88E5] text-white font-black text-lg shadow-md border-b-4 border-blue-900 active:scale-95 transition-all disabled:opacity-70"
                   >
                     {letter}
                   </button>
@@ -770,7 +770,7 @@ function ScrambleGame({
                     onClick={() => handlePickLetter(i)}
                     disabled={!!result}
                     aria-label={`Letter ${letter}`}
-                    className="w-12 h-12 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-lg border-b-4 border-slate-300 active:scale-95 transition-all disabled:opacity-40"
+                    className="w-12 h-12 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-lg border-b-4 border-slate-300 active:scale-95 transition-all disabled:opacity-40"
                   >
                     {letter}
                   </button>
@@ -880,8 +880,8 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
 
   if (loading) {
     return (
-      <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
-        <div className="h-6 w-32 bg-slate-100 rounded-xl mb-4" />
+      <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
+        <div className="h-6 w-32 bg-slate-100 rounded-lg mb-4" />
         <div className="space-y-3">
           {[0, 1].map((i) => (
             <div key={i} className="h-28 bg-slate-100 rounded-2xl" />
@@ -892,7 +892,7 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
   }
 
   return (
-    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
       <div className="mb-6 space-y-1">
         <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
           <Gamepad2 size={22} className="text-violet-500" /> Games
@@ -919,9 +919,9 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
                   key={set.id}
                   onClick={() => handleSelectSet(set)}
                   aria-pressed={selectedSet?.id === set.id}
-                  className={`px-4 py-2 rounded-xl border-2 font-extrabold text-sm flex items-center gap-2 transition-all active:scale-95 ${
+                  className={`px-4 py-2 rounded-lg border-2 font-extrabold text-sm flex items-center gap-2 transition-all active:scale-95 ${
                     selectedSet?.id === set.id
-                      ? "bg-[#E3F2FD] border-[#1E88E5] text-[#1E88E5] shadow-sm"
+                      ? "bg-[#E3F2FD] border-[#1E88E5] text-[#1E88E5] shadow-md"
                       : "bg-white border-slate-200 text-slate-600 hover:border-blue-200"
                   }`}
                 >
@@ -955,7 +955,7 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
                     </div>
                     <button
                       onClick={() => setActiveGame(game.id)}
-                      className={`shrink-0 px-4 py-2.5 ${game.btn} text-white font-black rounded-xl text-sm border-b-4 active:scale-95 transition-all shadow-md`}
+                      className={`shrink-0 px-4 py-2.5 ${game.btn} text-white font-black rounded-lg text-sm border-b-4 active:scale-95 transition-all shadow-md`}
                     >
                       Play!
                     </button>

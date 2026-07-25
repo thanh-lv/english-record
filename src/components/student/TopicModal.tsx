@@ -90,11 +90,11 @@ export function TopicModal({
       aria-modal="true"
       aria-labelledby="topic-modal-title"
     >
-      <div className="bg-white sm:rounded-[2.5rem] rounded-lg w-full max-w-4xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border-4 border-[#FFF59D] my-auto relative">
+      <div className="bg-white sm:rounded-lg rounded-lg w-full max-w-4xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border-4 border-[#FFF59D] my-auto relative">
         <div className="p-2 sm:p-4 md:p-8 space-y-4 md:space-y-6">
           <div className="flex items-center gap-3 border-b-4 border-dashed border-[#FFF0F0] pb-3 md:pb-4 pr-10">
             <div
-              className={`inline-flex items-center justify-center w-10 h-10 md:w-16 md:h-16 text-white rounded-[1rem] md:rounded-[1.5rem] font-black text-base md:text-2xl shadow-lg border-b-4 shrink-0 ${matchedRecording ? "bg-gradient-to-br from-[#81C784] to-[#4CAF50] border-[#388E3C]" : "bg-gradient-to-br from-[#64B5F6] to-[#1E88E5] border-blue-800"}`}
+              className={`inline-flex items-center justify-center w-10 h-10 md:w-16 md:h-16 text-white rounded-lg md:rounded-lg font-black text-base md:text-2xl shadow-md border-b-4 shrink-0 ${matchedRecording ? "bg-gradient-to-br from-[#81C784] to-[#4CAF50] border-[#388E3C]" : "bg-gradient-to-br from-[#64B5F6] to-[#1E88E5] border-blue-800"}`}
             >
               {isBongBe ? `T${selectedNumber}` : selectedNumber}
             </div>
@@ -127,7 +127,7 @@ export function TopicModal({
           </button>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-            <div className="md:col-span-5 space-y-5 flex flex-col items-center sm:bg-[#F4F9FF] sm:p-5 sm:rounded-[2rem] rounded-lg sm:border-2 sm:border-[#E3F2FD] shadow-inner">
+            <div className="md:col-span-5 space-y-5 flex flex-col items-center sm:bg-[#F4F9FF] sm:p-5 sm:rounded-lg rounded-lg sm:border-2 sm:border-[#E3F2FD] shadow-inner">
               {/* Ẩn image box trên mobile khi không có ảnh */}
               {imageLoading ? (
                 <div
@@ -155,7 +155,7 @@ export function TopicModal({
               )}
 
               <div className="md:col-span-7 space-y-6 md:hidden">
-                <div className="w-full bg-[#FFFDE7] border-3 border-[#FFF59D] rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+                <div className="w-full bg-[#FFFDE7] border-3 border-[#FFF59D] rounded-2xl p-4 flex items-start gap-3 shadow-md">
                   <AlertCircle
                     className="text-amber-500 shrink-0 mt-0.5"
                     size={24}
@@ -267,7 +267,7 @@ export function TopicModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-full max-w-sm py-4 bg-gradient-to-r from-[#4CAF50] to-[#81C784] hover:from-[#388E3C] hover:to-[#4CAF50] text-white font-black text-lg rounded-full transition-all shadow-md hover:shadow-lg border-b-4 border-emerald-800 text-center"
+              className="w-full max-w-sm py-4 bg-gradient-to-r from-[#4CAF50] to-[#81C784] hover:from-[#388E3C] hover:to-[#4CAF50] text-white font-black text-lg rounded-full transition-all shadow-md hover:shadow-md border-b-4 border-emerald-800 text-center"
             >
               {t.topic.close}
             </button>
@@ -279,7 +279,7 @@ export function TopicModal({
               className={`w-full max-w-sm py-4 rounded-full font-black text-xl flex items-center justify-center gap-2 transition-all shadow-md border-b-4 ${
                 Object.keys(bongBeAudios).length === 0 || isSaving
                   ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1976D2] text-white border-blue-900 hover:shadow-lg"
+                  : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1976D2] text-white border-blue-900 hover:shadow-md"
               }`}
             >
               {isSaving ? (
@@ -332,7 +332,7 @@ function QuestionPanel({
   const q = currentTopic?.questions?.[activeQuestionIndex];
 
   return (
-    <div className="sm:bg-white sm:rounded-[2rem] rounded-lg md:p-6 sm:border-3 sm:border-dashed sm:border-[#FF8A80] space-y-6 sm:shadow-sm text-center">
+    <div className="sm:bg-white sm:rounded-lg rounded-lg md:p-6 sm:border-3 sm:border-dashed sm:border-[#FF8A80] space-y-6 sm:shadow-md text-center">
       <div className="bg-pink-50 border-2 border-pink-200 rounded-full py-2 px-5 inline-block">
         <span className="text-sm font-black text-pink-600 uppercase tracking-widest">
           {t.topic.question} {activeQuestionIndex + 1} {t.topic.of}{" "}
@@ -384,7 +384,7 @@ function QuestionPanel({
                   type="button"
                   onClick={onStart}
                   aria-label={t.topic.startRecord}
-                  className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
+                  className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
                 >
                   <Mic size={36} />
                 </button>
@@ -402,7 +402,7 @@ function QuestionPanel({
                     type="button"
                     onClick={onStop}
                     aria-label={t.topic.stopAudio}
-                    className="w-16 h-16 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900"
+                    className="w-16 h-16 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-md z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900"
                   >
                     <Square size={24} />
                   </button>
@@ -425,7 +425,7 @@ function QuestionPanel({
                   <button
                     type="button"
                     onClick={(e) => onDeleteBongBeAudio(activeQuestionIndex, e)}
-                    className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-full flex items-center gap-2 transition-colors shadow-sm"
+                    className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-full flex items-center gap-2 transition-colors shadow-md"
                   >
                     <Trash2 size={16} /> {t.topic.reRecord}
                   </button>

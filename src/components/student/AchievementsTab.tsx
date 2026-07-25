@@ -18,7 +18,7 @@ export function AchievementsTab({
       : 0;
 
   return (
-    <div className="bg-white/70 backdrop-blur-sm p-5 sm:p-8 rounded-[2rem] border-3 border-white shadow-md space-y-5">
+    <div className="bg-white/70 backdrop-blur-sm p-5 sm:p-8 rounded-lg border-3 border-white shadow-md space-y-5">
       <div className="text-center space-y-1">
         <h3 className="text-2xl font-black text-amber-500 flex items-center justify-center gap-2">
           <Award size={26} /> {t.achievements.title}

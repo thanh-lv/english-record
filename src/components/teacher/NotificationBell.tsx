@@ -73,7 +73,7 @@ export function NotificationBell({
         {unreadCount > 0 && (
           <span
             aria-hidden="true"
-            className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm"
+            className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-md"
           >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
@@ -163,7 +163,7 @@ export function NotificationBell({
                   >
                     <div
                       aria-hidden="true"
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
                         isRead
                           ? "bg-slate-100 text-slate-400"
                           : "bg-emerald-200 text-emerald-700"

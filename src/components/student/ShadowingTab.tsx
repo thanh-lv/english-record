@@ -49,7 +49,7 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
   }
 
   return (
-    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
       <div className="mb-6 space-y-1">
         <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
           <Video className="text-indigo-500" /> {t.shadowing.title}
@@ -76,7 +76,7 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
               <button
                 key={video.id}
                 onClick={() => onVideoClick(video)}
-                className="group relative bg-white rounded-[1.5rem] border-3 border-slate-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-2 hover:border-indigo-200 transition-all text-left flex flex-col"
+                className="group relative bg-white rounded-lg border-3 border-slate-100 overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-2 hover:border-indigo-200 transition-all text-left flex flex-col"
               >
                 <div className="aspect-video bg-slate-100 relative overflow-hidden">
                   {thumb ? (
@@ -91,7 +91,7 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-indigo-600 opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 transition-all duration-300">
+                    <div className="w-12 h-12 rounded-full bg-white/90 shadow-md flex items-center justify-center text-indigo-600 opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 transition-all duration-300">
                       <Play className="ml-1" size={24} />
                     </div>
                   </div>

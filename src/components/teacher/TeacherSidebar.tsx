@@ -75,9 +75,9 @@ export function TeacherSidebar() {
         key={item.id}
         to={`/teacher/${item.id}`}
         onClick={() => setMobileOpen(false)}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-extrabold text-sm transition-all ${
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-extrabold text-sm transition-all ${
           active
-            ? "bg-[#E3F2FD] text-[#1E88E5] shadow-sm"
+            ? "bg-[#E3F2FD] text-[#1E88E5] shadow-md"
             : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
         }`}
       >
@@ -95,7 +95,7 @@ export function TeacherSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-white rounded-[1.5rem] shadow-sm border border-slate-100 overflow-hidden sticky top-4">
+      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-white rounded-lg shadow-md border border-slate-100 overflow-hidden sticky top-4">
         <div className="px-5 pt-5 pb-3 border-b border-slate-100">
           <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
             Menu
@@ -111,7 +111,7 @@ export function TeacherSidebar() {
       {/* Mobile: hamburger button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 rounded-xl bg-white shadow-md border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"
+        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 rounded-lg bg-white shadow-md border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"
         aria-label="Open menu"
       >
         <Menu size={20} />

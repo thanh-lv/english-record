@@ -51,7 +51,7 @@ export function ResetPasswordModal({
       aria-modal="true"
       aria-labelledby="reset-password-title"
     >
-      <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-blue-50 border-2 border-blue-200 text-blue-600 flex items-center justify-center">
             <Key size={20} />
@@ -82,7 +82,7 @@ export function ResetPasswordModal({
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleReset()}
                 placeholder={t.login.passwordPlaceholder}
-                className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+                className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
               />
               <button
                 type="button"
@@ -97,7 +97,7 @@ export function ResetPasswordModal({
             </div>
           </div>
           {error && (
-            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
               <AlertCircle size={14} className="shrink-0" /> {error}
             </div>
           )}

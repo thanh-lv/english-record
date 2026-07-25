@@ -83,7 +83,7 @@ export function AudioPlayer({
             setPlayError(false);
             audioRef.current?.load();
           }}
-          className="shrink-0 px-3 py-1.5 bg-rose-100 hover:bg-rose-200 rounded-xl font-black transition-colors"
+          className="shrink-0 px-3 py-1.5 bg-rose-100 hover:bg-rose-200 rounded-lg font-black transition-colors"
         >
           {t.common.retry}
         </button>
@@ -110,7 +110,7 @@ export function AudioPlayer({
           type="button"
           onClick={togglePlay}
           aria-label={isPlaying ? t.common.pause : t.common.play}
-          className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-white transition-all shadow-sm active:scale-95 ${
+          className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-white transition-all shadow-md active:scale-95 ${
             isPlaying
               ? "bg-amber-400 hover:bg-amber-500"
               : "bg-[#1E88E5] hover:bg-blue-700"
@@ -174,7 +174,7 @@ export function AudioPlayer({
       <button
         type="button"
         onClick={changeSpeed}
-        className={`shrink-0 font-black text-xs px-2.5 py-1.5 rounded-xl transition-all active:scale-95 border-b-2 min-w-[42px] text-center ${
+        className={`shrink-0 font-black text-xs px-2.5 py-1.5 rounded-lg transition-all active:scale-95 border-b-2 min-w-[42px] text-center ${
           playbackRate === 1
             ? "bg-slate-100 border-slate-300 text-slate-500 hover:bg-slate-200"
             : playbackRate === 1.25

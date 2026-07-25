@@ -350,13 +350,13 @@ export function StoriesManager() {
               setShowManual(true);
               setManualError("");
             }}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md text-sm"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md text-sm"
           >
             <Pencil size={16} /> Write
           </button>
           <button
             onClick={() => setShowCreate(true)}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md text-sm"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md text-sm"
           >
             <Wand2 size={16} /> AI
           </button>
@@ -374,13 +374,13 @@ export function StoriesManager() {
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
             placeholder={t.teacherModal.filterStoryPlaceholder}
-            className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-purple-400"
+            className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-purple-400"
           />
         </div>
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value as any)}
-          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-purple-400"
+          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-purple-400"
         >
           <option value="all">{t.teacherModal.filterStoryStatusAll}</option>
           <option value="active">
@@ -396,7 +396,7 @@ export function StoriesManager() {
         {filteredStories.map((story) => (
           <div
             key={story.id}
-            className="bg-white rounded-[1.5rem] border-2 border-slate-100 overflow-hidden shadow-sm flex flex-col"
+            className="bg-white rounded-lg border-2 border-slate-100 overflow-hidden shadow-md flex flex-col"
           >
             <div className="aspect-square sm:aspect-video bg-slate-100 relative">
               {story.image_url ? (
@@ -411,7 +411,7 @@ export function StoriesManager() {
                 </div>
               )}
               {!(story.is_active ?? true) && (
-                <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center rounded-t-[1.5rem]">
+                <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center rounded-lg">
                   <span className="text-white text-xs font-black bg-slate-800/70 px-2 py-1 rounded-full">
                     {t.teacherModal.filterStoryStatusHidden}
                   </span>
@@ -458,7 +458,7 @@ export function StoriesManager() {
           </div>
         ))}
         {filteredStories.length === 0 && (
-          <div className="col-span-full py-10 text-center text-slate-400 font-bold bg-white rounded-[1.5rem] border-2 border-dashed border-slate-200">
+          <div className="col-span-full py-10 text-center text-slate-400 font-bold bg-white rounded-lg border-2 border-dashed border-slate-200">
             {stories.length === 0
               ? t.common.storyEmpty
               : t.teacherModal.noStoriesFound}
@@ -473,7 +473,7 @@ export function StoriesManager() {
           aria-modal="true"
           aria-labelledby="edit-story-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-amber-100 p-6 space-y-5 my-8">
+          <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl border-4 border-amber-100 p-6 space-y-5 my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
               <h4
                 id="edit-story-title"
@@ -499,7 +499,7 @@ export function StoriesManager() {
                   <input
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-amber-400 focus:outline-none"
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-amber-400 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -509,7 +509,7 @@ export function StoriesManager() {
                   <input
                     value={editEmoji}
                     onChange={(e) => setEditEmoji(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-amber-400 focus:outline-none"
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-amber-400 focus:outline-none"
                   />
                 </div>
               </div>
@@ -521,11 +521,11 @@ export function StoriesManager() {
                   rows={10}
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:border-amber-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-medium text-slate-700 focus:border-amber-400 focus:outline-none"
                 />
               </div>
               {editError && (
-                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
                   <AlertCircle size={14} className="shrink-0" /> {editError}
                 </div>
               )}
@@ -534,7 +534,7 @@ export function StoriesManager() {
             <div className="pt-4 border-t-2 border-slate-100 flex justify-end gap-3">
               <button
                 onClick={() => setEditingStory(null)}
-                className="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100"
+                className="px-5 py-2.5 rounded-lg font-bold text-slate-500 hover:bg-slate-100"
               >
                 {t.common.cancel}
               </button>
@@ -543,7 +543,7 @@ export function StoriesManager() {
                 disabled={
                   editTitle.trim().length < 2 || editContent.trim().length < 10
                 }
-                className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-black disabled:opacity-50 flex items-center gap-2"
               >
                 <CheckCircle size={18} /> {t.common.saveChanges}
               </button>
@@ -559,7 +559,7 @@ export function StoriesManager() {
           aria-modal="true"
           aria-labelledby="delete-story-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertCircle size={20} />
@@ -582,7 +582,7 @@ export function StoriesManager() {
             </p>
 
             {deleteError && (
-              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
                 <AlertCircle size={14} className="shrink-0" />
                 {deleteError}
               </div>
@@ -622,7 +622,7 @@ export function StoriesManager() {
           aria-modal="true"
           aria-labelledby="manual-story-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-emerald-100 p-5 space-y-4 my-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl border-4 border-emerald-100 p-5 space-y-4 my-4">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
               <h4
                 id="manual-story-title"
@@ -647,7 +647,7 @@ export function StoriesManager() {
                 <input
                   value={manualTitle}
                   onChange={(e) => setManualTitle(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-emerald-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-emerald-400 focus:outline-none"
                 />
               </div>
               <div>
@@ -658,7 +658,7 @@ export function StoriesManager() {
                   type="number"
                   value={manualYearBorn}
                   onChange={(e) => setManualYearBorn(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-emerald-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-emerald-400 focus:outline-none"
                 />
               </div>
               <div>
@@ -669,7 +669,7 @@ export function StoriesManager() {
                   value={manualType}
                   onChange={(e) => setManualType(e.target.value)}
                   placeholder={t.common.storyGenrePlaceholder}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-emerald-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-emerald-400 focus:outline-none"
                 />
               </div>
               <div>
@@ -679,7 +679,7 @@ export function StoriesManager() {
                 <input
                   value={manualEmoji}
                   onChange={(e) => setManualEmoji(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-emerald-400 focus:outline-none"
+                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-emerald-400 focus:outline-none"
                 />
               </div>
             </div>
@@ -693,12 +693,12 @@ export function StoriesManager() {
                 value={manualContent}
                 onChange={(e) => setManualContent(e.target.value)}
                 placeholder="Write the story content in English..."
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-medium focus:border-emerald-400 focus:outline-none resize-none leading-relaxed"
+                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-medium focus:border-emerald-400 focus:outline-none resize-none leading-relaxed"
               />
             </div>
 
             {manualError && (
-              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
                 <AlertCircle size={14} /> {manualError}
               </div>
             )}
@@ -734,7 +734,7 @@ export function StoriesManager() {
           aria-modal="true"
           aria-labelledby="ai-story-title"
         >
-          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-purple-100 p-4 sm:p-6 space-y-4 my-4 sm:my-8">
+          <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl border-4 border-purple-100 p-4 sm:p-6 space-y-4 my-4 sm:my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
               <h4
                 id="ai-story-title"
@@ -760,7 +760,7 @@ export function StoriesManager() {
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none"
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -771,7 +771,7 @@ export function StoriesManager() {
                     type="number"
                     value={yearBorn}
                     onChange={(e) => setYearBorn(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none"
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -782,7 +782,7 @@ export function StoriesManager() {
                     value={type}
                     onChange={(e) => setType(e.target.value)}
                     placeholder={t.common.storyGenrePlaceholder}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none"
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -792,12 +792,12 @@ export function StoriesManager() {
                   <input
                     value={emoji}
                     onChange={(e) => setEmoji(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none"
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 space-y-3">
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-100 space-y-3">
                 <div>
                   <label className="block text-xs font-black text-purple-800 mb-1.5 uppercase">
                     {t.common.storyPromptLabel}
@@ -807,13 +807,13 @@ export function StoriesManager() {
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="VD: A cute robot cooking breakfast..."
-                    className="w-full px-4 py-2 bg-white border-2 border-purple-200 rounded-xl text-sm font-bold focus:border-purple-400 focus:outline-none resize-none"
+                    className="w-full px-4 py-2 bg-white border-2 border-purple-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none resize-none"
                   />
                 </div>
                 <button
                   onClick={handleGenerate}
                   disabled={isGenerating}
-                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-black disabled:opacity-50 flex justify-center items-center gap-2"
+                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-black disabled:opacity-50 flex justify-center items-center gap-2"
                 >
                   {isGenerating ? (
                     <Loader2 className="animate-spin" size={18} />
@@ -825,13 +825,13 @@ export function StoriesManager() {
               </div>
 
               {error && (
-                <div className="text-rose-600 text-sm font-bold bg-rose-50 p-3 rounded-xl flex items-center gap-2">
+                <div className="text-rose-600 text-sm font-bold bg-rose-50 p-3 rounded-lg flex items-center gap-2">
                   <AlertCircle size={16} /> {error}
                 </div>
               )}
 
               {(generatedStory || generatedImageUrl) && (
-                <div className="space-y-4 bg-slate-50 p-4 rounded-xl border-2 border-slate-100">
+                <div className="space-y-4 bg-slate-50 p-4 rounded-lg border-2 border-slate-100">
                   <h5 className="font-black text-slate-800">
                     {t.common.storyPreview}
                   </h5>
@@ -839,11 +839,11 @@ export function StoriesManager() {
                     <img
                       src={generatedImageUrl}
                       alt="Preview"
-                      className="w-full h-48 object-cover rounded-xl border border-slate-200"
+                      className="w-full h-48 object-cover rounded-lg border border-slate-200"
                     />
                   )}
                   {generatedStory && (
-                    <div className="bg-white p-3 rounded-xl border border-slate-200 text-sm whitespace-pre-wrap font-medium text-slate-700">
+                    <div className="bg-white p-3 rounded-lg border border-slate-200 text-sm whitespace-pre-wrap font-medium text-slate-700">
                       {generatedStory}
                     </div>
                   )}
@@ -854,14 +854,14 @@ export function StoriesManager() {
             <div className="pt-4 border-t-2 border-slate-100 flex justify-end gap-3">
               <button
                 onClick={() => setShowCreate(false)}
-                className="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100"
+                className="px-5 py-2.5 rounded-lg font-bold text-slate-500 hover:bg-slate-100"
               >
                 {t.common.cancel}
               </button>
               <button
                 onClick={handleSave}
                 disabled={isSaving || !generatedStory || !generatedImageBlob}
-                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-black disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving ? (
                   <Loader2 className="animate-spin" size={18} />

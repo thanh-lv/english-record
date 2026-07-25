@@ -99,7 +99,7 @@ export function ShadowingDetail({
 
   if (fetchError) {
     return (
-      <div className="bg-white rounded-[2rem] border-3 border-slate-200 shadow-md p-8 text-center">
+      <div className="bg-white rounded-lg border-3 border-slate-200 shadow-md p-8 text-center">
         <p className="text-slate-600 font-bold">{fetchError}</p>
         <button
           type="button"
@@ -113,7 +113,7 @@ export function ShadowingDetail({
   }
 
   return (
-    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-[2rem] border-3 sm:border-white sm:shadow-md">
+    <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
         <div>
           <h3 className="sm:text-2xl text-xl font-black text-slate-800 flex items-center gap-3">
@@ -127,9 +127,9 @@ export function ShadowingDetail({
           <YouTubePlayer url={video.youtube_url} className="w-full h-full" />
         </div>
 
-        <div className="bg-slate-50 rounded-[2rem] sm:p-4 p-2 border-2 border-slate-200">
+        <div className="bg-slate-50 rounded-lg sm:p-4 p-2 border-2 border-slate-200">
           {shadowingRecording.appError && (
-            <div className="mb-4 bg-rose-50 border-2 border-rose-200 p-4 rounded-xl flex items-start gap-3 relative">
+            <div className="mb-4 bg-rose-50 border-2 border-rose-200 p-4 rounded-lg flex items-start gap-3 relative">
               <AlertCircle className="text-rose-600 shrink-0 mt-0.5" />
               <p className="text-rose-700 font-bold text-sm pr-6">
                 {shadowingRecording.appError}
@@ -151,7 +151,7 @@ export function ShadowingDetail({
               </p>
               {shadowingRecording.isRecording ? (
                 <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
-                  <div className="text-4xl font-black text-rose-500 font-mono tabular-nums tracking-wider drop-shadow-sm">
+                  <div className="text-4xl font-black text-rose-500 font-mono tabular-nums tracking-wider drop-shadow-md">
                     {shadowingRecording.formatTime(
                       shadowingRecording.recordingTime,
                     )}
@@ -171,7 +171,7 @@ export function ShadowingDetail({
                 <button
                   type="button"
                   onClick={shadowingRecording.startRecording}
-                  className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
+                  className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
                 >
                   <Mic size={36} />
                 </button>
@@ -179,8 +179,8 @@ export function ShadowingDetail({
             </div>
           ) : (
             <div className="flex flex-col items-center gap-6 animate-in zoom-in-95 duration-300">
-              <div className="w-full max-w-md bg-white p-4 rounded-2xl shadow-sm border-2 border-indigo-100 flex items-center gap-4">
-                <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+              <div className="w-full max-w-md bg-white p-4 rounded-2xl shadow-md border-2 border-indigo-100 flex items-center gap-4">
+                <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center shrink-0">
                   <Mic size={24} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -201,7 +201,7 @@ export function ShadowingDetail({
                     shadowingRecording.setBongBeAudios({});
                   }}
                   disabled={shadowingRecording.isSaving}
-                  className="flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black rounded-lg transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   {t.shadowing.reRecord}
                 </button>
@@ -209,7 +209,7 @@ export function ShadowingDetail({
                   type="button"
                   onClick={shadowingRecording.saveRecording}
                   disabled={shadowingRecording.isSaving}
-                  className="flex-1 py-3 bg-[#FF8A80] hover:bg-[#FF5252] active:scale-95 text-white font-black rounded-xl shadow-[0_4px_0_rgb(67,56,202)] hover:shadow-[0_2px_0_rgb(67,56,202)] hover:translate-y-[2px] transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-1 flex items-center justify-center gap-2 text-lg"
+                  className="flex-1 py-3 bg-[#FF8A80] hover:bg-[#FF5252] active:scale-95 text-white font-black rounded-lg shadow-[0_4px_0_rgb(67,56,202)] hover:shadow-[0_2px_0_rgb(67,56,202)] hover:translate-y-[2px] transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-y-1 flex items-center justify-center gap-2 text-lg"
                 >
                   {shadowingRecording.isSaving ? (
                     <Loader2 size={24} className="animate-spin" />

@@ -97,7 +97,7 @@ function RecordingsList({
         <button
           type="button"
           onClick={() => setReloadKey((k) => k + 1)}
-          className="px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-600 font-black text-sm rounded-xl transition-colors"
+          className="px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-600 font-black text-sm rounded-lg transition-colors"
         >
           {t.common.retry}
         </button>
@@ -195,21 +195,21 @@ export function StudentSubmissionsView({
   ];
 
   return (
-    <div className="bg-white rounded-[2rem] shadow-md border-3 border-[#FFF59D] overflow-hidden">
+    <div className="bg-white rounded-lg shadow-md border-3 border-[#FFF59D] overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b-2 border-slate-100 flex items-center gap-3 bg-[#FFFDF6]">
         <button
           type="button"
           onClick={onBack}
           aria-label={t.common.back}
-          className="p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors shrink-0"
+          className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors shrink-0"
         >
           <ArrowLeft size={18} />
         </button>
         <span
           className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
             avatar
-              ? "bg-amber-50 text-2xl shadow-sm border-amber-200"
+              ? "bg-amber-50 text-2xl shadow-md border-amber-200"
               : "text-sm bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]"
           }`}
         >

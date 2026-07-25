@@ -169,7 +169,7 @@ export function AIQuestionParserModal({
       aria-modal="true"
       aria-labelledby="ai-parser-title"
     >
-      <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl border-4 border-violet-100 my-4 max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl border-4 border-violet-100 my-4 max-h-[90vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b-2 border-slate-100 px-6 pt-6 pb-3 shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-9 h-9 rounded-2xl bg-violet-50 border-2 border-violet-200 text-violet-600 flex items-center justify-center">
@@ -198,18 +198,18 @@ export function AIQuestionParserModal({
 
         <div className="space-y-4 px-6 py-4 pb-6 overflow-y-auto overscroll-contain">
           {/* Mode tabs */}
-          <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
+          <div className="flex gap-2 bg-slate-100 p-1 rounded-lg w-fit">
             <button
               type="button"
               onClick={() => setMode("text")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-colors ${mode === "text" ? "bg-white text-violet-700 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-colors ${mode === "text" ? "bg-white text-violet-700 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
             >
               <Type size={14} /> {t.aiParser.tabText}
             </button>
             <button
               type="button"
               onClick={() => setMode("image")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-colors ${mode === "image" ? "bg-white text-violet-700 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-colors ${mode === "image" ? "bg-white text-violet-700 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
             >
               <ImageIcon size={14} /> {t.aiParser.tabImage}
             </button>
@@ -226,7 +226,7 @@ export function AIQuestionParserModal({
                 onChange={(e) => setRawText(e.target.value)}
                 placeholder={t.aiParser.textPlaceholder}
                 rows={8}
-                className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-mono focus:outline-none focus:border-violet-400 resize-y"
+                className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 text-sm font-mono focus:outline-none focus:border-violet-400 resize-y"
               />
             </div>
           ) : (
@@ -246,7 +246,7 @@ export function AIQuestionParserModal({
                   <img
                     src={imagePreview}
                     alt={t.aiParser.imageAlt}
-                    className="w-full max-h-64 object-contain rounded-xl border-2 border-slate-200 bg-slate-50"
+                    className="w-full max-h-64 object-contain rounded-lg border-2 border-slate-200 bg-slate-50"
                   />
                   <button
                     type="button"
@@ -261,7 +261,7 @@ export function AIQuestionParserModal({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-8 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 text-slate-400 hover:border-violet-400 hover:text-violet-500 transition-colors"
+                  className="w-full py-8 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 text-slate-400 hover:border-violet-400 hover:text-violet-500 transition-colors"
                 >
                   <ImageIcon size={28} />
                   <span className="text-sm font-bold">
@@ -278,7 +278,7 @@ export function AIQuestionParserModal({
             disabled={
               parsing || (mode === "text" ? !rawText.trim() : !imageFile)
             }
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-extrabold rounded-xl text-sm transition-colors shadow-md border-b-4 border-violet-900"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-violet-900"
           >
             {parsing ? (
               <Loader2 size={16} className="animate-spin" />
@@ -289,7 +289,7 @@ export function AIQuestionParserModal({
           </button>
 
           {error && (
-            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
               <AlertCircle size={14} className="shrink-0" /> {error}
             </div>
           )}
@@ -306,7 +306,7 @@ export function AIQuestionParserModal({
                 {questions.map((q, idx) => (
                   <div
                     key={idx}
-                    className="flex gap-2 items-start bg-slate-50 border-2 border-slate-100 rounded-xl p-3"
+                    className="flex gap-2 items-start bg-slate-50 border-2 border-slate-100 rounded-lg p-3"
                   >
                     <span className="w-6 h-6 mt-1 shrink-0 rounded-lg bg-violet-100 text-violet-700 text-xs font-black flex items-center justify-center">
                       {idx + 1}
