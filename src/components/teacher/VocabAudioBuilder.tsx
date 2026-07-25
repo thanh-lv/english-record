@@ -15,12 +15,19 @@ import {
   Pause,
   Play,
   RotateCcw,
+  Save,
+  Library,
+  Trash2,
   Sliders,
   Sparkles,
   Volume2,
   VolumeX,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { supabase } from "../../lib/supabase";
+import { s3Client, S3_BUCKET } from "../../lib/s3";
+import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 const DEMO_PRESETS = [
   {
@@ -60,6 +67,15 @@ export function VocabAudioBuilder() {
     null,
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Library & Save State
+  const [savedAudios, setSavedAudios] = useState<any[]>([]);
+  const [isLibraryLoading, setIsLibraryLoading] = useState(true);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [audioTitle, setAudioTitle] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [audioToDelete, setAudioToDelete] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Playback state
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -106,6 +122,100 @@ export function VocabAudioBuilder() {
       audio.removeEventListener("ended", handleEnded);
     };
   }, [audioResult, gapDuration]);
+
+  // Library Fetching
+  const fetchLibrary = async () => {
+    setIsLibraryLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("vocab_audios")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error && data) {
+        setSavedAudios(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLibraryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLibrary();
+  }, []);
+
+  const handleSaveToLibrary = async () => {
+    if (!audioResult || !audioTitle.trim()) return;
+    setIsSaving(true);
+    setErrorMsg(null);
+    try {
+      // 1. Upload to S3
+      const fileKey = `vocab-audio/${Date.now()}-${audioTitle.replace(/[^a-zA-Z0-9_-]/g, "")}.wav`;
+      // Convert Blob to Uint8Array to bypass AWS SDK stream bug in Vite
+      const arrayBuffer = await audioResult.blob.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const uploadParams = {
+        Bucket: S3_BUCKET,
+        Key: fileKey,
+        Body: uint8Array,
+        ContentType: "audio/wav",
+      };
+      await s3Client.send(new PutObjectCommand(uploadParams));
+      const publicBaseUrl = import.meta.env.VITE_R2_PUBLIC_URL;
+      let fileUrl = "";
+      if (publicBaseUrl) {
+        fileUrl = `${publicBaseUrl.replace(/\/$/, "")}/${fileKey}`;
+      } else {
+        const endpoint = import.meta.env.VITE_S3_ENDPOINT || "";
+        fileUrl = endpoint.includes(S3_BUCKET)
+          ? `${endpoint}/${fileKey}`
+          : `${endpoint}/${S3_BUCKET}/${fileKey}`;
+      }
+
+      // 2. Save to DB
+      const configSummary = `${repetitions}x rep • ${gapDuration}s gap`;
+      const { error } = await supabase.from("vocab_audios").insert({
+        title: audioTitle.trim(),
+        audio_url: fileUrl,
+        word_list: parsedWords,
+        words_count: parsedWords.length,
+        duration: audioResult.totalDuration,
+        config_summary: configSummary,
+      });
+
+      if (error) throw error;
+
+      setShowSaveModal(false);
+      setAudioTitle("");
+      fetchLibrary(); // refresh
+      // We could show a toast here, but for now just close modal
+    } catch (err: any) {
+      console.error("Save error:", err);
+      setErrorMsg(err.message || "Save failed");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteSavedAudio = async (audio: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAudioToDelete(audio);
+  };
+
+  const confirmDeleteAudio = async (e: React.MouseEvent) => {
+    if (!audioToDelete) return;
+    setIsDeleting(true);
+    try {
+      await supabase.from("vocab_audios").delete().eq("id", audioToDelete.id);
+      setSavedAudios((prev) => prev.filter((a) => a.id !== audioToDelete.id));
+      setAudioToDelete(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Preview single word via browser Web Speech API
   const speakSingleWord = (word: string, e: React.MouseEvent) => {
@@ -565,24 +675,159 @@ export function VocabAudioBuilder() {
               )}
             </div>
 
-            {/* Download Button */}
+            {/* Download & Save Buttons */}
             {audioResult && (
-              <div className="pt-4 border-t border-slate-100">
+              <div className="pt-4 border-t border-slate-100 flex flex-col gap-2">
                 <a
                   href={audioResult.audioUrl}
                   download={`vocab-audio-${parsedWords
                     .slice(0, 3)
                     .join("-")}-${Date.now()}.wav`}
-                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 active:scale-98"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 active:scale-98"
                 >
                   <Download size={18} />
                   <span>{tAudio.downloadButton}</span>
                 </a>
+                <button
+                  onClick={() => setShowSaveModal(true)}
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-98"
+                >
+                  <Save size={18} />
+                  <span>{tAudio.saveToLibrary}</span>
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Library Section */}
+      <div className="mt-12 bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
+          <Library className="text-purple-500" size={24} />
+          <h2 className="font-extrabold text-slate-800 text-lg">
+            {tAudio.libraryTitle}
+          </h2>
+        </div>
+
+        {isLibraryLoading ? (
+          <div className="flex justify-center p-8">
+            <Loader2 className="animate-spin text-blue-500" size={32} />
+          </div>
+        ) : savedAudios.length === 0 ? (
+          <div className="text-center p-8 text-slate-400 font-medium">
+            {tAudio.emptyLibrary}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4">
+            {savedAudios.map((audio) => (
+              <div
+                key={audio.id}
+                className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex flex-col gap-3 group relative overflow-hidden"
+              >
+                <div className="flex justify-between items-start">
+                  <h3
+                    className="font-bold text-slate-800 line-clamp-1"
+                    title={audio.title}
+                  >
+                    {audio.title}
+                  </h3>
+                  <button
+                    onClick={(e) => handleDeleteSavedAudio(audio, e)}
+                    className="text-rose-400 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                    title={tAudio.delete}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5 text-[10px] font-bold text-slate-500">
+                  <span className="bg-slate-200/50 px-2 py-0.5 rounded-full">
+                    {audio.words_count} words
+                  </span>
+                  <span className="bg-slate-200/50 px-2 py-0.5 rounded-full">
+                    {formatTime(audio.duration)}
+                  </span>
+                  <span className="bg-slate-200/50 px-2 py-0.5 rounded-full">
+                    {audio.config_summary}
+                  </span>
+                </div>
+                <audio
+                  controls
+                  src={audio.audio_url}
+                  className="w-full h-10 mt-2"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Save Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] p-6 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="font-black text-xl text-slate-800">
+              {tAudio.saveTitle}
+            </h3>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-600">
+                {tAudio.audioTitle}
+              </label>
+              <input
+                type="text"
+                autoFocus
+                value={audioTitle}
+                onChange={(e) => setAudioTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isSaving && audioTitle.trim()) {
+                    handleSaveToLibrary();
+                  }
+                }}
+                placeholder={tAudio.audioTitlePlaceholder}
+                className="w-full p-3 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-slate-700 font-semibold"
+              />
+            </div>
+
+            {errorMsg && (
+              <div className="p-3 bg-rose-50 text-rose-600 text-sm font-bold rounded-xl border border-rose-100">
+                {errorMsg}
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowSaveModal(false)}
+                disabled={isSaving}
+                className="flex-1 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+              >
+                {tAudio.close}
+              </button>
+              <button
+                onClick={handleSaveToLibrary}
+                disabled={isSaving || !audioTitle.trim()}
+                className="flex-1 py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  <Save size={18} />
+                )}
+                {isSaving ? tAudio.saving : tAudio.saveToLibrary}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {audioToDelete && (
+        <DeleteConfirmModal
+          title={tAudio.confirmDelete}
+          description={`"${audioToDelete.title}"`}
+          confirmLabel={tAudio.delete}
+          saving={isDeleting}
+          onConfirm={confirmDeleteAudio}
+          onCancel={() => setAudioToDelete(null)}
+        />
+      )}
     </div>
   );
 }
