@@ -174,7 +174,7 @@ export default function TeacherView({
       <div className="flex gap-5 flex-1 items-start">
         <TeacherSidebar />
 
-        <div className="flex-1 min-w-0 space-y-4 pb-20 md:pb-0">
+        <div className="flex-1 min-w-0 space-y-4 pt-14 md:pt-0">
           <Suspense
             fallback={
               <div className="flex justify-center py-16">
