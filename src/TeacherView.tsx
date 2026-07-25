@@ -42,6 +42,11 @@ const ShadowingManager = lazy(() =>
     default: m.ShadowingManager,
   })),
 );
+const VocabAudioBuilder = lazy(() =>
+  import("./components/teacher/VocabAudioBuilder").then((m) => ({
+    default: m.VocabAudioBuilder,
+  })),
+);
 
 const formatDate = (timestamp: string) => {
   const d = new Date(timestamp);
@@ -205,6 +210,7 @@ export default function TeacherView({
               <Route path="stories" element={<StoriesManager />} />
               <Route path="vocabulary" element={<VocabularyManager />} />
               <Route path="shadowing" element={<ShadowingManager />} />
+              <Route path="audio-builder" element={<VocabAudioBuilder />} />
               <Route
                 path="*"
                 element={<Navigate to="/teacher/recordings" replace />}

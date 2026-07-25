@@ -1,4 +1,12 @@
-import { BookMarked, BookOpen, Library, Mic, Users, Video } from "lucide-react";
+import {
+  BookMarked,
+  BookOpen,
+  FileAudio,
+  Library,
+  Mic,
+  Users,
+  Video,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 
@@ -8,7 +16,8 @@ export type TeacherTab =
   | "students"
   | "stories"
   | "vocabulary"
-  | "shadowing";
+  | "shadowing"
+  | "audio-builder";
 
 export function TeacherSidebar() {
   const { t } = useLanguage();
@@ -46,6 +55,11 @@ export function TeacherSidebar() {
         id: "shadowing",
         label: t.teacherNav.shadowing,
         icon: <Video size={18} />,
+      },
+      {
+        id: "audio-builder",
+        label: (t.teacherNav as any).audioBuilder || "Tạo Audio",
+        icon: <FileAudio size={18} />,
       },
     ];
 

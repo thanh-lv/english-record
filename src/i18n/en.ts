@@ -111,6 +111,7 @@ export const en = {
     stories: "Stories",
     flashcards: "Vocabulary",
     shadowing: "Shadowing",
+    audioBuilder: "Audio Generator",
   },
 
   // Teacher header
@@ -455,5 +456,44 @@ export const en = {
     errorNoQuestions:
       "AI couldn't extract any questions. Try different content.",
     errorConnection: "Couldn't connect to AI. Please try again.",
+  },
+  audioBuilder: {
+    badge: "Audio Generator Tool",
+    title: "Vocabulary Audio Generator (MP3)",
+    description:
+      "Enter a list of vocabulary words. The system automatically stitches an audio file with each word repeating 3 times within 3 seconds, followed by a gap you set.",
+    wordListLabel: "Vocabulary List",
+    clearAll: "Clear all",
+    inputPlaceholder:
+      "Enter list of words (e.g. apple, grapes, pineapple, strawberry)...",
+    presetsLabel: "Presets:",
+    recognizedWords: "Recognized words ({count}):",
+    clickToListen: "Click 🔊 to listen",
+    listenTo: 'Listen to "{word}"',
+    settingsTitle: "Timing & Voice Config",
+    repetitionsLabel: "Repetitions per word:",
+    times: "times",
+    defaultTimes: "Default: 3 times",
+    durationLabel: "Time slot per word:",
+    seconds: "seconds",
+    defaultDuration: "Default: 3 seconds",
+    gapLabel: "Silence gap between words:",
+    gapFast: "1s (Fast)",
+    gapDefault: "4s (Default)",
+    gapSlow: "10s (Slow)",
+    errorEmpty: "Please enter at least one vocabulary word.",
+    errorFailed: "Failed to generate audio file.",
+    generating: "Processing audio ({percent}%)...",
+    generateButton: "Generate MP3 / WAV Audio",
+    resultTitle: "Generated Audio",
+    notGenerated: "No audio generated yet",
+    notGeneratedDesc:
+      'Enter vocabulary on the left and click "Generate Audio" to get your complete audio file.',
+    readyBadge: "Audio ready",
+    wordsCount: "{count} words",
+    configSummary: "{rep}x rep • {gap}s gap",
+    progressTitle: "Audio playback progress:",
+    playing: "Playing...",
+    downloadButton: "Download MP3 / WAV File",
   },
 };
