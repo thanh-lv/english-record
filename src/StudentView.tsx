@@ -309,7 +309,7 @@ export default function StudentView({
 
   if (topicsLoading) {
     return (
-      <div className="flex flex-col md:flex-row gap-4 md:gap-6 pb-20 md:pb-0 animate-pulse">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 animate-pulse">
         <OfflineBanner />
         {/* Sidebar skeleton */}
         <div className="hidden md:block w-64 shrink-0 space-y-4">
@@ -334,7 +334,7 @@ export default function StudentView({
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:gap-6 animate-in fade-in duration-500 pb-20 md:pb-0">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-6 animate-in fade-in duration-500">
       <OfflineBanner />
       <StudentSidebar
         profile={profile}

@@ -169,7 +169,7 @@ export default function TeacherView({
   }, [highlightRecordId]);
 
   return (
-    <div className="animate-in fade-in duration-500 min-h-screen flex flex-col">
+    <div className="animate-in fade-in duration-500 min-h-[100dvh] flex flex-col">
       <OfflineBanner />
       <div className="flex gap-5 flex-1 items-start">
         <TeacherSidebar />
