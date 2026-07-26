@@ -50,9 +50,7 @@ export function VocabAudioBuilder() {
   const tAudio = (t as any).audioBuilder;
 
   // Input State
-  const [inputText, setInputText] = useState<string>(
-    "apple, grapes, pineapple, strawberry",
-  );
+  const [inputText, setInputText] = useState<string>("");
 
   // Settings State
   const [repetitions, setRepetitions] = useState<number>(3);
@@ -386,7 +384,7 @@ export function VocabAudioBuilder() {
                 {tAudio.presetsLabel}
               </span>
               <div className="flex flex-wrap gap-2">
-                {DEMO_PRESETS.map((preset) => (
+                {/* {DEMO_PRESETS.map((preset) => (
                   <button
                     key={preset.name}
                     onClick={() => setInputText(preset.words)}
@@ -394,7 +392,7 @@ export function VocabAudioBuilder() {
                   >
                     {preset.name}
                   </button>
-                ))}
+                ))} */}
               </div>
             </div>
 
