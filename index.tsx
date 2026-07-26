@@ -168,7 +168,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] text-slate-800 font-sans selection:bg-pink-100 flex flex-col">
+    <div className="min-h-[100dvh] bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] text-slate-800 font-sans selection:bg-pink-100 flex flex-col">
       <header className="bg-white/80 backdrop-blur-md shadow-md px-4 md:px-6 py-3 h-[68px] sm:height-auto flex justify-between items-center sticky top-0 z-10 border-b-4 border-[#FFF0F0]">
         <h1 className="font-extrabold text-[#1E88E5] items-center gap-2 hidden sm:flex">
           <span className="p-1.5 bg-[#E3F2FD] rounded-lg inline-block shadow-inner shrink-0">
