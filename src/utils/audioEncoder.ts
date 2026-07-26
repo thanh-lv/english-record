@@ -53,11 +53,30 @@ export async function fetchWordAudioBuffer(
       if (dictRes.ok) {
         const data = await dictRes.json();
         const phonetics = data[0]?.phonetics || [];
-        const validPhonetic = phonetics.find(
+        const validPhonetics = phonetics.filter(
           (p: any) => p.audio && p.audio.length > 0,
         );
-        if (validPhonetic) {
-          const audioRes = await fetch(validPhonetic.audio);
+
+        if (validPhonetics.length > 0) {
+          const isUS = lang === "en-US";
+          const preferredCode = isUS ? "-us" : "-uk";
+          let bestPhonetic = validPhonetics[0];
+          let bestScore = -999;
+
+          for (const p of validPhonetics) {
+            let score = 0;
+            const audioUrl = p.audio.toLowerCase();
+            if (audioUrl.includes(preferredCode)) score += 10;
+            if (audioUrl.includes("-stressed")) score += 5;
+            if (audioUrl.includes("-unstressed")) score -= 5;
+
+            if (score > bestScore) {
+              bestScore = score;
+              bestPhonetic = p;
+            }
+          }
+
+          const audioRes = await fetch(bestPhonetic.audio);
           if (audioRes.ok) {
             const arrayBuffer = await audioRes.arrayBuffer();
             return await audioCtx.decodeAudioData(arrayBuffer.slice(0));

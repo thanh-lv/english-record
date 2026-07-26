@@ -1,6 +1,7 @@
 import {
   AudioBuilderConfig,
   generateVocabularyAudio,
+  fetchWordAudioBuffer,
   RenderedAudioResult,
   WordTimestamp,
 } from "../../utils/audioEncoder";
@@ -217,9 +218,29 @@ export function VocabAudioBuilder() {
     }
   };
 
-  // Preview single word via browser Web Speech API
-  const speakSingleWord = (word: string, e: React.MouseEvent) => {
+  // Preview single word (try to keep in sync with API audio, fallback to Web Speech)
+  const speakSingleWord = async (word: string, e: React.MouseEvent) => {
     e.stopPropagation();
+
+    try {
+      const AudioContextClass =
+        window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        const audioCtx = new AudioContextClass();
+        const buffer = await fetchWordAudioBuffer(word, audioCtx, voiceLang);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start();
+        return;
+      }
+    } catch (err) {
+      console.warn(
+        "Failed to fetch API audio for preview, falling back to browser TTS",
+        err,
+      );
+    }
+
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(word);
