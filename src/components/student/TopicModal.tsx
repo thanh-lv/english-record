@@ -127,7 +127,7 @@ export function TopicModal({
           </button>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-            <div className="md:col-span-5 space-y-5 flex flex-col items-center sm:bg-[#F4F9FF] sm:p-5 sm:rounded-lg rounded-lg sm:border-2 sm:border-[#E3F2FD] shadow-inner">
+            <div className="md:col-span-5 space-y-5 flex flex-col items-center sm:bg-[#F4F9FF] sm:p-5 sm:rounded-lg rounded-lg sm:border-2 sm:border-[#E3F2FD]">
               {/* Ẩn image box trên mobile khi không có ảnh */}
               {imageLoading ? (
                 <div

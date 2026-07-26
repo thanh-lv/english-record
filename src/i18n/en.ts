@@ -423,7 +423,7 @@ export const en = {
     filterVocabAgeAll: "All ages",
     noVocabSetsFound: "No vocabulary sets found.",
     manageShadowing: "Manage Shadowing Videos",
-    addVideoTitle: "Add YouTube Video",
+    addVideoTitle: "Add",
     videoUrl: "YouTube URL",
     videoTitle: "Video Title",
     videoUrlPlaceholder: "https://www.youtube.com/watch?v=...",

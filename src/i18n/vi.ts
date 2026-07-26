@@ -423,7 +423,7 @@ export const vi = {
     filterVocabAgeAll: "Tất cả độ tuổi",
     noVocabSetsFound: "Không tìm thấy bộ từ vựng nào.",
     manageShadowing: "Quản lý Video Shadowing",
-    addVideoTitle: "Thêm Video YouTube",
+    addVideoTitle: "Thêm",
     videoUrl: "Link YouTube",
     videoTitle: "Tên Video",
     videoUrlPlaceholder: "https://www.youtube.com/watch?v=...",

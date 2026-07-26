@@ -753,7 +753,7 @@ export function VocabAudioBuilder() {
                   </h3>
                   <button
                     onClick={(e) => handleDeleteSavedAudio(audio, e)}
-                    className="text-rose-400 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                    className="text-rose-400 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg group-hover:opacity-100 transition-all"
                     title={tAudio.delete}
                   >
                     <Trash2 size={16} />
