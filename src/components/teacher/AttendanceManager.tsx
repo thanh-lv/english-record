@@ -62,7 +62,7 @@ export function AttendanceManager() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg border border-slate-100 shadow-md p-3 sm:p-6 min-h-[500px]">
+      <div className="bg-white rounded-lg border border-slate-100 shadow-md p-3 min-h-[500px]">
         {activeTab === "students" && <StudentsTab tAtt={tAtt} />}
         {activeTab === "checkin" && <CheckinTab tAtt={tAtt} />}
         {activeTab === "summary" && <SummaryTab tAtt={tAtt} />}
