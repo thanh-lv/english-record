@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useLanguage } from "../../../i18n/LanguageContext";
-import { Users, Plus, Pencil, Trash2, Loader2, Save } from "lucide-react";
+import {
+  Users,
+  Plus,
+  Pencil,
+  Trash2,
+  Loader2,
+  Save,
+  Phone,
+} from "lucide-react";
 import { DeleteConfirmModal } from "../DeleteConfirmModal";
 
 export function StudentsTab({ tAtt }: { tAtt: any }) {
@@ -13,6 +21,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
   const [name, setName] = useState("");
   const [className, setClassName] = useState("");
   const [unitPrice, setUnitPrice] = useState("");
+  const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -55,13 +64,23 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
       if (editId) {
         const { error: err } = await supabase
           .from("attendance_students")
-          .update({ name: name.trim(), class_name: cName, unit_price: price })
+          .update({
+            name: name.trim(),
+            class_name: cName,
+            unit_price: price,
+            phone: phone.trim(),
+          })
           .eq("id", editId);
         if (err) throw err;
       } else {
         const { error: err } = await supabase
           .from("attendance_students")
-          .insert({ name: name.trim(), class_name: cName, unit_price: price });
+          .insert({
+            name: name.trim(),
+            class_name: cName,
+            unit_price: price,
+            phone: phone.trim(),
+          });
         if (err) throw err;
       }
 
@@ -70,6 +89,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
       setName("");
       setClassName("");
       setUnitPrice("");
+      setPhone("");
       setEditId(null);
     } catch (err: any) {
       setError(
@@ -85,6 +105,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
     setName(student.name);
     setClassName(student.class_name || "");
     setUnitPrice(student.unit_price.toLocaleString());
+    setPhone(student.phone || "");
     setShowForm(true);
   };
 
@@ -247,6 +268,20 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                   />
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-black text-slate-700 mb-1.5">
+                  Số điện thoại Zalo Phụ huynh
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="VD: 0912345678"
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+              </div>
+
               {error && (
                 <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-600 rounded-lg px-4 py-2.5 text-sm font-bold">
                   <span>⚠️</span> {error}
@@ -338,6 +373,9 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                         {tAtt.unitPrice}
                       </th>
                       <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                        SĐT Zalo Phụ Huynh
+                      </th>
+                      <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
                         Thao tác
                       </th>
                     </tr>
@@ -361,6 +399,15 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                               student.unit_price.toLocaleString(),
                             )}
                           </span>
+                        </td>
+                        <td className="px-4 py-3 text-center whitespace-nowrap">
+                          {student.phone ? (
+                            <span className="text-[#0068FF] bg-[#0068FF]/10 px-2 py-0.5 rounded-lg text-xs font-black inline-flex items-center gap-1">
+                              <Phone size={12} /> {student.phone}
+                            </span>
+                          ) : (
+                            <span className="text-slate-300">—</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center justify-center gap-1.5">

@@ -13,6 +13,8 @@ import JSZip from "jszip";
 import { TuitionSlipTemplate } from "./TuitionSlipTemplate";
 import { AttendanceLeaderboard } from "./AttendanceLeaderboard";
 import { AttendanceAnalytics } from "./AttendanceAnalytics";
+import { ZaloShareModal } from "./ZaloShareModal";
+import { MessageCircle } from "lucide-react";
 import { Check, X, DollarSign } from "lucide-react";
 import { useRef } from "react";
 
@@ -37,6 +39,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
     "all",
   );
   const [paymentsMap, setPaymentsMap] = useState<Record<string, boolean>>({});
+  const [zaloStudent, setZaloStudent] = useState<any | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -88,14 +91,18 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   }, [month, year]);
 
   const allSummary = rpcSummary
-    ? rpcSummary.map((item) => ({
-        id: item.student_id,
-        name: item.name,
-        class_name: item.class_name,
-        unit_price: Number(item.unit_price),
-        total_sessions: Number(item.total_sessions),
-        total_fee: Number(item.total_fee),
-      }))
+    ? rpcSummary.map((item) => {
+        const matchingStudent = students.find((s) => s.id === item.student_id);
+        return {
+          id: item.student_id,
+          name: item.name,
+          class_name: item.class_name,
+          unit_price: Number(item.unit_price),
+          total_sessions: Number(item.total_sessions),
+          total_fee: Number(item.total_fee),
+          phone: item.phone || matchingStudent?.phone || "",
+        };
+      })
     : students
         .map((student) => {
           const studentRecords = records.filter(
@@ -105,6 +112,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
             ...student,
             total_sessions: studentRecords.length,
             total_fee: studentRecords.length * student.unit_price,
+            phone: student.phone || "",
           };
         })
         .filter((s) => s.total_sessions > 0)
@@ -593,6 +601,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center print:hidden whitespace-nowrap">
                           {tAtt.paymentStatus || "Trạng thái HP"}
                         </th>
+                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center print:hidden whitespace-nowrap">
+                          Gửi Zalo
+                        </th>
                         <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-left print:hidden whitespace-nowrap min-w-[160px]">
                           Ghi chú cá nhân
                         </th>
@@ -642,6 +653,15 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                               {paymentsMap[s.id]
                                 ? tAtt.paid || "Đã nộp"
                                 : tAtt.unpaid || "Chưa nộp"}
+                            </button>
+                          </td>
+                          <td className="px-4 py-3 text-center print:hidden whitespace-nowrap">
+                            <button
+                              onClick={() => setZaloStudent(s)}
+                              className="px-2.5 py-1 text-xs font-black text-[#0068FF] bg-[#0068FF]/10 hover:bg-[#0068FF]/20 rounded-lg transition-all flex items-center gap-1 mx-auto shadow-sm active:scale-95"
+                              title="Gửi thông báo Zalo cho Phụ huynh"
+                            >
+                              <MessageCircle size={13} /> Gửi Zalo
                             </button>
                           </td>
                           <td className="px-4 py-2 print:hidden">
@@ -901,6 +921,16 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           />
         )}
       </div>
+      {zaloStudent && (
+        <ZaloShareModal
+          student={zaloStudent}
+          month={month}
+          year={year}
+          isPaid={!!paymentsMap[zaloStudent.id]}
+          note={studentNotes[zaloStudent.id] || generalNote}
+          onClose={() => setZaloStudent(null)}
+        />
+      )}
     </div>
   );
 }

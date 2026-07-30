@@ -278,7 +278,8 @@ export function AttendanceAnalytics({
               </div>
             </div>
             <p className="text-[11px] text-slate-400 font-medium text-center">
-              💡 Đơn vị trục Y: Triệu VNĐ (tr) · Cột tím = Cần thu · Cột xanh = Thực tế đã nộp
+              💡 Đơn vị trục Y: Triệu VNĐ (tr) · Cột tím = Cần thu · Cột xanh =
+              Thực tế đã nộp
             </p>
           </div>
 
