@@ -8,6 +8,7 @@ import {
   Users,
   Video,
   X,
+  Calendar,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
@@ -45,6 +46,11 @@ export function TeacherSidebar() {
         id: "students",
         label: t.teacherNav.students,
         icon: <Users size={18} />,
+      },
+      {
+        id: "attendance",
+        label: (t as any).attendance?.title || "Điểm danh",
+        icon: <Calendar size={18} />,
       },
       {
         id: "stories",

@@ -47,6 +47,11 @@ const VocabAudioBuilder = lazy(() =>
     default: m.VocabAudioBuilder,
   })),
 );
+const AttendanceManager = lazy(() =>
+  import("./components/teacher/AttendanceManager").then((m) => ({
+    default: m.AttendanceManager,
+  })),
+);
 
 const formatDate = (timestamp: string) => {
   const d = new Date(timestamp);
@@ -207,6 +212,7 @@ export default function TeacherView({
               />
               <Route path="topics" element={<TopicsManager />} />
               <Route path="students" element={<StudentsManager />} />
+              <Route path="attendance" element={<AttendanceManager />} />
               <Route path="stories" element={<StoriesManager />} />
               <Route path="vocabulary" element={<VocabularyManager />} />
               <Route path="shadowing" element={<ShadowingManager />} />

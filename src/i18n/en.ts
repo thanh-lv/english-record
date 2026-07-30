@@ -507,4 +507,46 @@ export const en = {
     confirmDelete: "Are you sure you want to delete this audio?",
     close: "Close",
   },
+  attendance: {
+    title: "Attendance & Tuition",
+    studentsTab: "Manage Students",
+    checkinTab: "Daily Check-in",
+    summaryTab: "Monthly Summary",
+
+    // Students Tab
+    addStudent: "Add Student",
+    editStudent: "Edit",
+    studentName: "Student Name",
+    className: "Class",
+    unitPrice: "Unit Price (VND/session)",
+    studentNamePlaceholder: "Enter student name...",
+    classNamePlaceholder: "e.g. Class 3A...",
+    unitPricePlaceholder: "e.g. 100000",
+    saveStudent: "Save",
+    deleteStudent: "Delete",
+    confirmDeleteStudent: "Are you sure you want to delete this student?",
+    noStudents: "No students yet. Add a student to start tracking attendance.",
+
+    // Check-in Tab
+    selectDate: "Select Check-in Date",
+    filterClass: "Filter by Class",
+    allClasses: "All Classes",
+    unassignedClass: "Unassigned",
+    selectAll: "Select All",
+    deselectAll: "Deselect All",
+    markPresent: "Present",
+    markAbsent: "Absent",
+    timeCheckin: "Check-in Time",
+    saveCheckin: "Save Attendance",
+    checkinSaved: "Attendance saved!",
+
+    // Summary Tab
+    selectMonth: "Select Month",
+    totalSessions: "Total Sessions",
+    totalFee: "Total Fee",
+    exportReport: "Export Report",
+    summaryEmpty: "No attendance data for this month.",
+    month: "Month",
+    year: "Year",
+  },
 };

@@ -506,4 +506,46 @@ export const vi = {
     confirmDelete: "Bạn có chắc chắn muốn xóa audio này?",
     close: "Đóng",
   },
+  attendance: {
+    title: "Điểm danh & Học phí",
+    studentsTab: "Quản lý Học sinh",
+    checkinTab: "Điểm danh hàng ngày",
+    summaryTab: "Tổng hợp tháng",
+
+    // Students Tab
+    addStudent: "Thêm học sinh",
+    editStudent: "Sửa",
+    studentName: "Tên học sinh",
+    className: "Lớp",
+    unitPrice: "Đơn giá (VNĐ/buổi)",
+    studentNamePlaceholder: "Nhập tên học sinh...",
+    classNamePlaceholder: "VD: Lớp 3A...",
+    unitPricePlaceholder: "VD: 100000",
+    saveStudent: "Lưu",
+    deleteStudent: "Xóa",
+    confirmDeleteStudent: "Bạn có chắc chắn muốn xóa học sinh này?",
+    noStudents: "Chưa có học sinh nào. Hãy thêm học sinh để bắt đầu điểm danh.",
+
+    // Check-in Tab
+    selectDate: "Chọn ngày điểm danh",
+    filterClass: "Lọc theo lớp",
+    allClasses: "Tất cả các lớp",
+    unassignedClass: "Chưa phân lớp",
+    selectAll: "Chọn tất cả",
+    deselectAll: "Bỏ chọn tất cả",
+    markPresent: "Có mặt",
+    markAbsent: "Vắng",
+    timeCheckin: "Giờ check-in",
+    saveCheckin: "Lưu điểm danh",
+    checkinSaved: "Đã lưu điểm danh!",
+
+    // Summary Tab
+    selectMonth: "Chọn tháng tổng hợp",
+    totalSessions: "Tổng số buổi",
+    totalFee: "Tổng học phí",
+    exportReport: "Xuất báo cáo",
+    summaryEmpty: "Không có dữ liệu điểm danh trong tháng này.",
+    month: "Tháng",
+    year: "Năm",
+  },
 };
