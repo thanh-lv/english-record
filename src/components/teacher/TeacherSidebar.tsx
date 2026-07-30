@@ -15,6 +15,7 @@ import { useLanguage } from "../../i18n/LanguageContext";
 import { useState } from "react";
 
 export type TeacherTab =
+  | "attendance"
   | "recordings"
   | "topics"
   | "students"
@@ -33,6 +34,11 @@ export function TeacherSidebar() {
   const NAV_ITEMS: { id: TeacherTab; label: string; icon: React.ReactNode }[] =
     [
       {
+        id: "attendance",
+        label: (t as any).attendance?.title || "Điểm danh",
+        icon: <Calendar size={18} />,
+      },
+      {
         id: "recordings",
         label: t.teacherNav.recordings,
         icon: <Mic size={18} />,
@@ -46,11 +52,6 @@ export function TeacherSidebar() {
         id: "students",
         label: t.teacherNav.students,
         icon: <Users size={18} />,
-      },
-      {
-        id: "attendance",
-        label: (t as any).attendance?.title || "Điểm danh",
-        icon: <Calendar size={18} />,
       },
       {
         id: "stories",
