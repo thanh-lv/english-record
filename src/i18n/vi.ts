@@ -547,7 +547,7 @@ export const vi = {
     summaryEmpty: "Không có dữ liệu điểm danh trong tháng này.",
     month: "Tháng",
     year: "Năm",
-  
+
     // Extra texts
     searchStudentPlaceholder: "Tìm học sinh...",
     clickAddStudentToStart: 'Nhấn "Thêm học sinh" để bắt đầu',
@@ -555,7 +555,8 @@ export const vi = {
     action: "Thao tác",
     edit: "Sửa",
     delete: "Xóa",
-    saveCheckinError: "Lỗi khi lưu. Có thể đã tồn tại record cho thời điểm này.",
+    saveCheckinError:
+      "Lỗi khi lưu. Có thể đã tồn tại record cho thời điểm này.",
     today: "Hôm nay",
     yesterday: "Hôm qua",
     hasCheckin: "Có điểm danh",
@@ -598,9 +599,21 @@ export const vi = {
     status: "Trạng thái",
     printImage: "In / Ảnh",
     checkingIn: "Đang điểm danh",
-    monthNames: ["Tháng 1","Tháng 2","Tháng 3","Tháng 4","Tháng 5","Tháng 6","Tháng 7","Tháng 8","Tháng 9","Tháng 10","Tháng 11","Tháng 12"],
+    monthNames: [
+      "Tháng 1",
+      "Tháng 2",
+      "Tháng 3",
+      "Tháng 4",
+      "Tháng 5",
+      "Tháng 6",
+      "Tháng 7",
+      "Tháng 8",
+      "Tháng 9",
+      "Tháng 10",
+      "Tháng 11",
+      "Tháng 12",
+    ],
     daysOfWeek: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
-
 
     currencyVnd: "{amount} đ",
     studentCount: "{count} học sinh",
@@ -612,5 +625,19 @@ export const vi = {
     summaryFooter: "{sessions} buổi · {students} học sinh · ",
     studentClassCount: "{students} học sinh · {classes} lớp",
     pricePerSession: "{price} đ/buổi",
+
+    exportImageAll: "Xuất tất cả Ảnh",
+    exportImageSingle: "Xuất Ảnh",
+    tuitionSlipTitle: "PHIẾU HỌC PHÍ",
+    studentNameSlip: "🧸 Học sinh",
+    unitPriceSlip: "💎 Học phí / buổi",
+    sessionsSlip: "📝 Số buổi học",
+    totalTuitionSlip: "TỔNG HỌC PHÍ",
+    attendanceDates: "NGÀY ĐI HỌC",
+    noteLabel: "Ghi chú: ",
+    defaultNote:
+      "Nếu trong quá trình tổng kết học phí có bất kỳ nhầm lẫn nào, phụ huynh nhắn lại để em kiểm tra và điều chỉnh nhé!",
+    notePlaceholder: "Nhập ghi chú chung cho các phiếu...",
+    exportingImage: "Đang xuất ảnh...",
   },
 };

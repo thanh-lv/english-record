@@ -548,7 +548,7 @@ export const en = {
     summaryEmpty: "No attendance data for this month.",
     month: "Month",
     year: "Year",
-  
+
     // Extra texts
     searchStudentPlaceholder: "Search student...",
     clickAddStudentToStart: 'Click "Add Student" to start',
@@ -556,7 +556,8 @@ export const en = {
     action: "Action",
     edit: "Edit",
     delete: "Delete",
-    saveCheckinError: "Error saving attendance. Record might already exist for this time.",
+    saveCheckinError:
+      "Error saving attendance. Record might already exist for this time.",
     today: "Today",
     yesterday: "Yesterday",
     hasCheckin: "Has check-in",
@@ -599,9 +600,21 @@ export const en = {
     status: "Status",
     printImage: "Print / Image",
     checkingIn: "Checking in",
-    monthNames: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    monthNames: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
     daysOfWeek: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-
 
     currencyVnd: "{amount} VND",
     studentCount: "{count} students",
@@ -613,5 +626,19 @@ export const en = {
     summaryFooter: "{sessions} sessions · {students} students · ",
     studentClassCount: "{students} students · {classes} classes",
     pricePerSession: "{price} VND/session",
+
+    exportImageAll: "Export All Images",
+    exportImageSingle: "Export Image",
+    tuitionSlipTitle: "TUITION SLIP",
+    studentNameSlip: "🧸 Student",
+    unitPriceSlip: "💎 Price / session",
+    sessionsSlip: "📝 Sessions",
+    totalTuitionSlip: "TOTAL TUITION",
+    attendanceDates: "ATTENDANCE DATES",
+    noteLabel: "Note: ",
+    defaultNote:
+      "If there are any mistakes in the tuition calculation, please let me know so I can check and adjust!",
+    notePlaceholder: "Enter a general note for all slips...",
+    exportingImage: "Exporting images...",
   },
 };
