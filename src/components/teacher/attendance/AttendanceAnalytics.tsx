@@ -207,51 +207,78 @@ export function AttendanceAnalytics({
               </div>
             </div>
 
-            {/* Custom Bar Chart */}
-            <div className="h-56 flex items-end justify-between gap-2 pt-6 pb-2 px-2 border-b border-slate-100">
-              {monthlyTrends.map((t, i) => {
-                const projectedHeight =
-                  t.projected > 0
-                    ? Math.max(
-                        6,
-                        Math.round((t.projected / maxProjected) * 100),
-                      )
-                    : 0;
-                const collectedHeight =
-                  t.collected > 0
-                    ? Math.max(
-                        6,
-                        Math.round((t.collected / maxProjected) * 100),
-                      )
-                    : 0;
-                return (
-                  <div
-                    key={i}
-                    className="flex-1 flex flex-col items-center h-full justify-end group"
-                  >
-                    <div className="w-full max-w-[36px] flex items-end justify-center gap-1 h-full">
-                      {/* Projected Bar */}
-                      <div
-                        className="w-1/2 bg-purple-200 group-hover:bg-purple-300 rounded-t transition-all relative"
-                        style={{ height: `${projectedHeight}%` }}
-                        title={`Cần thu: ${t.projected.toLocaleString()} đ`}
-                      />
-                      {/* Collected Bar */}
-                      <div
-                        className="w-1/2 bg-emerald-500 group-hover:bg-emerald-600 rounded-t transition-all relative"
-                        style={{ height: `${collectedHeight}%` }}
-                        title={`Đã thu: ${t.collected.toLocaleString()} đ`}
-                      />
+            {/* Custom Bar Chart with Y-Axis */}
+            <div className="flex items-stretch gap-2 pt-4">
+              {/* Y-Axis Column (Units in Millions / Triệu) */}
+              <div className="flex flex-col justify-between text-[10px] font-bold text-slate-400 h-48 py-1 pr-1 text-right border-r border-slate-200 border-dashed shrink-0 select-none w-14">
+                <span>
+                  {(maxProjected / 1000000).toLocaleString("vi-VN", {
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  tr
+                </span>
+                <span>
+                  {(maxProjected / 2 / 1000000).toLocaleString("vi-VN", {
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  tr
+                </span>
+                <span>0 tr</span>
+              </div>
+
+              {/* Chart Bars Area */}
+              <div className="flex-1 h-48 flex items-end justify-between gap-2 pb-2 px-1 relative border-b border-slate-200">
+                {/* Horizontal Guide Lines */}
+                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-30 z-0">
+                  <div className="border-b border-slate-200 border-dashed w-full" />
+                  <div className="border-b border-slate-200 border-dashed w-full" />
+                  <div className="border-b border-slate-200 w-full" />
+                </div>
+
+                {monthlyTrends.map((t, i) => {
+                  const projectedHeight =
+                    t.projected > 0
+                      ? Math.max(
+                          6,
+                          Math.round((t.projected / maxProjected) * 100),
+                        )
+                      : 0;
+                  const collectedHeight =
+                    t.collected > 0
+                      ? Math.max(
+                          6,
+                          Math.round((t.collected / maxProjected) * 100),
+                        )
+                      : 0;
+                  return (
+                    <div
+                      key={i}
+                      className="flex-1 flex flex-col items-center h-full justify-end group z-10"
+                    >
+                      <div className="w-full max-w-[36px] flex items-end justify-center gap-1 h-full">
+                        {/* Projected Bar */}
+                        <div
+                          className="w-1/2 bg-purple-200 group-hover:bg-purple-300 rounded-t transition-all relative"
+                          style={{ height: `${projectedHeight}%` }}
+                          title={`Cần thu: ${(t.projected / 1000000).toLocaleString("vi-VN", { maximumFractionDigits: 3 })} tr (${t.projected.toLocaleString()} đ)`}
+                        />
+                        {/* Collected Bar */}
+                        <div
+                          className="w-1/2 bg-emerald-500 group-hover:bg-emerald-600 rounded-t transition-all relative"
+                          style={{ height: `${collectedHeight}%` }}
+                          title={`Đã thu: ${(t.collected / 1000000).toLocaleString("vi-VN", { maximumFractionDigits: 3 })} tr (${t.collected.toLocaleString()} đ)`}
+                        />
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-500 mt-2">
+                        {t.label}
+                      </span>
                     </div>
-                    <span className="text-[11px] font-bold text-slate-500 mt-2">
-                      {t.label}
-                    </span>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
             <p className="text-[11px] text-slate-400 font-medium text-center">
-              💡 Cột tím = Cần thu · Cột xanh = Thực tế đã nộp
+              💡 Đơn vị trục Y: Triệu VNĐ (tr) · Cột tím = Cần thu · Cột xanh = Thực tế đã nộp
             </p>
           </div>
 

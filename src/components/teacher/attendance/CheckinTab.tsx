@@ -666,7 +666,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
             </div>
 
             {/* Modal footer */}
-            <div className="border-t border-slate-100 px-5 py-3 flex items-center gap-3 bg-white shrink-0 rounded-b-lg2xl">
+            <div className="border-t border-slate-100 px-5 py-3 flex items-center gap-3 bg-white shrink-0 rounded-b-lg">
               <button
                 onClick={closeModal}
                 className="px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
