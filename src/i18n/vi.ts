@@ -648,5 +648,18 @@ export const vi = {
     filterYear: "Năm nay",
     sessionsCount: "{count} buổi",
     noLeaderboardData: "Chưa có dữ liệu điểm danh trong thời gian này.",
+
+    paymentStatus: "Trạng thái HP",
+    paid: "Đã nộp",
+    unpaid: "Chưa nộp",
+    filterPayment: "Lọc trạng thái HP",
+    filterAllPayments: "Tất cả trạng thái",
+    totalCollected: "Đã thu",
+    totalOutstanding: "Còn nợ",
+    analyticsTitle: "Biểu Đồ Thống Kê & Doanh Thu",
+    revenueTrendTitle: "Doanh thu & Học phí 6 tháng gần đây",
+    attendanceRateTitle: "Tỉ lệ Chuyên cần các Lớp",
+    collectedLabel: "Đã thu",
+    projectedLabel: "Cần thu",
   },
 };

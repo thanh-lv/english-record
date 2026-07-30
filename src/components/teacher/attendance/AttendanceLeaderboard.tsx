@@ -176,7 +176,7 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                 <p className="text-[11px] text-slate-400 font-bold truncate w-full text-center">
                   {top2.class_name}
                 </p>
-                <div className="mt-2 bg-gradient-to-t from-slate-200 to-slate-100 w-full py-4 rounded-t-2xl border border-slate-300 text-center">
+                <div className="mt-2 bg-gradient-to-t from-slate-200 to-slate-100 w-full py-4 rounded-t-lg border border-slate-300 text-center">
                   <span className="font-black text-slate-800 text-sm sm:text-base">
                     {top2.total_sessions} buổi
                   </span>
@@ -207,7 +207,7 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                 <p className="text-xs text-amber-700/70 font-bold truncate w-full text-center">
                   {top1.class_name}
                 </p>
-                <div className="mt-2 bg-gradient-to-t from-amber-400 to-amber-200 w-full py-6 rounded-t-2xl border border-amber-300 text-center shadow-md">
+                <div className="mt-2 bg-gradient-to-t from-amber-400 to-amber-200 w-full py-6 rounded-t-lg border border-amber-300 text-center shadow-md">
                   <span className="font-black text-amber-950 text-base sm:text-lg">
                     {top1.total_sessions} buổi
                   </span>
@@ -232,7 +232,7 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                 <p className="text-[11px] text-slate-400 font-bold truncate w-full text-center">
                   {top3.class_name}
                 </p>
-                <div className="mt-2 bg-gradient-to-t from-orange-200 to-amber-100 w-full py-3 rounded-t-2xl border border-orange-300 text-center">
+                <div className="mt-2 bg-gradient-to-t from-orange-200 to-amber-100 w-full py-3 rounded-t-lg border border-orange-300 text-center">
                   <span className="font-black text-orange-900 text-sm sm:text-base">
                     {top3.total_sessions} buổi
                   </span>

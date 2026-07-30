@@ -12,6 +12,8 @@ import html2canvas from "html2canvas";
 import JSZip from "jszip";
 import { TuitionSlipTemplate } from "./TuitionSlipTemplate";
 import { AttendanceLeaderboard } from "./AttendanceLeaderboard";
+import { AttendanceAnalytics } from "./AttendanceAnalytics";
+import { Check, X, DollarSign } from "lucide-react";
 import { useRef } from "react";
 
 export function SummaryTab({ tAtt }: { tAtt: any }) {
@@ -31,6 +33,10 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   const [year, setYear] = useState(now.getFullYear());
 
   const [rpcSummary, setRpcSummary] = useState<any[] | null>(null);
+  const [filterPayment, setFilterPayment] = useState<"all" | "paid" | "unpaid">(
+    "all",
+  );
+  const [paymentsMap, setPaymentsMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const loadData = async () => {
@@ -50,17 +56,31 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
         setRpcSummary(null);
       }
 
-      const [studRes, recRes] = await Promise.all([
+      const [studRes, recRes, payRes] = await Promise.all([
         supabase.from("attendance_students").select("*"),
         supabase
           .from("attendance_records")
           .select("*, attendance_students(name, unit_price)")
           .gte("checkin_time", startDate)
           .lte("checkin_time", endDate),
+        supabase
+          .from("attendance_payments")
+          .select("student_id, is_paid")
+          .eq("year", year)
+          .eq("month", month),
       ]);
 
       if (studRes.data) setStudents(studRes.data);
       if (recRes.data) setRecords(recRes.data);
+      if (payRes && payRes.data) {
+        const pMap: Record<string, boolean> = {};
+        payRes.data.forEach((p: any) => {
+          pMap[p.student_id] = p.is_paid;
+        });
+        setPaymentsMap(pMap);
+      } else {
+        setPaymentsMap({});
+      }
       setLoading(false);
     };
 
@@ -101,12 +121,16 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
     new Set(allSummary.map((s) => s.class_name || tAtt.unassignedClass)),
   ).sort();
 
-  const summary =
+  let summary =
     filterClass === "all"
       ? allSummary
       : allSummary.filter(
           (s) => (s.class_name || tAtt.unassignedClass) === filterClass,
         );
+  if (filterPayment === "paid")
+    summary = summary.filter((s) => !!paymentsMap[s.id]);
+  if (filterPayment === "unpaid")
+    summary = summary.filter((s) => !paymentsMap[s.id]);
 
   // Group by class for display
   const byClass: Record<string, typeof allSummary> = {};
@@ -117,6 +141,11 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   });
 
   const grandTotal = summary.reduce((sum, s) => sum + s.total_fee, 0);
+  const totalCollected = summary.reduce(
+    (sum, s) => sum + (paymentsMap[s.id] ? s.total_fee : 0),
+    0,
+  );
+  const totalOutstanding = grandTotal - totalCollected;
   const grandSessions = summary.reduce((sum, s) => sum + s.total_sessions, 0);
   const MONTH_LABEL = tAtt.monthYear
     .replace("{month}", month.toString())
@@ -190,6 +219,24 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
     });
 
     XLSX.writeFile(wb, `diem-danh-${month}-${year}.xlsx`);
+  };
+
+  const handleTogglePayment = async (studentId: string) => {
+    const next = !paymentsMap[studentId];
+    setPaymentsMap((prev) => ({ ...prev, [studentId]: next }));
+    try {
+      await supabase.from("attendance_payments").upsert(
+        {
+          student_id: studentId,
+          year: year,
+          month: month,
+          is_paid: next,
+        },
+        { onConflict: "student_id,year,month" },
+      );
+    } catch (e) {
+      console.error("Error toggling payment status:", e);
+    }
   };
 
   // ---- Export single student to Excel ----
@@ -366,6 +413,23 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           </div>
         )}
 
+        <div>
+          <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
+            {tAtt.filterPayment || "Trạng thái HP"}
+          </label>
+          <select
+            value={filterPayment}
+            onChange={(e) => setFilterPayment(e.target.value as any)}
+            className="px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white font-bold text-slate-700 text-sm"
+          >
+            <option value="all">
+              {tAtt.filterAllPayments || "Tất cả trạng thái"}
+            </option>
+            <option value="paid">🟢 {tAtt.paid || "Đã nộp"}</option>
+            <option value="unpaid">🔴 {tAtt.unpaid || "Chưa nộp"}</option>
+          </select>
+        </div>
+
         <div className="w-full sm:w-auto flex-1 min-w-[200px]">
           <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
             {tAtt.noteLabel || "Ghi chú"}
@@ -456,6 +520,14 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
             </div>
           </div>
 
+          {/* ---- Analytics Charts Widget ---- */}
+          <AttendanceAnalytics
+            tAtt={tAtt}
+            month={month}
+            year={year}
+            paymentsMap={paymentsMap}
+          />
+
           {/* ---- Tables grouped by class ---- */}
           {Object.entries(byClass).map(([cls, rows]) => {
             const classTotal = rows.reduce((s, r) => s + r.total_fee, 0);
@@ -518,6 +590,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-right whitespace-nowrap">
                           {tAtt.totalFee}
                         </th>
+                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center print:hidden whitespace-nowrap">
+                          {tAtt.paymentStatus || "Trạng thái HP"}
+                        </th>
                         <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-left print:hidden whitespace-nowrap min-w-[160px]">
                           Ghi chú cá nhân
                         </th>
@@ -551,6 +626,23 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                               "{amount}",
                               s.total_fee.toLocaleString(),
                             )}
+                          </td>
+                          <td className="px-4 py-3 text-center print:hidden whitespace-nowrap">
+                            <button
+                              onClick={() => handleTogglePayment(s.id)}
+                              className={`px-3 py-1 text-xs font-black rounded-full border transition-all flex items-center gap-1 mx-auto ${
+                                paymentsMap[s.id]
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                                  : "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100"
+                              }`}
+                            >
+                              <span
+                                className={`w-2 h-2 rounded-full ${paymentsMap[s.id] ? "bg-emerald-500" : "bg-rose-500"}`}
+                              />
+                              {paymentsMap[s.id]
+                                ? tAtt.paid || "Đã nộp"
+                                : tAtt.unpaid || "Chưa nộp"}
+                            </button>
                           </td>
                           <td className="px-4 py-2 print:hidden">
                             <input

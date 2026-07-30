@@ -649,5 +649,18 @@ export const en = {
     filterYear: "This Year",
     sessionsCount: "{count} sessions",
     noLeaderboardData: "No attendance data for this timeframe yet.",
+
+    paymentStatus: "Tuition Status",
+    paid: "Paid",
+    unpaid: "Unpaid",
+    filterPayment: "Filter Status",
+    filterAllPayments: "All Statuses",
+    totalCollected: "Collected",
+    totalOutstanding: "Pending",
+    analyticsTitle: "Analytics & Revenue Charts",
+    revenueTrendTitle: "6-Month Tuition & Revenue Trend",
+    attendanceRateTitle: "Class Attendance Rates",
+    collectedLabel: "Collected",
+    projectedLabel: "Projected",
   },
 };
