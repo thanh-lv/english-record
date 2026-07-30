@@ -62,7 +62,7 @@ export function StudentsManager() {
     const load = async () => {
       setLoading(true);
       try {
-        const [studRes, recRes, topRes] = await Promise.all([
+        const [studRes, recRes, topRes, viewRes] = await Promise.all([
           supabase
             .from("profiles")
             .select("id, name, role, avatar, year_born, password, grade")
@@ -77,6 +77,7 @@ export function StudentsManager() {
             .select("id,title,order_index,type")
             .eq("type", "standard")
             .order("order_index"),
+          supabase.from("student_recording_stats_view").select("*"),
         ]);
         if (studRes.data) setStudents(studRes.data);
         if (recRes.data) setRecordings(recRes.data);

@@ -231,7 +231,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-3 md:p-6 lg:p-8 flex-1 w-full flex flex-col">
+      <main className="max-w-7xl mx-auto p-3 md:p-6 lg:p-8 flex-1 w-full flex flex-col">
         <Suspense fallback={null}>
           <Routes>
             <Route

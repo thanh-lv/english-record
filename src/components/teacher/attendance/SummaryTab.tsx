@@ -11,6 +11,7 @@ import {
 import html2canvas from "html2canvas";
 import JSZip from "jszip";
 import { TuitionSlipTemplate } from "./TuitionSlipTemplate";
+import { AttendanceLeaderboard } from "./AttendanceLeaderboard";
 import { useRef } from "react";
 
 export function SummaryTab({ tAtt }: { tAtt: any }) {
@@ -29,11 +30,25 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
 
+  const [rpcSummary, setRpcSummary] = useState<any[] | null>(null);
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       const startDate = new Date(year, month - 1, 1).toISOString();
       const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
+
+      // Try RPC first for fast backend calculation (Step 1)
+      const rpcRes = await supabase.rpc("get_monthly_attendance_summary", {
+        p_year: year,
+        p_month: month,
+      });
+
+      if (!rpcRes.error && rpcRes.data) {
+        setRpcSummary(rpcRes.data);
+      } else {
+        setRpcSummary(null);
+      }
 
       const [studRes, recRes] = await Promise.all([
         supabase.from("attendance_students").select("*"),
@@ -52,24 +67,35 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
     loadData();
   }, [month, year]);
 
-  const allSummary = students
-    .map((student) => {
-      const studentRecords = records.filter((r) => r.student_id === student.id);
-      return {
-        ...student,
-        total_sessions: studentRecords.length,
-        total_fee: studentRecords.length * student.unit_price,
-      };
-    })
-    .filter((s) => s.total_sessions > 0)
-    .sort((a, b) => {
-      const classCompare = (a.class_name || "").localeCompare(
-        b.class_name || "",
-      );
-      return classCompare !== 0
-        ? classCompare
-        : b.total_sessions - a.total_sessions;
-    });
+  const allSummary = rpcSummary
+    ? rpcSummary.map((item) => ({
+        id: item.student_id,
+        name: item.name,
+        class_name: item.class_name,
+        unit_price: Number(item.unit_price),
+        total_sessions: Number(item.total_sessions),
+        total_fee: Number(item.total_fee),
+      }))
+    : students
+        .map((student) => {
+          const studentRecords = records.filter(
+            (r) => r.student_id === student.id,
+          );
+          return {
+            ...student,
+            total_sessions: studentRecords.length,
+            total_fee: studentRecords.length * student.unit_price,
+          };
+        })
+        .filter((s) => s.total_sessions > 0)
+        .sort((a, b) => {
+          const classCompare = (a.class_name || "").localeCompare(
+            b.class_name || "",
+          );
+          return classCompare !== 0
+            ? classCompare
+            : b.total_sessions - a.total_sessions;
+        });
 
   const availableClasses = Array.from(
     new Set(allSummary.map((s) => s.class_name || tAtt.unassignedClass)),
@@ -554,7 +580,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                     </tbody>
                     <tfoot className="bg-purple-50 border-t-2 border-purple-200">
                       <tr>
-                        <td colSpan={2}
+                        <td
+                          colSpan={2}
                           className="px-4 py-3 font-black text-purple-800 text-sm whitespace-nowrap"
                         >
                           Cộng
@@ -774,7 +801,11 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   new Date(b.checkin_time).getTime(),
               )}
             month={month}
-            note={(studentNotes[exportStudent.id] && studentNotes[exportStudent.id].trim()) || generalNote}
+            note={
+              (studentNotes[exportStudent.id] &&
+                studentNotes[exportStudent.id].trim()) ||
+              generalNote
+            }
           />
         )}
       </div>

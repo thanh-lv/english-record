@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
-import { Users, Calendar, FileText } from "lucide-react";
+import { Users, Calendar, FileText, Trophy } from "lucide-react";
 import { StudentsTab } from "./attendance/StudentsTab";
 import { CheckinTab } from "./attendance/CheckinTab";
 import { SummaryTab } from "./attendance/SummaryTab";
+import { AttendanceLeaderboard } from "./attendance/AttendanceLeaderboard";
 
 export function AttendanceManager() {
   const { t } = useLanguage();
   const tAtt = (t as any).attendance;
   const [activeTab, setActiveTab] = useState<
-    "students" | "checkin" | "summary"
+    "students" | "checkin" | "summary" | "leaderboard"
   >("students");
 
   return (
@@ -48,12 +49,24 @@ export function AttendanceManager() {
           <FileText size={16} />
           <span>{tAtt.summaryTab}</span>
         </button>
+        <button
+          onClick={() => setActiveTab("leaderboard")}
+          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 min-w-[120px] ${
+            activeTab === "leaderboard"
+              ? "bg-amber-50 text-amber-600 shadow-sm"
+              : "text-slate-500 hover:bg-slate-50"
+          }`}
+        >
+          <Trophy size={16} />
+          <span>{tAtt.leaderboardTab || "Bảng Xếp Hạng"}</span>
+        </button>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-3 sm:p-6 min-h-[500px]">
         {activeTab === "students" && <StudentsTab tAtt={tAtt} />}
         {activeTab === "checkin" && <CheckinTab tAtt={tAtt} />}
         {activeTab === "summary" && <SummaryTab tAtt={tAtt} />}
+        {activeTab === "leaderboard" && <AttendanceLeaderboard tAtt={tAtt} />}
       </div>
     </div>
   );

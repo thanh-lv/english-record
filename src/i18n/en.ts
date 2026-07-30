@@ -513,6 +513,7 @@ export const en = {
     checkinTab: "Daily Check-in",
     summaryTab: "Monthly Summary",
 
+    leaderboardTab: "Leaderboard",
     // Students Tab
     addStudent: "Add Student",
     editStudent: "Edit",
@@ -640,5 +641,13 @@ export const en = {
       "If there are any mistakes in the tuition calculation, please let me know so I can check and adjust!",
     notePlaceholder: "Enter a general note for all slips...",
     exportingImage: "Exporting images...",
+
+    leaderboardTitle: "Diligence Leaderboard",
+    leaderboardSubtitle: "Top diligent students with highest attendance",
+    filterWeek: "This Week",
+    filterMonth: "This Month",
+    filterYear: "This Year",
+    sessionsCount: "{count} sessions",
+    noLeaderboardData: "No attendance data for this timeframe yet.",
   },
 };

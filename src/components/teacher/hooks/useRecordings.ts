@@ -29,6 +29,31 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
 
   const fetchSummaries = async () => {
     try {
+      // Step 2: Try querying Database View first for pre-aggregated stats
+      const viewRes = await supabase
+        .from("student_recording_stats_view")
+        .select("*");
+
+      if (!viewRes.error && viewRes.data && viewRes.data.length > 0) {
+        const viewSummaries: StudentSummary[] = viewRes.data
+          .map((item: any) => ({
+            key: (item.name || "").trim().toLowerCase(),
+            studentName: item.name,
+            count: Number(item.total_recordings || 0),
+            latestCreatedAt:
+              item.last_submission_at || new Date().toISOString(),
+            hasUngraded: false,
+          }))
+          .sort(
+            (a, b) =>
+              new Date(b.latestCreatedAt).getTime() -
+              new Date(a.latestCreatedAt).getTime(),
+          );
+        setSummaries(viewSummaries);
+        return;
+      }
+
+      // Fallback if View is not created yet
       const { data, error } = await supabase
         .from("recordings")
         .select("studentName, createdAt, teacher_rating, teacher_feedback")

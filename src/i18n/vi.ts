@@ -512,6 +512,7 @@ export const vi = {
     checkinTab: "Điểm danh hàng ngày",
     summaryTab: "Tổng hợp tháng",
 
+    leaderboardTab: "Bảng Xếp Hạng",
     // Students Tab
     addStudent: "Thêm học sinh",
     editStudent: "Sửa",
@@ -639,5 +640,13 @@ export const vi = {
       "Nếu trong quá trình tổng kết học phí có bất kỳ nhầm lẫn nào, phụ huynh nhắn lại để em kiểm tra và điều chỉnh nhé!",
     notePlaceholder: "Nhập ghi chú chung cho các phiếu...",
     exportingImage: "Đang xuất ảnh...",
+
+    leaderboardTitle: "Bảng Xếp Hạng Chăm Chỉ",
+    leaderboardSubtitle: "Top học sinh chuyên cần có số buổi đi học nhiều nhất",
+    filterWeek: "Tuần này",
+    filterMonth: "Tháng này",
+    filterYear: "Năm nay",
+    sessionsCount: "{count} buổi",
+    noLeaderboardData: "Chưa có dữ liệu điểm danh trong thời gian này.",
   },
 };
