@@ -328,7 +328,7 @@ export function VocabAudioBuilder() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 mx-auto">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-lg p-4 text-white shadow-md relative overflow-hidden">
         <div className="relative z-10 space-y-2">

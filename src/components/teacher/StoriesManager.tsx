@@ -392,7 +392,7 @@ export function StoriesManager() {
         </select>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-5">
         {filteredStories.map((story) => (
           <div
             key={story.id}

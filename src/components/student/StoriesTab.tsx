@@ -34,7 +34,7 @@ export function StoriesTab({
           {t.stories.empty}
         </div>
       )}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-5">
         {dbStories.map((story) => (
           <div
             key={story.id}

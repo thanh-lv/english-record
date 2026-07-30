@@ -65,7 +65,7 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
           <p className="text-slate-500 font-bold">{t.shadowing.empty}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
           {videos.map((video) => {
             const ytId = extractYoutubeId(video.youtube_url);
             const thumb = ytId
