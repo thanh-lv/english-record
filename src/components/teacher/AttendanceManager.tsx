@@ -28,12 +28,12 @@ export function AttendanceManager() {
 
   return (
     <div className="space-y-4">
-      <div className="flex bg-white rounded-lg p-1 border border-slate-100 shadow-sm w-fit overflow-x-auto max-w-full">
+      <div className="flex flex-wrap bg-white rounded-lg p-1.5 border border-slate-100 shadow-sm gap-1.5 w-full">
         <button
           onClick={() => setActiveTab("students")}
-          className={`px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center gap-2 whitespace-nowrap ${
+          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 min-w-[120px] ${
             activeTab === "students"
-              ? "bg-blue-50 text-blue-600"
+              ? "bg-blue-50 text-blue-600 shadow-sm"
               : "text-slate-500 hover:bg-slate-50"
           }`}
         >
@@ -42,9 +42,9 @@ export function AttendanceManager() {
         </button>
         <button
           onClick={() => setActiveTab("checkin")}
-          className={`px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center gap-2 whitespace-nowrap ${
+          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 min-w-[120px] ${
             activeTab === "checkin"
-              ? "bg-emerald-50 text-emerald-600"
+              ? "bg-emerald-50 text-emerald-600 shadow-sm"
               : "text-slate-500 hover:bg-slate-50"
           }`}
         >
@@ -53,9 +53,9 @@ export function AttendanceManager() {
         </button>
         <button
           onClick={() => setActiveTab("summary")}
-          className={`px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center gap-2 whitespace-nowrap ${
+          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 min-w-[120px] ${
             activeTab === "summary"
-              ? "bg-purple-50 text-purple-600"
+              ? "bg-purple-50 text-purple-600 shadow-sm"
               : "text-slate-500 hover:bg-slate-50"
           }`}
         >
@@ -64,7 +64,7 @@ export function AttendanceManager() {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-4 sm:p-6 min-h-[500px]">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-3 sm:p-6 min-h-[500px]">
         {activeTab === "students" && <StudentsTab tAtt={tAtt} />}
         {activeTab === "checkin" && <CheckinTab tAtt={tAtt} />}
         {activeTab === "summary" && <SummaryTab tAtt={tAtt} />}
@@ -211,7 +211,7 @@ function StudentsTab({ tAtt }: { tAtt: any }) {
             {tAtt.studentsTab}
           </h2>
           <p className="text-xs text-slate-400 font-bold mt-0.5">
-            {students.length} học sinh · {availableClasses.length} lớp
+            {tAtt.studentClassCount.replace("{students}", students.length.toString()).replace("{classes}", availableClasses.length.toString())}
           </p>
         </div>
         <button
@@ -238,7 +238,7 @@ function StudentsTab({ tAtt }: { tAtt: any }) {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm học sinh..."
+              placeholder={tAtt.searchStudentPlaceholder}
               className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-slate-50"
             />
             <Users
@@ -395,16 +395,16 @@ function StudentsTab({ tAtt }: { tAtt: any }) {
                 <table className="w-full text-sm">
                   <thead className="bg-slate-50 border-b border-slate-100">
                     <tr>
-                      <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase tracking-wider">
+                      <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
                         #
                       </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase tracking-wider">
+                      <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
                         {tAtt.studentName}
                       </th>
-                      <th className="px-4 py-2.5 text-right text-xs font-black text-slate-500 uppercase tracking-wider">
+                      <th className="px-4 py-2.5 text-right text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
                         {tAtt.unitPrice}
                       </th>
-                      <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase tracking-wider">
+                      <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
                         Thao tác
                       </th>
                     </tr>
@@ -415,18 +415,18 @@ function StudentsTab({ tAtt }: { tAtt: any }) {
                         key={student.id}
                         className="hover:bg-blue-50 transition-colors"
                       >
-                        <td className="px-4 py-3 text-slate-400 font-bold">
+                        <td className="px-4 py-3 text-slate-400 font-bold whitespace-nowrap">
                           {i + 1}
                         </td>
-                        <td className="px-4 py-3 font-black text-slate-800">
+                        <td className="px-4 py-3 font-black text-slate-800 whitespace-nowrap">
                           {student.name}
                         </td>
-                        <td className="px-4 py-3 text-right">
+                        <td className="px-4 py-3 text-right whitespace-nowrap">
                           <span className="font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-lg text-xs">
-                            {student.unit_price.toLocaleString()} đ/buổi
+                            {tAtt.pricePerSession.replace("{price}", student.unit_price.toLocaleString())}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center justify-center gap-1.5">
                             <button
                               onClick={() => handleEdit(student)}
@@ -506,7 +506,7 @@ function CheckinTab({ tAtt }: { tAtt: any }) {
   }, [calYear, calMonth]);
 
   // Calendar math
-  const DAYS_OF_WEEK = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+  const DAYS_OF_WEEK = tAtt.daysOfWeek;
   const MONTH_NAMES = [
     "Tháng 1",
     "Tháng 2",
@@ -726,7 +726,7 @@ function CheckinTab({ tAtt }: { tAtt: any }) {
           className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black rounded-xl transition-colors shadow"
         >
           <CalendarDays size={15} />
-          Hôm nay
+          {tAtt.today}
         </button>
       </div>
 
@@ -801,26 +801,26 @@ function CheckinTab({ tAtt }: { tAtt: any }) {
           <span className="w-4 h-4 rounded-full bg-emerald-500 inline-flex items-center justify-center text-white text-xs">
             •
           </span>{" "}
-          Hôm nay
+          {tAtt.today}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="px-1.5 py-0.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-black">
             ✓ N
           </span>{" "}
-          Có điểm danh
+          {tAtt.hasCheckin}
         </span>
         <span className="text-rose-400 flex items-center gap-1">
-          CN = Chủ nhật
+          {tAtt.sunSunday}
         </span>
-        <span className="text-slate-300">Ô mờ = ngày tương lai</span>
+        <span className="text-slate-300">{tAtt.fadedFutureDate}</span>
       </div>
 
       {/* ── Day Detail Modal ── */}
       {modalDate && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
-          <div className="bg-white w-full sm:max-w-2xl rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[85vh]">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
             {/* Modal header */}
-            <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-4 rounded-t-3xl sm:rounded-t-2xl flex items-start justify-between shrink-0">
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-4 rounded-t-2xl flex items-start justify-between shrink-0">
               <div>
                 <p className="text-emerald-200 text-xs font-bold uppercase tracking-wider">
                   Điểm danh
@@ -903,7 +903,7 @@ function CheckinTab({ tAtt }: { tAtt: any }) {
                 <div className="flex justify-between text-xs font-bold text-slate-500 mb-1.5">
                   <span>
                     {doneStudents.length + checkedCount} /{" "}
-                    {filteredStudents.length} học sinh
+                    {tAtt.studentCount.replace("{count}", filteredStudents.length.toString())}
                   </span>
                   <span className="text-emerald-600 font-black">
                     {progressPct}%
@@ -918,17 +918,17 @@ function CheckinTab({ tAtt }: { tAtt: any }) {
                 <div className="flex gap-3 mt-1.5 text-xs font-bold">
                   {doneStudents.length > 0 && (
                     <span className="text-emerald-600">
-                      ✓ {doneStudents.length} đã điểm danh
+                      {tAtt.checkedInCount.replace("{count}", doneStudents.length.toString())}
                     </span>
                   )}
                   {checkedCount > 0 && (
                     <span className="text-blue-600">
-                      ● {checkedCount} đang chọn
+                      {tAtt.selectingCount.replace("{count}", checkedCount.toString())}
                     </span>
                   )}
                   {pendingStudents.length - checkedCount > 0 && (
                     <span className="text-slate-400">
-                      ○ {pendingStudents.length - checkedCount} chưa chọn
+                      {tAtt.unselectedCount.replace("{count}", (pendingStudents.length - checkedCount).toString())}
                     </span>
                   )}
                 </div>
@@ -955,7 +955,7 @@ function CheckinTab({ tAtt }: { tAtt: any }) {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
+                <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
                   {pendingStudents.map((student) => {
                     const isChecked = checkedIds.has(student.id);
                     const ini = initials(student.name);
@@ -1021,7 +1021,7 @@ function CheckinTab({ tAtt }: { tAtt: any }) {
             </div>
 
             {/* Modal footer */}
-            <div className="border-t border-slate-100 px-5 py-3 flex items-center gap-3 bg-white shrink-0 rounded-b-3xl sm:rounded-b-2xl">
+            <div className="border-t border-slate-100 px-5 py-3 flex items-center gap-3 bg-white shrink-0 rounded-b-2xl">
               <button
                 onClick={closeModal}
                 className="px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
@@ -1129,7 +1129,7 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
 
   const grandTotal = summary.reduce((sum, s) => sum + s.total_fee, 0);
   const grandSessions = summary.reduce((sum, s) => sum + s.total_sessions, 0);
-  const MONTH_LABEL = `Tháng ${month}/${year}`;
+  const MONTH_LABEL = tAtt.monthYear.replace("{month}", month.toString()).replace("{year}", year.toString());
 
   // ---- Export all to Excel ----
   const exportExcel = async () => {
@@ -1138,9 +1138,9 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
 
     // Sheet 1: All students
     const allRows = [
-      ["Báo cáo điểm danh — " + MONTH_LABEL],
+      [tAtt.attendanceReport + " — " + MONTH_LABEL],
       [],
-      ["Tên học sinh", "Lớp", "Số buổi", "Đơn giá (đ)", "Học phí (đ)"],
+      [tAtt.studentNameLabel, tAtt.classLabel, tAtt.sessionsLabel, tAtt.unitPriceLabel, tAtt.tuitionFeeLabel],
       ...allSummary.map((s) => [
         s.name,
         s.class_name || tAtt.unassignedClass,
@@ -1159,15 +1159,15 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
       { wch: 14 },
       { wch: 14 },
     ];
-    XLSX.utils.book_append_sheet(wb, wsAll, "Tổng hợp");
+    XLSX.utils.book_append_sheet(wb, wsAll, tAtt.summary);
 
     // One sheet per class
     Object.entries(byClass).forEach(([cls, rows]) => {
       const clsTotal = rows.reduce((s, r) => s + r.total_fee, 0);
       const clsRows = [
-        [`Báo cáo lớp: ${cls} — ` + MONTH_LABEL],
+        [`${tAtt.classReport}: ${cls} — ` + MONTH_LABEL],
         [],
-        ["Tên học sinh", "Số buổi", "Đơn giá (đ)", "Học phí (đ)"],
+        [tAtt.studentNameLabel, tAtt.sessionsLabel, tAtt.unitPriceLabel, tAtt.tuitionFeeLabel],
         ...rows.map((s) => [
           s.name,
           s.total_sessions,
@@ -1175,7 +1175,7 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
           s.total_fee,
         ]),
         [],
-        ["Tổng", rows.reduce((s, r) => s + r.total_sessions, 0), "", clsTotal],
+        [tAtt.total, rows.reduce((s, r) => s + r.total_sessions, 0), "", clsTotal],
       ];
       const ws = XLSX.utils.aoa_to_sheet(clsRows);
       ws["!cols"] = [{ wch: 24 }, { wch: 10 }, { wch: 14 }, { wch: 14 }];
@@ -1198,14 +1198,14 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
       );
 
     const rows = [
-      [`Phiếu Học Phí — ${s.name}`],
+      [`${tAtt.tuitionSlip} — ${s.name}`],
       [
         `Lớp: ${s.class_name || tAtt.unassignedClass}`,
         "",
         `Tháng ${month}/${year}`,
       ],
       [],
-      ["STT", "Ngày", "Giờ", "Ghi chú"],
+      [tAtt.no, tAtt.date, tAtt.time, tAtt.note],
       ...studentRecs.map((r, i) => {
         const dt = new Date(r.checkin_time);
         return [
@@ -1215,13 +1215,13 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
             hour: "2-digit",
             minute: "2-digit",
           }),
-          "Có mặt",
+          tAtt.present,
         ];
       }),
       [],
-      ["Tổng số buổi", s.total_sessions, "", ""],
-      ["Đơn giá / buổi", s.unit_price, "", ""],
-      ["Học phí tháng", s.total_fee, "", ""],
+      [tAtt.totalSessionsLabel, s.total_sessions, "", ""],
+      [tAtt.unitPricePerSession, s.unit_price, "", ""],
+      [tAtt.monthlyTuition, s.total_fee, "", ""],
     ];
     const ws = XLSX.utils.aoa_to_sheet(rows);
     ws["!cols"] = [{ wch: 6 }, { wch: 14 }, { wch: 10 }, { wch: 12 }];
@@ -1360,7 +1360,7 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
                 Tổng học phí
               </p>
               <p className="text-xl font-black mt-1">
-                {grandTotal.toLocaleString()} đ
+                {tAtt.currencyVnd.replace("{amount}", grandTotal.toLocaleString())}
               </p>
             </div>
           </div>
@@ -1383,40 +1383,40 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
                     <Users size={16} className="text-purple-200" />
                     <span className="font-black text-white">{cls}</span>
                     <span className="text-purple-200 text-sm font-bold">
-                      ({rows.length} học sinh)
+                      ({tAtt.studentCount.replace("{count}", rows.length.toString())})
                     </span>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-purple-200 font-bold">
-                      {classSessions} buổi
+                      {tAtt.sessionCount.replace("{count}", classSessions.toString())}
                     </p>
                     <p className="text-sm text-white font-black">
-                      {classTotal.toLocaleString()} đ
+                      {tAtt.currencyVnd.replace("{amount}", classTotal.toLocaleString())}
                     </p>
                   </div>
                 </div>
 
                 {/* Student rows */}
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto pb-2">
                   <table className="w-full text-left">
                     <thead className="bg-slate-50 border-b border-slate-200">
                       <tr>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider">
+                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
                           #
                         </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider">
+                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
                           {tAtt.studentName}
                         </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center">
+                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center whitespace-nowrap">
                           {tAtt.totalSessions}
                         </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-right">
+                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-right whitespace-nowrap">
                           {tAtt.unitPrice}
                         </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-right">
+                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-right whitespace-nowrap">
                           {tAtt.totalFee}
                         </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center print:hidden">
+                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center print:hidden whitespace-nowrap">
                           Chi tiết
                         </th>
                       </tr>
@@ -1427,27 +1427,27 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
                           key={s.id}
                           className="hover:bg-purple-50 transition-colors"
                         >
-                          <td className="px-4 py-3 text-sm text-slate-400 font-bold">
+                          <td className="px-4 py-3 text-sm text-slate-400 font-bold whitespace-nowrap">
                             {i + 1}
                           </td>
-                          <td className="px-4 py-3 font-black text-slate-800">
+                          <td className="px-4 py-3 font-black text-slate-800 whitespace-nowrap">
                             {s.name}
                           </td>
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-4 py-3 text-center whitespace-nowrap">
                             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm">
                               {s.total_sessions}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-right text-sm text-slate-500 font-bold">
+                          <td className="px-4 py-3 text-right text-sm text-slate-500 font-bold whitespace-nowrap">
                             {s.unit_price.toLocaleString()}
                           </td>
-                          <td className="px-4 py-3 text-right font-black text-purple-700">
-                            {s.total_fee.toLocaleString()} đ
+                          <td className="px-4 py-3 text-right font-black text-purple-700 whitespace-nowrap">
+                            {tAtt.currencyVnd.replace("{amount}", s.total_fee.toLocaleString())}
                           </td>
-                          <td className="px-4 py-3 text-center print:hidden">
+                          <td className="px-4 py-3 text-center print:hidden whitespace-nowrap">
                             <button
                               onClick={() => setSelectedStudent(s)}
-                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-black text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors mx-auto"
+                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-black text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors mx-auto whitespace-nowrap"
                             >
                               <CalendarDays size={12} />
                               Xem
@@ -1460,16 +1460,16 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
                       <tr>
                         <td
                           colSpan={2}
-                          className="px-4 py-3 font-black text-purple-800 text-sm"
+                          className="px-4 py-3 font-black text-purple-800 text-sm whitespace-nowrap"
                         >
                           Cộng
                         </td>
-                        <td className="px-4 py-3 text-center font-black text-purple-800">
+                        <td className="px-4 py-3 text-center font-black text-purple-800 whitespace-nowrap">
                           {classSessions}
                         </td>
                         <td />
                         <td className="px-4 py-3 text-right font-black text-purple-700 text-base">
-                          {classTotal.toLocaleString()} đ
+                          {tAtt.currencyVnd.replace("{amount}", classTotal.toLocaleString())}
                         </td>
                       </tr>
                     </tfoot>
@@ -1487,7 +1487,7 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
                   Tổng cộng tất cả
                 </p>
                 <p className="text-3xl font-black mt-0.5">
-                  {grandTotal.toLocaleString()} đ
+                  {tAtt.currencyVnd.replace("{amount}", grandTotal.toLocaleString())}
                 </p>
                 <p className="text-xs opacity-70 mt-0.5">
                   {grandSessions} buổi · {summary.length} học sinh ·{" "}
@@ -1544,7 +1544,7 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
                       Đơn giá
                     </p>
                     <p className="text-sm font-black text-slate-700 mt-0.5">
-                      {s.unit_price.toLocaleString()} đ
+                      {tAtt.currencyVnd.replace("{amount}", s.unit_price.toLocaleString())}
                     </p>
                   </div>
                   <div className="px-5 py-3 text-center">
@@ -1552,7 +1552,7 @@ function SummaryTab({ tAtt }: { tAtt: any }) {
                       Học phí
                     </p>
                     <p className="text-sm font-black text-purple-700 mt-0.5">
-                      {s.total_fee.toLocaleString()} đ
+                      {tAtt.currencyVnd.replace("{amount}", s.total_fee.toLocaleString())}
                     </p>
                   </div>
                 </div>
