@@ -90,7 +90,7 @@ export function TopicModal({
       aria-modal="true"
       aria-labelledby="topic-modal-title"
     >
-      <div className="bg-white sm:rounded-lg rounded-lg w-full max-w-4xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border-4 border-[#FFF59D] my-auto relative">
+      <div className="bg-white sm:rounded-lg rounded-lg w-full max-w-4xl overflow-hidden shadow-md animate-in zoom-in-95 duration-300 border-4 border-[#FFF59D] my-auto relative">
         <div className="p-2 sm:p-4 md:p-8 space-y-4 md:space-y-6">
           <div className="flex items-center gap-3 border-b-4 border-dashed border-[#FFF0F0] pb-3 md:pb-4 pr-10">
             <div
@@ -121,7 +121,7 @@ export function TopicModal({
             type="button"
             onClick={onClose}
             aria-label={t.common.close}
-            className="absolute top-0 right-4 md:top-6 md:right-6 p-1.5 md:p-2 text-slate-400 hover:text-rose-500 hover:bg-[#FFF0F0] rounded-full transition-all border-2 border-transparent hover:border-[#FFCDD2] z-10"
+            className="absolute top-0 right-4 md:top-6 md:right-6 p-1.5 md:p-2 text-slate-400 hover:text-rose-500 hover:bg-[#FFF0F0] rounded-lg transition-all border-2 border-transparent hover:border-[#FFCDD2] z-10"
           >
             <X size={25} />
           </button>
@@ -131,7 +131,7 @@ export function TopicModal({
               {/* Ẩn image box trên mobile khi không có ảnh */}
               {imageLoading ? (
                 <div
-                  className={`w-full aspect-square bg-white rounded-3xl border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}
+                  className={`w-full aspect-square bg-white rounded-lg border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}
                 >
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="w-10 h-10 text-[#FF8A80] animate-spin" />
@@ -142,7 +142,7 @@ export function TopicModal({
                 </div>
               ) : topicImage ? (
                 <div
-                  className={`w-full aspect-square bg-white rounded-3xl border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}
+                  className={`w-full aspect-square bg-white rounded-lg border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}
                 >
                   <img
                     src={topicImage}
@@ -155,7 +155,7 @@ export function TopicModal({
               )}
 
               <div className="md:col-span-7 space-y-6 md:hidden">
-                <div className="w-full bg-[#FFFDE7] border-3 border-[#FFF59D] rounded-2xl p-4 flex items-start gap-3 shadow-md">
+                <div className="w-full bg-[#FFFDE7] border-3 border-[#FFF59D] rounded-lg p-4 flex items-start gap-3 shadow-md">
                   <AlertCircle
                     className="text-amber-500 shrink-0 mt-0.5"
                     size={24}
@@ -183,7 +183,7 @@ export function TopicModal({
                 <button
                   type="button"
                   disabled
-                  className="w-full py-4 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center gap-2 border-2 border-slate-200 font-bold"
+                  className="w-full py-4 bg-slate-100 text-slate-400 rounded-lg flex items-center justify-center gap-2 border-2 border-slate-200 font-bold"
                 >
                   <Loader2 className="w-5 h-5 animate-spin" />
                   {t.topic.loadingAudio + "..."}
@@ -192,7 +192,7 @@ export function TopicModal({
                 <button
                   type="button"
                   onClick={onPlayTopicAudio}
-                  className={`w-full py-4 rounded-full font-black text-md flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 border-b-4 ${isPlayingTopicAudio ? "bg-[#FFB74D] border-orange-800 text-white hover:bg-[#FFA726]" : "bg-[#E3F2FD] hover:bg-[#BBDEFB] border-[#90CAF9] text-[#1E88E5]"}`}
+                  className={`w-full py-4 rounded-lg font-black text-md flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 border-b-4 ${isPlayingTopicAudio ? "bg-[#FFB74D] border-orange-800 text-white hover:bg-[#FFA726]" : "bg-[#E3F2FD] hover:bg-[#BBDEFB] border-[#90CAF9] text-[#1E88E5]"}`}
                 >
                   <Volume2
                     className={isPlayingTopicAudio ? "animate-bounce" : ""}
@@ -247,7 +247,7 @@ export function TopicModal({
           </div>
 
           {appError && (
-            <div className="bg-[#FFEBEE] border-2 border-[#FFCDD2] text-rose-700 text-sm px-5 py-4 rounded-2xl flex items-start gap-2 text-left relative mt-4">
+            <div className="bg-[#FFEBEE] border-2 border-[#FFCDD2] text-rose-700 text-sm px-5 py-4 rounded-lg flex items-start gap-2 text-left relative mt-4">
               <AlertCircle size={20} className="shrink-0" />
               <span className="pr-4 font-bold">{appError}</span>
               <button
@@ -267,7 +267,7 @@ export function TopicModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-full max-w-sm py-4 bg-gradient-to-r from-[#4CAF50] to-[#81C784] hover:from-[#388E3C] hover:to-[#4CAF50] text-white font-black text-lg rounded-full transition-all shadow-md hover:shadow-md border-b-4 border-emerald-800 text-center"
+              className="w-full max-w-sm py-4 bg-gradient-to-r from-[#4CAF50] to-[#81C784] hover:from-[#388E3C] hover:to-[#4CAF50] text-white font-black text-lg rounded-lg transition-all shadow-md hover:shadow-md border-b-4 border-emerald-800 text-center"
             >
               {t.topic.close}
             </button>
@@ -276,7 +276,7 @@ export function TopicModal({
               type="button"
               disabled={Object.keys(bongBeAudios).length === 0 || isSaving}
               onClick={onSaveRecording}
-              className={`w-full max-w-sm py-4 rounded-full font-black text-xl flex items-center justify-center gap-2 transition-all shadow-md border-b-4 ${
+              className={`w-full max-w-sm py-4 rounded-lg font-black text-xl flex items-center justify-center gap-2 transition-all shadow-md border-b-4 ${
                 Object.keys(bongBeAudios).length === 0 || isSaving
                   ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed"
                   : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1976D2] text-white border-blue-900 hover:shadow-md"
@@ -333,7 +333,7 @@ function QuestionPanel({
 
   return (
     <div className="sm:bg-white sm:rounded-lg rounded-lg md:p-6 sm:border-3 sm:border-dashed sm:border-[#FF8A80] space-y-6 sm:shadow-md text-center">
-      <div className="bg-pink-50 border-2 border-pink-200 rounded-full py-2 px-5 inline-block">
+      <div className="bg-pink-50 border-2 border-pink-200 rounded-lg py-2 px-5 inline-block">
         <span className="text-sm font-black text-pink-600 uppercase tracking-widest">
           {t.topic.question} {activeQuestionIndex + 1} {t.topic.of}{" "}
           {currentTopic.questions.length}
@@ -341,7 +341,7 @@ function QuestionPanel({
       </div>
 
       {q && (
-        <div className="text-left bg-[#FAFAFA] rounded-2xl p-2 sm:p-4 border-2 border-slate-100">
+        <div className="text-left bg-[#FAFAFA] rounded-lg p-2 sm:p-4 border-2 border-slate-100">
           <p className="text-lg font-black text-slate-700 leading-snug">
             {q.text}
           </p>
@@ -361,10 +361,10 @@ function QuestionPanel({
         </div>
       )}
 
-      <div className="space-y-5 bg-[#FAFAFA] rounded-3xl p-2 sm:p-4 border-2 border-slate-100">
+      <div className="space-y-5 bg-[#FAFAFA] rounded-lg p-2 sm:p-4 border-2 border-slate-100">
         {matchedQuestionRecording ? (
           <div className="space-y-3">
-            <div className="bg-[#E8F5E9] border-2 border-[#A5D6A7] rounded-2xl p-4 flex flex-col items-center gap-3 shadow-inner">
+            <div className="bg-[#E8F5E9] border-2 border-[#A5D6A7] rounded-lg p-4 flex flex-col items-center gap-3 shadow-inner">
               <span className="text-sm font-black text-[#2E7D32] flex items-center gap-1">
                 <Eye size={16} /> {t.topic.saved}
               </span>
@@ -384,7 +384,7 @@ function QuestionPanel({
                   type="button"
                   onClick={onStart}
                   aria-label={t.topic.startRecord}
-                  className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
+                  className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-lg flex items-center justify-center shadow-md hover:shadow-md hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
                 >
                   <Mic size={36} />
                 </button>
@@ -397,25 +397,25 @@ function QuestionPanel({
             {isRecording && (
               <div className="flex flex-col items-center space-y-3">
                 <div className="relative flex items-center justify-center">
-                  <div className="absolute w-20 h-20 bg-rose-400/30 rounded-full animate-ping"></div>
+                  <div className="absolute w-20 h-20 bg-rose-400/30 rounded-lg animate-ping"></div>
                   <button
                     type="button"
                     onClick={onStop}
                     aria-label={t.topic.stopAudio}
-                    className="w-16 h-16 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-md z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900"
+                    className="w-16 h-16 bg-rose-600 text-white rounded-lg flex items-center justify-center shadow-md z-10 hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-900"
                   >
                     <Square size={24} />
                   </button>
                 </div>
-                <div className="flex items-center gap-2 text-[#E53935] font-mono text-lg font-black bg-[#FFEBEE] px-4 py-1 rounded-full border border-rose-200">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-pulse"></span>
+                <div className="flex items-center gap-2 text-[#E53935] font-mono text-lg font-black bg-[#FFEBEE] px-4 py-1 rounded-lg border border-rose-200">
+                  <span className="w-2.5 h-2.5 rounded-lg bg-rose-600 animate-pulse"></span>
                   {formatTime(recordingTime)} / 2:00
                 </div>
               </div>
             )}
 
             {audioBlob && !isRecording && (
-              <div className="w-full max-w-md space-y-4 bg-white p-4 rounded-2xl border-2 border-amber-100 shadow-md">
+              <div className="w-full max-w-md space-y-4 bg-white p-4 rounded-lg border-2 border-amber-100 shadow-md">
                 <audio
                   controls
                   src={URL.createObjectURL(audioBlob)}
@@ -425,7 +425,7 @@ function QuestionPanel({
                   <button
                     type="button"
                     onClick={(e) => onDeleteBongBeAudio(activeQuestionIndex, e)}
-                    className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-full flex items-center gap-2 transition-colors shadow-md"
+                    className="px-5 py-2.5 text-sm font-black text-slate-600 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 rounded-lg flex items-center gap-2 transition-colors shadow-md"
                   >
                     <Trash2 size={16} /> {t.topic.reRecord}
                   </button>
@@ -441,7 +441,7 @@ function QuestionPanel({
           type="button"
           disabled={activeQuestionIndex === 0}
           onClick={() => onQuestionChange(Math.max(0, activeQuestionIndex - 1))}
-          className={`px-5 py-2.5 font-bold rounded-full border-2 text-sm transition-all ${activeQuestionIndex === 0 ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"}`}
+          className={`px-5 py-2.5 font-bold rounded-lg border-2 text-sm transition-all ${activeQuestionIndex === 0 ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"}`}
         >
           {t.common.prevQuestion}
         </button>
@@ -457,7 +457,7 @@ function QuestionPanel({
               ),
             )
           }
-          className={`px-6 py-2.5 font-black rounded-full text-white text-sm transition-all border-b-4 ${activeQuestionIndex === currentTopic.questions.length - 1 ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed" : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800 shadow-md"}`}
+          className={`px-6 py-2.5 font-black rounded-lg text-white text-sm transition-all border-b-4 ${activeQuestionIndex === currentTopic.questions.length - 1 ? "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed" : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800 shadow-md"}`}
         >
           {t.common.nextQuestion}
         </button>

@@ -67,13 +67,13 @@ export function NotificationBell({
         }
         aria-expanded={open}
         aria-haspopup="true"
-        className="relative w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors border border-white/20"
+        className="relative w-10 h-10 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors border border-white/20"
       >
         <Bell size={20} />
         {unreadCount > 0 && (
           <span
             aria-hidden="true"
-            className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-md"
+            className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-lg flex items-center justify-center border-2 border-white shadow-md"
           >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
@@ -85,7 +85,7 @@ export function NotificationBell({
           role="dialog"
           aria-modal="true"
           aria-labelledby="notification-bell-title"
-          className="fixed md:absolute left-2 right-2 md:left-auto md:right-0 top-16 md:top-12 md:w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200"
+          className="fixed md:absolute left-2 right-2 md:left-auto md:right-0 top-16 md:top-12 md:w-80 bg-white rounded-lg shadow-md border border-slate-100 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
             <span
@@ -94,7 +94,7 @@ export function NotificationBell({
             >
               {t.notifications.title}
               {unreadCount > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-black rounded-full">
+                <span className="ml-2 px-1.5 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-black rounded-lg">
                   {unreadCount} {t.notifications.new}
                 </span>
               )}
@@ -190,7 +190,7 @@ export function NotificationBell({
                     {!isRead && (
                       <span
                         aria-hidden="true"
-                        className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 mt-2"
+                        className="w-2 h-2 bg-emerald-500 rounded-lg shrink-0 mt-2"
                       />
                     )}
                   </div>

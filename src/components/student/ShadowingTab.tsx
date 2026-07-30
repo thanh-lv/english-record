@@ -43,7 +43,7 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-500 rounded-lg animate-spin" />
       </div>
     );
   }
@@ -60,7 +60,7 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
       </div>
 
       {videos.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-3xl border-2 border-dashed border-slate-200">
+        <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-slate-200">
           <Video className="mx-auto text-slate-300 mb-3" size={48} />
           <p className="text-slate-500 font-bold">{t.shadowing.empty}</p>
         </div>
@@ -76,7 +76,7 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
               <button
                 key={video.id}
                 onClick={() => onVideoClick(video)}
-                className="group relative bg-white rounded-lg border-3 border-slate-100 overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-2 hover:border-indigo-200 transition-all text-left flex flex-col"
+                className="group relative bg-white rounded-lg border-3 border-slate-100 overflow-hidden shadow-md hover:shadow-md hover:-translate-y-2 hover:border-indigo-200 transition-all text-left flex flex-col"
               >
                 <div className="aspect-video bg-slate-100 relative overflow-hidden">
                   {thumb ? (
@@ -91,7 +91,7 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-white/90 shadow-md flex items-center justify-center text-indigo-600 opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 transition-all duration-300">
+                    <div className="w-12 h-12 rounded-lg bg-white/90 shadow-md flex items-center justify-center text-indigo-600 opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100 transition-all duration-300">
                       <Play className="ml-1" size={24} />
                     </div>
                   </div>

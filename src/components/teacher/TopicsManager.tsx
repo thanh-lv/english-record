@@ -324,7 +324,7 @@ export function TopicsManager() {
               setActiveType(type);
               setPage(0);
             }}
-            className={`px-5 py-2 rounded-full font-extrabold text-sm border-2 transition-all ${activeType === type ? "bg-[#1E88E5] text-white border-blue-800 shadow" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
+            className={`px-5 py-2 rounded-lg font-extrabold text-sm border-2 transition-all ${activeType === type ? "bg-[#1E88E5] text-white border-blue-800 shadow" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
           >
             {type === "standard" ? `📚 ${t.teacherNav.students}` : "🌸 Bông bé"}
           </button>
@@ -335,7 +335,7 @@ export function TopicsManager() {
             setAddingTopic(activeType);
             setNewTopicTitle("");
           }}
-          className="ml-auto px-4 py-2 rounded-full font-extrabold text-sm bg-emerald-50 text-emerald-700 border-2 border-emerald-200 hover:bg-emerald-100 flex items-center gap-1"
+          className="ml-auto px-4 py-2 rounded-lg font-extrabold text-sm bg-emerald-50 text-emerald-700 border-2 border-emerald-200 hover:bg-emerald-100 flex items-center gap-1"
         >
           <Plus size={15} /> {t.common.addTopic}
         </button>
@@ -372,7 +372,7 @@ export function TopicsManager() {
 
       {/* Add topic form */}
       {addingTopic && (
-        <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 flex gap-2 items-center">
+        <div className="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-4 flex gap-2 items-center">
           <input
             autoFocus
             value={newTopicTitle}
@@ -424,7 +424,7 @@ export function TopicsManager() {
           {pagedTopics.map((topic, idx) => (
             <div
               key={topic.id}
-              className={`bg-white rounded-2xl border-2 border-slate-100 overflow-hidden shadow-md${!(topic.is_active ?? true) ? " opacity-60" : ""}`}
+              className={`bg-white rounded-lg border-2 border-slate-100 overflow-hidden shadow-md${!(topic.is_active ?? true) ? " opacity-60" : ""}`}
             >
               {/* Topic header */}
               {editingTopic === topic.id ? (
@@ -631,7 +631,7 @@ export function TopicsManager() {
 
           {/* Empty state */}
           {pagedTopics.length === 0 && !loading && (
-            <div className="py-12 text-center text-slate-400 font-bold bg-white rounded-2xl border-2 border-dashed border-slate-200">
+            <div className="py-12 text-center text-slate-400 font-bold bg-white rounded-lg border-2 border-dashed border-slate-200">
               {filterText || filterStatus !== "all"
                 ? t.teacherModal.noTopicsFound
                 : t.teacherModal.noTopicsYet}
@@ -689,7 +689,7 @@ export function TopicsManager() {
           aria-modal="true"
           aria-labelledby="question-modal-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-lg shadow-2xl border-4 border-blue-100 p-6 space-y-4 my-4">
+          <div className="bg-white rounded-lg w-full max-w-lg shadow-md border-4 border-blue-100 p-6 space-y-4 my-4">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
               <h4
                 id="question-modal-title"
@@ -704,7 +704,7 @@ export function TopicsManager() {
               <button
                 onClick={() => setQuestionModal(null)}
                 aria-label={t.common.close}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={18} />
               </button>
@@ -853,7 +853,7 @@ export function TopicsManager() {
                             : setEditValues({ ...editValues, image_url: "" })
                         }
                         aria-label={t.common.delete}
-                        className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-lg p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <X size={12} />
                       </button>
@@ -877,7 +877,7 @@ export function TopicsManager() {
               <button
                 type="button"
                 onClick={() => setQuestionModal(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors"
               >
                 {t.common.cancel}
               </button>
@@ -889,7 +889,7 @@ export function TopicsManager() {
                     ? addQuestion(questionModal.topicId)
                     : saveQuestion()
                 }
-                className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-full text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {saving ? <Loader2 size={15} className="animate-spin" /> : null}
                 {questionModal.mode === "add" ? t.common.add : t.common.save}

@@ -77,13 +77,13 @@ function FlipCard({ card }: { card: VocabCard }) {
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
           }}
-          className="rounded-lg bg-gradient-to-br from-[#E3F2FD] to-[#BBDEFB] border-4 border-[#90CAF9] shadow-xl flex flex-col items-center justify-center p-6 gap-2"
+          className="rounded-lg bg-gradient-to-br from-[#E3F2FD] to-[#BBDEFB] border-4 border-[#90CAF9] shadow-md flex flex-col items-center justify-center p-6 gap-2"
         >
           {card.image_url && (
             <img
               src={card.image_url}
               alt=""
-              className="w-40 h-40 object-cover rounded-2xl shadow-md border-2 border-white"
+              className="w-40 h-40 object-cover rounded-lg shadow-md border-2 border-white"
             />
           )}
           <p className="text-4xl font-black text-[#1E88E5] text-center leading-tight">
@@ -96,7 +96,7 @@ function FlipCard({ card }: { card: VocabCard }) {
           )}
           <button
             onClick={speak}
-            className="mt-1 flex items-center gap-1.5 px-4 py-2 bg-[#1E88E5]/10 hover:bg-[#1E88E5]/20 rounded-full transition-colors active:scale-95"
+            className="mt-1 flex items-center gap-1.5 px-4 py-2 bg-[#1E88E5]/10 hover:bg-[#1E88E5]/20 rounded-lg transition-colors active:scale-95"
           >
             <Volume2 size={16} className="text-[#1E88E5]" />
             <span className="text-xs font-bold text-[#1E88E5]">
@@ -117,12 +117,12 @@ function FlipCard({ card }: { card: VocabCard }) {
             WebkitBackfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
           }}
-          className="rounded-lg bg-gradient-to-br from-[#1E88E5] to-[#1565C0] border-4 border-[#1976D2] shadow-xl flex flex-col items-center justify-center p-6 gap-3"
+          className="rounded-lg bg-gradient-to-br from-[#1E88E5] to-[#1565C0] border-4 border-[#1976D2] shadow-md flex flex-col items-center justify-center p-6 gap-3"
         >
           <p className="text-4xl font-black text-white text-center leading-tight">
             {card.back}
           </p>
-          <div className="px-4 py-2 bg-white/20 rounded-full">
+          <div className="px-4 py-2 bg-white/20 rounded-lg">
             <p className="text-sm font-extrabold text-blue-100">{card.front}</p>
           </div>
           {card.ipa && (
@@ -189,7 +189,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
       aria-modal="true"
       aria-labelledby="flashcards-study-title"
     >
-      <div className="bg-white w-full sm:max-w-lg rounded-lg sm:rounded-lg shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300">
+      <div className="bg-white w-full sm:max-w-lg rounded-lg sm:rounded-lg shadow-md animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3">
           <div className="flex items-center gap-3">
@@ -205,9 +205,9 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
               </h3>
               {!loading && total > 0 && (
                 <div className="flex items-center gap-2 mt-0.5">
-                  <div className="h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-1.5 w-24 bg-slate-100 rounded-lg overflow-hidden">
                     <div
-                      className="h-full bg-[#1E88E5] rounded-full transition-all duration-300"
+                      className="h-full bg-[#1E88E5] rounded-lg transition-all duration-300"
                       style={{
                         width: `${((currentIndex + 1) / total) * 100}%`,
                       }}
@@ -223,7 +223,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
           <div className="flex items-center gap-1">
             <button
               onClick={toggleShuffle}
-              className={`p-2 rounded-full transition-colors ${shuffled ? "bg-blue-100 text-[#1E88E5]" : "hover:bg-slate-100 text-slate-400"}`}
+              className={`p-2 rounded-lg transition-colors ${shuffled ? "bg-blue-100 text-[#1E88E5]" : "hover:bg-slate-100 text-slate-400"}`}
               title="Shuffle"
               aria-label="Shuffle"
               aria-pressed={shuffled}
@@ -233,7 +233,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
             <button
               onClick={onClose}
               aria-label={t.common.close}
-              className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
+              className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors"
             >
               <X size={20} />
             </button>
@@ -244,7 +244,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
         <div className="px-6 pb-2">
           {loading ? (
             <div className="h-[340px] flex items-center justify-center">
-              <div className="w-10 h-10 border-4 border-blue-200 border-t-[#1E88E5] rounded-full animate-spin" />
+              <div className="w-10 h-10 border-4 border-blue-200 border-t-[#1E88E5] rounded-lg animate-spin" />
             </div>
           ) : total === 0 ? (
             <div className="h-[340px] flex flex-col items-center justify-center gap-3 text-slate-400">
@@ -267,7 +267,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
                 onClick={() => setCurrentIndex(i)}
                 aria-label={`${t.topic.question} ${i + 1}`}
                 aria-current={i === currentIndex}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
+                className={`h-1.5 rounded-lg transition-all duration-300 ${
                   i === currentIndex
                     ? "bg-[#1E88E5] w-6"
                     : "bg-slate-200 hover:bg-slate-300 w-1.5"
@@ -285,21 +285,21 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
                 aria-label={t.common.prevQuestion}
-                className="w-14 h-14 shrink-0 rounded-2xl bg-slate-100 hover:bg-slate-200 disabled:opacity-30 text-slate-600 transition-colors flex items-center justify-center border-b-4 border-slate-200"
+                className="w-14 h-14 shrink-0 rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-30 text-slate-600 transition-colors flex items-center justify-center border-b-4 border-slate-200"
               >
                 <ArrowLeft size={20} />
               </button>
               {currentIndex === total - 1 ? (
                 <button
                   onClick={onClose}
-                  className="flex-1 h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black rounded-2xl transition-all shadow-md border-b-4 border-emerald-700 active:scale-95 text-base"
+                  className="flex-1 h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black rounded-lg transition-all shadow-md border-b-4 border-emerald-700 active:scale-95 text-base"
                 >
                   {t.teacherModal.flashcardsDone}
                 </button>
               ) : (
                 <button
                   onClick={handleNext}
-                  className="flex-1 h-14 bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1E88E5] text-white font-black rounded-2xl transition-all shadow-md border-b-4 border-blue-900 active:scale-95 flex items-center justify-center gap-2 text-base"
+                  className="flex-1 h-14 bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1E88E5] text-white font-black rounded-lg transition-all shadow-md border-b-4 border-blue-900 active:scale-95 flex items-center justify-center gap-2 text-base"
                 >
                   {t.teacherModal.flashcardsNext} <ArrowRight size={18} />
                 </button>
@@ -308,7 +308,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
           ) : !loading && total === 0 ? (
             <button
               onClick={onClose}
-              className="flex-1 h-14 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-2xl text-sm transition-colors"
+              className="flex-1 h-14 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors"
             >
               {t.teacherModal.flashcardsClose}
             </button>
@@ -362,7 +362,7 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
         <div className="h-6 w-40 bg-slate-100 rounded-lg mb-4" />
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-28 bg-slate-100 rounded-2xl" />
+            <div key={i} className="h-28 bg-slate-100 rounded-lg" />
           ))}
         </div>
       </div>
@@ -381,7 +381,7 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
       </div>
 
       {sets.length === 0 ? (
-        <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-2xl border-2 border-dashed border-slate-200">
+        <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-lg border-2 border-dashed border-slate-200">
           {t.teacherModal.flashcardsEmpty}
         </div>
       ) : (
@@ -391,13 +391,13 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
               key={set.id}
               type="button"
               onClick={() => setActiveSet(set)}
-              className="bg-white border-2 border-slate-100 hover:border-blue-200 hover:shadow-md rounded-2xl p-4 flex flex-col items-center gap-2 transition-all active:scale-95 text-left"
+              className="bg-white border-2 border-slate-100 hover:border-blue-200 hover:shadow-md rounded-lg p-4 flex flex-col items-center gap-2 transition-all active:scale-95 text-left"
             >
               <span className="text-4xl">{set.emoji}</span>
               <p className="font-extrabold text-slate-800 text-sm text-center line-clamp-2">
                 {set.title}
               </p>
-              <span className="inline-flex items-center px-2.5 py-0.5 bg-blue-50 text-blue-600 text-xs font-black rounded-full">
+              <span className="inline-flex items-center px-2.5 py-0.5 bg-blue-50 text-blue-600 text-xs font-black rounded-lg">
                 {set.card_count} cards
               </span>
             </button>

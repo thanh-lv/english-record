@@ -51,9 +51,9 @@ export function ResetPasswordModal({
       aria-modal="true"
       aria-labelledby="reset-password-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-blue-50 border-2 border-blue-200 text-blue-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-blue-50 border-2 border-blue-200 text-blue-600 flex items-center justify-center">
             <Key size={20} />
           </div>
           <div>
@@ -107,7 +107,7 @@ export function ResetPasswordModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors border border-slate-200"
           >
             {t.common.cancel}
           </button>
@@ -115,7 +115,7 @@ export function ResetPasswordModal({
             type="button"
             onClick={handleReset}
             disabled={saving}
-            className={`flex-1 py-2.5 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md flex items-center justify-center gap-2 border-b-4 ${success ? "bg-emerald-500 hover:bg-emerald-600 border-emerald-700" : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800"}`}
+            className={`flex-1 py-2.5 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md flex items-center justify-center gap-2 border-b-4 ${success ? "bg-emerald-500 hover:bg-emerald-600 border-emerald-700" : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800"}`}
           >
             {saving ? (
               <Loader2 size={15} className="animate-spin" />

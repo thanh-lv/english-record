@@ -129,7 +129,7 @@ export function StudentsManager() {
     <div className="space-y-4">
       {/* Summary bar */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-4 flex items-center gap-3">
+        <div className="bg-white rounded-lg border border-slate-100 shadow-md p-4 flex items-center gap-3">
           <span className="w-10 h-10 rounded-lg bg-[#E3F2FD] text-[#1E88E5] flex items-center justify-center">
             <Users size={20} />
           </span>
@@ -142,7 +142,7 @@ export function StudentsManager() {
             </p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-4 flex items-center gap-3">
+        <div className="bg-white rounded-lg border border-slate-100 shadow-md p-4 flex items-center gap-3">
           <span className="w-10 h-10 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
             <BarChart2 size={20} />
           </span>
@@ -155,7 +155,7 @@ export function StudentsManager() {
             </p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-4 flex items-center gap-3">
+        <div className="bg-white rounded-lg border border-slate-100 shadow-md p-4 flex items-center gap-3">
           <span className="w-10 h-10 rounded-lg bg-[#FFF3E0] text-[#E65100] flex items-center justify-center">
             <BookOpen size={20} />
           </span>
@@ -236,7 +236,7 @@ export function StudentsManager() {
                     <div className="flex items-center gap-3">
                       {/* Avatar */}
                       <span
-                        className={`w-11 h-11 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${student.avatar ? "bg-amber-50 text-2xl shadow-md border-amber-200" : `text-sm ${colorClass}`}`}
+                        className={`w-11 h-11 rounded-lg border-2 font-black flex items-center justify-center shrink-0 ${student.avatar ? "bg-amber-50 text-2xl shadow-md border-amber-200" : `text-sm ${colorClass}`}`}
                       >
                         {student.avatar || initials}
                       </span>
@@ -276,20 +276,20 @@ export function StudentsManager() {
                           </span>
                           <div className="flex items-center gap-1">
                             {doneCount > 0 && (
-                              <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 border border-amber-200">
+                              <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5 border border-amber-200">
                                 <Award size={9} /> {doneCount}
                               </span>
                             )}
                             {calculateStreak(studentRecs) > 0 && (
-                              <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 border border-orange-200">
+                              <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5 border border-orange-200">
                                 <Flame size={9} className="fill-orange-500" />{" "}
                                 {calculateStreak(studentRecs)}
                               </span>
                             )}
                           </div>
-                          <div className="w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="w-14 h-1.5 bg-slate-100 rounded-lg overflow-hidden">
                             <div
-                              className="h-full rounded-full transition-all duration-500"
+                              className="h-full rounded-lg transition-all duration-500"
                               style={{
                                 width: `${pct}%`,
                                 background:
@@ -456,7 +456,7 @@ export function StudentsManager() {
           onCancel={() => setDeleteStudentTarget(null)}
         >
           {deleteStudentTarget.recCount > 0 && (
-            <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 space-y-2">
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-lg p-4 space-y-2">
               <p className="text-xs text-amber-600 font-bold">
                 {t.teacherModal.deleteStudentWarning}{" "}
                 <span className="font-black text-amber-800">

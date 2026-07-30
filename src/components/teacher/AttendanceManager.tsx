@@ -15,12 +15,12 @@ export function AttendanceManager() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap bg-white rounded-lg p-1.5 border border-slate-100 shadow-sm gap-1.5 w-full">
+      <div className="flex flex-wrap bg-white rounded-lg p-1.5 border border-slate-100 shadow-md gap-1.5 w-full">
         <button
           onClick={() => setActiveTab("students")}
-          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 min-w-[120px] ${
+          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 min-w-[120px] ${
             activeTab === "students"
-              ? "bg-blue-50 text-blue-600 shadow-sm"
+              ? "bg-blue-50 text-blue-600 shadow-md"
               : "text-slate-500 hover:bg-slate-50"
           }`}
         >
@@ -29,9 +29,9 @@ export function AttendanceManager() {
         </button>
         <button
           onClick={() => setActiveTab("checkin")}
-          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 min-w-[120px] ${
+          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 min-w-[120px] ${
             activeTab === "checkin"
-              ? "bg-emerald-50 text-emerald-600 shadow-sm"
+              ? "bg-emerald-50 text-emerald-600 shadow-md"
               : "text-slate-500 hover:bg-slate-50"
           }`}
         >
@@ -40,9 +40,9 @@ export function AttendanceManager() {
         </button>
         <button
           onClick={() => setActiveTab("summary")}
-          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 min-w-[120px] ${
+          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 min-w-[120px] ${
             activeTab === "summary"
-              ? "bg-purple-50 text-purple-600 shadow-sm"
+              ? "bg-purple-50 text-purple-600 shadow-md"
               : "text-slate-500 hover:bg-slate-50"
           }`}
         >
@@ -51,9 +51,9 @@ export function AttendanceManager() {
         </button>
         <button
           onClick={() => setActiveTab("leaderboard")}
-          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 min-w-[120px] ${
+          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 min-w-[120px] ${
             activeTab === "leaderboard"
-              ? "bg-amber-50 text-amber-600 shadow-sm"
+              ? "bg-amber-50 text-amber-600 shadow-md"
               : "text-slate-500 hover:bg-slate-50"
           }`}
         >
@@ -62,7 +62,7 @@ export function AttendanceManager() {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-3 sm:p-6 min-h-[500px]">
+      <div className="bg-white rounded-lg border border-slate-100 shadow-md p-3 sm:p-6 min-h-[500px]">
         {activeTab === "students" && <StudentsTab tAtt={tAtt} />}
         {activeTab === "checkin" && <CheckinTab tAtt={tAtt} />}
         {activeTab === "summary" && <SummaryTab tAtt={tAtt} />}

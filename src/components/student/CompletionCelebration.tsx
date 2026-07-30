@@ -96,7 +96,7 @@ export function CompletionCelebration({
 
       {/* card */}
       <div
-        className="relative z-10 bg-white rounded-lg shadow-2xl border-4 border-yellow-200 px-10 py-10 flex flex-col items-center gap-4 max-w-sm w-full mx-4 animate-in zoom-in-75 duration-500"
+        className="relative z-10 bg-white rounded-lg shadow-md border-4 border-yellow-200 px-10 py-10 flex flex-col items-center gap-4 max-w-sm w-full mx-4 animate-in zoom-in-75 duration-500"
         role="dialog"
         aria-modal="true"
         aria-labelledby="celebration-title"
@@ -146,7 +146,7 @@ export function CompletionCelebration({
         <button
           type="button"
           onClick={handleClose}
-          className="mt-2 px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold rounded-full shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all border-b-4 border-emerald-700 text-sm"
+          className="mt-2 px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold rounded-lg shadow-md hover:shadow-md hover:-translate-y-0.5 transition-all border-b-4 border-emerald-700 text-sm"
         >
           {t.celebration.button}
         </button>

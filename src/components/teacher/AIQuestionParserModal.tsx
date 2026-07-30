@@ -169,10 +169,10 @@ export function AIQuestionParserModal({
       aria-modal="true"
       aria-labelledby="ai-parser-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl border-4 border-violet-100 my-4 max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-lg w-full max-w-2xl shadow-md border-4 border-violet-100 my-4 max-h-[90vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b-2 border-slate-100 px-6 pt-6 pb-3 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="w-9 h-9 rounded-2xl bg-violet-50 border-2 border-violet-200 text-violet-600 flex items-center justify-center">
+            <span className="w-9 h-9 rounded-lg bg-violet-50 border-2 border-violet-200 text-violet-600 flex items-center justify-center">
               <Sparkles size={18} />
             </span>
             <div>
@@ -190,7 +190,7 @@ export function AIQuestionParserModal({
           <button
             onClick={onClose}
             aria-label={t.common.close}
-            className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+            className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
           >
             <X size={18} />
           </button>
@@ -252,7 +252,7 @@ export function AIQuestionParserModal({
                     type="button"
                     onClick={() => handleSelectImage(null)}
                     aria-label={t.common.delete}
-                    className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-full shadow-md transition-colors"
+                    className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-lg shadow-md transition-colors"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -349,7 +349,7 @@ export function AIQuestionParserModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors border border-slate-200"
           >
             {t.aiParser.cancel}
           </button>
@@ -359,7 +359,7 @@ export function AIQuestionParserModal({
             disabled={
               adding || questions.filter((q) => q.text.trim()).length === 0
             }
-            className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-emerald-900 flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-emerald-900 flex items-center justify-center gap-2"
           >
             {adding ? (
               <Loader2 size={15} className="animate-spin" />

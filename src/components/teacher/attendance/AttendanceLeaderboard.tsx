@@ -92,11 +92,11 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
   const rest = data.slice(3);
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-6">
+    <div className="bg-white rounded-lg border border-slate-200 p-5 sm:p-6 shadow-md space-y-6">
       {/* Header & Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shadow-inner">
+          <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shadow-inner">
             <Trophy size={22} />
           </div>
           <div>
@@ -111,12 +111,12 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
         </div>
 
         {/* Timeframe Filter Tabs */}
-        <div className="flex bg-slate-100 p-1 rounded-xl gap-1">
+        <div className="flex bg-slate-100 p-1 rounded-lg gap-1">
           <button
             onClick={() => setTimeframe("week")}
             className={`px-3 py-1.5 text-xs font-black rounded-lg transition-all ${
               timeframe === "week"
-                ? "bg-white text-amber-700 shadow-sm"
+                ? "bg-white text-amber-700 shadow-md"
                 : "text-slate-500 hover:text-slate-800"
             }`}
           >
@@ -126,7 +126,7 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
             onClick={() => setTimeframe("month")}
             className={`px-3 py-1.5 text-xs font-black rounded-lg transition-all ${
               timeframe === "month"
-                ? "bg-white text-amber-700 shadow-sm"
+                ? "bg-white text-amber-700 shadow-md"
                 : "text-slate-500 hover:text-slate-800"
             }`}
           >
@@ -136,7 +136,7 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
             onClick={() => setTimeframe("year")}
             className={`px-3 py-1.5 text-xs font-black rounded-lg transition-all ${
               timeframe === "year"
-                ? "bg-white text-amber-700 shadow-sm"
+                ? "bg-white text-amber-700 shadow-md"
                 : "text-slate-500 hover:text-slate-800"
             }`}
           >
@@ -164,9 +164,9 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
             {/* Rank 2 - Silver */}
             {top2 ? (
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center font-black text-slate-700 text-lg relative shadow">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-slate-100 border-2 border-slate-300 flex items-center justify-center font-black text-slate-700 text-lg relative shadow">
                   🥈
-                  <span className="absolute -top-2 -right-1 bg-slate-200 text-slate-700 text-[10px] font-black px-1.5 py-0.5 rounded-full border border-slate-300">
+                  <span className="absolute -top-2 -right-1 bg-slate-200 text-slate-700 text-[10px] font-black px-1.5 py-0.5 rounded-lg border border-slate-300">
                     2nd
                   </span>
                 </div>
@@ -194,9 +194,9 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                     size={24}
                     className="text-amber-500 absolute -top-5 left-1/2 -translate-x-1/2 animate-bounce"
                   />
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-amber-300 to-yellow-500 border-4 border-amber-200 flex items-center justify-center font-black text-white text-2xl shadow-xl">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gradient-to-br from-amber-300 to-yellow-500 border-4 border-amber-200 flex items-center justify-center font-black text-white text-2xl shadow-md">
                     🥇
-                    <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[11px] font-black px-2 py-0.5 rounded-full border border-white">
+                    <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[11px] font-black px-2 py-0.5 rounded-lg border border-white">
                       1st
                     </span>
                   </div>
@@ -207,7 +207,7 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                 <p className="text-xs text-amber-700/70 font-bold truncate w-full text-center">
                   {top1.class_name}
                 </p>
-                <div className="mt-2 bg-gradient-to-t from-amber-400 to-amber-200 w-full py-6 rounded-t-2xl border border-amber-300 text-center shadow-lg">
+                <div className="mt-2 bg-gradient-to-t from-amber-400 to-amber-200 w-full py-6 rounded-t-2xl border border-amber-300 text-center shadow-md">
                   <span className="font-black text-amber-950 text-base sm:text-lg">
                     {top1.total_sessions} buổi
                   </span>
@@ -220,9 +220,9 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
             {/* Rank 3 - Bronze */}
             {top3 ? (
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-orange-100 border-2 border-orange-300 flex items-center justify-center font-black text-orange-700 text-lg relative shadow">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-orange-100 border-2 border-orange-300 flex items-center justify-center font-black text-orange-700 text-lg relative shadow">
                   🥉
-                  <span className="absolute -top-2 -right-1 bg-orange-200 text-orange-800 text-[10px] font-black px-1.5 py-0.5 rounded-full border border-orange-300">
+                  <span className="absolute -top-2 -right-1 bg-orange-200 text-orange-800 text-[10px] font-black px-1.5 py-0.5 rounded-lg border border-orange-300">
                     3rd
                   </span>
                 </div>
@@ -245,14 +245,14 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
 
           {/* Ranks 4 to 10 List */}
           {rest.length > 0 && (
-            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200 space-y-2">
+            <div className="bg-slate-50 rounded-lg p-3 border border-slate-200 space-y-2">
               {rest.map((student, idx) => (
                 <div
                   key={student.id}
-                  className="flex items-center justify-between bg-white px-4 py-2.5 rounded-xl border border-slate-100 shadow-sm"
+                  className="flex items-center justify-between bg-white px-4 py-2.5 rounded-lg border border-slate-100 shadow-md"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full bg-slate-100 font-black text-xs text-slate-600 flex items-center justify-center">
+                    <span className="w-6 h-6 rounded-lg bg-slate-100 font-black text-xs text-slate-600 flex items-center justify-center">
                       #{idx + 4}
                     </span>
                     <div>

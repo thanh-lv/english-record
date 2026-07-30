@@ -24,7 +24,7 @@ export function StoryModal({
       aria-modal="true"
       aria-labelledby="story-modal-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 relative my-auto">
+      <div className="bg-white rounded-lg w-full max-w-3xl overflow-hidden shadow-md animate-in zoom-in-95 duration-300 relative my-auto">
         {story.image_url ? (
           <div className="w-full h-64 md:h-80 relative">
             <img
@@ -36,12 +36,12 @@ export function StoryModal({
             <button
               onClick={onClose}
               aria-label={t.common.close}
-              className="absolute top-4 right-4 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-full p-2 transition-colors"
+              className="absolute top-4 right-4 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-lg p-2 transition-colors"
             >
               <X size={24} />
             </button>
             <div className="absolute bottom-4 left-6 right-6">
-              <span className="text-xs font-black bg-purple-500 text-white px-3 py-1 rounded-full mb-2 inline-block">
+              <span className="text-xs font-black bg-purple-500 text-white px-3 py-1 rounded-lg mb-2 inline-block">
                 {story.type}
               </span>
               <h3
@@ -55,7 +55,7 @@ export function StoryModal({
         ) : (
           <div className="p-6 pb-0 flex justify-between items-start">
             <div>
-              <span className="text-xs font-black bg-purple-100 text-purple-700 px-3 py-1 rounded-full mb-2 inline-block">
+              <span className="text-xs font-black bg-purple-100 text-purple-700 px-3 py-1 rounded-lg mb-2 inline-block">
                 {story.type}
               </span>
               <h3
@@ -68,7 +68,7 @@ export function StoryModal({
             <button
               onClick={onClose}
               aria-label={t.common.close}
-              className="bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full p-2 transition-colors shrink-0"
+              className="bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-lg p-2 transition-colors shrink-0"
             >
               <X size={24} />
             </button>
@@ -110,7 +110,7 @@ export function StoryModal({
         <div className="p-3 md:p-5 bg-slate-50 border-t-2 border-slate-100 flex justify-center">
           <button
             onClick={onClose}
-            className="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-base transition-all shadow-md hover:shadow-md active:scale-95"
+            className="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-black text-base transition-all shadow-md hover:shadow-md active:scale-95"
           >
             {t.stories.close}
           </button>

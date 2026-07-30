@@ -90,7 +90,7 @@ function RecordingsList({
   if (loadError) {
     return (
       <div className="p-12 text-center flex flex-col items-center gap-3">
-        <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center">
+        <div className="w-16 h-16 bg-rose-50 rounded-lg flex items-center justify-center">
           <AlertCircle size={24} className="text-rose-400" />
         </div>
         <p className="text-slate-500 font-bold">{t.common.loadDataError}</p>
@@ -108,7 +108,7 @@ function RecordingsList({
   if (records.length === 0) {
     return (
       <div className="p-12 text-center">
-        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center mx-auto mb-4">
           {type === "shadowing" ? (
             <Video size={24} className="text-slate-400" />
           ) : (
@@ -207,7 +207,7 @@ export function StudentSubmissionsView({
           <ArrowLeft size={18} />
         </button>
         <span
-          className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
+          className={`w-10 h-10 rounded-lg border-2 font-black flex items-center justify-center shrink-0 ${
             avatar
               ? "bg-amber-50 text-2xl shadow-md border-amber-200"
               : "text-sm bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]"

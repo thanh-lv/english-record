@@ -147,7 +147,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] flex flex-col items-center justify-center gap-5">
         <div className="relative">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-pink-100 rounded-full flex items-center justify-center text-5xl shadow-md border-4 border-white">
+          <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-pink-100 rounded-lg flex items-center justify-center text-5xl shadow-md border-4 border-white">
             🎤
           </div>
           <span className="absolute -top-1 -right-1 text-xl animate-bounce">
@@ -185,14 +185,14 @@ export default function App() {
             onClick={() =>
               setLang(lang === "vi" ? "en" : "vi", userProfile?.id)
             }
-            className="text-xs font-black px-2.5 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
+            className="text-xs font-black px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
           >
             {lang === "vi" ? "🇬🇧 English" : "🇻🇳 Vietnamese"}
           </button>
 
           {userProfile && (
             <>
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#FFFDE7] border-2 border-[#FFF59D] rounded-full shadow-md">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#FFFDE7] border-2 border-[#FFF59D] rounded-lg shadow-md">
                 <User size={14} className="text-[#FFB74D]" />
                 <span className="text-sm font-bold text-slate-700">
                   {userProfile.name}
@@ -221,7 +221,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-2 rounded-full border border-rose-200 transition-all"
+                className="flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-2 rounded-lg border border-rose-200 transition-all"
               >
                 <LogOut size={13} />
                 <span className="hidden sm:inline">{t.logout}</span>

@@ -39,7 +39,7 @@ export function TeacherFeedback({ recording }: { recording: any }) {
   };
 
   return (
-    <div className="w-full mt-3 bg-gradient-to-br from-[#FFF8E1] to-[#FFF9C4] border-2 border-[#FFD54F] rounded-2xl p-4 shadow-md relative overflow-hidden">
+    <div className="w-full mt-3 bg-gradient-to-br from-[#FFF8E1] to-[#FFF9C4] border-2 border-[#FFD54F] rounded-lg p-4 shadow-md relative overflow-hidden">
       <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-bl-full -mr-2 -mt-2 blur-md"></div>
 
       <h4 className="text-sm font-black text-amber-800 flex items-center gap-2 mb-3 relative z-10">
@@ -108,7 +108,7 @@ export function TeacherFeedback({ recording }: { recording: any }) {
             type="button"
             disabled={reacted || reacting}
             onClick={handleReact}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${
               reacted
                 ? "bg-rose-100 text-rose-600 border border-rose-200 shadow-md"
                 : "bg-white text-slate-500 border border-slate-200 hover:border-rose-300 hover:text-rose-500 hover:bg-rose-50"

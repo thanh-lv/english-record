@@ -156,7 +156,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
             setError("");
             setShowForm(true);
           }}
-          className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-black shadow-md transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-black shadow-md transition-colors"
         >
           <Plus size={16} />
           {tAtt.addStudent}
@@ -172,7 +172,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={tAtt.searchStudentPlaceholder}
-              className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-slate-50"
+              className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-slate-50"
             />
             <Users
               size={15}
@@ -182,7 +182,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
           <select
             value={filterCls}
             onChange={(e) => setFilterCls(e.target.value)}
-            className="px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50 font-bold text-slate-700 text-sm"
+            className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-slate-50 font-bold text-slate-700 text-sm"
           >
             <option value="all">{tAtt.allClasses}</option>
             {availableClasses.map((c) => (
@@ -197,7 +197,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
       {/* Add/Edit modal */}
       {showForm && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg w-full max-w-md shadow-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div
               className={`px-6 py-4 ${editId ? "bg-blue-600" : "bg-blue-600"} text-white`}
             >
@@ -217,7 +217,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={tAtt.studentNamePlaceholder}
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -230,7 +230,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                     value={className}
                     onChange={(e) => setClassName(e.target.value)}
                     placeholder={tAtt.classNamePlaceholder}
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   />
                 </div>
                 <div>
@@ -243,12 +243,12 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                     value={unitPrice}
                     onChange={handlePriceChange}
                     placeholder={tAtt.unitPricePlaceholder}
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   />
                 </div>
               </div>
               {error && (
-                <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl px-4 py-2.5 text-sm font-bold">
+                <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-600 rounded-lg px-4 py-2.5 text-sm font-bold">
                   <span>⚠️</span> {error}
                 </div>
               )}
@@ -259,14 +259,14 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                     setShowForm(false);
                     setError("");
                   }}
-                  className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                 >
                   {(useLanguage as any)().t.common?.cancel || "Cancel"}
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2.5 text-sm font-black bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors flex items-center gap-2 shadow-md disabled:opacity-60"
+                  className="px-5 py-2.5 text-sm font-black bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 shadow-md disabled:opacity-60"
                 >
                   {saving ? (
                     <Loader2 size={15} className="animate-spin" />
@@ -294,7 +294,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
 
       {/* Empty state */}
       {students.length === 0 ? (
-        <div className="text-center py-16 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+        <div className="text-center py-16 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200">
           <Users size={36} className="mx-auto text-slate-300 mb-3" />
           <p className="text-slate-500 font-bold">{tAtt.noStudents}</p>
           <p className="text-slate-400 text-sm mt-1">
@@ -310,7 +310,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
           {Object.entries(byClass).map(([cls, rows]) => (
             <div
               key={cls}
-              className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm"
+              className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-md"
             >
               {/* Class header */}
               <div className="bg-blue-600 px-4 py-2.5 flex items-center justify-between">

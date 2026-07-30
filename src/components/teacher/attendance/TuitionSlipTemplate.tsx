@@ -82,7 +82,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
             </span>
           </div>
 
-          <div className="bg-[#f4faf9] border-[1.5px] border-[#9fdcd7] rounded-3xl p-6 pt-8 text-center shadow-sm relative">
+          <div className="bg-[#f4faf9] border-[1.5px] border-[#9fdcd7] rounded-lg p-6 pt-8 text-center shadow-md relative">
             <p className="text-slate-600 text-sm font-semibold tracking-widest uppercase mb-1">
               {tAtt.totalTuitionSlip}
             </p>
@@ -101,7 +101,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
             {dates.map((date, idx) => (
               <span
                 key={idx}
-                className="inline-block h-6 px-2.5 border border-[#9fdcd7] rounded-full text-[13px] font-medium text-[#138e83] leading-none text-center"
+                className="inline-block h-6 px-2.5 border border-[#9fdcd7] rounded-lg text-[13px] font-medium text-[#138e83] leading-none text-center"
               >
                 <span className="relative -top-[2px] block">{date}</span>
               </span>

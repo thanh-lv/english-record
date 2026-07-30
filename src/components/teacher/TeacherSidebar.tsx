@@ -92,7 +92,7 @@ export function TeacherSidebar() {
         </span>
         {item.label}
         {active && (
-          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />
+          <span className="ml-auto w-1.5 h-1.5 rounded-lg bg-[#1E88E5]" />
         )}
       </Link>
     );
@@ -133,7 +133,7 @@ export function TeacherSidebar() {
 
       {/* Mobile: left drawer */}
       <div
-        className={`md:hidden fixed top-0 left-0 h-full w-72 max-w-[85vw] z-[60] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`md:hidden fixed top-0 left-0 h-full w-72 max-w-[85vw] z-[60] bg-white shadow-md flex flex-col transition-transform duration-300 ease-in-out ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

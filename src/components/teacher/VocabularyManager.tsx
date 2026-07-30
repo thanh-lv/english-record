@@ -414,7 +414,7 @@ export function VocabularyManager() {
           return (
             <div
               key={set.id}
-              className="bg-white rounded-2xl border-2 border-slate-100 shadow-md overflow-hidden"
+              className="bg-white rounded-lg border-2 border-slate-100 shadow-md overflow-hidden"
             >
               {/* Set header row */}
               <div
@@ -429,7 +429,7 @@ export function VocabularyManager() {
                     {set.title}
                   </h4>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-lg">
                       {ageGroupLabel(set.age_group)}
                     </span>
                     <span className="text-xs font-bold text-slate-400">
@@ -535,7 +535,7 @@ export function VocabularyManager() {
         })}
 
         {filteredSets.length === 0 && (
-          <div className="py-12 text-center text-slate-400 font-bold bg-white rounded-2xl border-2 border-dashed border-slate-200">
+          <div className="py-12 text-center text-slate-400 font-bold bg-white rounded-lg border-2 border-dashed border-slate-200">
             {sets.length === 0
               ? t.vocabManager.noSetsYet
               : t.teacherModal.noVocabSetsFound}
@@ -551,7 +551,7 @@ export function VocabularyManager() {
           aria-modal="true"
           aria-labelledby="create-set-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg w-full max-w-md shadow-md border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
               <h4
                 id="create-set-title"
@@ -563,7 +563,7 @@ export function VocabularyManager() {
               <button
                 onClick={() => setShowCreateSet(false)}
                 aria-label={t.common.close}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={18} />
               </button>
@@ -638,14 +638,14 @@ export function VocabularyManager() {
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setShowCreateSet(false)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors"
               >
                 {t.vocabManager.cancel}
               </button>
               <button
                 onClick={handleCreateSet}
                 disabled={createSetSaving}
-                className="flex-1 py-2.5 bg-[#1E88E5] hover:bg-blue-700 text-white font-extrabold rounded-full text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-md border-b-4 border-blue-900"
+                className="flex-1 py-2.5 bg-[#1E88E5] hover:bg-blue-700 text-white font-extrabold rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-md border-b-4 border-blue-900"
               >
                 {createSetSaving ? (
                   <Loader2 size={15} className="animate-spin" />
@@ -667,7 +667,7 @@ export function VocabularyManager() {
           aria-modal="true"
           aria-labelledby="add-card-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-md shadow-2xl border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
+          <div className="bg-white rounded-lg w-full max-w-md shadow-md border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
               <h4
                 id="add-card-title"
@@ -679,7 +679,7 @@ export function VocabularyManager() {
               <button
                 onClick={() => setAddCardSetId(null)}
                 aria-label={t.common.close}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={18} />
               </button>
@@ -849,14 +849,14 @@ export function VocabularyManager() {
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setAddCardSetId(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors"
               >
                 {t.vocabManager.cancel}
               </button>
               <button
                 onClick={handleAddCard}
                 disabled={addCardSaving}
-                className="flex-1 py-2.5 bg-[#1E88E5] hover:bg-blue-700 text-white font-extrabold rounded-full text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-md border-b-4 border-blue-900"
+                className="flex-1 py-2.5 bg-[#1E88E5] hover:bg-blue-700 text-white font-extrabold rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-md border-b-4 border-blue-900"
               >
                 {addCardSaving ? (
                   <Loader2 size={15} className="animate-spin" />
@@ -878,9 +878,9 @@ export function VocabularyManager() {
           aria-modal="true"
           aria-labelledby="delete-set-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertCircle size={20} />
               </div>
               <div>
@@ -906,14 +906,14 @@ export function VocabularyManager() {
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setDeleteSetTarget(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors border border-slate-200"
               >
                 {t.vocabManager.cancel}
               </button>
               <button
                 onClick={handleDeleteSet}
                 disabled={deleteSetSaving}
-                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center justify-center gap-2"
               >
                 {deleteSetSaving ? (
                   <Loader2 size={15} className="animate-spin" />
@@ -935,9 +935,9 @@ export function VocabularyManager() {
           aria-modal="true"
           aria-labelledby="delete-card-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertCircle size={20} />
               </div>
               <div>
@@ -960,14 +960,14 @@ export function VocabularyManager() {
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setDeleteCardTarget(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors border border-slate-200"
               >
                 {t.vocabManager.cancel}
               </button>
               <button
                 onClick={handleDeleteCard}
                 disabled={deleteCardSaving}
-                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center justify-center gap-2"
               >
                 {deleteCardSaving ? (
                   <Loader2 size={15} className="animate-spin" />

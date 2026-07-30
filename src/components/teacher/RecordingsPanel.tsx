@@ -207,7 +207,7 @@ export function RecordingsPanel({
         </div>
       ) : filteredSummaries.length === 0 ? (
         <div className="p-12 text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center mx-auto mb-4">
             <Mic size={24} className="text-slate-400" />
           </div>
           <p className="text-slate-500 font-bold">{t.recordings.empty}</p>
@@ -230,7 +230,7 @@ export function RecordingsPanel({
                       {groupTitle}
                     </span>
                   </div>
-                  <span className="bg-white px-2 py-0.5 rounded-full border border-slate-200 text-[11px] font-extrabold text-slate-600 shadow-xs">
+                  <span className="bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-[11px] font-extrabold text-slate-600 shadow-md">
                     {group.items.length} {t.recordings.students}
                   </span>
                 </div>
@@ -258,7 +258,7 @@ export function RecordingsPanel({
                         className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
                       >
                         <span
-                          className={`w-10 h-10 rounded-2xl border-2 font-black flex items-center justify-center shrink-0 ${
+                          className={`w-10 h-10 rounded-lg border-2 font-black flex items-center justify-center shrink-0 ${
                             avatar
                               ? "bg-amber-50 text-2xl shadow-md border-amber-200"
                               : `text-sm ${colorClass}`
@@ -286,10 +286,10 @@ export function RecordingsPanel({
                         </div>
 
                         {s.hasUngraded && (
-                          <span className="shrink-0 w-2.5 h-2.5 rounded-full bg-rose-400" />
+                          <span className="shrink-0 w-2.5 h-2.5 rounded-lg bg-rose-400" />
                         )}
 
-                        <span className="shrink-0 px-3 py-1 bg-[#E3F2FD] text-[#1E88E5] text-xs font-black rounded-full border border-[#90CAF9]">
+                        <span className="shrink-0 px-3 py-1 bg-[#E3F2FD] text-[#1E88E5] text-xs font-black rounded-lg border border-[#90CAF9]">
                           {s.count} {t.recordings.lessons}
                         </span>
 

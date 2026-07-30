@@ -30,7 +30,7 @@ export function StoriesTab({
       </div>
 
       {dbStories.length === 0 && (
-        <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-2xl border-2 border-dashed border-slate-200">
+        <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-lg border-2 border-dashed border-slate-200">
           {t.stories.empty}
         </div>
       )}
@@ -58,7 +58,7 @@ export function StoriesTab({
               <h4 className="font-extrabold text-slate-800 text-sm leading-tight mb-1 line-clamp-2">
                 {story.title}
               </h4>
-              <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-lg">
                 {story.type}
               </span>
             </div>

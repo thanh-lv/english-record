@@ -89,9 +89,9 @@ export function EditStudentModal({
       aria-modal="true"
       aria-labelledby="edit-student-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
+      <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
             <Pencil size={20} />
           </div>
           <div>

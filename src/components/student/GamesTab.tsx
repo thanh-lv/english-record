@@ -167,7 +167,7 @@ function MatchingGame({
       aria-modal="true"
       aria-labelledby="matching-game-title"
     >
-      <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-2xl">
+      <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-md">
         {/* Header */}
         <div className="flex items-center justify-between px-7 pt-6 pb-4">
           <div>
@@ -185,14 +185,14 @@ function MatchingGame({
             <button
               onClick={restart}
               aria-label="Restart"
-              className="p-2.5 hover:bg-slate-100 rounded-full text-slate-400"
+              className="p-2.5 hover:bg-slate-100 rounded-lg text-slate-400"
             >
               <RefreshCw size={20} />
             </button>
             <button
               onClick={onClose}
               aria-label="Close"
-              className="p-2.5 hover:bg-slate-100 rounded-full text-slate-400"
+              className="p-2.5 hover:bg-slate-100 rounded-lg text-slate-400"
             >
               <X size={22} />
             </button>
@@ -211,13 +211,13 @@ function MatchingGame({
               <div className="flex gap-3 mt-2">
                 <button
                   onClick={restart}
-                  className="px-8 py-4 bg-[#1E88E5] text-white font-black text-lg rounded-2xl shadow-md border-b-4 border-blue-900 active:scale-95 transition-all"
+                  className="px-8 py-4 bg-[#1E88E5] text-white font-black text-lg rounded-lg shadow-md border-b-4 border-blue-900 active:scale-95 transition-all"
                 >
                   Play again 🔄
                 </button>
                 <button
                   onClick={onClose}
-                  className="px-8 py-4 bg-slate-100 text-slate-700 font-black text-lg rounded-2xl active:scale-95 transition-all"
+                  className="px-8 py-4 bg-slate-100 text-slate-700 font-black text-lg rounded-lg active:scale-95 transition-all"
                 >
                   Close
                 </button>
@@ -234,7 +234,7 @@ function MatchingGame({
                     onClick={() => handleTileClick(tile.id)}
                     disabled={tile.matched}
                     className={`
-                      h-28 rounded-2xl font-extrabold text-sm transition-all duration-300 flex flex-col items-center justify-center gap-2 p-3 border-3 select-none
+                      h-28 rounded-lg font-extrabold text-sm transition-all duration-300 flex flex-col items-center justify-center gap-2 p-3 border-3 select-none
                       ${
                         tile.matched
                           ? "bg-emerald-100 border-emerald-300 text-emerald-700 scale-95 opacity-60"
@@ -372,7 +372,7 @@ function QuizGame({
       aria-modal="true"
       aria-labelledby="quiz-game-title"
     >
-      <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-2xl">
+      <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-md">
         {/* Header */}
         <div className="flex items-center justify-between px-7 pt-6 pb-3">
           <div>
@@ -396,7 +396,7 @@ function QuizGame({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-2.5 hover:bg-slate-100 rounded-full text-slate-400"
+            className="p-2.5 hover:bg-slate-100 rounded-lg text-slate-400"
           >
             <X size={22} />
           </button>
@@ -431,13 +431,13 @@ function QuizGame({
               <div className="flex gap-3 mt-3">
                 <button
                   onClick={restart}
-                  className="px-8 py-4 bg-[#1E88E5] text-white font-black text-lg rounded-2xl shadow-md border-b-4 border-blue-900 active:scale-95 transition-all"
+                  className="px-8 py-4 bg-[#1E88E5] text-white font-black text-lg rounded-lg shadow-md border-b-4 border-blue-900 active:scale-95 transition-all"
                 >
                   Try again 🔄
                 </button>
                 <button
                   onClick={onClose}
-                  className="px-8 py-4 bg-slate-100 text-slate-700 font-black text-lg rounded-2xl active:scale-95 transition-all"
+                  className="px-8 py-4 bg-slate-100 text-slate-700 font-black text-lg rounded-lg active:scale-95 transition-all"
                 >
                   Close
                 </button>
@@ -446,9 +446,9 @@ function QuizGame({
           ) : (
             <div className="space-y-5">
               {/* Progress bar */}
-              <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-3 bg-slate-100 rounded-lg overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] rounded-full transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] rounded-lg transition-all duration-300"
                   style={{ width: `${(index / TOTAL) * 100}%` }}
                 />
               </div>
@@ -459,12 +459,12 @@ function QuizGame({
                   {Array.from({ length: TOTAL }).map((_, i) => (
                     <div
                       key={i}
-                      className={`w-2.5 h-2.5 rounded-full ${i < index ? "bg-emerald-400" : i === index ? "bg-[#1E88E5]" : "bg-slate-200"}`}
+                      className={`w-2.5 h-2.5 rounded-lg ${i < index ? "bg-emerald-400" : i === index ? "bg-[#1E88E5]" : "bg-slate-200"}`}
                     />
                   ))}
                 </div>
                 <div
-                  className={`px-4 py-1.5 rounded-full font-black text-base ${timeLeft <= 3 ? "bg-rose-100 text-rose-600 animate-pulse" : "bg-slate-100 text-slate-600"}`}
+                  className={`px-4 py-1.5 rounded-lg font-black text-base ${timeLeft <= 3 ? "bg-rose-100 text-rose-600 animate-pulse" : "bg-slate-100 text-slate-600"}`}
                 >
                   ⏱ {timeLeft}s
                 </div>
@@ -476,7 +476,7 @@ function QuizGame({
                   <img
                     src={current.image_url}
                     alt=""
-                    className="w-28 h-28 object-cover rounded-2xl shadow-md border-2 border-white"
+                    className="w-28 h-28 object-cover rounded-lg shadow-md border-2 border-white"
                   />
                 )}
                 <p className="text-4xl font-black text-[#1E88E5] text-center">
@@ -484,7 +484,7 @@ function QuizGame({
                 </p>
                 <button
                   onClick={() => speak(current.front)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#1E88E5]/10 hover:bg-[#1E88E5]/20 rounded-full transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#1E88E5]/10 hover:bg-[#1E88E5]/20 rounded-lg transition-colors"
                 >
                   <Volume2 size={18} className="text-[#1E88E5]" />
                   <span className="text-sm font-bold text-[#1E88E5]">
@@ -519,7 +519,7 @@ function QuizGame({
                       key={choice.id}
                       onClick={() => handleAnswer(choice.id)}
                       disabled={!!selected}
-                      className={`h-20 rounded-2xl font-extrabold text-base transition-all active:scale-95 border-3 flex items-center justify-center gap-2 px-4 ${style}`}
+                      className={`h-20 rounded-lg font-extrabold text-base transition-all active:scale-95 border-3 flex items-center justify-center gap-2 px-4 ${style}`}
                     >
                       {selected && isCorrect && (
                         <CheckCircle2
@@ -642,7 +642,7 @@ function ScrambleGame({
       aria-modal="true"
       aria-labelledby="scramble-game-title"
     >
-      <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-2xl">
+      <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-md">
         <div className="flex items-center justify-between px-7 pt-6 pb-3">
           <div>
             <h3
@@ -660,7 +660,7 @@ function ScrambleGame({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-2.5 hover:bg-slate-100 rounded-full text-slate-400"
+            className="p-2.5 hover:bg-slate-100 rounded-lg text-slate-400"
           >
             <X size={22} />
           </button>
@@ -688,13 +688,13 @@ function ScrambleGame({
               <div className="flex gap-3 mt-2">
                 <button
                   onClick={restart}
-                  className="px-8 py-4 bg-[#1E88E5] text-white font-black text-lg rounded-2xl shadow-md border-b-4 border-blue-900 active:scale-95 transition-all"
+                  className="px-8 py-4 bg-[#1E88E5] text-white font-black text-lg rounded-lg shadow-md border-b-4 border-blue-900 active:scale-95 transition-all"
                 >
                   Try again 🔄
                 </button>
                 <button
                   onClick={onClose}
-                  className="px-8 py-4 bg-slate-100 text-slate-700 font-black text-lg rounded-2xl active:scale-95 transition-all"
+                  className="px-8 py-4 bg-slate-100 text-slate-700 font-black text-lg rounded-lg active:scale-95 transition-all"
                 >
                   Close
                 </button>
@@ -703,9 +703,9 @@ function ScrambleGame({
           ) : (
             <div className="space-y-5">
               {/* Progress */}
-              <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-3 bg-slate-100 rounded-lg overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-lg transition-all duration-300"
                   style={{ width: `${(index / TOTAL) * 100}%` }}
                 />
               </div>
@@ -718,7 +718,7 @@ function ScrambleGame({
                   <img
                     src={current.image_url}
                     alt=""
-                    className="w-24 h-24 object-cover rounded-2xl shadow-md border-2 border-white"
+                    className="w-24 h-24 object-cover rounded-lg shadow-md border-2 border-white"
                   />
                 )}
                 <p className="text-2xl font-black text-emerald-700 text-center">
@@ -785,14 +785,14 @@ function ScrambleGame({
                     setScrambled(buildScramble(current.front));
                   }}
                   disabled={!!result}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black rounded-2xl text-sm transition-colors disabled:opacity-40"
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black rounded-lg text-sm transition-colors disabled:opacity-40"
                 >
                   Reset ↺
                 </button>
                 <button
                   onClick={checkAnswer}
                   disabled={answer.length !== current.front.length || !!result}
-                  className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl text-sm shadow-md border-b-4 border-emerald-800 active:scale-95 transition-all disabled:opacity-40"
+                  className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-lg text-sm shadow-md border-b-4 border-emerald-800 active:scale-95 transition-all disabled:opacity-40"
                 >
                   Check ✓
                 </button>
@@ -884,7 +884,7 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
         <div className="h-6 w-32 bg-slate-100 rounded-lg mb-4" />
         <div className="space-y-3">
           {[0, 1].map((i) => (
-            <div key={i} className="h-28 bg-slate-100 rounded-2xl" />
+            <div key={i} className="h-28 bg-slate-100 rounded-lg" />
           ))}
         </div>
       </div>
@@ -903,7 +903,7 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
       </div>
 
       {sets.length === 0 ? (
-        <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-2xl border-2 border-dashed border-slate-200">
+        <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-lg border-2 border-dashed border-slate-200">
           No vocabulary sets available yet.
         </div>
       ) : (
@@ -935,7 +935,7 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
           {selectedSet && (
             <div className="space-y-3">
               {cardsLoading ? (
-                <div className="h-16 bg-slate-100 rounded-2xl animate-pulse" />
+                <div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
               ) : cards.length < 4 ? (
                 <p className="text-sm font-bold text-slate-400 text-center py-4">
                   Need at least 4 cards to play.
@@ -944,7 +944,7 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
                 GAMES.map((game) => (
                   <div
                     key={game.id}
-                    className={`bg-gradient-to-r ${game.color} border-2 rounded-2xl p-4 flex items-center gap-4`}
+                    className={`bg-gradient-to-r ${game.color} border-2 rounded-lg p-4 flex items-center gap-4`}
                   >
                     <span className="text-4xl">{game.emoji}</span>
                     <div className="flex-1">

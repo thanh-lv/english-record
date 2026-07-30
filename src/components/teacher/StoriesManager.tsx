@@ -412,7 +412,7 @@ export function StoriesManager() {
               )}
               {!(story.is_active ?? true) && (
                 <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center rounded-lg">
-                  <span className="text-white text-xs font-black bg-slate-800/70 px-2 py-1 rounded-full">
+                  <span className="text-white text-xs font-black bg-slate-800/70 px-2 py-1 rounded-lg">
                     {t.teacherModal.filterStoryStatusHidden}
                   </span>
                 </div>
@@ -473,7 +473,7 @@ export function StoriesManager() {
           aria-modal="true"
           aria-labelledby="edit-story-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl border-4 border-amber-100 p-6 space-y-5 my-8">
+          <div className="bg-white rounded-lg w-full max-w-2xl shadow-md border-4 border-amber-100 p-6 space-y-5 my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
               <h4
                 id="edit-story-title"
@@ -484,7 +484,7 @@ export function StoriesManager() {
               <button
                 onClick={() => setEditingStory(null)}
                 aria-label={t.common.close}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={20} />
               </button>
@@ -559,9 +559,9 @@ export function StoriesManager() {
           aria-modal="true"
           aria-labelledby="delete-story-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
                 <AlertCircle size={20} />
               </div>
               <div>
@@ -592,7 +592,7 @@ export function StoriesManager() {
               <button
                 type="button"
                 onClick={() => setDeleteStoryTarget(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors border border-slate-200"
               >
                 {t.common.cancel}
               </button>
@@ -600,7 +600,7 @@ export function StoriesManager() {
                 type="button"
                 onClick={confirmDeleteStory}
                 disabled={deleteSaving}
-                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center justify-center gap-2"
               >
                 {deleteSaving ? (
                   <Loader2 size={15} className="animate-spin" />
@@ -622,7 +622,7 @@ export function StoriesManager() {
           aria-modal="true"
           aria-labelledby="manual-story-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl border-4 border-emerald-100 p-5 space-y-4 my-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl shadow-md border-4 border-emerald-100 p-5 space-y-4 my-4">
             <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
               <h4
                 id="manual-story-title"
@@ -633,7 +633,7 @@ export function StoriesManager() {
               <button
                 onClick={() => setShowManual(false)}
                 aria-label={t.common.close}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={18} />
               </button>
@@ -706,14 +706,14 @@ export function StoriesManager() {
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setShowManual(false)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors"
               >
                 {t.common.cancel}
               </button>
               <button
                 onClick={handleManualSave}
                 disabled={manualSaving}
-                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-full text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {manualSaving ? (
                   <Loader2 size={15} className="animate-spin" />
@@ -734,7 +734,7 @@ export function StoriesManager() {
           aria-modal="true"
           aria-labelledby="ai-story-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl border-4 border-purple-100 p-4 sm:p-6 space-y-4 my-4 sm:my-8">
+          <div className="bg-white rounded-lg w-full max-w-2xl shadow-md border-4 border-purple-100 p-4 sm:p-6 space-y-4 my-4 sm:my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
               <h4
                 id="ai-story-title"
@@ -745,7 +745,7 @@ export function StoriesManager() {
               <button
                 onClick={() => setShowCreate(false)}
                 aria-label={t.common.close}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400"
+                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={20} />
               </button>

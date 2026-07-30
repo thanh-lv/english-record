@@ -72,7 +72,7 @@ export function AudioPlayer({
 
   if (playError) {
     return (
-      <div className="flex items-center gap-2 bg-rose-50 border-2 border-rose-200 rounded-2xl p-3 w-full max-w-sm sm:max-w-md text-rose-600 text-xs font-bold">
+      <div className="flex items-center gap-2 bg-rose-50 border-2 border-rose-200 rounded-lg p-3 w-full max-w-sm sm:max-w-md text-rose-600 text-xs font-bold">
         <AlertCircle size={16} className="shrink-0" />
         <span className="flex-1">{t.common.audioPlayError}</span>
         <button
@@ -110,7 +110,7 @@ export function AudioPlayer({
           type="button"
           onClick={togglePlay}
           aria-label={isPlaying ? t.common.pause : t.common.play}
-          className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-white transition-all shadow-md active:scale-95 ${
+          className={`w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-white transition-all shadow-md active:scale-95 ${
             isPlaying
               ? "bg-amber-400 hover:bg-amber-500"
               : "bg-[#1E88E5] hover:bg-blue-700"
@@ -133,7 +133,7 @@ export function AudioPlayer({
   }
 
   return (
-    <div className="flex flex-row items-center gap-3 bg-slate-50 border-2 border-slate-200 rounded-2xl p-2.5 w-full max-w-sm sm:max-w-md shadow-inner">
+    <div className="flex flex-row items-center gap-3 bg-slate-50 border-2 border-slate-200 rounded-lg p-2.5 w-full max-w-sm sm:max-w-md shadow-inner">
       <audio
         ref={audioRef}
         src={src}
@@ -148,7 +148,7 @@ export function AudioPlayer({
         type="button"
         onClick={togglePlay}
         aria-label={isPlaying ? t.common.pause : t.common.play}
-        className={`w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-white transition-all shadow-md active:scale-95 border-b-4 ${
+        className={`w-11 h-11 shrink-0 rounded-lg flex items-center justify-center text-white transition-all shadow-md active:scale-95 border-b-4 ${
           isPlaying
             ? "bg-[#FFB74D] border-orange-800 hover:bg-[#FFA726]"
             : "bg-[#1E88E5] border-blue-800 hover:bg-blue-700"

@@ -92,7 +92,7 @@ export function ShadowingDetail({
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-500 rounded-lg animate-spin" />
       </div>
     );
   }
@@ -104,7 +104,7 @@ export function ShadowingDetail({
         <button
           type="button"
           onClick={() => navigate("/student/shadowing")}
-          className="mt-6 px-4 py-2 bg-indigo-500 text-white rounded-full font-bold hover:bg-indigo-600"
+          className="mt-6 px-4 py-2 bg-indigo-500 text-white rounded-lg font-bold hover:bg-indigo-600"
         >
           {t.common.close}
         </button>
@@ -159,7 +159,7 @@ export function ShadowingDetail({
                   <button
                     type="button"
                     onClick={shadowingRecording.stopRecording}
-                    className="w-20 h-20 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-rose-500/30 transition-all border-4 border-white group"
+                    className="w-20 h-20 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white rounded-lg flex items-center justify-center shadow-md hover:shadow-rose-500/30 transition-all border-4 border-white group"
                   >
                     <Square
                       size={28}
@@ -171,7 +171,7 @@ export function ShadowingDetail({
                 <button
                   type="button"
                   onClick={shadowingRecording.startRecording}
-                  className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-full flex items-center justify-center shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
+                  className="w-20 h-20 bg-[#FF8A80] hover:bg-[#FF5252] text-white rounded-lg flex items-center justify-center shadow-md hover:shadow-md hover:scale-105 active:scale-95 transition-all border-b-4 border-rose-800"
                 >
                   <Mic size={36} />
                 </button>
@@ -179,7 +179,7 @@ export function ShadowingDetail({
             </div>
           ) : (
             <div className="flex flex-col items-center gap-6 animate-in zoom-in-95 duration-300">
-              <div className="w-full max-w-md bg-white p-4 rounded-2xl shadow-md border-2 border-indigo-100 flex items-center gap-4">
+              <div className="w-full max-w-md bg-white p-4 rounded-lg shadow-md border-2 border-indigo-100 flex items-center gap-4">
                 <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center shrink-0">
                   <Mic size={24} />
                 </div>

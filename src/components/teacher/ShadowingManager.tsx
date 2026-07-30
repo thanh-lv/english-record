@@ -168,7 +168,7 @@ export function ShadowingManager() {
                 )}
                 {!(video.is_active ?? true) && (
                   <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center">
-                    <span className="text-white text-xs font-black bg-slate-800/70 px-2 py-1 rounded-full">
+                    <span className="text-white text-xs font-black bg-slate-800/70 px-2 py-1 rounded-lg">
                       {t.teacherModal.filterStoryStatusHidden}
                     </span>
                   </div>
@@ -213,7 +213,7 @@ export function ShadowingManager() {
 
       {showCreate && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg w-full max-w-md shadow-2xl p-6 space-y-4">
+          <div className="bg-white rounded-lg w-full max-w-md shadow-md p-6 space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
                 <Youtube className="text-rose-600" />{" "}
@@ -221,7 +221,7 @@ export function ShadowingManager() {
               </h4>
               <button
                 onClick={() => setShowCreate(false)}
-                className="p-1 hover:bg-slate-100 rounded-full text-slate-400"
+                className="p-1 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={20} />
               </button>
@@ -280,7 +280,7 @@ export function ShadowingManager() {
 
       {deleteTarget && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-rose-100 p-6 space-y-5">
+          <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-rose-100 p-6 space-y-5">
             <h4 className="font-extrabold text-slate-800 text-lg">
               {t.teacherModal.videoConfirmDelete}
             </h4>
@@ -295,14 +295,14 @@ export function ShadowingManager() {
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteTarget(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm"
               >
                 {t.common.cancel}
               </button>
               <button
                 onClick={confirmDelete}
                 disabled={deleteSaving}
-                className="flex-1 py-2.5 bg-[#1E88E5] hover:bg-[#1565C0] text-white font-extrabold rounded-full text-sm disabled:opacity-50 flex justify-center items-center gap-2"
+                className="flex-1 py-2.5 bg-[#1E88E5] hover:bg-[#1565C0] text-white font-extrabold rounded-lg text-sm disabled:opacity-50 flex justify-center items-center gap-2"
               >
                 {deleteSaving ? (
                   <Loader2 size={16} className="animate-spin" />

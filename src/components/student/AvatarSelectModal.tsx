@@ -23,12 +23,12 @@ export function AvatarSelectModal({
       aria-modal="true"
       aria-labelledby="avatar-select-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-sm p-6 border-4 border-amber-200 shadow-2xl animate-in zoom-in-95 duration-200 relative my-8">
+      <div className="bg-white rounded-lg w-full max-w-sm p-6 border-4 border-amber-200 shadow-md animate-in zoom-in-95 duration-200 relative my-8">
         <button
           type="button"
           onClick={onClose}
           aria-label={t.common.close}
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all"
+          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
         >
           <X size={20} />
         </button>
@@ -51,7 +51,7 @@ export function AvatarSelectModal({
               role="radio"
               aria-checked={currentAvatar === emoji}
               aria-label={emoji}
-              className={`aspect-square rounded-2xl text-4xl flex items-center justify-center transition-all ${
+              className={`aspect-square rounded-lg text-4xl flex items-center justify-center transition-all ${
                 currentAvatar === emoji
                   ? "bg-amber-100 border-4 border-amber-400 scale-110 shadow-md"
                   : "bg-slate-50 border-2 border-slate-100 hover:bg-amber-50 hover:border-amber-200 hover:scale-105"

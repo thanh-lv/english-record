@@ -112,7 +112,7 @@ export function ExercisesTab({
               key={num}
               type="button"
               onClick={(e) => onTopicClick(num, e)}
-              className={`cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 rounded-lg flex flex-col items-center justify-center gap-1 group border-3 relative p-2 sm:h-28 h-24 ${
+              className={`cursor-pointer shadow-md hover:shadow-md hover:-translate-y-2 transition-all duration-300 rounded-lg flex flex-col items-center justify-center gap-1 group border-3 relative p-2 sm:h-28 h-24 ${
                 needsRetry
                   ? "bg-amber-50 text-amber-600 border-amber-300 hover:bg-amber-100"
                   : isCompleted
@@ -162,9 +162,9 @@ export function ExercisesTab({
               )}
 
               <div className="w-full px-1">
-                <div className="w-full h-1.5 bg-black/10 rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-black/10 rounded-lg overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${
+                    className={`h-full rounded-lg transition-all duration-500 ${
                       needsRetry
                         ? "bg-amber-400"
                         : isCompleted

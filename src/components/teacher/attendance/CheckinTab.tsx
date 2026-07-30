@@ -257,7 +257,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
         <div className="flex items-center gap-2">
           <button
             onClick={prevMonth}
-            className="p-2 rounded-xl hover:bg-slate-100 transition-colors text-slate-600"
+            className="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
           >
             <ChevronLeft size={20} />
           </button>
@@ -266,7 +266,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
           </h2>
           <button
             onClick={nextMonth}
-            className="p-2 rounded-xl hover:bg-slate-100 transition-colors text-slate-600"
+            className="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
           >
             <ChevronRight size={20} />
           </button>
@@ -277,7 +277,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
             setCalMonth(today.getMonth());
             openModal(today.getDate());
           }}
-          className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black rounded-xl transition-colors shadow"
+          className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black rounded-lg transition-colors shadow"
         >
           <CalendarDays size={15} />
           {tAtt.today}
@@ -285,7 +285,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
       </div>
 
       {/* ── Full calendar grid ── */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-md overflow-hidden">
         {/* Day-of-week header */}
         <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
           {DAYS_OF_WEEK.map((d, i) => (
@@ -324,7 +324,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
               >
                 {/* Day number */}
                 <span
-                  className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full text-xs sm:text-sm font-black flex-shrink-0
+                  className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg text-xs sm:text-sm font-black flex-shrink-0
                   ${tod ? "bg-emerald-500 text-white" : isSunday ? "text-rose-500" : "text-slate-700"}
                 `}
                 >
@@ -352,7 +352,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400 px-1">
         <span className="flex items-center gap-1.5">
-          <span className="w-4 h-4 rounded-full bg-emerald-500 inline-flex items-center justify-center text-white text-xs">
+          <span className="w-4 h-4 rounded-lg bg-emerald-500 inline-flex items-center justify-center text-white text-xs">
             •
           </span>{" "}
           {tAtt.today}
@@ -372,7 +372,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
       {/* ── Day Detail Modal ── */}
       {modalDate && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+          <div className="bg-white w-full max-w-2xl rounded-lg shadow-md flex flex-col max-h-[90vh]">
             {/* Modal header */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-4 rounded-t-2xl flex items-start justify-between shrink-0">
               <div>
@@ -466,9 +466,9 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                     {progressPct}%
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-slate-100 rounded-lg overflow-hidden">
                   <div
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    className="h-full bg-emerald-500 rounded-lg transition-all duration-500"
                     style={{ width: `${progressPct}%` }}
                   />
                 </div>
@@ -529,14 +529,14 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                       <button
                         key={student.id}
                         onClick={() => handleToggle(student.id)}
-                        className={`flex flex-col items-center p-2.5 rounded-xl border-2 transition-all text-center gap-1.5 active:scale-95 ${
+                        className={`flex flex-col items-center p-2.5 rounded-lg border-2 transition-all text-center gap-1.5 active:scale-95 ${
                           isChecked
                             ? "border-emerald-500 bg-emerald-50 shadow-md"
-                            : "border-slate-200 bg-white hover:border-emerald-300 hover:shadow-sm"
+                            : "border-slate-200 bg-white hover:border-emerald-300 hover:shadow-md"
                         }`}
                       >
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm transition-colors ${
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center font-black text-sm transition-colors ${
                             isChecked
                               ? "bg-emerald-500 text-white"
                               : "bg-slate-100 text-slate-600"
@@ -555,7 +555,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                           </p>
                         )}
                         {isChecked && (
-                          <span className="text-xs font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                          <span className="text-xs font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
                             <CheckCircle2 size={10} /> Chọn
                           </span>
                         )}
@@ -568,15 +568,15 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                     return (
                       <div
                         key={student.id}
-                        className="flex flex-col items-center p-2.5 rounded-xl border-2 border-slate-100 bg-slate-50 text-center gap-1.5 opacity-50 cursor-not-allowed"
+                        className="flex flex-col items-center p-2.5 rounded-lg border-2 border-slate-100 bg-slate-50 text-center gap-1.5 opacity-50 cursor-not-allowed"
                       >
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm bg-slate-200 text-slate-500">
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center font-black text-sm bg-slate-200 text-slate-500">
                           {ini}
                         </div>
                         <p className="font-black text-xs leading-tight text-slate-500 line-clamp-2">
                           {student.name}
                         </p>
-                        <span className="text-xs font-black text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                        <span className="text-xs font-black text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
                           <CheckCircle2 size={10} /> Xong
                         </span>
                       </div>
@@ -590,20 +590,20 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
             <div className="border-t border-slate-100 px-5 py-3 flex items-center gap-3 bg-white shrink-0 rounded-b-2xl">
               <button
                 onClick={closeModal}
-                className="px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                className="px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
               >
                 Đóng
               </button>
               <div className="flex-1" />
               {success && (
-                <div className="flex items-center gap-1.5 text-emerald-700 font-black text-sm bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200">
+                <div className="flex items-center gap-1.5 text-emerald-700 font-black text-sm bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-200">
                   <CheckCircle2 size={15} /> {tAtt.checkinSaved}
                 </div>
               )}
               <button
                 onClick={handleSaveCheckin}
                 disabled={saving || checkedIds.size === 0}
-                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-black rounded-xl transition-all shadow-md active:scale-95"
+                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-black rounded-lg transition-all shadow-md active:scale-95"
               >
                 {saving ? (
                   <Loader2 size={17} className="animate-spin" />

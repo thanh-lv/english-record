@@ -29,16 +29,16 @@ export function AchievementsTab({
       </div>
 
       {/* Progress summary */}
-      <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 flex items-center gap-4">
+      <div className="bg-amber-50 border-2 border-amber-200 rounded-lg p-4 flex items-center gap-4">
         <div className="text-4xl">🏆</div>
         <div className="flex-1">
           <p className="font-black text-amber-800 text-sm">
             {completedNumbers.length}/{totalNumbers.length}{" "}
             {t.achievements.lessons}
           </p>
-          <div className="w-full h-2.5 bg-amber-100 rounded-full overflow-hidden mt-1.5">
+          <div className="w-full h-2.5 bg-amber-100 rounded-lg overflow-hidden mt-1.5">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-700"
+              className="h-full rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-700"
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -47,7 +47,7 @@ export function AchievementsTab({
       </div>
 
       {completedNumbers.length === 0 ? (
-        <div className="text-center py-12 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+        <div className="text-center py-12 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200">
           <div className="text-5xl mb-3 opacity-40">🔒</div>
           <p className="text-slate-400 font-bold text-sm">
             {t.achievements.empty}
@@ -64,7 +64,7 @@ export function AchievementsTab({
             .map((num) => (
               <div
                 key={num}
-                className="aspect-square rounded-2xl flex flex-col items-center justify-center gap-1.5 border-3 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-md hover:scale-105 hover:shadow-xl transition-all duration-300"
+                className="aspect-square rounded-lg flex flex-col items-center justify-center gap-1.5 border-3 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-md hover:scale-105 hover:shadow-md transition-all duration-300"
               >
                 <span className="text-3xl drop-shadow-md">
                   {getPrizeForTopic(num)}

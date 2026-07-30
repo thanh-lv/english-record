@@ -130,9 +130,9 @@ export function CreateStudentModal({
       aria-modal="true"
       aria-labelledby="create-student-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-sm shadow-2xl border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
+      <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
             <UserPlus size={20} />
           </div>
           <div>
@@ -248,7 +248,7 @@ export function CreateStudentModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-full text-sm transition-colors border border-slate-200"
+            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors border border-slate-200"
           >
             {t.common.cancel}
           </button>
@@ -256,7 +256,7 @@ export function CreateStudentModal({
             type="button"
             onClick={handleCreate}
             disabled={saving}
-            className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-full text-sm transition-colors shadow-md border-b-4 border-emerald-900 flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-emerald-900 flex items-center justify-center gap-2"
           >
             {saving ? (
               <Loader2 size={15} className="animate-spin" />

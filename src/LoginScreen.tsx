@@ -160,7 +160,7 @@ export default function LoginScreen({
         {/* Mascot + title */}
         <div className="text-center mb-4">
           <div className="relative inline-block">
-            <div className="w-16 h-16 md:w-24 md:h-24 mx-auto bg-gradient-to-br from-blue-100 to-pink-100 rounded-full flex items-center justify-center text-3xl md:text-5xl shadow-md border-4 border-white mb-3 animate-in zoom-in duration-700">
+            <div className="w-16 h-16 md:w-24 md:h-24 mx-auto bg-gradient-to-br from-blue-100 to-pink-100 rounded-lg flex items-center justify-center text-3xl md:text-5xl shadow-md border-4 border-white mb-3 animate-in zoom-in duration-700">
               🎤
             </div>
             <span className="absolute -top-1 -right-1 text-lg animate-bounce">
@@ -179,9 +179,9 @@ export default function LoginScreen({
         </div>
 
         {/* Form card */}
-        <div className="bg-white rounded-lg shadow-xl shadow-blue-100/60 border-4 border-[#FFFDE7] p-4 md:p-6 space-y-3">
+        <div className="bg-white rounded-lg shadow-md shadow-blue-100/60 border-4 border-[#FFFDE7] p-4 md:p-6 space-y-3">
           {/* Mode tabs */}
-          <div className="flex gap-2 p-1 bg-slate-100 rounded-2xl">
+          <div className="flex gap-2 p-1 bg-slate-100 rounded-lg">
             <button
               type="button"
               onClick={() => {
@@ -221,7 +221,7 @@ export default function LoginScreen({
               <input
                 type="text"
                 placeholder={t.login.namePlaceholder}
-                className="w-full px-4 py-2.5 md:py-3.5 bg-[#FFFDF6] border-2 border-amber-200 rounded-2xl focus:ring-4 focus:ring-amber-100 focus:border-amber-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
+                className="w-full px-4 py-2.5 md:py-3.5 bg-[#FFFDF6] border-2 border-amber-200 rounded-lg focus:ring-4 focus:ring-amber-100 focus:border-amber-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
@@ -243,7 +243,7 @@ export default function LoginScreen({
               <input
                 type="email"
                 placeholder={t.login.emailPlaceholder}
-                className="w-full px-4 py-2.5 md:py-3.5 bg-[#FFFDF6] border-2 border-pink-200 rounded-2xl focus:ring-4 focus:ring-pink-100 focus:border-pink-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
+                className="w-full px-4 py-2.5 md:py-3.5 bg-[#FFFDF6] border-2 border-pink-200 rounded-lg focus:ring-4 focus:ring-pink-100 focus:border-pink-400 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -265,7 +265,7 @@ export default function LoginScreen({
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder={t.login.passwordPlaceholder}
-                className={`w-full px-4 py-3.5 pr-12 bg-[#FFFDF6] border-2 rounded-2xl focus:ring-4 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300 ${
+                className={`w-full px-4 py-3.5 pr-12 bg-[#FFFDF6] border-2 rounded-lg focus:ring-4 focus:outline-none text-base transition-all text-slate-700 font-bold placeholder-slate-300 ${
                   loginMode === "teacher"
                     ? "border-pink-200 focus:ring-pink-100 focus:border-pink-400"
                     : "border-amber-200 focus:ring-amber-100 focus:border-amber-400"
@@ -305,7 +305,7 @@ export default function LoginScreen({
               (loginMode === "student" ? !name.trim() : !email.trim()) ||
               !password
             }
-            className={`w-full py-4 text-white rounded-full font-black text-lg transition-all shadow-md hover:shadow-xl active:scale-95 border-b-4 disabled:border-slate-400 disabled:from-slate-300 disabled:to-slate-300 flex items-center justify-center gap-2 mt-2 ${
+            className={`w-full py-4 text-white rounded-lg font-black text-lg transition-all shadow-md hover:shadow-md active:scale-95 border-b-4 disabled:border-slate-400 disabled:from-slate-300 disabled:to-slate-300 flex items-center justify-center gap-2 mt-2 ${
               loginMode === "teacher"
                 ? "bg-gradient-to-r from-[#E91E63] to-[#F06292] hover:from-[#C2185B] hover:to-[#E91E63] shadow-pink-200 border-pink-900"
                 : "bg-gradient-to-r from-[#1E88E5] to-[#42A5F5] hover:from-[#1565C0] hover:to-[#1E88E5] shadow-blue-200 border-blue-800"

@@ -183,7 +183,7 @@ export default function TeacherView({
           <Suspense
             fallback={
               <div className="flex justify-center py-16">
-                <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
+                <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-lg animate-spin" />
               </div>
             }
           >

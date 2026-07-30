@@ -94,7 +94,7 @@ export function StudentSidebar({
         </span>
         {item.label}
         {active && (
-          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />
+          <span className="ml-auto w-1.5 h-1.5 rounded-lg bg-[#1E88E5]" />
         )}
       </Link>
     );
@@ -108,11 +108,11 @@ export function StudentSidebar({
           <button
             type="button"
             onClick={onAvatarClick}
-            className="w-20 h-20 mx-auto bg-white border-4 border-amber-200 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all rounded-full flex items-center justify-center text-4xl shadow-md relative mb-4"
+            className="w-20 h-20 mx-auto bg-white border-4 border-amber-200 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all rounded-lg flex items-center justify-center text-4xl shadow-md relative mb-4"
             title={t.common.changeAvatar}
           >
             {currentAvatar}
-            <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform">
+            <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-lg border-2 border-white flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform">
               <Pencil size={12} />
             </span>
           </button>
@@ -121,11 +121,11 @@ export function StudentSidebar({
             <span className="text-[#FF8A80]">{profile.name}</span>! 👋
           </h2>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full text-amber-700 text-sm font-bold shadow-md">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm font-bold shadow-md">
               <Award size={16} /> {completedNumbers.length} {t.sidebar.prizes}
             </div>
             <div
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold shadow-md border ${streak > 0 ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-bold shadow-md border ${streak > 0 ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}
             >
               <Flame
                 size={16}
@@ -162,7 +162,7 @@ export function StudentSidebar({
               </span>
               {item.label}
               {activeTab === item.id && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#1E88E5]" />
+                <span className="ml-auto w-1.5 h-1.5 rounded-lg bg-[#1E88E5]" />
               )}
             </Link>
           ))}
@@ -174,7 +174,7 @@ export function StudentSidebar({
         <button
           type="button"
           onClick={onAvatarClick}
-          className="w-11 h-11 bg-white border-2 border-amber-200 rounded-full flex items-center justify-center text-2xl shadow-md shrink-0"
+          className="w-11 h-11 bg-white border-2 border-amber-200 rounded-lg flex items-center justify-center text-2xl shadow-md shrink-0"
         >
           {currentAvatar}
         </button>
@@ -215,7 +215,7 @@ export function StudentSidebar({
 
       {/* Mobile: left drawer */}
       <div
-        className={`md:hidden fixed top-0 left-0 h-full w-72 max-w-[85vw] z-[60] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`md:hidden fixed top-0 left-0 h-full w-72 max-w-[85vw] z-[60] bg-white shadow-md flex flex-col transition-transform duration-300 ease-in-out ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

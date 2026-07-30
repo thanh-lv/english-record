@@ -313,7 +313,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   return (
     <div className="space-y-5" id="printable-summary">
       {/* ---- Controls bar ---- */}
-      <div className="flex flex-wrap items-end gap-3 bg-purple-50 border border-purple-100 rounded-2xl p-4 print:hidden">
+      <div className="flex flex-wrap items-end gap-3 bg-purple-50 border border-purple-100 rounded-lg p-4 print:hidden">
         <div>
           <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
             {tAtt.month}
@@ -415,7 +415,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
       </div>
 
       {summary.length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-2xl">
+        <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-lg">
           <CalendarDays size={40} className="mx-auto text-slate-300 mb-3" />
           <p className="text-slate-500 font-medium">{tAtt.summaryEmpty}</p>
         </div>
@@ -423,19 +423,19 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
         <div className="space-y-6">
           {/* ---- Stat cards ---- */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 print:grid-cols-4">
-            <div className="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-2xl p-4 shadow-lg">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-lg p-4 shadow-md">
               <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
                 Học sinh
               </p>
               <p className="text-3xl font-black mt-1">{summary.length}</p>
             </div>
-            <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl p-4 shadow-lg">
+            <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-lg p-4 shadow-md">
               <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
                 Tổng buổi
               </p>
               <p className="text-3xl font-black mt-1">{grandSessions}</p>
             </div>
-            <div className="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-2xl p-4 shadow-lg">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-lg p-4 shadow-md">
               <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
                 Số lớp
               </p>
@@ -443,7 +443,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                 {Object.keys(byClass).length}
               </p>
             </div>
-            <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl p-4 shadow-lg">
+            <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-lg p-4 shadow-md">
               <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
                 Tổng học phí
               </p>
@@ -466,7 +466,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
             return (
               <div
                 key={cls}
-                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm print:break-inside-avoid"
+                className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-md print:break-inside-avoid"
               >
                 {/* Class header */}
                 <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-5 py-3 flex justify-between items-center">
@@ -539,7 +539,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                             {s.name}
                           </td>
                           <td className="px-4 py-3 text-center whitespace-nowrap">
-                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-black text-sm">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 font-black text-sm">
                               {s.total_sessions}
                             </span>
                           </td>
@@ -607,7 +607,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           {/* ---- Grand total footer ---- */}
           {filterClass === "all" && (
             <div className="flex justify-end">
-              <div className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-2xl px-6 py-4 shadow-lg text-right">
+              <div className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-lg px-6 py-4 shadow-md text-right">
                 <p className="text-xs font-bold opacity-70 uppercase tracking-wider">
                   Tổng cộng tất cả
                 </p>
@@ -640,7 +640,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
             );
           return (
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 print:hidden">
-              <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="bg-white rounded-lg w-full max-w-lg shadow-md overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Modal header */}
                 <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-6 py-4 flex items-start justify-between">
                   <div>
@@ -742,7 +742,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                                 })}
                               </td>
                               <td className="px-4 py-3 text-center">
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-black rounded-full">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-black rounded-lg">
                                   <CheckCircle2 size={11} /> Có mặt
                                 </span>
                               </td>
@@ -758,20 +758,20 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                 <div className="border-t border-slate-100 px-5 py-3 flex justify-end gap-2 bg-slate-50">
                   <button
                     onClick={() => setSelectedStudent(null)}
-                    className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors"
+                    className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition-colors"
                   >
                     Đóng
                   </button>
                   <button
                     onClick={() => exportStudentExcel(s)}
-                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow transition-colors"
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow transition-colors"
                   >
                     <Download size={14} /> Excel
                   </button>
                   <button
                     onClick={() => handleExportSingle(selectedStudent)}
                     disabled={exporting}
-                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-xl shadow transition-colors"
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg shadow transition-colors"
                   >
                     {exporting ? (
                       <Loader2 size={14} className="animate-spin" />
