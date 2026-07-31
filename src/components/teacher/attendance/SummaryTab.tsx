@@ -651,161 +651,163 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           />
 
           {/* ---- Tables grouped by class ---- */}
-          {Object.entries(byClass).map(([cls, rows]) => {
-            const classTotal = rows.reduce((s, r) => s + r.total_fee, 0);
-            const classSessions = rows.reduce(
-              (s, r) => s + r.total_sessions,
-              0,
-            );
-            return (
-              <div
-                key={cls}
-                className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-md print:break-inside-avoid"
-              >
-                {/* Class header */}
-                <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-5 py-3 flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Users size={16} className="text-purple-200" />
-                    <span className="font-black text-white">
-                      {formatClassName(cls, tAtt.unassignedClass)}
-                    </span>
-                    <span className="text-purple-200 text-sm font-bold">
-                      (
-                      {tAtt.studentCount.replace(
-                        "{count}",
-                        rows.length.toString(),
-                      )}
-                      )
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-purple-200 font-bold">
-                      {tAtt.sessionCount.replace(
-                        "{count}",
-                        classSessions.toString(),
-                      )}
-                    </p>
-                    <p className="text-sm text-white font-black">
-                      {tAtt.currencyVnd.replace(
-                        "{amount}",
-                        classTotal.toLocaleString(),
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Student card list – no horizontal scroll */}
-                <div className="divide-y divide-slate-100">
-                  {rows.map((s, i) => (
-                    <div
-                      key={s.id}
-                      className={`px-4 py-3 hover:bg-purple-50/60 transition-colors ${
-                        paymentsMap[s.id] ? "" : ""
-                      }`}
-                    >
-                      {/* Row 1: STT + Tên + Buổi + Học phí */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs text-slate-400 font-bold w-5 shrink-0">
-                          {i + 1}
-                        </span>
-                        <span className="font-black text-slate-800 flex-1 min-w-0 truncate">
-                          {s.name}
-                        </span>
-                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 font-black text-xs shrink-0">
-                          {s.total_sessions}
-                        </span>
-                        <span className="text-xs text-slate-400 font-medium shrink-0">
-                          buổi
-                        </span>
-                        <span className="font-black text-purple-700 text-sm shrink-0">
-                          {tAtt.currencyVnd.replace(
-                            "{amount}",
-                            s.total_fee.toLocaleString(),
-                          )}
-                        </span>
-                      </div>
-                      {/* Row 2: Đơn giá + Controls */}
-                      <div className="flex items-center gap-2 mt-2 flex-wrap pl-7">
-                        <span className="text-xs text-slate-400 font-medium">
-                          {s.unit_price.toLocaleString()}đ/buổi
-                        </span>
-                        <div className="flex-1" />
-                        {/* Toggle trạng thái HP */}
-                        <button
-                          onClick={() => handleTogglePayment(s.id)}
-                          className={`px-2.5 py-1 text-xs font-black rounded-full border transition-all flex items-center gap-1 print:hidden ${
-                            paymentsMap[s.id]
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
-                              : "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100"
-                          }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${paymentsMap[s.id] ? "bg-emerald-500" : "bg-rose-500"}`}
-                          />
-                          {paymentsMap[s.id]
-                            ? tAtt.paid || "Đã nộp"
-                            : tAtt.unpaid || "Chưa nộp"}
-                        </button>
-                        {/* Gửi Zalo */}
-                        <button
-                          onClick={() => setZaloStudent(s)}
-                          className="px-2.5 py-1 text-xs font-black text-[#0068FF] bg-[#0068FF]/10 hover:bg-[#0068FF]/20 rounded-lg transition-all flex items-center gap-1 print:hidden shadow-sm active:scale-95"
-                          title="Gửi thông báo Zalo cho Phụ huynh"
-                        >
-                          <MessageCircle size={12} /> Zalo
-                        </button>
-                        {/* Xem chi tiết */}
-                        <button
-                          onClick={() => {
-                            setSelectedStudent(s);
-                            setPreviewMode(false);
-                          }}
-                          className="flex items-center gap-1 px-2.5 py-1 text-xs font-black text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors print:hidden"
-                        >
-                          <CalendarDays size={12} /> Xem
-                        </button>
-                      </div>
-                      {/* Row 3: Ghi chú */}
-                      <div className="mt-2 pl-7 print:hidden">
-                        <input
-                          type="text"
-                          placeholder="Nhập ghi chú riêng..."
-                          value={studentNotes[s.id] || ""}
-                          onChange={(e) =>
-                            setStudentNotes((prev) => ({
-                              ...prev,
-                              [s.id]: e.target.value,
-                            }))
-                          }
-                          className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-purple-400 bg-white placeholder:text-slate-300"
-                        />
-                      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+            {Object.entries(byClass).map(([cls, rows]) => {
+              const classTotal = rows.reduce((s, r) => s + r.total_fee, 0);
+              const classSessions = rows.reduce(
+                (s, r) => s + r.total_sessions,
+                0,
+              );
+              return (
+                <div
+                  key={cls}
+                  className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-md print:break-inside-avoid"
+                >
+                  {/* Class header */}
+                  <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-5 py-3 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Users size={16} className="text-purple-200" />
+                      <span className="font-black text-white">
+                        {formatClassName(cls, tAtt.unassignedClass)}
+                      </span>
+                      <span className="text-purple-200 text-sm font-bold">
+                        (
+                        {tAtt.studentCount.replace(
+                          "{count}",
+                          rows.length.toString(),
+                        )}
+                        )
+                      </span>
                     </div>
-                  ))}
-                </div>
-                {/* Footer tổng lớp */}
-                <div className="bg-purple-50 border-t-2 border-purple-200 px-4 py-3 flex items-center justify-between">
-                  <span className="font-black text-purple-800 text-sm">
-                    Cộng
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-200 text-purple-800 font-black text-xs">
-                      {classSessions}
+                    <div className="text-right">
+                      <p className="text-xs text-purple-200 font-bold">
+                        {tAtt.sessionCount.replace(
+                          "{count}",
+                          classSessions.toString(),
+                        )}
+                      </p>
+                      <p className="text-sm text-white font-black">
+                        {tAtt.currencyVnd.replace(
+                          "{amount}",
+                          classTotal.toLocaleString(),
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Student card list – no horizontal scroll */}
+                  <div className="divide-y divide-slate-100">
+                    {rows.map((s, i) => (
+                      <div
+                        key={s.id}
+                        className={`px-4 py-3 hover:bg-purple-50/60 transition-colors ${
+                          paymentsMap[s.id] ? "" : ""
+                        }`}
+                      >
+                        {/* Row 1: STT + Tên + Buổi + Học phí */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs text-slate-400 font-bold w-5 shrink-0">
+                            {i + 1}
+                          </span>
+                          <span className="font-black text-slate-800 flex-1 min-w-0 truncate">
+                            {s.name}
+                          </span>
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 font-black text-xs shrink-0">
+                            {s.total_sessions}
+                          </span>
+                          <span className="text-xs text-slate-400 font-medium shrink-0">
+                            buổi
+                          </span>
+                          <span className="font-black text-purple-700 text-sm shrink-0">
+                            {tAtt.currencyVnd.replace(
+                              "{amount}",
+                              s.total_fee.toLocaleString(),
+                            )}
+                          </span>
+                        </div>
+                        {/* Row 2: Đơn giá + Controls */}
+                        <div className="flex items-center gap-2 mt-2 flex-wrap pl-7">
+                          <span className="text-xs text-slate-400 font-medium">
+                            {s.unit_price.toLocaleString()}đ/buổi
+                          </span>
+                          <div className="flex-1" />
+                          {/* Toggle trạng thái HP */}
+                          <button
+                            onClick={() => handleTogglePayment(s.id)}
+                            className={`px-2.5 py-1 text-xs font-black rounded-full border transition-all flex items-center gap-1 print:hidden ${
+                              paymentsMap[s.id]
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                                : "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100"
+                            }`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${paymentsMap[s.id] ? "bg-emerald-500" : "bg-rose-500"}`}
+                            />
+                            {paymentsMap[s.id]
+                              ? tAtt.paid || "Đã nộp"
+                              : tAtt.unpaid || "Chưa nộp"}
+                          </button>
+                          {/* Gửi Zalo */}
+                          <button
+                            onClick={() => setZaloStudent(s)}
+                            className="px-2.5 py-1 text-xs font-black text-[#0068FF] bg-[#0068FF]/10 hover:bg-[#0068FF]/20 rounded-lg transition-all flex items-center gap-1 print:hidden shadow-sm active:scale-95"
+                            title="Gửi thông báo Zalo cho Phụ huynh"
+                          >
+                            <MessageCircle size={12} /> Zalo
+                          </button>
+                          {/* Xem chi tiết */}
+                          <button
+                            onClick={() => {
+                              setSelectedStudent(s);
+                              setPreviewMode(false);
+                            }}
+                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-black text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors print:hidden"
+                          >
+                            <CalendarDays size={12} /> Xem
+                          </button>
+                        </div>
+                        {/* Row 3: Ghi chú */}
+                        <div className="mt-2 pl-7 print:hidden">
+                          <input
+                            type="text"
+                            placeholder="Nhập ghi chú riêng..."
+                            value={studentNotes[s.id] || ""}
+                            onChange={(e) =>
+                              setStudentNotes((prev) => ({
+                                ...prev,
+                                [s.id]: e.target.value,
+                              }))
+                            }
+                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-purple-400 bg-white placeholder:text-slate-300"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Footer tổng lớp */}
+                  <div className="bg-purple-50 border-t-2 border-purple-200 px-4 py-3 flex items-center justify-between">
+                    <span className="font-black text-purple-800 text-sm">
+                      Cộng
                     </span>
-                    <span className="text-xs text-purple-600 font-bold">
-                      buổi
-                    </span>
-                    <span className="font-black text-purple-700 text-base">
-                      {tAtt.currencyVnd.replace(
-                        "{amount}",
-                        classTotal.toLocaleString(),
-                      )}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-200 text-purple-800 font-black text-xs">
+                        {classSessions}
+                      </span>
+                      <span className="text-xs text-purple-600 font-bold">
+                        buổi
+                      </span>
+                      <span className="font-black text-purple-700 text-base">
+                        {tAtt.currencyVnd.replace(
+                          "{amount}",
+                          classTotal.toLocaleString(),
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
 
           {/* ---- Grand total footer ---- */}
           {filterClass === "all" && (

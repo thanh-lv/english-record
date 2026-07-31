@@ -255,7 +255,8 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
       .toUpperCase();
   const checkedCount = checkedIds.size;
   const studentsWithCheckinCount = modalDate
-    ? filteredStudents.filter((s) => getStudentDayRecords(s.id).length > 0).length
+    ? filteredStudents.filter((s) => getStudentDayRecords(s.id).length > 0)
+        .length
     : 0;
 
   // Group students by class for modal display
@@ -489,7 +490,8 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
               <div className="px-5 py-2.5 shrink-0 border-b border-slate-100">
                 <div className="flex justify-between text-xs font-bold text-slate-500 mb-1.5">
                   <span>
-                    {studentsWithCheckinCount} / {filteredStudents.length} học sinh đã có điểm danh ngày này
+                    {studentsWithCheckinCount} / {filteredStudents.length} học
+                    sinh đã có điểm danh ngày này
                   </span>
                   {checkedCount > 0 && (
                     <span className="text-emerald-600 font-black">
@@ -549,7 +551,9 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                                       next.delete(s.id),
                                     );
                                   } else {
-                                    classStudents.forEach((s) => next.add(s.id));
+                                    classStudents.forEach((s) =>
+                                      next.add(s.id),
+                                    );
                                   }
                                   setCheckedIds(next);
                                 }}
@@ -588,7 +592,9 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                         <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
                           {classStudents.map((student) => {
                             const isChecked = checkedIds.has(student.id);
-                            const existingRecs = getStudentDayRecords(student.id);
+                            const existingRecs = getStudentDayRecords(
+                              student.id,
+                            );
                             const existingCount = existingRecs.length;
                             const ini = initials(student.name);
 
@@ -648,7 +654,8 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                                   {/* Badges */}
                                   {existingCount > 0 && !isChecked && (
                                     <span className="text-[10px] font-black text-emerald-700 bg-emerald-200/80 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
-                                      <CheckCircle2 size={10} /> Đã DD ({existingCount} buổi)
+                                      <CheckCircle2 size={10} /> Đã DD (
+                                      {existingCount} buổi)
                                     </span>
                                   )}
                                   {isChecked && (

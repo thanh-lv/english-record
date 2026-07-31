@@ -440,16 +440,16 @@ export function AttendanceAnalytics({
               </p>
             </div>
 
-            {/* Right column: Collection rate ring + Class attendance (2/5) */}
-            <div className="lg:col-span-2 space-y-4">
+            {/* Right column: Collection rate ring (2/5) */}
+            <div className="lg:col-span-2">
               {/* Collection rate donut */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col items-center">
+              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col items-center h-full justify-between">
                 <h4 className="font-black text-slate-800 text-sm mb-3 self-start flex items-center gap-1.5">
                   <Wallet size={14} className="text-emerald-600" />
                   Tỷ lệ thu học phí
                 </h4>
                 {/* SVG donut */}
-                <div className="relative w-28 h-28">
+                <div className="relative w-28 h-28 my-auto">
                   <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
                     {/* Background track */}
                     <circle
@@ -504,52 +504,55 @@ export function AttendanceAnalytics({
                   </span>
                 </div>
               </div>
-
-              {/* Class attendance bars */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                <h4 className="font-black text-slate-800 text-sm mb-3 flex items-center gap-1.5">
-                  <PieChart size={14} className="text-blue-600" />
-                  Chuyên cần theo Lớp (T{month})
-                </h4>
-                {classRates.length === 0 ? (
-                  <p className="text-center text-slate-400 text-xs py-6 font-bold">
-                    Chưa có dữ liệu tháng này
-                  </p>
-                ) : (
-                  <div className="space-y-3">
-                    {classRates.map((c, i) => {
-                      const pct = Math.round(
-                        (c.totalSessions / maxClassSessions) * 100,
-                      );
-                      return (
-                        <div key={i} className="space-y-1">
-                          <div className="flex justify-between text-[11px] font-bold">
-                            <span className="text-slate-700 truncate max-w-[60%]">
-                              {formatClassName(c.cls, tAtt?.unassignedClass)}
-                              <span className="text-slate-400 font-medium ml-1">
-                                ({c.totalStudents} HS)
-                              </span>
-                            </span>
-                            <span className="text-slate-700 shrink-0">
-                              {c.totalSessions} buổi
-                            </span>
-                          </div>
-                          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full bg-gradient-to-r ${classColors[i % classColors.length]} rounded-full transition-all duration-500`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          <p className="text-[10px] text-slate-400 font-medium text-right">
-                            TB {c.avgSessions} buổi/HS
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
             </div>
+          </div>
+
+          {/* ---- New Row: Class attendance in 2 columns ---- */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <h4 className="font-black text-slate-800 text-sm mb-4 flex items-center gap-1.5">
+              <PieChart size={14} className="text-blue-600" />
+              Chuyên cần theo Lớp (T{month})
+            </h4>
+            {classRates.length === 0 ? (
+              <p className="text-center text-slate-400 text-xs py-6 font-bold">
+                Chưa có dữ liệu tháng này
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                {classRates.map((c, i) => {
+                  const pct = Math.round(
+                    (c.totalSessions / maxClassSessions) * 100,
+                  );
+                  return (
+                    <div
+                      key={i}
+                      className="space-y-1 bg-slate-50/50 p-3 rounded-xl border border-slate-100"
+                    >
+                      <div className="flex justify-between text-[11px] font-bold">
+                        <span className="text-slate-700 truncate max-w-[65%]">
+                          {formatClassName(c.cls, tAtt?.unassignedClass)}
+                          <span className="text-slate-400 font-medium ml-1">
+                            ({c.totalStudents} HS)
+                          </span>
+                        </span>
+                        <span className="text-slate-700 shrink-0">
+                          {c.totalSessions} buổi
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-200/70 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full bg-gradient-to-r ${classColors[i % classColors.length]} rounded-full transition-all duration-500`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-medium text-right">
+                        TB {c.avgSessions} buổi/HS
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}
