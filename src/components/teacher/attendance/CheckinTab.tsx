@@ -85,7 +85,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
   const calendarCells: (number | null)[] = [
     ...Array(firstDayOfMonth).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+    ...Array.from({ length: daysInMonth }, (_: any, i: number) => i + 1),
   ];
   while (calendarCells.length % 7 !== 0) calendarCells.push(null);
 
@@ -341,7 +341,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
       <div className="bg-white rounded-lg border border-slate-200 shadow-md overflow-hidden">
         {/* Day-of-week header */}
         <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
-          {DAYS_OF_WEEK.map((d, i) => (
+          {DAYS_OF_WEEK.map((d: string, i: number) => (
             <div
               key={d}
               className={`text-center text-sm font-black py-3 uppercase tracking-wide ${i === 0 ? "text-rose-500" : "text-slate-500"}`}

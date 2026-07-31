@@ -1,489 +1,199 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
 import {
   AlertCircle,
-  CheckCircle,
   Loader2,
   Pencil,
-  Save,
+  Plus,
   Search,
-  Trash2,
   Wand2,
   X,
 } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
-import { S3_BUCKET, s3Client } from "../../lib/s3";
-import { supabase } from "../../lib/supabase";
+import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import { useStories } from "./stories/useStories";
+import { StoryCard } from "./stories/StoryCard";
 
 export function StoriesManager() {
   const { t } = useLanguage();
-  const [stories, setStories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filterText, setFilterText] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "hidden">(
-    "all",
-  );
-  const [showCreate, setShowCreate] = useState(false);
-  const [editingStory, setEditingStory] = useState<any>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editContent, setEditContent] = useState("");
-  const [editEmoji, setEditEmoji] = useState("");
-  const [editError, setEditError] = useState("");
+  const tm = (t as any).teacherModal || {};
+  const tc = (t as any).common || {};
 
-  const [deleteStoryTarget, setDeleteStoryTarget] = useState<any>(null);
-  const [deleteSaving, setDeleteSaving] = useState(false);
-  const [deleteError, setDeleteError] = useState("");
-
-  // Manual write
-  const [showManual, setShowManual] = useState(false);
-  const [manualTitle, setManualTitle] = useState("");
-  const [manualContent, setManualContent] = useState("");
-  const [manualEmoji, setManualEmoji] = useState("📚");
-  const [manualType, setManualType] = useState("Truyện tranh");
-  const [manualYearBorn, setManualYearBorn] = useState("2015");
-  const [manualSaving, setManualSaving] = useState(false);
-  const [manualError, setManualError] = useState("");
-
-  const [title, setTitle] = useState("");
-  const [yearBorn, setYearBorn] = useState("2015");
-  const [type, setType] = useState("Truyện tranh");
-  const [emoji, setEmoji] = useState("📚");
-  const [prompt, setPrompt] = useState("");
-
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedStory, setGeneratedStory] = useState("");
-  const [generatedImageBlob, setGeneratedImageBlob] = useState<Blob | null>(
-    null,
-  );
-  const [generatedImageUrl, setGeneratedImageUrl] = useState("");
-
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
+  const {
+    loading,
+    filterText,
+    setFilterText,
+    filterStatus,
+    setFilterStatus,
+    filteredStories,
+    showCreate,
+    setShowCreate,
+    showManual,
+    setShowManual,
+    editingStory,
+    setEditingStory,
+    deleteStoryTarget,
+    setDeleteStoryTarget,
+    deleteError,
+    editTitle,
+    setEditTitle,
+    editContent,
+    setEditContent,
+    editEmoji,
+    setEditEmoji,
+    editError,
+    editSaving,
+    manualTitle,
+    setManualTitle,
+    manualContent,
+    setManualContent,
+    manualEmoji,
+    setManualEmoji,
+    manualType,
+    setManualType,
+    manualYearBorn,
+    setManualYearBorn,
+    manualSaving,
+    manualError,
+    title,
+    setTitle,
+    yearBorn,
+    setYearBorn,
+    type,
+    setType,
+    emoji,
+    setEmoji,
+    prompt,
+    setPrompt,
+    isGenerating,
+    generatedStory,
+    generatedImageUrl,
+    isSaving,
+    aiError,
+    toggleStoryActive,
+    openEditStory,
+    saveEditStory,
+    confirmDeleteStory,
+    handleManualSave,
+    handleGenerateAiStory,
+    handleSaveAiStory,
+  } = useStories(t);
 
   useEscapeToClose(() => setEditingStory(null), !!editingStory);
   useEscapeToClose(() => setDeleteStoryTarget(null), !!deleteStoryTarget);
   useEscapeToClose(() => setShowManual(false), showManual);
   useEscapeToClose(() => setShowCreate(false), showCreate);
 
-  useEffect(() => {
-    fetchStories();
-  }, []);
-
-  const fetchStories = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("stories")
-        .select(
-          "id, title, type, emoji, image_url, content, age_group, created_at, is_active",
-        )
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      setStories(data || []);
-    } catch (err: any) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGenerate = async () => {
-    if (!prompt) return setError(t.common.promptRequired);
-    const aiApiKey = import.meta.env.VITE_AI_API_KEY;
-    if (!aiApiKey) return setError(t.common.missingAiApiKey);
-
-    setIsGenerating(true);
-    setError("");
-    setGeneratedStory("");
-    setGeneratedImageBlob(null);
-    setGeneratedImageUrl("");
-
-    try {
-      // 1. Generate text
-      const age = parseInt(yearBorn)
-        ? new Date().getFullYear() - parseInt(yearBorn)
-        : 5;
-      const textPrompt = `You are a friendly storyteller for children. Write a short, simple, and engaging English story based on the prompt: ${prompt}. Keep it under 150 words. The story is for a ${age}-year-old child, so use appropriate simple vocabulary and short sentences. Return only the story text.`;
-
-      const textRes = await fetch(
-        "https://free-image-generation-api.levanthanh29111999.workers.dev/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${aiApiKey}`,
-          },
-          body: JSON.stringify({ prompt: textPrompt, type: "text" }),
-        },
-      );
-      if (!textRes.ok) throw new Error(t.common.aiTextError);
-      const textData = await textRes.json();
-      setGeneratedStory(textData.story);
-
-      // 2. Generate image
-      const imgRes = await fetch(
-        "https://free-image-generation-api.levanthanh29111999.workers.dev/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${aiApiKey}`,
-          },
-          body: JSON.stringify({ prompt, type: "image" }),
-        },
-      );
-      if (!imgRes.ok) throw new Error(t.common.aiImageError);
-      const imgBlob = await imgRes.blob();
-      setGeneratedImageBlob(imgBlob);
-      setGeneratedImageUrl(URL.createObjectURL(imgBlob));
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleSave = async () => {
-    if (!title || !generatedStory || !generatedImageBlob)
-      return setError(t.common.storyRequired);
-    setIsSaving(true);
-    setError("");
-    try {
-      const ext = generatedImageBlob.type.split("/")[1] || "jpg";
-      const fileName = `${yearBorn}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: S3_BUCKET,
-          Key: fileName,
-          Body: new Uint8Array(await generatedImageBlob.arrayBuffer()),
-          ContentType: generatedImageBlob.type,
-        }),
-      );
-
-      const publicBaseUrl = import.meta.env.VITE_R2_PUBLIC_URL;
-      let imageUrl = "";
-      if (publicBaseUrl) {
-        imageUrl = `${publicBaseUrl.replace(/\/$/, "")}/${fileName}`;
-      } else {
-        const endpoint = import.meta.env.VITE_S3_ENDPOINT || "";
-        imageUrl = endpoint.includes(S3_BUCKET)
-          ? `${endpoint}/${fileName}`
-          : `${endpoint}/${S3_BUCKET}/${fileName}`;
-      }
-
-      const ageGroup =
-        parseInt(yearBorn) >= new Date().getFullYear() - 5
-          ? "kindergarten"
-          : "primary";
-
-      const { data, error } = await supabase
-        .from("stories")
-        .insert({
-          title,
-          age_group: ageGroup,
-          type,
-          emoji,
-          content: generatedStory,
-          image_url: imageUrl,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      setStories([data, ...stories]);
-      setShowCreate(false);
-      setTitle("");
-      setPrompt("");
-      setGeneratedStory("");
-      setGeneratedImageUrl("");
-      setGeneratedImageBlob(null);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleManualSave = async () => {
-    const trimTitle = manualTitle.trim();
-    const trimContent = manualContent.trim();
-    if (trimTitle.length < 2 || trimContent.length < 10) {
-      setManualError(t.common.storyRequired);
-      return;
-    }
-    setManualSaving(true);
-    setManualError("");
-    try {
-      const ageGroup =
-        parseInt(manualYearBorn) >= new Date().getFullYear() - 5
-          ? "kindergarten"
-          : "primary";
-      const { data, error } = await supabase
-        .from("stories")
-        .insert({
-          title: trimTitle,
-          age_group: ageGroup,
-          type: manualType,
-          emoji: manualEmoji.trim() || "📚",
-          content: trimContent,
-          image_url: null,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      setStories([data, ...stories]);
-      setShowManual(false);
-      setManualTitle("");
-      setManualContent("");
-      setManualEmoji("📚");
-      setManualType("Truyện tranh");
-    } catch (err: any) {
-      setManualError(err.message);
-    } finally {
-      setManualSaving(false);
-    }
-  };
-
-  const toggleStoryActive = async (storyId: string, currentValue: boolean) => {
-    await supabase
-      .from("stories")
-      .update({ is_active: !currentValue })
-      .eq("id", storyId);
-    setStories((prev) =>
-      prev.map((s) =>
-        s.id === storyId ? { ...s, is_active: !currentValue } : s,
-      ),
-    );
-  };
-
-  const openEditStory = (story: any) => {
-    setEditingStory(story);
-    setEditTitle(story.title);
-    setEditContent(story.content);
-    setEditEmoji(story.emoji);
-    setEditError("");
-  };
-
-  const handleUpdateStory = async () => {
-    const trimTitle = editTitle.trim();
-    const trimContent = editContent.trim();
-    if (trimTitle.length < 2 || trimContent.length < 10) {
-      setEditError(t.common.storyRequired);
-      return;
-    }
-    setEditError("");
-    try {
-      const { data, error } = await supabase
-        .from("stories")
-        .update({
-          title: trimTitle,
-          content: trimContent,
-          emoji: editEmoji.trim() || "📚",
-        })
-        .eq("id", editingStory.id)
-        .select()
-        .single();
-      if (error) throw error;
-      setStories(stories.map((s) => (s.id === data.id ? data : s)));
-      setEditingStory(null);
-    } catch (err: any) {
-      setEditError(err.message);
-    }
-  };
-
-  const handleDeleteStory = (story: any, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setDeleteStoryTarget(story);
-    setDeleteError("");
-  };
-
-  const confirmDeleteStory = async () => {
-    if (!deleteStoryTarget) return;
-    setDeleteSaving(true);
-    setDeleteError("");
-    try {
-      const { error } = await supabase
-        .from("stories")
-        .delete()
-        .eq("id", deleteStoryTarget.id);
-      if (error) throw error;
-      setStories(stories.filter((s) => s.id !== deleteStoryTarget.id));
-      setDeleteStoryTarget(null);
-    } catch (err: any) {
-      setDeleteError(err.message);
-    } finally {
-      setDeleteSaving(false);
-    }
-  };
-
-  const filteredStories = useMemo(() => {
-    return stories.filter((story) => {
-      if (
-        filterText &&
-        !story.title.toLowerCase().includes(filterText.toLowerCase())
-      ) {
-        return false;
-      }
-      const isActive = story.is_active ?? true;
-      if (filterStatus === "active" && !isActive) return false;
-      if (filterStatus === "hidden" && isActive) return false;
-      return true;
-    });
-  }, [stories, filterText, filterStatus]);
-
-  if (loading)
-    return (
-      <div className="p-8 text-center">
-        <Loader2 className="animate-spin mx-auto text-slate-400" />
-      </div>
-    );
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-xl font-black text-slate-800">
-          {t.common.manageStories}
+    <div className="space-y-4">
+      {/* Top action buttons */}
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
+          📚 {tc.storyManagerTitle || "Quản Lý Truyện Tiếng Anh"}
         </h3>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => {
-              setShowManual(true);
-              setManualError("");
-            }}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md text-sm"
+            type="button"
+            onClick={() => setShowManual(true)}
+            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-lg transition-all flex items-center gap-1.5 border border-slate-200"
           >
-            <Pencil size={16} /> Write
+            <Plus size={15} /> {tc.createManualStory || "Viết truyện tay"}
           </button>
           <button
+            type="button"
             onClick={() => setShowCreate(true)}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md text-sm"
+            className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs rounded-lg shadow-sm transition-all flex items-center gap-1.5"
           >
-            <Wand2 size={16} /> AI
+            <Wand2 size={15} /> {tc.createAiStory || "Tạo bằng AI"}
           </button>
         </div>
       </div>
 
-      {/* Filter bar */}
-      <div className="flex gap-2 flex-wrap">
-        <div className="relative flex-1 min-w-[160px]">
+      {/* Filter and Search Bar */}
+      <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
+        <div className="relative flex-1 min-w-[200px]">
           <Search
-            size={14}
+            size={16}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
           />
           <input
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
-            placeholder={t.teacherModal.filterStoryPlaceholder}
-            className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-purple-400"
+            placeholder={tm.searchStories || "Tìm truyện theo tiêu đề..."}
+            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:border-purple-400"
           />
+          {filterText && (
+            <button
+              type="button"
+              onClick={() => setFilterText("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <X size={13} />
+            </button>
+          )}
         </div>
+
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value as any)}
-          className="px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-purple-400"
+          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 focus:outline-none"
         >
-          <option value="all">{t.teacherModal.filterStoryStatusAll}</option>
+          <option value="all">
+            {tm.filterStoryStatusAll || "Tất cả trạng thái"}
+          </option>
           <option value="active">
-            {t.teacherModal.filterStoryStatusActive}
+            {tm.filterStoryStatusActive || "Đang hiện"}
           </option>
           <option value="hidden">
-            {t.teacherModal.filterStoryStatusHidden}
+            {tm.filterStoryStatusHidden || "Đã ẩn"}
           </option>
         </select>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-5">
-        {filteredStories.map((story) => (
-          <div
-            key={story.id}
-            className="bg-white rounded-lg border-2 border-slate-100 overflow-hidden shadow-md flex flex-col"
-          >
-            <div className="aspect-square sm:aspect-video bg-slate-100 relative">
-              {story.image_url ? (
-                <img
-                  src={story.image_url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-4xl">
-                  {story.emoji}
-                </div>
-              )}
-              {!(story.is_active ?? true) && (
-                <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center rounded-lg">
-                  <span className="text-white text-xs font-black bg-slate-800/70 px-2 py-1 rounded-lg">
-                    {t.teacherModal.filterStoryStatusHidden}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="p-3 flex flex-col flex-1">
-              <h4 className="font-extrabold text-slate-800 text-sm line-clamp-1 mb-0.5">
-                {story.title}
-              </h4>
-              <p className="text-xs font-bold text-purple-600 mb-2 line-clamp-1">
-                {story.type}
-              </p>
-              <div className="mt-auto flex gap-1.5 pt-2 border-t border-slate-100">
-                <button
-                  onClick={() => openEditStory(story)}
-                  className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
-                >
-                  <Pencil size={12} /> {t.common.edit}
-                </button>
-                <button
-                  onClick={(e) => handleDeleteStory(story, e)}
-                  className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
-                >
-                  <Trash2 size={12} /> {t.common.delete}
-                </button>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleStoryActive(story.id, story.is_active ?? true);
-                }}
-                className={`w-full mt-1 py-1 rounded-lg text-[10px] font-black transition-colors ${
-                  (story.is_active ?? true)
-                    ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                    : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                }`}
-              >
-                {(story.is_active ?? true)
-                  ? t.teacherModal.filterStoryStatusActive
-                  : t.teacherModal.filterStoryStatusHidden}
-              </button>
-            </div>
-          </div>
-        ))}
-        {filteredStories.length === 0 && (
-          <div className="col-span-full py-10 text-center text-slate-400 font-bold bg-white rounded-lg border-2 border-dashed border-slate-200">
-            {stories.length === 0
-              ? t.common.storyEmpty
-              : t.teacherModal.noStoriesFound}
-          </div>
-        )}
-      </div>
+      {/* Stories Grid */}
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <Loader2 size={32} className="animate-spin text-purple-600" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-5">
+          {filteredStories.map((story) => (
+            <StoryCard
+              key={story.id}
+              t={t}
+              story={story}
+              onEdit={openEditStory}
+              onDelete={(s, e) => {
+                e.stopPropagation();
+                setDeleteStoryTarget(s);
+              }}
+              onToggleActive={toggleStoryActive}
+            />
+          ))}
 
+          {filteredStories.length === 0 && (
+            <div className="col-span-full py-12 text-center text-slate-400 font-bold bg-white rounded-lg border-2 border-dashed border-slate-200">
+              {tm.noStoriesFound || "Không tìm thấy truyện nào"}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Edit Story Modal */}
       {editingStory && (
         <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="edit-story-title"
         >
           <div className="bg-white rounded-lg w-full max-w-2xl shadow-md border-4 border-amber-100 p-6 space-y-5 my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
-              <h4
-                id="edit-story-title"
-                className="font-black text-xl text-slate-800 flex items-center gap-2"
-              >
-                <Pencil className="text-amber-500" /> {t.common.editStoryInfo}
+              <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
+                <Pencil className="text-amber-500" />{" "}
+                {tc.editStoryInfo || "Chỉnh sửa câu chuyện"}
               </h4>
               <button
+                type="button"
                 onClick={() => setEditingStory(null)}
-                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={20} />
@@ -494,7 +204,7 @@ export function StoriesManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    {t.common.storyTitle}
+                    {tc.storyTitle || "Tiêu đề"}
                   </label>
                   <input
                     value={editTitle}
@@ -504,7 +214,7 @@ export function StoriesManager() {
                 </div>
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    {t.common.storyEmoji}
+                    {tc.storyEmoji || "Biểu tượng"}
                   </label>
                   <input
                     value={editEmoji}
@@ -513,366 +223,290 @@ export function StoriesManager() {
                   />
                 </div>
               </div>
+
               <div>
                 <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  {t.common.storyContent}
+                  {tc.storyContent || "Nội dung tiếng Anh"}
                 </label>
                 <textarea
-                  rows={10}
+                  rows={6}
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-medium text-slate-700 focus:border-amber-400 focus:outline-none"
+                  className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-medium focus:border-amber-400 focus:outline-none leading-relaxed"
                 />
               </div>
+
               {editError && (
-                <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
-                  <AlertCircle size={14} className="shrink-0" /> {editError}
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs font-bold text-rose-600 flex items-center gap-2">
+                  <AlertCircle size={15} /> {editError}
                 </div>
               )}
             </div>
 
-            <div className="pt-4 border-t-2 border-slate-100 flex justify-end gap-3">
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
               <button
+                type="button"
                 onClick={() => setEditingStory(null)}
-                className="px-5 py-2.5 rounded-lg font-bold text-slate-500 hover:bg-slate-100"
+                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors"
               >
-                {t.common.cancel}
+                {tc.cancel || "Hủy"}
               </button>
               <button
-                onClick={handleUpdateStory}
-                disabled={
-                  editTitle.trim().length < 2 || editContent.trim().length < 10
-                }
-                className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-black disabled:opacity-50 flex items-center gap-2"
+                type="button"
+                onClick={saveEditStory}
+                disabled={editSaving}
+                className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-extrabold rounded-lg text-sm shadow-md transition-colors flex items-center gap-1.5"
               >
-                <CheckCircle size={18} /> {t.common.saveChanges}
+                {editSaving && <Loader2 size={16} className="animate-spin" />}
+                {tc.save || "Lưu thay đổi"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {deleteStoryTarget && (
-        <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overscroll-contain"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-story-title"
-        >
-          <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-rose-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-rose-50 border-2 border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
-                <AlertCircle size={20} />
-              </div>
-              <div>
-                <h4
-                  id="delete-story-title"
-                  className="font-extrabold text-slate-800 text-lg leading-tight"
-                >
-                  {t.common.deleteStoryConfirm}
-                </h4>
-                <p className="text-sm text-slate-600 font-bold mt-0.5 line-clamp-1">
-                  {deleteStoryTarget.title}
-                </p>
-              </div>
-            </div>
-
-            <p className="text-sm text-slate-500 font-medium">
-              {t.teacherModal.deleteStoryWarning}
-            </p>
-
-            {deleteError && (
-              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
-                <AlertCircle size={14} className="shrink-0" />
-                {deleteError}
-              </div>
-            )}
-
-            <div className="flex gap-3 pt-1">
-              <button
-                type="button"
-                onClick={() => setDeleteStoryTarget(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors border border-slate-200"
-              >
-                {t.common.cancel}
-              </button>
-              <button
-                type="button"
-                onClick={confirmDeleteStory}
-                disabled={deleteSaving}
-                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center justify-center gap-2"
-              >
-                {deleteSaving ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  <Trash2 size={15} />
-                )}
-                {t.common.storyConfirmDelete}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Manual Write Modal */}
+      {/* Manual Create Modal */}
       {showManual && (
         <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="manual-story-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-2xl shadow-md border-4 border-emerald-100 p-5 space-y-4 my-4">
-            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
-              <h4
-                id="manual-story-title"
-                className="font-black text-lg text-slate-800 flex items-center gap-2"
-              >
-                <Pencil className="text-emerald-500" size={20} /> Write a Story
+          <div className="bg-white rounded-lg w-full max-w-xl shadow-md border-4 border-blue-100 p-6 space-y-4 my-8">
+            <div className="flex justify-between items-center border-b-2 border-slate-100 pb-3">
+              <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
+                ✍️ {tc.createManualStory || "Viết truyện mới"}
               </h4>
               <button
+                type="button"
                 onClick={() => setShowManual(false)}
-                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2">
+                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
+                    {tc.storyTitle || "Tiêu đề"}
+                  </label>
+                  <input
+                    value={manualTitle}
+                    onChange={(e) => setManualTitle(e.target.value)}
+                    placeholder="VD: The Little Cat"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:border-blue-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
+                    Emoji
+                  </label>
+                  <input
+                    value={manualEmoji}
+                    onChange={(e) => setManualEmoji(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-center focus:border-blue-400 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
+                    Thể loại
+                  </label>
+                  <input
+                    value={manualType}
+                    onChange={(e) => setManualType(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-blue-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
+                    Độ tuổi (Năm sinh)
+                  </label>
+                  <select
+                    value={manualYearBorn}
+                    onChange={(e) => setManualYearBorn(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-blue-400 focus:outline-none"
+                  >
+                    <option value="2018">Mầm non (dưới 6 tuổi)</option>
+                    <option value="2015">Tiểu học (trên 6 tuổi)</option>
+                  </select>
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  {t.common.storyTitle}
+                <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
+                  Nội dung bài đọc (Tiếng Anh)
                 </label>
-                <input
-                  value={manualTitle}
-                  onChange={(e) => setManualTitle(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-emerald-400 focus:outline-none"
+                <textarea
+                  rows={5}
+                  value={manualContent}
+                  onChange={(e) => setManualContent(e.target.value)}
+                  placeholder="Nhập nội dung truyện bằng tiếng Anh..."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:border-blue-400 focus:outline-none leading-relaxed"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  {t.common.storyYearBorn}
-                </label>
-                <input
-                  type="number"
-                  value={manualYearBorn}
-                  onChange={(e) => setManualYearBorn(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  {t.common.storyGenre}
-                </label>
-                <input
-                  value={manualType}
-                  onChange={(e) => setManualType(e.target.value)}
-                  placeholder={t.common.storyGenrePlaceholder}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  {t.common.storyEmoji}
-                </label>
-                <input
-                  value={manualEmoji}
-                  onChange={(e) => setManualEmoji(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
+
+              {manualError && (
+                <p className="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 p-2 rounded-lg">
+                  {manualError}
+                </p>
+              )}
             </div>
 
-            <div>
-              <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                {t.common.storyContent}
-              </label>
-              <textarea
-                rows={8}
-                value={manualContent}
-                onChange={(e) => setManualContent(e.target.value)}
-                placeholder="Write the story content in English..."
-                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-medium focus:border-emerald-400 focus:outline-none resize-none leading-relaxed"
-              />
-            </div>
-
-            {manualError && (
-              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
-                <AlertCircle size={14} /> {manualError}
-              </div>
-            )}
-
-            <div className="flex gap-3 pt-1">
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
               <button
+                type="button"
                 onClick={() => setShowManual(false)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs"
               >
-                {t.common.cancel}
+                {tc.cancel || "Hủy"}
               </button>
               <button
+                type="button"
                 onClick={handleManualSave}
                 disabled={manualSaving}
-                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1"
               >
-                {manualSaving ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  <Save size={15} />
-                )}
-                {t.common.save}
+                {manualSaving && <Loader2 size={14} className="animate-spin" />}
+                {tc.save || "Lưu truyện"}
               </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* AI Generate Story Modal */}
       {showCreate && (
         <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="ai-story-title"
         >
-          <div className="bg-white rounded-lg w-full max-w-2xl shadow-md border-4 border-purple-100 p-4 sm:p-6 space-y-4 my-4 sm:my-8">
-            <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
-              <h4
-                id="ai-story-title"
-                className="font-black text-xl text-slate-800 flex items-center gap-2"
-              >
-                <Wand2 className="text-purple-500" /> {t.common.aiStoryCreate}
+          <div className="bg-white rounded-lg w-full max-w-xl shadow-md border-4 border-purple-100 p-6 space-y-4 my-8">
+            <div className="flex justify-between items-center border-b-2 border-slate-100 pb-3">
+              <h4 className="font-black text-lg text-purple-800 flex items-center gap-2">
+                ✨ {tc.createAiStory || "Tạo truyện bằng AI"}
               </h4>
               <button
+                type="button"
                 onClick={() => setShowCreate(false)}
-                aria-label={t.common.close}
                 className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto overscroll-contain pr-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    {t.common.storyTitle}
+                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
+                    Tiêu đề
                   </label>
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none"
+                    placeholder="VD: The Magic Dragon"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-purple-400 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    {t.common.storyYearBorn}
+                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
+                    Năm sinh học sinh
                   </label>
                   <input
-                    type="number"
                     value={yearBorn}
                     onChange={(e) => setYearBorn(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    {t.common.storyGenre}
-                  </label>
-                  <input
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    placeholder={t.common.storyGenrePlaceholder}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    {t.common.storyEmoji}
-                  </label>
-                  <input
-                    value={emoji}
-                    onChange={(e) => setEmoji(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-purple-400 focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="bg-purple-50 p-4 rounded-lg border border-purple-100 space-y-3">
-                <div>
-                  <label className="block text-xs font-black text-purple-800 mb-1.5 uppercase">
-                    {t.common.storyPromptLabel}
-                  </label>
-                  <textarea
-                    rows={2}
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
+                  Ý tưởng / Gợi ý cho AI (Prompt)
+                </label>
+                <div className="flex gap-2">
+                  <input
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="VD: A cute robot cooking breakfast..."
-                    className="w-full px-4 py-2 bg-white border-2 border-purple-200 rounded-lg text-sm font-bold focus:border-purple-400 focus:outline-none resize-none"
+                    placeholder="VD: A friendly dragon who loves eating apples..."
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:border-purple-400 focus:outline-none"
                   />
+                  <button
+                    type="button"
+                    onClick={handleGenerateAiStory}
+                    disabled={isGenerating || !prompt.trim()}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-lg shadow-sm flex items-center gap-1.5 shrink-0"
+                  >
+                    {isGenerating ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Wand2 size={14} />
+                    )}
+                    Tạo thử
+                  </button>
                 </div>
-                <button
-                  onClick={handleGenerate}
-                  disabled={isGenerating}
-                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-black disabled:opacity-50 flex justify-center items-center gap-2"
-                >
-                  {isGenerating ? (
-                    <Loader2 className="animate-spin" size={18} />
-                  ) : (
-                    <Wand2 size={18} />
-                  )}
-                  {isGenerating ? t.common.aiGenerating : t.common.aiGenerate}
-                </button>
               </div>
 
-              {error && (
-                <div className="text-rose-600 text-sm font-bold bg-rose-50 p-3 rounded-lg flex items-center gap-2">
-                  <AlertCircle size={16} /> {error}
+              {/* Generated preview */}
+              {generatedStory && (
+                <div className="space-y-3 p-3 bg-purple-50 rounded-lg border border-purple-200 animate-in fade-in duration-200">
+                  <div className="flex gap-3 items-start">
+                    {generatedImageUrl && (
+                      <img
+                        src={generatedImageUrl}
+                        alt="AI Generated"
+                        className="w-20 h-20 object-cover rounded-lg border border-purple-200 shrink-0"
+                      />
+                    )}
+                    <p className="text-xs text-slate-700 font-medium leading-relaxed max-h-32 overflow-y-auto">
+                      {generatedStory}
+                    </p>
+                  </div>
                 </div>
               )}
 
-              {(generatedStory || generatedImageUrl) && (
-                <div className="space-y-4 bg-slate-50 p-4 rounded-lg border-2 border-slate-100">
-                  <h5 className="font-black text-slate-800">
-                    {t.common.storyPreview}
-                  </h5>
-                  {generatedImageUrl && (
-                    <img
-                      src={generatedImageUrl}
-                      alt="Preview"
-                      className="w-full h-48 object-cover rounded-lg border border-slate-200"
-                    />
-                  )}
-                  {generatedStory && (
-                    <div className="bg-white p-3 rounded-lg border border-slate-200 text-sm whitespace-pre-wrap font-medium text-slate-700">
-                      {generatedStory}
-                    </div>
-                  )}
-                </div>
+              {aiError && (
+                <p className="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 p-2 rounded-lg">
+                  {aiError}
+                </p>
               )}
             </div>
 
-            <div className="pt-4 border-t-2 border-slate-100 flex justify-end gap-3">
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
               <button
+                type="button"
                 onClick={() => setShowCreate(false)}
-                className="px-5 py-2.5 rounded-lg font-bold text-slate-500 hover:bg-slate-100"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs"
               >
-                {t.common.cancel}
+                {tc.cancel || "Hủy"}
               </button>
               <button
-                onClick={handleSave}
-                disabled={isSaving || !generatedStory || !generatedImageBlob}
-                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-black disabled:opacity-50 flex items-center gap-2"
+                type="button"
+                onClick={handleSaveAiStory}
+                disabled={isSaving || !generatedStory}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1"
               >
-                {isSaving ? (
-                  <Loader2 className="animate-spin" size={18} />
-                ) : (
-                  <Save size={18} />
-                )}{" "}
-                {t.teacherModal.saveStory}
+                {isSaving && <Loader2 size={14} className="animate-spin" />}
+                {tc.save || "Lưu câu chuyện"}
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteStoryTarget && (
+        <DeleteConfirmModal
+          title={tc.deleteStoryConfirm || "Xác nhận xóa câu chuyện"}
+          description={deleteStoryTarget.title}
+          onConfirm={confirmDeleteStory}
+          onCancel={() => setDeleteStoryTarget(null)}
+        />
       )}
     </div>
   );
