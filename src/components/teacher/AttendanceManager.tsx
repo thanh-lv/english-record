@@ -17,15 +17,15 @@ export function AttendanceManager() {
     <div className="space-y-4">
       <div className="flex flex-wrap bg-white rounded-lg p-1.5 border border-slate-100 shadow-md gap-1.5 w-full">
         <button
-          onClick={() => setActiveTab("students")}
+          onClick={() => setActiveTab("summary")}
           className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 min-w-[120px] ${
-            activeTab === "students"
-              ? "bg-blue-50 text-blue-600 shadow-md"
+            activeTab === "summary"
+              ? "bg-purple-50 text-purple-600 shadow-md"
               : "text-slate-500 hover:bg-slate-50"
           }`}
         >
-          <Users size={16} />
-          <span>{tAtt.studentsTab}</span>
+          <FileText size={16} />
+          <span>{tAtt.summaryTab}</span>
         </button>
         <button
           onClick={() => setActiveTab("checkin")}
@@ -39,17 +39,6 @@ export function AttendanceManager() {
           <span>{tAtt.checkinTab}</span>
         </button>
         <button
-          onClick={() => setActiveTab("summary")}
-          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 min-w-[120px] ${
-            activeTab === "summary"
-              ? "bg-purple-50 text-purple-600 shadow-md"
-              : "text-slate-500 hover:bg-slate-50"
-          }`}
-        >
-          <FileText size={16} />
-          <span>{tAtt.summaryTab}</span>
-        </button>
-        <button
           onClick={() => setActiveTab("leaderboard")}
           className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 min-w-[120px] ${
             activeTab === "leaderboard"
@@ -59,6 +48,17 @@ export function AttendanceManager() {
         >
           <Trophy size={16} />
           <span>{tAtt.leaderboardTab || "Bảng Xếp Hạng"}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab("students")}
+          className={`flex-1 sm:flex-none px-3 py-2 sm:px-4 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 min-w-[120px] ${
+            activeTab === "students"
+              ? "bg-blue-50 text-blue-600 shadow-md"
+              : "text-slate-500 hover:bg-slate-50"
+          }`}
+        >
+          <Users size={16} />
+          <span>{tAtt.studentsTab}</span>
         </button>
       </div>
 
