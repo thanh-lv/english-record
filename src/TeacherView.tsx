@@ -211,7 +211,18 @@ export default function TeacherView({
                 }
               />
               <Route path="topics" element={<TopicsManager />} />
-              <Route path="students" element={<StudentsManager />} />
+              <Route
+                path="students"
+                element={
+                  <StudentsManager
+                    onSelectStudent={(name, avatar) =>
+                      navigate(
+                        `/teacher/submissions/${encodeURIComponent(name)}${avatar ? `?avatar=${encodeURIComponent(avatar)}` : ""}`,
+                      )
+                    }
+                  />
+                }
+              />
               <Route path="attendance" element={<AttendanceManager />} />
               <Route path="stories" element={<StoriesManager />} />
               <Route path="vocabulary" element={<VocabularyManager />} />
