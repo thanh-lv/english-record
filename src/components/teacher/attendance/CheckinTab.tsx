@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "../../../lib/supabase";
 import {
   AlertTriangle,
@@ -106,11 +106,25 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
     } else setCalMonth((m) => m + 1);
   };
 
-  // Records count per day number
+  const studentMap = useMemo(() => {
+    const map: Record<string, any> = {};
+    students.forEach((s) => {
+      map[s.id] = s;
+    });
+    return map;
+  }, [students]);
+
+  // Records count and revenue per day number
   const recordsCountByDay: Record<number, number> = {};
+  const revenueByDay: Record<number, number> = {};
+  let totalMonthRevenue = 0;
+
   monthRecords.forEach((r) => {
     const d = new Date(r.checkin_time).getDate();
     recordsCountByDay[d] = (recordsCountByDay[d] || 0) + 1;
+    const price = Number(studentMap[r.student_id]?.unit_price || 0);
+    revenueByDay[d] = (revenueByDay[d] || 0) + price;
+    totalMonthRevenue += price;
   });
 
   const isToday = (day: number) =>
@@ -293,9 +307,16 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
           >
             <ChevronLeft size={20} />
           </button>
-          <h2 className="text-xl font-black text-slate-800 min-w-[160px] text-center">
-            {MONTH_NAMES[calMonth]} {calYear}
-          </h2>
+          <div className="text-center">
+            <h2 className="text-xl font-black text-slate-800 min-w-[160px]">
+              {MONTH_NAMES[calMonth]} {calYear}
+            </h2>
+            {totalMonthRevenue > 0 && (
+              <p className="text-xs font-black text-emerald-600 mt-0.5">
+                Tổng ngày: {monthRecords.length} buổi · Dự kiến: {totalMonthRevenue.toLocaleString()}đ
+              </p>
+            )}
+          </div>
           <button
             onClick={nextMonth}
             className="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
@@ -337,11 +358,12 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
               return (
                 <div
                   key={`blank-${idx}`}
-                  className="min-h-[72px] sm:min-h-[90px] bg-slate-50/60"
+                  className="min-h-[80px] sm:min-h-[100px] bg-slate-50/60"
                 />
               );
             const tod = isToday(day);
             const count = recordsCountByDay[day] || 0;
+            const revenue = revenueByDay[day] || 0;
             const isSunday = idx % 7 === 0;
             const isFuture = new Date(calYear, calMonth, day) > today;
             return (
@@ -349,30 +371,45 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                 key={day}
                 onClick={() => !isFuture && openModal(day)}
                 disabled={isFuture}
-                className={`min-h-[72px] sm:min-h-[90px] p-1.5 sm:p-2 flex flex-col items-start gap-1 text-left transition-all
-                  ${isFuture ? "opacity-30 cursor-not-allowed bg-white" : tod ? "bg-emerald-50 hover:bg-emerald-100 cursor-pointer" : "hover:bg-slate-50 cursor-pointer"}
+                className={`min-h-[80px] sm:min-h-[100px] p-1.5 sm:p-2 flex flex-col justify-between items-start text-left transition-all
+                  ${isFuture ? "opacity-30 cursor-not-allowed bg-white" : tod ? "bg-emerald-50/80 hover:bg-emerald-100/80 cursor-pointer" : "hover:bg-slate-50 cursor-pointer"}
                 `}
               >
                 {/* Day number */}
                 <span
                   className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg text-xs sm:text-sm font-black flex-shrink-0
-                  ${tod ? "bg-emerald-500 text-white" : isSunday ? "text-rose-500" : "text-slate-700"}
+                  ${tod ? "bg-emerald-500 text-white shadow-sm" : isSunday ? "text-rose-500" : "text-slate-700"}
                 `}
                 >
                   {day}
                 </span>
 
-                {/* Attendance badge */}
+                {/* Attendance & Revenue Badges */}
                 {count > 0 && (
-                  <span
-                    className={`text-xs font-black px-1.5 py-0.5 rounded-lg flex items-center gap-0.5 leading-tight
-                    ${tod ? "bg-emerald-200 text-emerald-800" : "bg-emerald-100 text-emerald-700"}
-                  `}
-                  >
-                    <CheckCircle2 size={9} />
-                    <span className="hidden sm:inline">{count} buổi</span>
-                    <span className="sm:hidden">{count}</span>
-                  </span>
+                  <div className="flex flex-col gap-1 w-full mt-1">
+                    {/* Số buổi */}
+                    <span
+                      className={`text-[10px] sm:text-xs font-black px-1.5 py-0.5 rounded-md flex items-center gap-0.5 leading-tight w-fit
+                      ${tod ? "bg-emerald-200 text-emerald-900" : "bg-emerald-100 text-emerald-800"}
+                    `}
+                    >
+                      <CheckCircle2 size={9} />
+                      <span className="hidden sm:inline">{count} buổi</span>
+                      <span className="sm:hidden">{count}b</span>
+                    </span>
+
+                    {/* Doanh thu ngày */}
+                    {revenue > 0 && (
+                      <span className="text-[9px] sm:text-[11px] font-black px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200/80 leading-tight w-fit flex items-center gap-0.5">
+                        <span className="hidden sm:inline">+{revenue.toLocaleString()}đ</span>
+                        <span className="sm:hidden">
+                          +{revenue >= 1000000
+                            ? `${(revenue / 1000000).toFixed(1)}tr`
+                            : `${Math.round(revenue / 1000)}k`}
+                        </span>
+                      </span>
+                    )}
+                  </div>
                 )}
               </button>
             );
