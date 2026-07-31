@@ -9,13 +9,13 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { supabase } from "../../lib/supabase";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { supabase } from "../../../lib/supabase";
 import { AIQuestionParserModal } from "./AIQuestionParserModal";
-import { DeleteConfirmModal } from "./DeleteConfirmModal";
-import { useTopics } from "./topics/useTopics";
-import { TopicItem } from "./topics/TopicItem";
-import { QuestionModal } from "./topics/QuestionModal";
+import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
+import { useTopics } from "./useTopics";
+import { TopicItem } from "./TopicItem";
+import { QuestionModal } from "./QuestionModal";
 
 export function TopicsManager() {
   const { t } = useLanguage();

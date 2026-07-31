@@ -19,7 +19,7 @@ import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
 import { calculateStreak } from "../../../utils";
 import { CreateStudentModal } from "./CreateStudentModal";
-import { DeleteConfirmModal } from "../DeleteConfirmModal";
+import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
 import { EditStudentModal } from "./EditStudentModal";
 import { ResetPasswordModal } from "./ResetPasswordModal";
 

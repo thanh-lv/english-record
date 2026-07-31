@@ -1,6 +1,6 @@
 import { AlertCircle, Loader2, Trash2 } from "lucide-react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 interface DeleteConfirmModalProps {
   title: string;
@@ -76,7 +76,7 @@ export function DeleteConfirmModal({
             ) : (
               <Trash2 size={15} />
             )}
-            {confirmLabel}
+            {confirmLabel || t.common.delete}
           </button>
         </div>
       </div>

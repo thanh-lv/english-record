@@ -1,8 +1,8 @@
 import { Bell, Check, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Notification } from "./hooks/useNotifications";
-import { useLanguage, interpolate } from "../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { Notification } from "../hooks/useNotifications";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 interface NotificationBellProps {
   notifications: Notification[];
@@ -155,44 +155,37 @@ export function NotificationBell({
                         setOpen(false);
                       }
                     }}
-                    className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors border-b border-slate-50 last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-400 ${
-                      isRead
-                        ? "bg-white hover:bg-slate-50"
-                        : "bg-emerald-50 hover:bg-emerald-100"
+                    className={`px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 cursor-pointer flex items-start gap-3 transition-colors ${
+                      !isRead ? "bg-[#E3F2FD]/30" : ""
                     }`}
                   >
-                    <div
+                    <span
                       aria-hidden="true"
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
-                        isRead
-                          ? "bg-slate-100 text-slate-400"
-                          : "bg-emerald-200 text-emerald-700"
+                      className={`w-2 h-2 rounded-lg mt-1.5 shrink-0 ${
+                        !isRead ? "bg-[#1E88E5]" : "bg-transparent"
                       }`}
-                    >
-                      {isRead ? <Check size={13} /> : <Bell size={13} />}
-                    </div>
+                    />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-extrabold text-slate-800 leading-snug">
-                        <span className="text-emerald-600">
+                      <p className="text-xs font-bold text-slate-700 leading-snug">
+                        <span className="font-extrabold text-slate-900">
                           {n.studentName}
                         </span>{" "}
-                        {t.notifications.submitted}
+                        {t.notifications.submitted}{" "}
+                        {n.topicNumber !== undefined && (
+                          <span className="text-[#1E88E5] font-black">
+                            {t.notifications.topic} {n.topicNumber}
+                          </span>
+                        )}
                       </p>
-                      {n.topicNumber !== undefined && (
-                        <p className="text-xs font-bold text-slate-400 mt-0.5">
-                          {t.notifications.topic} {n.topicNumber}
+                      {(n as any).questionText && (
+                        <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
+                          "{(n as any).questionText}"
                         </p>
                       )}
-                      <p className="text-[10px] text-slate-300 font-bold mt-0.5">
+                      <p className="text-[10px] text-slate-400 font-bold mt-1">
                         {timeAgo(n.createdAt)}
                       </p>
                     </div>
-                    {!isRead && (
-                      <span
-                        aria-hidden="true"
-                        className="w-2 h-2 bg-emerald-500 rounded-lg shrink-0 mt-2"
-                      />
-                    )}
                   </div>
                 );
               })

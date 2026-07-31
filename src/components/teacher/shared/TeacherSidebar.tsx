@@ -11,7 +11,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage } from "../../../i18n/LanguageContext";
 import { useState } from "react";
 
 export type TeacherTab =
@@ -150,7 +150,7 @@ export function TeacherSidebar() {
             <X size={18} />
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+        <nav className="p-3 space-y-1 overflow-y-auto flex-1">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.id} item={item} />
           ))}

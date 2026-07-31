@@ -10,7 +10,7 @@ import {
   Save,
   Phone,
 } from "lucide-react";
-import { DeleteConfirmModal } from "../DeleteConfirmModal";
+import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
 
 export function StudentsTab({ tAtt }: { tAtt: any }) {
   const [students, setStudents] = useState<any[]>([]);

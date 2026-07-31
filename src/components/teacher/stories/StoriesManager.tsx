@@ -1,12 +1,12 @@
 import { Loader2, Plus, Search, Wand2, X } from "lucide-react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
-import { DeleteConfirmModal } from "./DeleteConfirmModal";
-import { useStories } from "./stories/useStories";
-import { StoryCard } from "./stories/StoryCard";
-import { StoryCreateModal } from "./stories/StoryCreateModal";
-import { StoryManualModal } from "./stories/StoryManualModal";
-import { StoryEditModal } from "./stories/StoryEditModal";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
+import { useStories } from "./useStories";
+import { StoryCard } from "./StoryCard";
+import { StoryCreateModal } from "./StoryCreateModal";
+import { StoryManualModal } from "./StoryManualModal";
+import { StoryEditModal } from "./StoryEditModal";
 
 export function StoriesManager() {
   const { t } = useLanguage();

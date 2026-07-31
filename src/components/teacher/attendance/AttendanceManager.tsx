@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage } from "../../../i18n/LanguageContext";
 import { Users, Calendar, FileText, Trophy } from "lucide-react";
-import { StudentsTab } from "./attendance/StudentsTab";
-import { CheckinTab } from "./attendance/CheckinTab";
-import { SummaryTab } from "./attendance/SummaryTab";
-import { AttendanceLeaderboard } from "./attendance/AttendanceLeaderboard";
+import { StudentsTab } from "./StudentsTab";
+import { CheckinTab } from "./CheckinTab";
+import { SummaryTab } from "./SummaryTab";
+import { AttendanceLeaderboard } from "./AttendanceLeaderboard";
 
 export function AttendanceManager() {
   const { t } = useLanguage();

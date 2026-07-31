@@ -9,8 +9,8 @@ import {
   X,
 } from "lucide-react";
 import { useRef, useState } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 const WORKER_URL =
   "https://free-image-generation-api.levanthanh29111999.workers.dev/";

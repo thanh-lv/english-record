@@ -6,7 +6,7 @@ const TeacherView = lazy(() => import("./src/TeacherView"));
 const StudentView = lazy(() => import("./src/StudentView"));
 import { Mic, User, LogOut, Loader2 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
-import { NotificationBell } from "./src/components/teacher/NotificationBell";
+import { NotificationBell } from "./src/components/teacher/shared/NotificationBell";
 import { useNotifications } from "./src/components/teacher/hooks/useNotifications";
 import { useLanguage } from "./src/i18n/LanguageContext";
 

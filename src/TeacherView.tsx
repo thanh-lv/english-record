@@ -8,47 +8,47 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useLanguage } from "./i18n/LanguageContext";
-import { RecordingsPanel } from "./components/teacher/RecordingsPanel";
-import { StudentSubmissionsView } from "./components/teacher/StudentSubmissionsView";
-import { TeacherSidebar } from "./components/teacher/TeacherSidebar";
-import { DeleteConfirmModal } from "./components/teacher/DeleteConfirmModal";
+import { RecordingsPanel } from "./components/teacher/recordings/RecordingsPanel";
+import { StudentSubmissionsView } from "./components/teacher/students/StudentSubmissionsView";
+import { TeacherSidebar } from "./components/teacher/shared/TeacherSidebar";
+import { DeleteConfirmModal } from "./components/teacher/shared/DeleteConfirmModal";
 import { OfflineBanner } from "./components/common/OfflineBanner";
 import { useRecordings } from "./components/teacher/hooks/useRecordings";
 import { supabase } from "./lib/supabase";
 import { lazy, Suspense, useEffect, useState } from "react";
 
 const StoriesManager = lazy(() =>
-  import("./components/teacher/StoriesManager").then((m) => ({
+  import("./components/teacher/stories/StoriesManager").then((m) => ({
     default: m.StoriesManager,
   })),
 );
 const StudentsManager = lazy(() =>
-  import("./components/teacher/StudentsManager").then((m) => ({
+  import("./components/teacher/students/StudentsManager").then((m) => ({
     default: m.StudentsManager,
   })),
 );
 const TopicsManager = lazy(() =>
-  import("./components/teacher/TopicsManager").then((m) => ({
+  import("./components/teacher/topics/TopicsManager").then((m) => ({
     default: m.TopicsManager,
   })),
 );
 const VocabularyManager = lazy(() =>
-  import("./components/teacher/VocabularyManager").then((m) => ({
+  import("./components/teacher/vocabulary/VocabularyManager").then((m) => ({
     default: m.VocabularyManager,
   })),
 );
 const ShadowingManager = lazy(() =>
-  import("./components/teacher/ShadowingManager").then((m) => ({
+  import("./components/teacher/shadowing/ShadowingManager").then((m) => ({
     default: m.ShadowingManager,
   })),
 );
 const VocabAudioBuilder = lazy(() =>
-  import("./components/teacher/VocabAudioBuilder").then((m) => ({
+  import("./components/teacher/vocabulary/VocabAudioBuilder").then((m) => ({
     default: m.VocabAudioBuilder,
   })),
 );
 const AttendanceManager = lazy(() =>
-  import("./components/teacher/AttendanceManager").then((m) => ({
+  import("./components/teacher/attendance/AttendanceManager").then((m) => ({
     default: m.AttendanceManager,
   })),
 );

@@ -8,11 +8,11 @@ import {
   X,
 } from "lucide-react";
 import { useRef } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
-import { DeleteConfirmModal } from "./DeleteConfirmModal";
-import { useVocabulary } from "./vocabulary/useVocabulary";
-import { VocabSetCard } from "./vocabulary/VocabSetCard";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
+import { useVocabulary } from "./useVocabulary";
+import { VocabSetCard } from "./VocabSetCard";
 
 export function VocabularyManager() {
   const { t } = useLanguage();

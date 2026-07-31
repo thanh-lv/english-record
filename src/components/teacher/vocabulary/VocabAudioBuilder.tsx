@@ -4,8 +4,8 @@ import {
   fetchWordAudioBuffer,
   RenderedAudioResult,
   WordTimestamp,
-} from "../../utils/audioEncoder";
-import { useLanguage } from "../../i18n/LanguageContext";
+} from "../../../utils/audioEncoder";
+import { useLanguage } from "../../../i18n/LanguageContext";
 import {
   Clock,
   Download,
@@ -25,40 +25,21 @@ import {
   VolumeX,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { supabase } from "../../lib/supabase";
-import { s3Client, S3_BUCKET } from "../../lib/s3";
-import { DeleteConfirmModal } from "./DeleteConfirmModal";
+import { supabase } from "../../../lib/supabase";
+import { s3Client, S3_BUCKET } from "../../../lib/s3";
+import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-
-const DEMO_PRESETS = [
-  {
-    name: "Fruits 🍎",
-    words: "apple, grapes, pineapple, strawberry",
-  },
-  {
-    name: "Animals 🐶",
-    words: "elephant, giraffe, kangaroo, penguin, tiger",
-  },
-  {
-    name: "School items ✏️",
-    words: "pencil, notebook, backpack, scissors, eraser",
-  },
-];
 
 export function VocabAudioBuilder() {
   const { t } = useLanguage();
   const tAudio = (t as any).audioBuilder;
 
-  // Input State
   const [inputText, setInputText] = useState<string>("");
-
-  // Settings State
   const [repetitions, setRepetitions] = useState<number>(3);
   const [wordDuration, setWordDuration] = useState<number>(3);
   const [gapDuration, setGapDuration] = useState<number>(4);
   const [voiceLang, setVoiceLang] = useState<string>("en-US");
 
-  // Generator & Audio State
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressStatus, setProgressStatus] = useState<string>("");
@@ -67,7 +48,6 @@ export function VocabAudioBuilder() {
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Library & Save State
   const [savedAudios, setSavedAudios] = useState<any[]>([]);
   const [isLibraryLoading, setIsLibraryLoading] = useState(true);
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -76,13 +56,11 @@ export function VocabAudioBuilder() {
   const [audioToDelete, setAudioToDelete] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Playback state
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [activeWordIndex, setActiveWordIndex] = useState<number>(-1);
 
-  // Parse raw text into unique non-empty words
   const parsedWords = React.useMemo(() => {
     if (!inputText) return [];
     return inputText
@@ -91,7 +69,6 @@ export function VocabAudioBuilder() {
       .filter((w) => w.length > 0);
   }, [inputText]);
 
-  // Audio playback position listener & word highlighter
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -122,7 +99,6 @@ export function VocabAudioBuilder() {
     };
   }, [audioResult, gapDuration]);
 
-  // Library Fetching
   const fetchLibrary = async () => {
     setIsLibraryLoading(true);
     try {
@@ -149,9 +125,7 @@ export function VocabAudioBuilder() {
     setIsSaving(true);
     setErrorMsg(null);
     try {
-      // 1. Upload to S3
       const fileKey = `vocab-audio/${Date.now()}-${audioTitle.replace(/[^a-zA-Z0-9_-]/g, "")}.wav`;
-      // Convert Blob to Uint8Array to bypass AWS SDK stream bug in Vite
       const arrayBuffer = await audioResult.blob.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
       const uploadParams = {
@@ -172,7 +146,6 @@ export function VocabAudioBuilder() {
           : `${endpoint}/${S3_BUCKET}/${fileKey}`;
       }
 
-      // 2. Save to DB
       const configSummary = `${repetitions}x rep • ${gapDuration}s gap`;
       const { error } = await supabase.from("vocab_audios").insert({
         title: audioTitle.trim(),
@@ -187,8 +160,7 @@ export function VocabAudioBuilder() {
 
       setShowSaveModal(false);
       setAudioTitle("");
-      fetchLibrary(); // refresh
-      // We could show a toast here, but for now just close modal
+      fetchLibrary();
     } catch (err: any) {
       console.error("Save error:", err);
       setErrorMsg(err.message || "Save failed");
@@ -202,7 +174,7 @@ export function VocabAudioBuilder() {
     setAudioToDelete(audio);
   };
 
-  const confirmDeleteAudio = async (e: React.MouseEvent) => {
+  const confirmDeleteAudio = async () => {
     if (!audioToDelete) return;
     setIsDeleting(true);
     try {
@@ -216,10 +188,8 @@ export function VocabAudioBuilder() {
     }
   };
 
-  // Preview single word (try to keep in sync with API audio, fallback to Web Speech)
   const speakSingleWord = async (word: string, e: React.MouseEvent) => {
     e.stopPropagation();
-
     try {
       const AudioContextClass =
         window.AudioContext || (window as any).webkitAudioContext;
@@ -247,7 +217,6 @@ export function VocabAudioBuilder() {
     window.speechSynthesis.speak(u);
   };
 
-  // Generate continuous stitched audio track
   const handleGenerateAudio = async () => {
     if (parsedWords.length === 0) {
       setErrorMsg(tAudio.errorEmpty);
@@ -259,7 +228,6 @@ export function VocabAudioBuilder() {
     setProgressPercent(5);
     setProgressStatus("Preparing audio engine...");
 
-    // Stop current playback if playing
     if (audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -329,7 +297,6 @@ export function VocabAudioBuilder() {
 
   return (
     <div className="space-y-6 mx-auto">
-      {/* Header Banner */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-lg p-4 text-white shadow-md relative overflow-hidden">
         <div className="relative z-10 space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-xs font-bold text-blue-100">
@@ -349,9 +316,7 @@ export function VocabAudioBuilder() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Input & Controls Section */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Word Input Card */}
           <div className="bg-white rounded-lg p-6 shadow-md border border-slate-100 space-y-4">
             <div className="flex items-center justify-between">
               <label className="font-extrabold text-slate-800 text-sm sm:text-base flex items-center gap-2">
@@ -378,25 +343,6 @@ export function VocabAudioBuilder() {
               className="w-full p-4 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-slate-700 font-semibold text-base transition-all resize-none"
             />
 
-            {/* Demo Presets */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                {tAudio.presetsLabel}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {/* {DEMO_PRESETS.map((preset) => (
-                  <button
-                    key={preset.name}
-                    onClick={() => setInputText(preset.words)}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-600 rounded-lg text-xs font-bold transition-all active:scale-95 flex items-center gap-1"
-                  >
-                    {preset.name}
-                  </button>
-                ))} */}
-              </div>
-            </div>
-
-            {/* Parsed word tags preview */}
             {parsedWords.length > 0 && (
               <div className="pt-3 border-t border-slate-100 space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500">
@@ -429,7 +375,6 @@ export function VocabAudioBuilder() {
             )}
           </div>
 
-          {/* Timing & Settings Card */}
           <div className="bg-white rounded-lg p-6 shadow-md border border-slate-100 space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <Sliders className="text-blue-500" size={20} />
@@ -439,7 +384,6 @@ export function VocabAudioBuilder() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Repetitions */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-600 flex items-center justify-between">
                   <span>{tAudio.repetitionsLabel}</span>
@@ -460,7 +404,6 @@ export function VocabAudioBuilder() {
                 </span>
               </div>
 
-              {/* Time for repetitions slot */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-600 flex items-center justify-between">
                   <span>{tAudio.durationLabel}</span>
@@ -482,7 +425,6 @@ export function VocabAudioBuilder() {
                 </span>
               </div>
 
-              {/* Gap between words */}
               <div className="space-y-1.5 sm:col-span-2 bg-blue-50/60 p-3.5 rounded-lg border border-blue-100">
                 <label className="text-xs font-extrabold text-blue-900 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
@@ -511,7 +453,6 @@ export function VocabAudioBuilder() {
             </div>
           </div>
 
-          {/* Action Button */}
           {errorMsg && (
             <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-sm font-bold">
               {errorMsg}
@@ -545,7 +486,6 @@ export function VocabAudioBuilder() {
             )}
           </button>
 
-          {/* Progress bar during generation */}
           {isGenerating && (
             <div className="space-y-1">
               <div className="w-full h-2.5 bg-slate-100 rounded-lg overflow-hidden">
@@ -561,7 +501,6 @@ export function VocabAudioBuilder() {
           )}
         </div>
 
-        {/* Right Output & Audio Player Section */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white rounded-lg p-4 shadow-md border border-slate-100 min-h-[420px] flex flex-col justify-between">
             <div className="space-y-4">
@@ -595,10 +534,8 @@ export function VocabAudioBuilder() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {/* Hidden HTML Audio element */}
                   <audio ref={audioRef} src={audioResult.audioUrl} />
 
-                  {/* Player controls box */}
                   <div className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-lg p-5 space-y-4 shadow-md">
                     <div className="flex items-center justify-between">
                       <div>
@@ -619,7 +556,6 @@ export function VocabAudioBuilder() {
                       </span>
                     </div>
 
-                    {/* Progress Slider */}
                     <div className="space-y-1">
                       <input
                         type="range"
@@ -636,7 +572,6 @@ export function VocabAudioBuilder() {
                       </div>
                     </div>
 
-                    {/* Play/Pause & Actions */}
                     <div className="flex items-center justify-center gap-4 pt-1">
                       <button
                         onClick={togglePlayPause}
@@ -651,7 +586,6 @@ export function VocabAudioBuilder() {
                     </div>
                   </div>
 
-                  {/* Interactive Word Timeline */}
                   <div className="space-y-2">
                     <p className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">
                       {tAudio.progressTitle}
@@ -694,7 +628,6 @@ export function VocabAudioBuilder() {
               )}
             </div>
 
-            {/* Download & Save Buttons */}
             {audioResult && (
               <div className="pt-4 border-t border-slate-100 flex flex-col gap-2">
                 <a
@@ -720,7 +653,6 @@ export function VocabAudioBuilder() {
         </div>
       </div>
 
-      {/* Library Section */}
       <div className="mt-12 bg-white rounded-lg p-6 shadow-md border border-slate-100">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
           <Library className="text-purple-500" size={24} />
@@ -781,7 +713,6 @@ export function VocabAudioBuilder() {
         )}
       </div>
 
-      {/* Save Modal */}
       {showSaveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
           <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-md space-y-5 animate-in fade-in zoom-in-95 duration-200">
@@ -850,3 +781,4 @@ export function VocabAudioBuilder() {
     </div>
   );
 }
+export default VocabAudioBuilder;
