@@ -23,6 +23,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
   const [className, setClassName] = useState("");
   const [unitPrice, setUnitPrice] = useState("");
   const [phone, setPhone] = useState("");
+  const [hocLieuFee, setHocLieuFee] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -55,37 +56,58 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
     setUnitPrice(parseInt(rawValue, 10).toLocaleString());
   };
 
+  const handleHocLieuFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, "");
+    if (!rawValue) {
+      setHocLieuFee("");
+      return;
+    }
+    setHocLieuFee(parseInt(rawValue, 10).toLocaleString());
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     setSaving(true);
     setError("");
 
-    const price = parseInt(unitPrice.replace(/\D/g, "")) || 0;
+    const price = parseInt(unitPrice.replace(/\D/g, ""), 10) || 0;
+    const hlPrice = parseInt(hocLieuFee.replace(/\D/g, ""), 10) || 0;
     const cName = className.trim() || tAtt.unassignedClass;
+
+    const payload: any = {
+      name: name.trim(),
+      class_name: cName,
+      unit_price: price,
+      phone: phone.trim(),
+      hoc_lieu: hlPrice,
+    };
 
     try {
       if (editId) {
         const { error: err } = await supabase
           .from("attendance_students")
-          .update({
-            name: name.trim(),
-            class_name: cName,
-            unit_price: price,
-            phone: phone.trim(),
-          })
+          .update(payload)
           .eq("id", editId);
-        if (err) throw err;
+        if (err) {
+          delete payload.hoc_lieu;
+          const { error: errFallback } = await supabase
+            .from("attendance_students")
+            .update(payload)
+            .eq("id", editId);
+          if (errFallback) throw errFallback;
+        }
       } else {
         const { error: err } = await supabase
           .from("attendance_students")
-          .insert({
-            name: name.trim(),
-            class_name: cName,
-            unit_price: price,
-            phone: phone.trim(),
-          });
-        if (err) throw err;
+          .insert(payload);
+        if (err) {
+          delete payload.hoc_lieu;
+          const { error: errFallback } = await supabase
+            .from("attendance_students")
+            .insert(payload);
+          if (errFallback) throw errFallback;
+        }
       }
 
       await loadStudents();
@@ -94,6 +116,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
       setClassName("");
       setUnitPrice("");
       setPhone("");
+      setHocLieuFee("");
       setEditId(null);
     } catch (err: any) {
       setError(
@@ -108,7 +131,10 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
     setEditId(student.id);
     setName(student.name);
     setClassName(student.class_name || "");
-    setUnitPrice(student.unit_price.toLocaleString());
+    setUnitPrice(student.unit_price ? student.unit_price.toLocaleString() : "");
+    setHocLieuFee(
+      student.hoc_lieu ? Number(student.hoc_lieu).toLocaleString() : "",
+    );
     setPhone(student.phone || "");
     setShowForm(true);
   };
@@ -268,6 +294,18 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                     value={unitPrice}
                     onChange={handlePriceChange}
                     placeholder={tAtt.unitPricePlaceholder}
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-black text-slate-700 mb-1.5">
+                    📚 Học liệu (đ)
+                  </label>
+                  <input
+                    type="text"
+                    value={hocLieuFee}
+                    onChange={handleHocLieuFeeChange}
+                    placeholder="VD: 50.000"
                     className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   />
                 </div>

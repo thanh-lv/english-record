@@ -5,18 +5,50 @@ interface TuitionSlipProps {
   student: any;
   records: any[];
   month: number;
-  hocLieu?: string;
+  hocLieuLabel?: string;
+  hocLieuValue?: number;
+  hocLieu?: string | number; // Backward compatibility
   note?: string;
+  onHocLieuLabelChange?: (label: string) => void;
+  onHocLieuValueChange?: (val: number) => void;
+  onHocLieuChange?: (val: string) => void;
 }
 
 export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
-  ({ tAtt, student, records, month, hocLieu, note }, ref) => {
+  (
+    {
+      tAtt,
+      student,
+      records,
+      month,
+      hocLieuLabel,
+      hocLieuValue,
+      hocLieu,
+      note,
+      onHocLieuLabelChange,
+      onHocLieuValueChange,
+      onHocLieuChange,
+    },
+    ref,
+  ) => {
     const dates = records.map((r) => {
       const dt = new Date(r.checkin_time);
       const day = String(dt.getDate()).padStart(2, "0");
       const monthStr = String(dt.getMonth() + 1).padStart(2, "0");
       return `${day}/${monthStr}`;
     });
+
+    const displayLabel = hocLieuLabel || tAtt.hocLieuSlip || "📚 Học liệu";
+    const displayValue =
+      hocLieuValue !== undefined
+        ? Number(hocLieuValue)
+        : typeof hocLieu === "number"
+          ? hocLieu
+          : parseInt(String(hocLieu || "").replace(/\D/g, ""), 10) || 0;
+
+    const baseTuition =
+      (student.total_sessions || 0) * (student.unit_price || 0);
+    const grandTotal = baseTuition + displayValue;
 
     return (
       <div
@@ -197,6 +229,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
               marginBottom: 4,
             }}
           >
+            {/* Left Label */}
             <span
               style={{
                 fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
@@ -207,19 +240,78 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
                 flexShrink: 0,
               }}
             >
-              {tAtt.hocLieuSlip || "📚 Học liệu"}
+              {onHocLieuLabelChange ? (
+                <input
+                  type="text"
+                  value={displayLabel}
+                  placeholder="Tên học liệu..."
+                  onChange={(e) => onHocLieuLabelChange(e.target.value)}
+                  style={{
+                    width: "160px",
+                    padding: "2px 6px",
+                    border: "1.5px dashed #4fb8af",
+                    borderRadius: "4px",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    outline: "none",
+                    backgroundColor: "#f8fafc",
+                  }}
+                />
+              ) : (
+                displayLabel
+              )}
             </span>
+
+            {/* Right Value (Numeric Fee) */}
             <span
               style={{
                 fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
                 fontSize: 17,
                 fontWeight: 600,
                 color: "#1e293b",
-                maxWidth: "260px",
                 textAlign: "right",
               }}
             >
-              {hocLieu || "—"}
+              {onHocLieuValueChange ? (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  <input
+                    type="text"
+                    value={displayValue > 0 ? displayValue.toLocaleString() : ""}
+                    placeholder="0"
+                    onChange={(e) => {
+                      const raw =
+                        parseInt(e.target.value.replace(/\D/g, ""), 10) || 0;
+                      onHocLieuValueChange(raw);
+                    }}
+                    style={{
+                      width: "110px",
+                      textAlign: "right",
+                      padding: "3px 8px",
+                      border: "1.5px solid #4fb8af",
+                      borderRadius: "6px",
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: "#138e83",
+                      outline: "none",
+                      backgroundColor: "#f4faf9",
+                    }}
+                  />
+                  <span
+                    style={{ fontSize: 16, fontWeight: 700, color: "#138e83" }}
+                  >
+                    đ
+                  </span>
+                </span>
+              ) : (
+                `${displayValue.toLocaleString()} đ`
+              )}
             </span>
           </div>
         </div>
@@ -261,7 +353,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
                 marginTop: 4,
               }}
             >
-              {student.total_fee.toLocaleString()} đ
+              {grandTotal.toLocaleString()} đ
             </p>
           </div>
         </div>

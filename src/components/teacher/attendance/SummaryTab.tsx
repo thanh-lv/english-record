@@ -57,6 +57,79 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
       return next;
     });
   };
+
+  const [classHocLieuMap, setClassHocLieuMap] = useState<
+    Record<string, { label: string; value: number }>
+  >(() => {
+    try {
+      const saved = localStorage.getItem("english_record_class_hoc_lieu_map");
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const handleUpdateClassHocLieuMap = async (
+    className: string,
+    newLabel?: string,
+    newValue?: number,
+  ) => {
+    const current = classHocLieuMap[className] || {
+      label: "📚 Học liệu",
+      value: 0,
+    };
+    const updatedLabel = newLabel !== undefined ? newLabel : current.label;
+    const updatedValue = newValue !== undefined ? newValue : current.value;
+
+    setClassHocLieuMap((prev) => {
+      const next = {
+        ...prev,
+        [className]: { label: updatedLabel, value: updatedValue },
+      };
+      try {
+        localStorage.setItem(
+          "english_record_class_hoc_lieu_map",
+          JSON.stringify(next),
+        );
+      } catch (e) {}
+      return next;
+    });
+
+    setStudents((prev) =>
+      prev.map((s) =>
+        (s.class_name || tAtt.unassignedClass) === className
+          ? {
+              ...s,
+              hoc_lieu_label: updatedLabel,
+              hoc_lieu_value: updatedValue,
+            }
+          : s,
+      ),
+    );
+
+    if (
+      selectedStudent &&
+      (selectedStudent.class_name || tAtt.unassignedClass) === className
+    ) {
+      setSelectedStudent((prev: any) => ({
+        ...prev,
+        hoc_lieu_label: updatedLabel,
+        hoc_lieu_value: updatedValue,
+      }));
+    }
+
+    try {
+      await supabase
+        .from("attendance_students")
+        .update({
+          hoc_lieu_label: updatedLabel,
+          hoc_lieu_value: updatedValue,
+        })
+        .eq("class_name", className);
+    } catch (e) {
+      console.error("Error updating class hoc_lieu in Supabase:", e);
+    }
+  };
   const slipRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [exportStudent, setExportStudent] = useState<any>(null);
@@ -138,13 +211,24 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   const allSummary = rpcSummary
     ? rpcSummary.map((item) => {
         const matchingStudent = students.find((s) => s.id === item.student_id);
+        const studentClass = item.class_name || tAtt.unassignedClass;
+        const hlObj = classHocLieuMap[studentClass] || {
+          label: matchingStudent?.hoc_lieu_label || "📚 Học liệu",
+          value: Number(
+            matchingStudent?.hoc_lieu_value ?? matchingStudent?.hoc_lieu ?? 0,
+          ),
+        };
+        const baseFee = Number(item.total_fee || 0);
+
         return {
           id: item.student_id,
           name: item.name,
           class_name: item.class_name,
           unit_price: Number(item.unit_price),
           total_sessions: Number(item.total_sessions),
-          total_fee: Number(item.total_fee),
+          total_fee: baseFee + Number(hlObj.value || 0),
+          hoc_lieu_label: hlObj.label,
+          hoc_lieu_value: hlObj.value,
           phone: item.phone || matchingStudent?.phone || "",
         };
       })
@@ -153,10 +237,19 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           const studentRecords = records.filter(
             (r) => r.student_id === student.id,
           );
+          const studentClass = student.class_name || tAtt.unassignedClass;
+          const hlObj = classHocLieuMap[studentClass] || {
+            label: student.hoc_lieu_label || "📚 Học liệu",
+            value: Number(student.hoc_lieu_value ?? student.hoc_lieu ?? 0),
+          };
+          const baseFee = studentRecords.length * student.unit_price;
+
           return {
             ...student,
             total_sessions: studentRecords.length,
-            total_fee: studentRecords.length * student.unit_price,
+            total_fee: baseFee + Number(hlObj.value || 0),
+            hoc_lieu_label: hlObj.label,
+            hoc_lieu_value: hlObj.value,
             phone: student.phone || "",
           };
         })
@@ -704,20 +797,67 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                       </p>
                     </div>
                   </div>
-                  {/* Input Học liệu riêng cho từng lớp */}
-                  <div className="bg-purple-50/80 px-4 py-2 border-b border-purple-100 flex items-center gap-2 print:hidden">
-                    <span className="text-xs font-black text-purple-900 shrink-0">
-                      📚 {tAtt.hocLieuSlip || "Học liệu"}:
-                    </span>
-                    <input
-                      type="text"
-                      placeholder={`Nhập học liệu cho ${formatClassName(cls, tAtt.unassignedClass)} (VD: 20k photo, Sách + Vở)...`}
-                      value={classHocLieu[cls] || ""}
-                      onChange={(e) =>
-                        handleClassHocLieuChange(cls, e.target.value)
-                      }
-                      className="w-full px-3 py-1.5 text-xs font-bold text-slate-800 bg-white border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 placeholder:text-slate-400"
-                    />
+                  {/* Input Học liệu theo từng Lớp (Label + Value số đ) */}
+                  <div className="bg-purple-50/90 px-4 py-2 border-b border-purple-100 flex flex-wrap items-center justify-between gap-2 print:hidden">
+                    <div className="flex items-center gap-1.5 min-w-[200px] flex-1">
+                      <span className="text-xs font-black text-purple-900 shrink-0">
+                        📚 Nhãn:
+                      </span>
+                      <input
+                        type="text"
+                        value={
+                          classHocLieuMap[cls]?.label !== undefined
+                            ? classHocLieuMap[cls].label
+                            : rows[0]?.hoc_lieu_label || "📚 Học liệu"
+                        }
+                        placeholder="Mô tả (VD: Vở + Sách)..."
+                        onChange={(e) =>
+                          handleUpdateClassHocLieuMap(
+                            cls,
+                            e.target.value,
+                            undefined,
+                          )
+                        }
+                        className="w-full max-w-[200px] px-2.5 py-1 text-xs font-bold text-slate-800 bg-white border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none shadow-sm"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-black text-purple-900 shrink-0">
+                        Số tiền:
+                      </span>
+                      <input
+                        type="text"
+                        value={
+                          (classHocLieuMap[cls]?.value !== undefined
+                            ? classHocLieuMap[cls].value
+                            : Number(
+                                rows[0]?.hoc_lieu_value ||
+                                  rows[0]?.hoc_lieu ||
+                                  0,
+                              )) > 0
+                            ? Number(
+                                classHocLieuMap[cls]?.value !== undefined
+                                  ? classHocLieuMap[cls].value
+                                  : Number(
+                                      rows[0]?.hoc_lieu_value ||
+                                        rows[0]?.hoc_lieu ||
+                                        0,
+                                    ),
+                              ).toLocaleString()
+                            : ""
+                        }
+                        placeholder="0"
+                        onChange={(e) => {
+                          const raw =
+                            parseInt(e.target.value.replace(/\D/g, ""), 10) || 0;
+                          handleUpdateClassHocLieuMap(cls, undefined, raw);
+                        }}
+                        className="w-24 px-2 py-1 text-xs font-black text-right text-purple-900 bg-white border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none shadow-sm"
+                      />
+                      <span className="text-xs font-bold text-purple-800">
+                        đ / HS
+                      </span>
+                    </div>
                   </div>
 
                   {/* Student card list – no horizontal scroll */}
@@ -1200,14 +1340,41 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                           student={s}
                           records={studentRecs}
                           month={month}
-                          hocLieu={
-                            classHocLieu[
+                          hocLieuLabel={
+                            classHocLieuMap[
                               s.class_name || tAtt.unassignedClass
-                            ] || ""
+                            ]?.label !== undefined
+                              ? classHocLieuMap[
+                                  s.class_name || tAtt.unassignedClass
+                                ].label
+                              : s.hoc_lieu_label || "📚 Học liệu"
+                          }
+                          hocLieuValue={
+                            classHocLieuMap[
+                              s.class_name || tAtt.unassignedClass
+                            ]?.value !== undefined
+                              ? classHocLieuMap[
+                                  s.class_name || tAtt.unassignedClass
+                                ].value
+                              : Number(s.hoc_lieu_value ?? s.hoc_lieu ?? 0)
                           }
                           note={
                             (studentNotes[s.id] && studentNotes[s.id].trim()) ||
                             generalNote
+                          }
+                          onHocLieuLabelChange={(lbl) =>
+                            handleUpdateClassHocLieuMap(
+                              s.class_name || tAtt.unassignedClass,
+                              lbl,
+                              undefined,
+                            )
+                          }
+                          onHocLieuValueChange={(val) =>
+                            handleUpdateClassHocLieuMap(
+                              s.class_name || tAtt.unassignedClass,
+                              undefined,
+                              val,
+                            )
                           }
                         />
                       </div>
@@ -1281,9 +1448,25 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   new Date(b.checkin_time).getTime(),
               )}
             month={month}
-            hocLieu={
-              classHocLieu[exportStudent.class_name || tAtt.unassignedClass] ||
-              ""
+            hocLieuLabel={
+              classHocLieuMap[
+                exportStudent.class_name || tAtt.unassignedClass
+              ]?.label !== undefined
+                ? classHocLieuMap[
+                    exportStudent.class_name || tAtt.unassignedClass
+                  ].label
+                : exportStudent.hoc_lieu_label || "📚 Học liệu"
+            }
+            hocLieuValue={
+              classHocLieuMap[
+                exportStudent.class_name || tAtt.unassignedClass
+              ]?.value !== undefined
+                ? classHocLieuMap[
+                    exportStudent.class_name || tAtt.unassignedClass
+                  ].value
+                : Number(
+                    exportStudent.hoc_lieu_value ?? exportStudent.hoc_lieu ?? 0,
+                  )
             }
             note={
               (studentNotes[exportStudent.id] &&
