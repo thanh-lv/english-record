@@ -34,7 +34,29 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
   const [generalNote, setGeneralNote] = useState("");
   const [studentNotes, setStudentNotes] = useState<Record<string, string>>({});
-  const [generalHocLieu, setGeneralHocLieu] = useState("");
+  const [classHocLieu, setClassHocLieu] = useState<Record<string, string>>(
+    () => {
+      try {
+        const saved = localStorage.getItem("english_record_class_hoc_lieu");
+        return saved ? JSON.parse(saved) : {};
+      } catch (e) {
+        return {};
+      }
+    },
+  );
+
+  const handleClassHocLieuChange = (cls: string, val: string) => {
+    setClassHocLieu((prev) => {
+      const next = { ...prev, [cls]: val };
+      try {
+        localStorage.setItem(
+          "english_record_class_hoc_lieu",
+          JSON.stringify(next),
+        );
+      } catch (e) {}
+      return next;
+    });
+  };
   const slipRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [exportStudent, setExportStudent] = useState<any>(null);
@@ -540,21 +562,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           </select>
         </div>
 
-        <div className="w-full sm:w-auto flex-1 min-w-[160px]">
+        <div className="w-full sm:w-auto flex-1 min-w-[200px]">
           <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
-            {tAtt.hocLieuSlip || "Học liệu"}
-          </label>
-          <input
-            type="text"
-            placeholder={tAtt.hocLieuPlaceholder || "VD: 20.000đ photo..."}
-            value={generalHocLieu}
-            onChange={(e) => setGeneralHocLieu(e.target.value)}
-            className="w-full px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white font-bold text-slate-700 text-sm"
-          />
-        </div>
-        <div className="w-full sm:w-auto flex-1 min-w-[160px]">
-          <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
-            {tAtt.noteLabel || "Ghi chú"}
+            {tAtt.noteLabel || "Ghi chú chung"}
           </label>
           <input
             type="text"
@@ -693,6 +703,21 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         )}
                       </p>
                     </div>
+                  </div>
+                  {/* Input Học liệu riêng cho từng lớp */}
+                  <div className="bg-purple-50/80 px-4 py-2 border-b border-purple-100 flex items-center gap-2 print:hidden">
+                    <span className="text-xs font-black text-purple-900 shrink-0">
+                      📚 {tAtt.hocLieuSlip || "Học liệu"}:
+                    </span>
+                    <input
+                      type="text"
+                      placeholder={`Nhập học liệu cho ${formatClassName(cls, tAtt.unassignedClass)} (VD: 20k photo, Sách + Vở)...`}
+                      value={classHocLieu[cls] || ""}
+                      onChange={(e) =>
+                        handleClassHocLieuChange(cls, e.target.value)
+                      }
+                      className="w-full px-3 py-1.5 text-xs font-bold text-slate-800 bg-white border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 placeholder:text-slate-400"
+                    />
                   </div>
 
                   {/* Student card list – no horizontal scroll */}
@@ -1175,7 +1200,11 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                           student={s}
                           records={studentRecs}
                           month={month}
-                          hocLieu={generalHocLieu}
+                          hocLieu={
+                            classHocLieu[
+                              s.class_name || tAtt.unassignedClass
+                            ] || ""
+                          }
                           note={
                             (studentNotes[s.id] && studentNotes[s.id].trim()) ||
                             generalNote
@@ -1252,7 +1281,10 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   new Date(b.checkin_time).getTime(),
               )}
             month={month}
-            hocLieu={generalHocLieu}
+            hocLieu={
+              classHocLieu[exportStudent.class_name || tAtt.unassignedClass] ||
+              ""
+            }
             note={
               (studentNotes[exportStudent.id] &&
                 studentNotes[exportStudent.id].trim()) ||
