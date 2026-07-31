@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 import { Trophy, Medal, Crown, Loader2, Calendar, Award } from "lucide-react";
+import { formatClassName } from "../../../utils";
 
 interface LeaderboardProps {
   tAtt: any;
@@ -174,7 +175,7 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                   {top2.name}
                 </p>
                 <p className="text-[11px] text-slate-400 font-bold truncate w-full text-center">
-                  {top2.class_name}
+                  {formatClassName(top2.class_name, tAtt.unassignedClass)}
                 </p>
                 <div className="mt-2 bg-gradient-to-t from-slate-200 to-slate-100 w-full py-4 rounded-t-lg border border-slate-300 text-center">
                   <span className="font-black text-slate-800 text-sm sm:text-base">
@@ -205,7 +206,7 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                   {top1.name}
                 </p>
                 <p className="text-xs text-amber-700/70 font-bold truncate w-full text-center">
-                  {top1.class_name}
+                  {formatClassName(top1.class_name, tAtt.unassignedClass)}
                 </p>
                 <div className="mt-2 bg-gradient-to-t from-amber-400 to-amber-200 w-full py-6 rounded-t-lg border border-amber-300 text-center shadow-md">
                   <span className="font-black text-amber-950 text-base sm:text-lg">
@@ -230,7 +231,7 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                   {top3.name}
                 </p>
                 <p className="text-[11px] text-slate-400 font-bold truncate w-full text-center">
-                  {top3.class_name}
+                  {formatClassName(top3.class_name, tAtt.unassignedClass)}
                 </p>
                 <div className="mt-2 bg-gradient-to-t from-orange-200 to-amber-100 w-full py-3 rounded-t-lg border border-orange-300 text-center">
                   <span className="font-black text-orange-900 text-sm sm:text-base">
@@ -260,7 +261,10 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                         {student.name}
                       </p>
                       <p className="text-xs text-slate-400 font-bold">
-                        {student.class_name}
+                        {formatClassName(
+                          student.class_name,
+                          tAtt.unassignedClass,
+                        )}
                       </p>
                     </div>
                   </div>

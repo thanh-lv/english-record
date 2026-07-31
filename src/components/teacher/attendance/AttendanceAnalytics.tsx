@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Star,
 } from "lucide-react";
+import { formatClassName } from "../../../utils";
 
 interface AnalyticsProps {
   tAtt: any;
@@ -524,7 +525,7 @@ export function AttendanceAnalytics({
                         <div key={i} className="space-y-1">
                           <div className="flex justify-between text-[11px] font-bold">
                             <span className="text-slate-700 truncate max-w-[60%]">
-                              {c.cls}
+                              {formatClassName(c.cls, tAtt?.unassignedClass)}
                               <span className="text-slate-400 font-medium ml-1">
                                 ({c.totalStudents} HS)
                               </span>

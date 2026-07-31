@@ -10,8 +10,13 @@ import {
   Eye,
   FileSpreadsheet,
   X as XIcon,
+  Plus,
+  Pencil,
+  Trash2,
+  Save,
+  Clock,
 } from "lucide-react";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 import JSZip from "jszip";
 import { TuitionSlipTemplate } from "./TuitionSlipTemplate";
 import { AttendanceLeaderboard } from "./AttendanceLeaderboard";
@@ -19,6 +24,7 @@ import { AttendanceAnalytics } from "./AttendanceAnalytics";
 import { ZaloShareModal } from "./ZaloShareModal";
 import { MessageCircle } from "lucide-react";
 import { Check, X, DollarSign } from "lucide-react";
+import { formatClassName } from "../../../utils";
 
 export function SummaryTab({ tAtt }: { tAtt: any }) {
   const [records, setRecords] = useState<any[]>([]);
@@ -28,6 +34,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
   const [generalNote, setGeneralNote] = useState("");
   const [studentNotes, setStudentNotes] = useState<Record<string, string>>({});
+  const [generalHocLieu, setGeneralHocLieu] = useState("");
   const slipRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [exportStudent, setExportStudent] = useState<any>(null);
@@ -44,6 +51,15 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   const [zaloStudent, setZaloStudent] = useState<any | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // Edit / Add attendance record state for single student
+  const [showAddDateForm, setShowAddDateForm] = useState(false);
+  const [newDateVal, setNewDateVal] = useState("");
+  const [newTimeVal, setNewTimeVal] = useState("08:00");
+  const [editingRecId, setEditingRecId] = useState<string | null>(null);
+  const [editDateVal, setEditDateVal] = useState("");
+  const [editTimeVal, setEditTimeVal] = useState("08:00");
+  const [recActionLoading, setRecActionLoading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -306,10 +322,13 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
     setTimeout(async () => {
       if (slipRef.current) {
         try {
-          const canvas = await html2canvas(slipRef.current, { scale: 2 });
+          const dataUrl = await toPng(slipRef.current, {
+            pixelRatio: 2,
+            backgroundColor: "#ffffff",
+          });
           const link = document.createElement("a");
           link.download = `Phieu-Hoc-Phi-${s.name.replace(/\s+/g, "-")}-${month}-${year}.png`;
-          link.href = canvas.toDataURL("image/png");
+          link.href = dataUrl;
           link.click();
         } catch (e) {
           console.error("Export image error:", e);
@@ -317,7 +336,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
       }
       setExporting(false);
       setExportStudent(null);
-    }, 500);
+    }, 600);
   };
 
   // ---- Export all students to Image (ZIP) ----
@@ -329,14 +348,15 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
     for (const s of summary) {
       setExportStudent(s);
       // Wait a bit for React to render the new student in the hidden div
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       if (slipRef.current && folder) {
         try {
-          const canvas = await html2canvas(slipRef.current, { scale: 2 });
-          const imgData = canvas
-            .toDataURL("image/png")
-            .replace(/^data:image\/(png|jpg);base64,/, "");
+          const dataUrl = await toPng(slipRef.current, {
+            pixelRatio: 2,
+            backgroundColor: "#ffffff",
+          });
+          const imgData = dataUrl.replace(/^data:image\/png;base64,/, "");
           folder.file(
             `Phieu-Hoc-Phi-${s.name.replace(/\s+/g, "-")}.png`,
             imgData,
@@ -360,6 +380,81 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
 
     setExporting(false);
     setExportStudent(null);
+  };
+
+  // ---- Manage Student Attendance Records (Add Makeup / Edit / Delete) ----
+  const handleAddMakeupSession = async (studentId: string) => {
+    if (!newDateVal) return;
+    setRecActionLoading(true);
+    try {
+      const timestamp = new Date(
+        `${newDateVal}T${newTimeVal}:00`,
+      ).toISOString();
+      const { data, error } = await supabase
+        .from("attendance_records")
+        .insert({
+          student_id: studentId,
+          checkin_time: timestamp,
+          status: "present",
+        })
+        .select("*, attendance_students(name, unit_price)")
+        .single();
+      if (error) throw error;
+      if (data) {
+        setRecords((prev) => [...prev, data]);
+        setShowAddDateForm(false);
+        setNewDateVal("");
+      }
+    } catch (e) {
+      console.error("Error adding makeup session:", e);
+      alert("Không thể thêm buổi học. Vui lòng thử lại.");
+    } finally {
+      setRecActionLoading(false);
+    }
+  };
+
+  const handleSaveEditSession = async (recId: string) => {
+    if (!editDateVal) return;
+    setRecActionLoading(true);
+    try {
+      const timestamp = new Date(
+        `${editDateVal}T${editTimeVal}:00`,
+      ).toISOString();
+      const { error } = await supabase
+        .from("attendance_records")
+        .update({ checkin_time: timestamp })
+        .eq("id", recId);
+      if (error) throw error;
+      setRecords((prev) =>
+        prev.map((r) =>
+          r.id === recId ? { ...r, checkin_time: timestamp } : r,
+        ),
+      );
+      setEditingRecId(null);
+    } catch (e) {
+      console.error("Error editing session date:", e);
+      alert("Không thể cập nhật ngày học.");
+    } finally {
+      setRecActionLoading(false);
+    }
+  };
+
+  const handleDeleteSession = async (recId: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa buổi điểm danh này?")) return;
+    setRecActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from("attendance_records")
+        .delete()
+        .eq("id", recId);
+      if (error) throw error;
+      setRecords((prev) => prev.filter((r) => r.id !== recId));
+    } catch (e) {
+      console.error("Error deleting session:", e);
+      alert("Không thể xóa buổi điểm danh.");
+    } finally {
+      setRecActionLoading(false);
+    }
   };
 
   if (loading)
@@ -418,7 +513,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
               <option value="all">{tAtt.allClasses}</option>
               {availableClasses.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {formatClassName(c, tAtt.unassignedClass)}
                 </option>
               ))}
             </select>
@@ -442,7 +537,19 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           </select>
         </div>
 
-        <div className="w-full sm:w-auto flex-1 min-w-[200px]">
+        <div className="w-full sm:w-auto flex-1 min-w-[160px]">
+          <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
+            {tAtt.hocLieuSlip || "Học liệu"}
+          </label>
+          <input
+            type="text"
+            placeholder={tAtt.hocLieuPlaceholder || "VD: 20.000đ photo..."}
+            value={generalHocLieu}
+            onChange={(e) => setGeneralHocLieu(e.target.value)}
+            className="w-full px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white font-bold text-slate-700 text-sm"
+          />
+        </div>
+        <div className="w-full sm:w-auto flex-1 min-w-[160px]">
           <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
             {tAtt.noteLabel || "Ghi chú"}
           </label>
@@ -556,7 +663,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                 <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-5 py-3 flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <Users size={16} className="text-purple-200" />
-                    <span className="font-black text-white">{cls}</span>
+                    <span className="font-black text-white">
+                      {formatClassName(cls, tAtt.unassignedClass)}
+                    </span>
                     <span className="text-purple-200 text-sm font-bold">
                       (
                       {tAtt.studentCount.replace(
@@ -737,7 +846,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   <div>
                     <h2 className="font-black text-white text-xl">{s.name}</h2>
                     <p className="text-purple-200 text-sm font-bold mt-0.5">
-                      {s.class_name || tAtt.unassignedClass} · {MONTH_LABEL}
+                      {formatClassName(s.class_name, tAtt.unassignedClass)} ·{" "}
+                      {MONTH_LABEL}
                     </p>
                   </div>
                   <button
@@ -810,86 +920,257 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                 <div className="flex-1 overflow-y-auto">
                   {!previewMode ? (
                     /* ---- Attendance list tab ---- */
-                    studentRecs.length === 0 ? (
-                      <p className="text-center py-8 text-slate-400 font-bold">
-                        Không có buổi nào
-                      </p>
-                    ) : (
-                      <table className="w-full text-sm">
-                        <thead className="bg-slate-50 sticky top-0 border-b border-slate-200">
-                          <tr>
-                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
-                              STT
-                            </th>
-                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
-                              Ngày
-                            </th>
-                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
-                              Giờ
-                            </th>
-                            <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase">
-                              Trạng thái
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {studentRecs.map((r, i) => {
-                            const dt = new Date(r.checkin_time);
-                            return (
-                              <tr
-                                key={r.id}
-                                className="hover:bg-purple-50 transition-colors"
+                    <div className="p-4 space-y-4">
+                      {/* Top action bar: Add makeup session */}
+                      <div className="flex justify-between items-center bg-purple-50/70 border border-purple-100 rounded-xl p-3">
+                        <div>
+                          <p className="text-xs font-black text-purple-900">
+                            Danh sách điểm danh ({studentRecs.length} buổi)
+                          </p>
+                          <p className="text-[11px] text-purple-600 font-medium">
+                            Thêm học bù hoặc điều chỉnh ngày học của học sinh
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setShowAddDateForm(!showAddDateForm);
+                            if (!newDateVal) {
+                              const defaultD = `${year}-${String(month).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`;
+                              setNewDateVal(defaultD);
+                            }
+                          }}
+                          className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-black shadow-sm flex items-center gap-1 transition-all active:scale-95"
+                        >
+                          <Plus size={14} /> Thêm buổi học bù
+                        </button>
+                      </div>
+
+                      {/* Add makeup form */}
+                      {showAddDateForm && (
+                        <div className="bg-white border-2 border-purple-200 rounded-xl p-3.5 shadow-sm space-y-3 animate-in fade-in duration-150">
+                          <p className="text-xs font-black text-slate-700 uppercase tracking-wide flex items-center gap-1.5">
+                            <CalendarDays
+                              size={14}
+                              className="text-purple-600"
+                            />
+                            Thêm buổi điểm danh / học bù mới
+                          </p>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex-1 min-w-[140px]">
+                              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                                Ngày học
+                              </label>
+                              <input
+                                type="date"
+                                value={newDateVal}
+                                onChange={(e) => setNewDateVal(e.target.value)}
+                                className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 focus:ring-2 focus:ring-purple-400"
+                              />
+                            </div>
+                            <div className="w-28">
+                              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                                Giờ học
+                              </label>
+                              <input
+                                type="time"
+                                value={newTimeVal}
+                                onChange={(e) => setNewTimeVal(e.target.value)}
+                                className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 focus:ring-2 focus:ring-purple-400"
+                              />
+                            </div>
+                            <div className="flex items-end gap-2 pt-4">
+                              <button
+                                onClick={() => handleAddMakeupSession(s.id)}
+                                disabled={recActionLoading || !newDateVal}
+                                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-black shadow transition-all flex items-center gap-1"
                               >
-                                <td className="px-4 py-3 text-slate-400 font-bold">
-                                  {i + 1}
-                                </td>
-                                <td className="px-4 py-3">
-                                  <p className="font-black text-slate-800">
-                                    {dt.toLocaleDateString("vi-VN", {
-                                      weekday: "short",
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                    })}
-                                  </p>
-                                </td>
-                                <td className="px-4 py-3 font-bold text-slate-500">
-                                  {dt.toLocaleTimeString("vi-VN", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-black rounded-lg">
-                                    <CheckCircle2 size={11} /> Có mặt
-                                  </span>
-                                </td>
+                                {recActionLoading ? (
+                                  <Loader2 size={13} className="animate-spin" />
+                                ) : (
+                                  <Check size={13} />
+                                )}
+                                Lưu
+                              </button>
+                              <button
+                                onClick={() => setShowAddDateForm(false)}
+                                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-bold transition-colors"
+                              >
+                                Hủy
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Attendance records table */}
+                      {studentRecs.length === 0 ? (
+                        <div className="text-center py-10 border-2 border-dashed border-slate-200 rounded-xl">
+                          <p className="text-slate-400 font-bold text-sm">
+                            Chưa có buổi điểm danh nào trong tháng này.
+                          </p>
+                          <p className="text-slate-400 text-xs mt-1">
+                            Bấm nút &quot;Thêm buổi học bù&quot; ở trên để thêm
+                            điểm danh.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                          <table className="w-full text-sm">
+                            <thead className="bg-slate-50 border-b border-slate-200">
+                              <tr>
+                                <th className="px-3 py-2.5 text-left text-xs font-black text-slate-500 uppercase w-10">
+                                  STT
+                                </th>
+                                <th className="px-3 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
+                                  Ngày
+                                </th>
+                                <th className="px-3 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
+                                  Giờ
+                                </th>
+                                <th className="px-3 py-2.5 text-center text-xs font-black text-slate-500 uppercase">
+                                  Trạng thái
+                                </th>
+                                <th className="px-3 py-2.5 text-right text-xs font-black text-slate-500 uppercase w-24">
+                                  Thao tác
+                                </th>
                               </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    )
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                              {studentRecs.map((r, i) => {
+                                const dt = new Date(r.checkin_time);
+                                const isEditing = editingRecId === r.id;
+
+                                return (
+                                  <tr
+                                    key={r.id}
+                                    className="hover:bg-purple-50/50 transition-colors"
+                                  >
+                                    <td className="px-3 py-2.5 text-slate-400 font-bold">
+                                      {i + 1}
+                                    </td>
+                                    <td className="px-3 py-2.5">
+                                      {isEditing ? (
+                                        <input
+                                          type="date"
+                                          value={editDateVal}
+                                          onChange={(e) =>
+                                            setEditDateVal(e.target.value)
+                                          }
+                                          className="px-2 py-1 border border-purple-300 rounded text-xs font-bold text-slate-800"
+                                        />
+                                      ) : (
+                                        <p className="font-black text-slate-800">
+                                          {dt.toLocaleDateString("vi-VN", {
+                                            weekday: "short",
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                          })}
+                                        </p>
+                                      )}
+                                    </td>
+                                    <td className="px-3 py-2.5 font-bold text-slate-500">
+                                      {isEditing ? (
+                                        <input
+                                          type="time"
+                                          value={editTimeVal}
+                                          onChange={(e) =>
+                                            setEditTimeVal(e.target.value)
+                                          }
+                                          className="px-2 py-1 border border-purple-300 rounded text-xs font-bold text-slate-800"
+                                        />
+                                      ) : (
+                                        dt.toLocaleTimeString("vi-VN", {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })
+                                      )}
+                                    </td>
+                                    <td className="px-3 py-2.5 text-center">
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-black rounded-lg">
+                                        <CheckCircle2 size={11} /> Có mặt
+                                      </span>
+                                    </td>
+                                    <td className="px-3 py-2.5 text-right">
+                                      {isEditing ? (
+                                        <div className="flex items-center justify-end gap-1">
+                                          <button
+                                            onClick={() =>
+                                              handleSaveEditSession(r.id)
+                                            }
+                                            disabled={recActionLoading}
+                                            className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded transition-colors"
+                                            title="Lưu"
+                                          >
+                                            <Save size={13} />
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              setEditingRecId(null)
+                                            }
+                                            className="p-1.5 bg-slate-200 text-slate-600 rounded transition-colors"
+                                            title="Hủy"
+                                          >
+                                            <X size={13} />
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center justify-end gap-1">
+                                          <button
+                                            onClick={() => {
+                                              setEditingRecId(r.id);
+                                              const dStr = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+                                              const tStr = `${String(dt.getHours()).padStart(2, "0")}:${String(dt.getMinutes()).padStart(2, "0")}`;
+                                              setEditDateVal(dStr);
+                                              setEditTimeVal(tStr);
+                                            }}
+                                            className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-100 rounded transition-colors"
+                                            title="Sửa ngày/giờ"
+                                          >
+                                            <Pencil size={13} />
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              handleDeleteSession(r.id)
+                                            }
+                                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-100 rounded transition-colors"
+                                            title="Xóa buổi này"
+                                          >
+                                            <Trash2 size={13} />
+                                          </button>
+                                        </div>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     /* ---- Preview phiếu học phí tab ---- */
-                    <div className="flex flex-col items-center bg-slate-100 min-h-full py-6 px-4">
-                      <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-4 flex items-center gap-1.5">
-                        <Eye size={12} /> Đây là hình ảnh phiếu học phí sẽ được
-                        tải về
+                    <div className="flex flex-col items-center bg-slate-100 min-h-full py-4 px-4">
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <Eye size={12} /> Xem trước phiếu học phí
                       </p>
-                      {/* Preview scaled down to fit modal */}
+                      {/* Preview: scale down to fit modal width (modal max-w-2xl = 672px, slip = 500px) */}
                       <div
-                        className="origin-top shadow-xl rounded-lg overflow-hidden"
                         style={{
-                          transform: "scale(0.72)",
+                          width: "500px",
+                          transform: "scale(0.78)",
                           transformOrigin: "top center",
-                          marginBottom: "-100px",
+                          marginBottom: "-110px",
                         }}
+                        className="shadow-xl rounded-lg overflow-hidden"
                       >
                         <TuitionSlipTemplate
                           tAtt={tAtt}
                           student={s}
                           records={studentRecs}
                           month={month}
+                          hocLieu={generalHocLieu}
                           note={
                             (studentNotes[s.id] && studentNotes[s.id].trim()) ||
                             generalNote
@@ -943,8 +1224,16 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           );
         })()}
 
-      {/* Hidden container for image export */}
-      <div className="fixed top-0 left-[-9999px]">
+      {/* Hidden container for image export - dùng top thay left để layout tính đúng */}
+      <div
+        style={{
+          position: "fixed",
+          top: "-9999px",
+          left: "0",
+          zIndex: -1,
+          pointerEvents: "none",
+        }}
+      >
         {exportStudent && (
           <TuitionSlipTemplate
             ref={slipRef}
@@ -958,6 +1247,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   new Date(b.checkin_time).getTime(),
               )}
             month={month}
+            hocLieu={generalHocLieu}
             note={
               (studentNotes[exportStudent.id] &&
                 studentNotes[exportStudent.id].trim()) ||

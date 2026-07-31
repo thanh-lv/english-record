@@ -634,6 +634,8 @@ export const en = {
     studentNameSlip: "🧸 Student",
     unitPriceSlip: "💎 Price / session",
     sessionsSlip: "📝 Sessions",
+    hocLieuSlip: "📚 Materials",
+    hocLieuPlaceholder: "E.g.: Printed materials fee...",
     totalTuitionSlip: "TOTAL TUITION",
     attendanceDates: "ATTENDANCE DATES",
     noteLabel: "Note: ",

@@ -8,6 +8,7 @@ import {
   X,
   Phone,
 } from "lucide-react";
+import { formatClassName } from "../../../utils";
 
 interface ZaloShareModalProps {
   student: any;
@@ -47,7 +48,9 @@ export function ZaloShareModal({
 
   const formattedFee = (student.total_fee || 0).toLocaleString();
   const statusText = isPaid ? "🟢 Đã nộp" : "🔴 Chưa nộp";
-  const classNameStr = student.class_name ? ` (Lớp ${student.class_name})` : "";
+  const classNameStr = student.class_name
+    ? ` (${formatClassName(student.class_name)})`
+    : "";
 
   const defaultMessage = `Kính gửi Phụ huynh em ${student.name}${classNameStr},
 

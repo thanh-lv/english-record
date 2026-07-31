@@ -11,6 +11,7 @@ import {
   Phone,
 } from "lucide-react";
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
+import { formatClassName } from "../../../utils";
 
 export function StudentsTab({ tAtt }: { tAtt: any }) {
   const [students, setStudents] = useState<any[]>([]);
@@ -208,7 +209,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
             <option value="all">{tAtt.allClasses}</option>
             {availableClasses.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {formatClassName(c, tAtt.unassignedClass)}
               </option>
             ))}
           </select>
@@ -351,7 +352,9 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
               <div className="bg-blue-600 px-4 py-2.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Users size={14} className="text-blue-200" />
-                  <span className="font-black text-white text-sm">{cls}</span>
+                  <span className="font-black text-white text-sm">
+                    {formatClassName(cls, tAtt.unassignedClass)}
+                  </span>
                 </div>
                 <span className="text-blue-200 text-xs font-bold">
                   {rows.length} học sinh

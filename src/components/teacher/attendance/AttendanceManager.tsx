@@ -11,7 +11,7 @@ export function AttendanceManager() {
   const tAtt = (t as any).attendance;
   const [activeTab, setActiveTab] = useState<
     "students" | "checkin" | "summary" | "leaderboard"
-  >("students");
+  >("summary");
 
   return (
     <div className="space-y-4">

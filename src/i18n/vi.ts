@@ -633,11 +633,13 @@ export const vi = {
     studentNameSlip: "🧸 Học sinh",
     unitPriceSlip: "💎 Học phí / buổi",
     sessionsSlip: "📝 Số buổi học",
+    hocLieuSlip: "📚 Học liệu",
+    hocLieuPlaceholder: "VD: 20.000đ photo bài tập...",
     totalTuitionSlip: "TỔNG HỌC PHÍ",
     attendanceDates: "NGÀY ĐI HỌC",
     noteLabel: "Ghi chú: ",
     defaultNote:
-      "Nếu trong quá trình tổng kết học phí có bất kỳ nhầm lẫn nào, phụ huynh nhắn lại để em kiểm tra và điều chỉnh nhé!",
+      "Nếu trong quá trình tổng kết học phí có bất kỳ nhầm lẫn nào, phụ huynh nhắn lại để cô kiểm tra và điều chỉnh nhé!",
     notePlaceholder: "Nhập ghi chú chung cho các phiếu...",
     exportingImage: "Đang xuất ảnh...",
 

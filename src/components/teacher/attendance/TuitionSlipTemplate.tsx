@@ -5,11 +5,12 @@ interface TuitionSlipProps {
   student: any;
   records: any[];
   month: number;
-  note: string;
+  hocLieu?: string;
+  note?: string;
 }
 
 export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
-  ({ tAtt, student, records, month, note }, ref) => {
+  ({ tAtt, student, records, month, hocLieu, note }, ref) => {
     const dates = records.map((r) => {
       const dt = new Date(r.checkin_time);
       const day = String(dt.getDate()).padStart(2, "0");
@@ -20,107 +21,348 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
     return (
       <div
         ref={ref}
-        className="bg-white w-[500px] flex flex-col font-sans"
         style={{
+          fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+          backgroundColor: "#ffffff",
+          width: "500px",
           boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {/* Header Block */}
-        <div className="bg-[#4fb8af] pt-8 pb-6 px-4 flex flex-col items-center justify-center text-white">
-          <div className="w-48 h-12 bg-white mb-3" /> {/* Decorative top bar */}
-          <h1 className="text-4xl font-light tracking-wide mb-1 uppercase">
+        <div
+          style={{
+            background: "linear-gradient(135deg, #4fb8af 0%, #38a89d 100%)",
+            paddingTop: 36,
+            paddingBottom: 28,
+            paddingLeft: 24,
+            paddingRight: 24,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+          }}
+        >
+          <div
+            style={{
+              width: 180,
+              height: 6,
+              backgroundColor: "rgba(255,255,255,0.5)",
+              borderRadius: 4,
+              marginBottom: 16,
+            }}
+          />
+          <h1
+            style={{
+              fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+              fontSize: 34,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              margin: "0 0 6px 0",
+            }}
+          >
             {tAtt.tuitionSlipTitle}
           </h1>
-          <p className="text-xl font-light opacity-90">
+          <p
+            style={{
+              fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+              fontSize: 18,
+              fontWeight: 400,
+              opacity: 0.9,
+              margin: 0,
+            }}
+          >
             {tAtt.monthName.replace("{m}", month.toString())}
           </p>
         </div>
 
         {/* Info Rows */}
-        <div className="px-8 pt-8 pb-4 space-y-4 text-xl text-slate-700">
-          <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-3">
-              <span>{tAtt.studentNameSlip.split(" ")[0]}</span>
-              <span className="font-light">
-                {tAtt.studentNameSlip.substring(3)}
-              </span>
-            </div>
-            <span className="font-medium text-2xl text-slate-800">
+        <div style={{ padding: "28px 32px 12px 32px" }}>
+          {/* Học sinh */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: "1px solid #e8f0ef",
+              paddingBottom: 14,
+              marginBottom: 14,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 17,
+                fontWeight: 500,
+                color: "#64748b",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              {tAtt.studentNameSlip}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 20,
+                fontWeight: 700,
+                color: "#1e293b",
+              }}
+            >
               {student.name}
             </span>
           </div>
 
-          <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-3">
-              <span>{tAtt.unitPriceSlip.split(" ")[0]}</span>
-              <span className="font-light">
-                {tAtt.unitPriceSlip.substring(3)}
-              </span>
-            </div>
-            <span className="font-medium">
+          {/* Học phí / buổi */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: "1px solid #e8f0ef",
+              paddingBottom: 14,
+              marginBottom: 14,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 17,
+                fontWeight: 500,
+                color: "#64748b",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              {tAtt.unitPriceSlip}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 17,
+                fontWeight: 600,
+                color: "#1e293b",
+              }}
+            >
               {student.unit_price.toLocaleString()} đ
             </span>
           </div>
 
-          <div className="flex justify-between items-center pb-3 relative">
-            <div className="flex items-center gap-3">
-              <span>{tAtt.sessionsSlip.split(" ")[0]}</span>
-              <span className="font-light">
-                {tAtt.sessionsSlip.substring(3)}
-              </span>
-            </div>
-            <span className="font-medium">{student.total_sessions}</span>
+          {/* Số buổi học */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: "1px solid #e8f0ef",
+              paddingBottom: 14,
+              marginBottom: 14,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 17,
+                fontWeight: 500,
+                color: "#64748b",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              {tAtt.sessionsSlip}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 17,
+                fontWeight: 600,
+                color: "#1e293b",
+              }}
+            >
+              {student.total_sessions}
+            </span>
+          </div>
+
+          {/* Học liệu */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: "1px solid #e8f0ef",
+              paddingBottom: 14,
+              marginBottom: 4,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 17,
+                fontWeight: 500,
+                color: "#64748b",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              {tAtt.hocLieuSlip || "📚 Học liệu"}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 17,
+                fontWeight: 600,
+                color: "#1e293b",
+                maxWidth: "260px",
+                textAlign: "right",
+              }}
+            >
+              {hocLieu || "—"}
+            </span>
           </div>
         </div>
 
         {/* Total Box */}
-        <div className="px-8 relative z-10 mt-2">
-          {/* Offset text */}
-          <div className="absolute -top-4 left-0 w-full text-center z-20">
-            <span className="font-serif font-bold text-2xl text-slate-900 bg-white px-2">
-              Học liệu (photo bài tập)
-            </span>
-          </div>
-
-          <div className="bg-[#f4faf9] border-[1.5px] border-[#9fdcd7] rounded-lg p-6 pt-8 text-center shadow-md relative">
-            <p className="text-slate-600 text-sm font-semibold tracking-widest uppercase mb-1">
+        <div style={{ padding: "8px 32px 0 32px" }}>
+          <div
+            style={{
+              backgroundColor: "#f4faf9",
+              border: "1.5px solid #9fdcd7",
+              borderRadius: 12,
+              padding: "20px 24px",
+              textAlign: "center",
+              boxShadow: "0 2px 8px rgba(79,184,175,0.1)",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "#64748b",
+                marginBottom: 6,
+                margin: 0,
+              }}
+            >
               {tAtt.totalTuitionSlip}
             </p>
-            <p className="text-[#138e83] text-5xl font-semibold tracking-tight">
+            <p
+              style={{
+                fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                fontSize: 42,
+                fontWeight: 700,
+                color: "#138e83",
+                letterSpacing: "-0.02em",
+                margin: 0,
+                marginTop: 4,
+              }}
+            >
               {student.total_fee.toLocaleString()} đ
             </p>
           </div>
         </div>
 
         {/* Dates Block */}
-        <div className="px-6 mt-6">
-          <p className="text-center text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2.5">
+        <div style={{ padding: "20px 24px 0 24px" }}>
+          <p
+            style={{
+              fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+              textAlign: "center",
+              fontSize: 11,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.12em",
+              color: "#94a3b8",
+              margin: "0 0 10px 0",
+            }}
+          >
             {tAtt.attendanceDates}
           </p>
-          <div className="flex flex-wrap justify-center gap-1.5 max-w-[440px] mx-auto">
+          {/* Dùng text-align center + inline-block thay flex+gap để html2canvas render đúng */}
+          <div
+            style={{
+              textAlign: "center",
+              width: "100%",
+              lineHeight: "32px",
+            }}
+          >
             {dates.map((date, idx) => (
               <span
                 key={idx}
-                className="inline-block h-6 px-2.5 border border-[#9fdcd7] rounded-lg text-[13px] font-medium text-[#138e83] leading-none text-center"
+                style={{
+                  display: "inline-block",
+                  height: 24,
+                  padding: "0 10px",
+                  border: "1px solid #9fdcd7",
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                  fontWeight: 500,
+                  color: "#138e83",
+                  lineHeight: "24px",
+                  margin: "4px 3px",
+                  verticalAlign: "middle",
+                }}
               >
-                <span className="relative -top-[2px] block">{date}</span>
+                {date}
               </span>
             ))}
             {dates.length === 0 && (
-              <span className="text-slate-400 italic">...</span>
+              <span
+                style={{
+                  fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                  color: "#94a3b8",
+                  fontStyle: "italic",
+                }}
+              >
+                ...
+              </span>
             )}
           </div>
         </div>
 
         {/* Note Footer */}
-        <div className="px-8 mt-8 pb-10 font-serif">
+        <div style={{ padding: "20px 32px 36px 32px" }}>
           {note ? (
-            <p className="text-xl font-bold text-slate-800 mb-4 leading-tight whitespace-pre-wrap">
-              {tAtt.noteLabel}
-              <span className="font-medium">{note}</span>
-            </p>
+            <div
+              style={{
+                borderTop: "1px solid #e8f0ef",
+                paddingTop: 16,
+                marginBottom: 16,
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: "#475569",
+                  lineHeight: 1.6,
+                  margin: 0,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                <span style={{ fontWeight: 700, color: "#1e293b" }}>
+                  {tAtt.noteLabel}
+                </span>
+                {note}
+              </p>
+            </div>
           ) : null}
-          <p className="text-2xl font-bold text-slate-900 leading-snug">
+          <p
+            style={{
+              fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
+              color: "#64748b",
+              lineHeight: 1.7,
+              margin: 0,
+            }}
+          >
             {tAtt.defaultNote}
           </p>
         </div>

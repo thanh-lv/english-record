@@ -12,6 +12,7 @@ import {
   Save,
   Users,
 } from "lucide-react";
+import { formatClassName } from "../../../utils";
 
 export function CheckinTab({ tAtt }: { tAtt: any }) {
   const [students, setStudents] = useState<any[]>([]);
@@ -488,7 +489,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                   <option value="all">{tAtt.allClasses}</option>
                   {availableClasses.map((c) => (
                     <option key={c} value={c}>
-                      {c}
+                      {formatClassName(c, tAtt.unassignedClass)}
                     </option>
                   ))}
                 </select>
@@ -577,12 +578,56 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                           <div className="flex items-center gap-2">
                             <Users size={14} className="text-purple-600" />
                             <span className="font-black text-slate-800 text-xs sm:text-sm">
-                              {clsName}
+                              {formatClassName(clsName, tAtt.unassignedClass)}
                             </span>
                           </div>
-                          <span className="text-xs font-bold text-slate-500">
-                            {classDone.length}/{classStudents.length} đã DD
-                          </span>
+                          <div className="flex items-center gap-3">
+                            {classPending.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const allSelected = classPending.every((s) =>
+                                    checkedIds.has(s.id),
+                                  );
+                                  const next = new Set(checkedIds);
+                                  if (allSelected) {
+                                    classPending.forEach((s) =>
+                                      next.delete(s.id),
+                                    );
+                                  } else {
+                                    classPending.forEach((s) => next.add(s.id));
+                                  }
+                                  setCheckedIds(next);
+                                }}
+                                className={`text-xs font-black px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1.5 active:scale-95 ${
+                                  classPending.every((s) =>
+                                    checkedIds.has(s.id),
+                                  )
+                                    ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                                    : "bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={classPending.every((s) =>
+                                    checkedIds.has(s.id),
+                                  )}
+                                  onChange={() => {}}
+                                  className="w-3.5 h-3.5 accent-emerald-600 rounded cursor-pointer pointer-events-none"
+                                />
+                                <span>
+                                  {classPending.every((s) =>
+                                    checkedIds.has(s.id),
+                                  )
+                                    ? "Đã chọn cả lớp"
+                                    : "Chọn cả lớp"}
+                                </span>
+                              </button>
+                            )}
+                            <span className="text-xs font-bold text-slate-500">
+                              {classDone.length}/{classStudents.length} đã DD
+                            </span>
+                          </div>
                         </div>
 
                         {/* Student Cards Grid for this class */}
