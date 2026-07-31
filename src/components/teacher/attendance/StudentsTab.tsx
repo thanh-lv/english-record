@@ -24,6 +24,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
   const [unitPrice, setUnitPrice] = useState("");
   const [phone, setPhone] = useState("");
   const [hocLieuFee, setHocLieuFee] = useState("");
+  const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -81,6 +82,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
       unit_price: price,
       phone: phone.trim(),
       hoc_lieu: hlPrice,
+      note: note.trim(),
     };
 
     try {
@@ -117,6 +119,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
       setUnitPrice("");
       setPhone("");
       setHocLieuFee("");
+      setNote("");
       setEditId(null);
     } catch (err: any) {
       setError(
@@ -136,6 +139,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
       student.hoc_lieu ? Number(student.hoc_lieu).toLocaleString() : "",
     );
     setPhone(student.phone || "");
+    setNote(student.note || student.student_note || "");
     setShowForm(true);
   };
 

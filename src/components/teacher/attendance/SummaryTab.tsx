@@ -130,6 +130,33 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
       console.error("Error updating class hoc_lieu in Supabase:", e);
     }
   };
+
+  const handleUpdateStudentNote = async (studentId: string, noteVal: string) => {
+    setStudentNotes((prev) => ({ ...prev, [studentId]: noteVal }));
+
+    setStudents((prev) =>
+      prev.map((s) => (s.id === studentId ? { ...s, note: noteVal } : s)),
+    );
+
+    if (selectedStudent && selectedStudent.id === studentId) {
+      setSelectedStudent((prev: any) => ({ ...prev, note: noteVal }));
+    }
+
+    try {
+      const { error } = await supabase
+        .from("attendance_students")
+        .update({ note: noteVal })
+        .eq("id", studentId);
+      if (error) {
+        await supabase
+          .from("attendance_students")
+          .update({ student_note: noteVal })
+          .eq("id", studentId);
+      }
+    } catch (e) {
+      console.error("Error saving student note to Supabase:", e);
+    }
+  };
   const slipRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [exportStudent, setExportStudent] = useState<any>(null);
@@ -191,7 +218,16 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           .eq("month", month),
       ]);
 
-      if (studRes.data) setStudents(studRes.data);
+      if (studRes.data) {
+        setStudents(studRes.data);
+        const nMap: Record<string, string> = {};
+        studRes.data.forEach((s: any) => {
+          if (s.note || s.student_note) {
+            nMap[s.id] = s.note || s.student_note;
+          }
+        });
+        setStudentNotes((prev) => ({ ...nMap, ...prev }));
+      }
       if (recRes.data) setRecords(recRes.data);
       if (payRes && payRes.data) {
         const pMap: Record<string, boolean> = {};
@@ -931,17 +967,25 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                             <CalendarDays size={12} /> Xem
                           </button>
                         </div>
-                        {/* Row 3: Ghi chú */}
+                        {/* Row 3: Ghi chú riêng (Lưu CSDL Supabase) */}
                         <div className="mt-2 pl-7 print:hidden">
                           <input
                             type="text"
-                            placeholder="Nhập ghi chú riêng..."
-                            value={studentNotes[s.id] || ""}
-                            onChange={(e) =>
+                            placeholder="Nhập ghi chú riêng (Tự động lưu)..."
+                            value={
+                              studentNotes[s.id] !== undefined
+                                ? studentNotes[s.id]
+                                : s.note || s.student_note || ""
+                            }
+                            onChange={(e) => {
+                              const val = e.target.value;
                               setStudentNotes((prev) => ({
                                 ...prev,
-                                [s.id]: e.target.value,
-                              }))
+                                [s.id]: val,
+                              }));
+                            }}
+                            onBlur={(e) =>
+                              handleUpdateStudentNote(s.id, e.target.value)
                             }
                             className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-purple-400 bg-white placeholder:text-slate-300"
                           />
