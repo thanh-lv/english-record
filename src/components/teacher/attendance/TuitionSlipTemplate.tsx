@@ -57,7 +57,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
           <h1
             style={{
               fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
-              fontSize: 34,
+              fontSize: 32,
               fontWeight: 700,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
@@ -299,7 +299,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
                   padding: "0 10px",
                   border: "1px solid #9fdcd7",
                   borderRadius: 8,
-                  fontSize: 13,
+                  fontSize: 16,
                   fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
                   fontWeight: 500,
                   color: "#138e83",
@@ -338,7 +338,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
               <p
                 style={{
                   fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: 500,
                   color: "#475569",
                   lineHeight: 1.6,
@@ -356,7 +356,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
           <p
             style={{
               fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
-              fontSize: 13,
+              fontSize: 16,
               fontWeight: 500,
               color: "#64748b",
               lineHeight: 1.7,

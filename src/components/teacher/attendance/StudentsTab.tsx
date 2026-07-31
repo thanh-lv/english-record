@@ -11,7 +11,7 @@ import {
   Phone,
 } from "lucide-react";
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
-import { formatClassName } from "../../../utils";
+import { formatClassName, useBodyScrollLock } from "../../../utils";
 
 export function StudentsTab({ tAtt }: { tAtt: any }) {
   const [students, setStudents] = useState<any[]>([]);
@@ -28,6 +28,9 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
+
+  // Lock body scroll when modal is open
+  useBodyScrollLock(Boolean(showForm || deleteId));
 
   const loadStudents = async () => {
     setLoading(true);

@@ -1,6 +1,7 @@
 import { AlertCircle, Loader2, Trash2 } from "lucide-react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { useBodyScrollLock } from "../../../utils";
 
 interface DeleteConfirmModalProps {
   title: string;
@@ -25,6 +26,7 @@ export function DeleteConfirmModal({
 }: DeleteConfirmModalProps) {
   const { t } = useLanguage();
   useEscapeToClose(onCancel);
+  useBodyScrollLock(true);
   return (
     <div
       className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overscroll-contain"

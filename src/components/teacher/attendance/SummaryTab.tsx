@@ -24,7 +24,7 @@ import { AttendanceAnalytics } from "./AttendanceAnalytics";
 import { ZaloShareModal } from "./ZaloShareModal";
 import { MessageCircle } from "lucide-react";
 import { Check, X, DollarSign } from "lucide-react";
-import { formatClassName } from "../../../utils";
+import { formatClassName, useBodyScrollLock } from "../../../utils";
 
 export function SummaryTab({ tAtt }: { tAtt: any }) {
   const [records, setRecords] = useState<any[]>([]);
@@ -51,6 +51,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   const [zaloStudent, setZaloStudent] = useState<any | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // Lock body scroll when student detail modal or Zalo modal is open
+  useBodyScrollLock(Boolean(selectedStudent || zaloStudent));
 
   // Edit / Add attendance record state for single student
   const [showAddDateForm, setShowAddDateForm] = useState(false);

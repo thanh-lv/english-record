@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 export function calculateStreak(records: any[]): number {
   if (!records || records.length === 0) return 0;
 
@@ -63,4 +65,15 @@ export function formatClassName(
     return trimmed;
   }
   return `Lớp ${trimmed}`;
+}
+
+export function useBodyScrollLock(isLocked: boolean) {
+  useEffect(() => {
+    if (!isLocked) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isLocked]);
 }

@@ -8,7 +8,7 @@ import {
   X,
   Phone,
 } from "lucide-react";
-import { formatClassName } from "../../../utils";
+import { formatClassName, useBodyScrollLock } from "../../../utils";
 
 interface ZaloShareModalProps {
   student: any;
@@ -27,6 +27,7 @@ export function ZaloShareModal({
   note,
   onClose,
 }: ZaloShareModalProps) {
+  useBodyScrollLock(true);
   const [phone, setPhone] = useState(student.phone || "");
   const [copied, setCopied] = useState(false);
 

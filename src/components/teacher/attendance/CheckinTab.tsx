@@ -12,7 +12,7 @@ import {
   Save,
   Users,
 } from "lucide-react";
-import { formatClassName } from "../../../utils";
+import { formatClassName, useBodyScrollLock } from "../../../utils";
 
 export function CheckinTab({ tAtt }: { tAtt: any }) {
   const [students, setStudents] = useState<any[]>([]);
@@ -40,6 +40,9 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
   const [deleting, setDeleting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Lock body scroll when any modal is open
+  useBodyScrollLock(Boolean(modalDate || deleteTargetStudent));
+
   useEffect(() => {
     supabase
       .from("attendance_students")
@@ -56,7 +59,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
     const end = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
     const { data } = await supabase
       .from("attendance_records")
-      .select("student_id, checkin_time")
+      .select("id, student_id, checkin_time")
       .gte("checkin_time", start)
       .lte("checkin_time", end);
     if (data) setMonthRecords(data);
@@ -103,13 +106,11 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
     } else setCalMonth((m) => m + 1);
   };
 
-  // Records grouped by day number
-  const recordsByDay: Record<number, string[]> = {};
+  // Records count per day number
+  const recordsCountByDay: Record<number, number> = {};
   monthRecords.forEach((r) => {
     const d = new Date(r.checkin_time).getDate();
-    if (!recordsByDay[d]) recordsByDay[d] = [];
-    if (!recordsByDay[d].includes(r.student_id))
-      recordsByDay[d].push(r.student_id);
+    recordsCountByDay[d] = (recordsCountByDay[d] || 0) + 1;
   });
 
   const isToday = (day: number) =>
@@ -136,22 +137,19 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
     setSuccess(false);
   };
 
-  // Modal: students already checked in on modalDate
-  const alreadyCheckedInIds: Set<string> = modalDate
-    ? new Set(
-        monthRecords
-          .filter((r) => {
-            const d = new Date(r.checkin_time);
-            return (
-              modalDate &&
-              d.getFullYear() === modalDate.getFullYear() &&
-              d.getMonth() === modalDate.getMonth() &&
-              d.getDate() === modalDate.getDate()
-            );
-          })
-          .map((r) => r.student_id),
-      )
-    : new Set<string>();
+  // Get existing records on modalDate for a student
+  const getStudentDayRecords = (studentId: string) => {
+    if (!modalDate) return [];
+    return monthRecords.filter((r) => {
+      const d = new Date(r.checkin_time);
+      return (
+        d.getFullYear() === modalDate.getFullYear() &&
+        d.getMonth() === modalDate.getMonth() &&
+        d.getDate() === modalDate.getDate() &&
+        r.student_id === studentId
+      );
+    });
+  };
 
   const availableClasses = Array.from(
     new Set(students.map((s) => s.class_name || tAtt.unassignedClass)),
@@ -162,29 +160,18 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
       : students.filter(
           (s) => (s.class_name || tAtt.unassignedClass) === filterClass,
         );
-  const pendingStudents = filteredStudents.filter(
-    (s) => !alreadyCheckedInIds.has(s.id),
-  );
-  const doneStudents = filteredStudents.filter((s) =>
-    alreadyCheckedInIds.has(s.id),
-  );
 
   const handleToggle = (id: string) => {
-    if (alreadyCheckedInIds.has(id)) return;
     const next = new Set(checkedIds);
     if (next.has(id)) next.delete(id);
     else next.add(id);
     setCheckedIds(next);
   };
   const handleSelectAll = () => {
-    if (pendingStudents.every((s) => checkedIds.has(s.id))) {
-      const next = new Set(checkedIds);
-      pendingStudents.forEach((s) => next.delete(s.id));
-      setCheckedIds(next);
+    if (filteredStudents.every((s) => checkedIds.has(s.id))) {
+      setCheckedIds(new Set());
     } else {
-      const next = new Set(checkedIds);
-      pendingStudents.forEach((s) => next.add(s.id));
-      setCheckedIds(next);
+      setCheckedIds(new Set(filteredStudents.map((s) => s.id)));
     }
   };
 
@@ -267,19 +254,9 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
       .join("")
       .toUpperCase();
   const checkedCount = checkedIds.size;
-  const allDoneForDay =
-    filteredStudents.length > 0 &&
-    filteredStudents.every((s) => alreadyCheckedInIds.has(s.id));
-  const progressPct =
-    filteredStudents.length > 0
-      ? Math.round(
-          ((doneStudents.length + checkedCount) / filteredStudents.length) *
-            100,
-        )
-      : 0;
-  const allPendingSelected =
-    pendingStudents.length > 0 &&
-    pendingStudents.every((s) => checkedIds.has(s.id));
+  const studentsWithCheckinCount = modalDate
+    ? filteredStudents.filter((s) => getStudentDayRecords(s.id).length > 0).length
+    : 0;
 
   // Group students by class for modal display
   const studentsByClass: Record<string, typeof filteredStudents> = {};
@@ -363,8 +340,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                 />
               );
             const tod = isToday(day);
-            const attendedIds = recordsByDay[day] || [];
-            const count = attendedIds.length;
+            const count = recordsCountByDay[day] || 0;
             const isSunday = idx % 7 === 0;
             const isFuture = new Date(calYear, calMonth, day) > today;
             return (
@@ -393,7 +369,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                   `}
                   >
                     <CheckCircle2 size={9} />
-                    <span className="hidden sm:inline">{count} hs</span>
+                    <span className="hidden sm:inline">{count} buổi</span>
                     <span className="sm:hidden">{count}</span>
                   </span>
                 )}
@@ -495,12 +471,15 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                 </select>
               </div>
 
-              {pendingStudents.length > 0 && (
+              {filteredStudents.length > 0 && (
                 <button
                   onClick={handleSelectAll}
                   className="ml-auto text-sm font-black text-emerald-600 hover:bg-emerald-50 px-3 py-1 rounded-lg border border-transparent hover:border-emerald-200 transition-colors"
                 >
-                  {allPendingSelected ? tAtt.deselectAll : tAtt.selectAll}
+                  {filteredStudents.length > 0 &&
+                  filteredStudents.every((s) => checkedIds.has(s.id))
+                    ? tAtt.deselectAll
+                    : tAtt.selectAll}
                 </button>
               )}
             </div>
@@ -510,45 +489,23 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
               <div className="px-5 py-2.5 shrink-0 border-b border-slate-100">
                 <div className="flex justify-between text-xs font-bold text-slate-500 mb-1.5">
                   <span>
-                    {doneStudents.length + checkedCount} /{" "}
-                    {tAtt.studentCount.replace(
-                      "{count}",
-                      filteredStudents.length.toString(),
-                    )}
+                    {studentsWithCheckinCount} / {filteredStudents.length} học sinh đã có điểm danh ngày này
                   </span>
-                  <span className="text-emerald-600 font-black">
-                    {progressPct}%
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-slate-100 rounded-lg overflow-hidden">
-                  <div
-                    className="h-full bg-emerald-500 rounded-lg transition-all duration-500"
-                    style={{ width: `${progressPct}%` }}
-                  />
+                  {checkedCount > 0 && (
+                    <span className="text-emerald-600 font-black">
+                      + Đang chọn thêm {checkedCount} buổi
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-3 mt-1.5 text-xs font-bold">
-                  {doneStudents.length > 0 && (
+                  {studentsWithCheckinCount > 0 && (
                     <span className="text-emerald-600">
-                      {tAtt.checkedInCount.replace(
-                        "{count}",
-                        doneStudents.length.toString(),
-                      )}
+                      ✓ {studentsWithCheckinCount} học sinh đã điểm danh
                     </span>
                   )}
                   {checkedCount > 0 && (
                     <span className="text-blue-600">
-                      {tAtt.selectingCount.replace(
-                        "{count}",
-                        checkedCount.toString(),
-                      )}
-                    </span>
-                  )}
-                  {pendingStudents.length - checkedCount > 0 && (
-                    <span className="text-slate-400">
-                      {tAtt.unselectedCount.replace(
-                        "{count}",
-                        (pendingStudents.length - checkedCount).toString(),
-                      )}
+                      ● Đang chọn thêm {checkedCount} học sinh
                     </span>
                   )}
                 </div>
@@ -564,12 +521,9 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
               ) : (
                 Object.entries(studentsByClass).map(
                   ([clsName, classStudents]) => {
-                    const classPending = classStudents.filter(
-                      (s) => !alreadyCheckedInIds.has(s.id),
-                    );
-                    const classDone = classStudents.filter((s) =>
-                      alreadyCheckedInIds.has(s.id),
-                    );
+                    const classDoneCount = classStudents.filter(
+                      (s) => getStudentDayRecords(s.id).length > 0,
+                    ).length;
 
                     return (
                       <div key={clsName} className="space-y-2">
@@ -582,25 +536,25 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                             </span>
                           </div>
                           <div className="flex items-center gap-3">
-                            {classPending.length > 0 && (
+                            {classStudents.length > 0 && (
                               <button
                                 type="button"
                                 onClick={() => {
-                                  const allSelected = classPending.every((s) =>
+                                  const allSelected = classStudents.every((s) =>
                                     checkedIds.has(s.id),
                                   );
                                   const next = new Set(checkedIds);
                                   if (allSelected) {
-                                    classPending.forEach((s) =>
+                                    classStudents.forEach((s) =>
                                       next.delete(s.id),
                                     );
                                   } else {
-                                    classPending.forEach((s) => next.add(s.id));
+                                    classStudents.forEach((s) => next.add(s.id));
                                   }
                                   setCheckedIds(next);
                                 }}
                                 className={`text-xs font-black px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1.5 active:scale-95 ${
-                                  classPending.every((s) =>
+                                  classStudents.every((s) =>
                                     checkedIds.has(s.id),
                                   )
                                     ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
@@ -609,14 +563,14 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                               >
                                 <input
                                   type="checkbox"
-                                  checked={classPending.every((s) =>
+                                  checked={classStudents.every((s) =>
                                     checkedIds.has(s.id),
                                   )}
                                   onChange={() => {}}
                                   className="w-3.5 h-3.5 accent-emerald-600 rounded cursor-pointer pointer-events-none"
                                 />
                                 <span>
-                                  {classPending.every((s) =>
+                                  {classStudents.every((s) =>
                                     checkedIds.has(s.id),
                                   )
                                     ? "Đã chọn cả lớp"
@@ -625,80 +579,84 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                               </button>
                             )}
                             <span className="text-xs font-bold text-slate-500">
-                              {classDone.length}/{classStudents.length} đã DD
+                              {classDoneCount}/{classStudents.length} đã DD
                             </span>
                           </div>
                         </div>
 
                         {/* Student Cards Grid for this class */}
                         <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
-                          {/* Pending Students */}
-                          {classPending.map((student) => {
+                          {classStudents.map((student) => {
                             const isChecked = checkedIds.has(student.id);
+                            const existingRecs = getStudentDayRecords(student.id);
+                            const existingCount = existingRecs.length;
                             const ini = initials(student.name);
-                            return (
-                              <button
-                                key={student.id}
-                                onClick={() => handleToggle(student.id)}
-                                className={`flex flex-col items-center p-2.5 rounded-lg border-2 transition-all text-center gap-1.5 active:scale-95 ${
-                                  isChecked
-                                    ? "border-emerald-500 bg-emerald-50 shadow-md"
-                                    : "border-slate-200 bg-white hover:border-emerald-300 hover:shadow-md"
-                                }`}
-                              >
-                                <div
-                                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-black text-sm transition-colors ${
-                                    isChecked
-                                      ? "bg-emerald-500 text-white"
-                                      : "bg-slate-100 text-slate-600"
-                                  }`}
-                                >
-                                  {ini}
-                                </div>
-                                <p
-                                  className={`font-black text-xs leading-tight line-clamp-2 ${
-                                    isChecked
-                                      ? "text-emerald-700"
-                                      : "text-slate-700"
-                                  }`}
-                                >
-                                  {student.name}
-                                </p>
-                                {isChecked && (
-                                  <span className="text-xs font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
-                                    <CheckCircle2 size={10} /> Chọn
-                                  </span>
-                                )}
-                              </button>
-                            );
-                          })}
 
-                          {/* Done Students */}
-                          {classDone.map((student) => {
-                            const ini = initials(student.name);
                             return (
                               <div
                                 key={student.id}
-                                className="flex flex-col items-center p-2.5 rounded-lg border-2 border-emerald-300 bg-emerald-50 text-center gap-1.5 relative group shadow-sm"
+                                className={`flex flex-col items-center p-2.5 rounded-lg border-2 transition-all text-center gap-1.5 relative shadow-sm ${
+                                  isChecked
+                                    ? "border-emerald-500 bg-emerald-50 shadow-md ring-2 ring-emerald-300"
+                                    : existingCount > 0
+                                      ? "border-emerald-300 bg-emerald-50/70"
+                                      : "border-slate-200 bg-white hover:border-emerald-300 hover:shadow-md"
+                                }`}
                               >
+                                {existingCount > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setDeleteTargetStudent(student);
+                                    }}
+                                    className="absolute -top-2 -right-2 p-1 bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-md transition-all z-10 active:scale-95"
+                                    title="Hủy điểm danh ngày này"
+                                  >
+                                    <Trash2 size={11} />
+                                  </button>
+                                )}
+
                                 <button
-                                  onClick={() =>
-                                    setDeleteTargetStudent(student)
-                                  }
-                                  className="absolute -top-2 -right-2 p-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-md transition-all z-10 active:scale-95"
-                                  title="Hủy điểm danh"
+                                  type="button"
+                                  onClick={() => handleToggle(student.id)}
+                                  className="w-full flex flex-col items-center gap-1.5"
                                 >
-                                  <Trash2 size={12} />
+                                  <div
+                                    className={`w-10 h-10 rounded-lg flex items-center justify-center font-black text-sm transition-colors ${
+                                      isChecked
+                                        ? "bg-emerald-500 text-white"
+                                        : existingCount > 0
+                                          ? "bg-emerald-200 text-emerald-800"
+                                          : "bg-slate-100 text-slate-600"
+                                    }`}
+                                  >
+                                    {ini}
+                                  </div>
+                                  <p
+                                    className={`font-black text-xs leading-tight line-clamp-2 ${
+                                      isChecked
+                                        ? "text-emerald-700"
+                                        : existingCount > 0
+                                          ? "text-emerald-900"
+                                          : "text-slate-700"
+                                    }`}
+                                  >
+                                    {student.name}
+                                  </p>
+
+                                  {/* Badges */}
+                                  {existingCount > 0 && !isChecked && (
+                                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-200/80 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
+                                      <CheckCircle2 size={10} /> Đã DD ({existingCount} buổi)
+                                    </span>
+                                  )}
+                                  {isChecked && (
+                                    <span className="text-[10px] font-black text-white bg-emerald-600 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5 shadow-sm">
+                                      <CheckCircle2 size={10} /> + Thêm 1 buổi
+                                    </span>
+                                  )}
                                 </button>
-                                <div className="w-10 h-10 rounded-lg flex items-center justify-center font-black text-sm bg-emerald-200 text-emerald-800">
-                                  {ini}
-                                </div>
-                                <p className="font-black text-xs leading-tight text-emerald-900 line-clamp-2">
-                                  {student.name}
-                                </p>
-                                <span className="text-[10px] font-black text-emerald-700 bg-emerald-200/80 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
-                                  <CheckCircle2 size={10} /> Đã DD
-                                </span>
                               </div>
                             );
                           })}
