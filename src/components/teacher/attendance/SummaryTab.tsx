@@ -593,14 +593,23 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                     >
                       {/* Row 1: STT + Tên + Buổi + Học phí */}
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs text-slate-400 font-bold w-5 shrink-0">{i + 1}</span>
-                        <span className="font-black text-slate-800 flex-1 min-w-0 truncate">{s.name}</span>
+                        <span className="text-xs text-slate-400 font-bold w-5 shrink-0">
+                          {i + 1}
+                        </span>
+                        <span className="font-black text-slate-800 flex-1 min-w-0 truncate">
+                          {s.name}
+                        </span>
                         <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 font-black text-xs shrink-0">
                           {s.total_sessions}
                         </span>
-                        <span className="text-xs text-slate-400 font-medium shrink-0">buổi</span>
+                        <span className="text-xs text-slate-400 font-medium shrink-0">
+                          buổi
+                        </span>
                         <span className="font-black text-purple-700 text-sm shrink-0">
-                          {tAtt.currencyVnd.replace("{amount}", s.total_fee.toLocaleString())}
+                          {tAtt.currencyVnd.replace(
+                            "{amount}",
+                            s.total_fee.toLocaleString(),
+                          )}
                         </span>
                       </div>
                       {/* Row 2: Đơn giá + Controls */}
@@ -618,8 +627,12 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                               : "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100"
                           }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${paymentsMap[s.id] ? "bg-emerald-500" : "bg-rose-500"}`} />
-                          {paymentsMap[s.id] ? tAtt.paid || "Đã nộp" : tAtt.unpaid || "Chưa nộp"}
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${paymentsMap[s.id] ? "bg-emerald-500" : "bg-rose-500"}`}
+                          />
+                          {paymentsMap[s.id]
+                            ? tAtt.paid || "Đã nộp"
+                            : tAtt.unpaid || "Chưa nộp"}
                         </button>
                         {/* Gửi Zalo */}
                         <button
@@ -631,7 +644,10 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         </button>
                         {/* Xem chi tiết */}
                         <button
-                          onClick={() => { setSelectedStudent(s); setPreviewMode(false); }}
+                          onClick={() => {
+                            setSelectedStudent(s);
+                            setPreviewMode(false);
+                          }}
                           className="flex items-center gap-1 px-2.5 py-1 text-xs font-black text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors print:hidden"
                         >
                           <CalendarDays size={12} /> Xem
@@ -644,7 +660,10 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                           placeholder="Nhập ghi chú riêng..."
                           value={studentNotes[s.id] || ""}
                           onChange={(e) =>
-                            setStudentNotes((prev) => ({ ...prev, [s.id]: e.target.value }))
+                            setStudentNotes((prev) => ({
+                              ...prev,
+                              [s.id]: e.target.value,
+                            }))
                           }
                           className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-purple-400 bg-white placeholder:text-slate-300"
                         />
@@ -654,12 +673,21 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                 </div>
                 {/* Footer tổng lớp */}
                 <div className="bg-purple-50 border-t-2 border-purple-200 px-4 py-3 flex items-center justify-between">
-                  <span className="font-black text-purple-800 text-sm">Cộng</span>
+                  <span className="font-black text-purple-800 text-sm">
+                    Cộng
+                  </span>
                   <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-200 text-purple-800 font-black text-xs">{classSessions}</span>
-                    <span className="text-xs text-purple-600 font-bold">buổi</span>
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-200 text-purple-800 font-black text-xs">
+                      {classSessions}
+                    </span>
+                    <span className="text-xs text-purple-600 font-bold">
+                      buổi
+                    </span>
                     <span className="font-black text-purple-700 text-base">
-                      {tAtt.currencyVnd.replace("{amount}", classTotal.toLocaleString())}
+                      {tAtt.currencyVnd.replace(
+                        "{amount}",
+                        classTotal.toLocaleString(),
+                      )}
                     </span>
                   </div>
                 </div>
@@ -723,19 +751,33 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                 {/* Summary strip */}
                 <div className="grid grid-cols-3 border-b border-slate-100 shrink-0">
                   <div className="px-5 py-3 text-center border-r border-slate-100">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">Số buổi</p>
-                    <p className="text-2xl font-black text-emerald-600 mt-0.5">{s.total_sessions}</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
+                      Số buổi
+                    </p>
+                    <p className="text-2xl font-black text-emerald-600 mt-0.5">
+                      {s.total_sessions}
+                    </p>
                   </div>
                   <div className="px-5 py-3 text-center border-r border-slate-100">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">Đơn giá</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
+                      Đơn giá
+                    </p>
                     <p className="text-sm font-black text-slate-700 mt-0.5">
-                      {tAtt.currencyVnd.replace("{amount}", s.unit_price.toLocaleString())}
+                      {tAtt.currencyVnd.replace(
+                        "{amount}",
+                        s.unit_price.toLocaleString(),
+                      )}
                     </p>
                   </div>
                   <div className="px-5 py-3 text-center">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">Học phí</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
+                      Học phí
+                    </p>
                     <p className="text-sm font-black text-purple-700 mt-0.5">
-                      {tAtt.currencyVnd.replace("{amount}", s.total_fee.toLocaleString())}
+                      {tAtt.currencyVnd.replace(
+                        "{amount}",
+                        s.total_fee.toLocaleString(),
+                      )}
                     </p>
                   </div>
                 </div>
@@ -769,30 +811,52 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   {!previewMode ? (
                     /* ---- Attendance list tab ---- */
                     studentRecs.length === 0 ? (
-                      <p className="text-center py-8 text-slate-400 font-bold">Không có buổi nào</p>
+                      <p className="text-center py-8 text-slate-400 font-bold">
+                        Không có buổi nào
+                      </p>
                     ) : (
                       <table className="w-full text-sm">
                         <thead className="bg-slate-50 sticky top-0 border-b border-slate-200">
                           <tr>
-                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">STT</th>
-                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">Ngày</th>
-                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">Giờ</th>
-                            <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase">Trạng thái</th>
+                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
+                              STT
+                            </th>
+                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
+                              Ngày
+                            </th>
+                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
+                              Giờ
+                            </th>
+                            <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase">
+                              Trạng thái
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                           {studentRecs.map((r, i) => {
                             const dt = new Date(r.checkin_time);
                             return (
-                              <tr key={r.id} className="hover:bg-purple-50 transition-colors">
-                                <td className="px-4 py-3 text-slate-400 font-bold">{i + 1}</td>
+                              <tr
+                                key={r.id}
+                                className="hover:bg-purple-50 transition-colors"
+                              >
+                                <td className="px-4 py-3 text-slate-400 font-bold">
+                                  {i + 1}
+                                </td>
                                 <td className="px-4 py-3">
                                   <p className="font-black text-slate-800">
-                                    {dt.toLocaleDateString("vi-VN", { weekday: "short", day: "2-digit", month: "2-digit" })}
+                                    {dt.toLocaleDateString("vi-VN", {
+                                      weekday: "short",
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                    })}
                                   </p>
                                 </td>
                                 <td className="px-4 py-3 font-bold text-slate-500">
-                                  {dt.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                                  {dt.toLocaleTimeString("vi-VN", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
                                 </td>
                                 <td className="px-4 py-3 text-center">
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-black rounded-lg">
@@ -809,19 +873,27 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                     /* ---- Preview phiếu học phí tab ---- */
                     <div className="flex flex-col items-center bg-slate-100 min-h-full py-6 px-4">
                       <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-4 flex items-center gap-1.5">
-                        <Eye size={12} /> Đây là hình ảnh phiếu học phí sẽ được tải về
+                        <Eye size={12} /> Đây là hình ảnh phiếu học phí sẽ được
+                        tải về
                       </p>
                       {/* Preview scaled down to fit modal */}
                       <div
                         className="origin-top shadow-xl rounded-lg overflow-hidden"
-                        style={{ transform: "scale(0.72)", transformOrigin: "top center", marginBottom: "-100px" }}
+                        style={{
+                          transform: "scale(0.72)",
+                          transformOrigin: "top center",
+                          marginBottom: "-100px",
+                        }}
                       >
                         <TuitionSlipTemplate
                           tAtt={tAtt}
                           student={s}
                           records={studentRecs}
                           month={month}
-                          note={(studentNotes[s.id] && studentNotes[s.id].trim()) || generalNote}
+                          note={
+                            (studentNotes[s.id] && studentNotes[s.id].trim()) ||
+                            generalNote
+                          }
                         />
                       </div>
                     </div>
@@ -844,7 +916,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                       <Download size={14} /> Excel
                     </button>
                     <button
-                      onClick={() => { setPreviewMode(true); }}
+                      onClick={() => {
+                        setPreviewMode(true);
+                      }}
                       className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg shadow-sm transition-colors"
                       title="Xem trước phiếu học phí"
                     >

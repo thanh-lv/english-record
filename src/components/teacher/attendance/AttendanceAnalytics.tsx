@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
-import { TrendingUp, BarChart3, Loader2, PieChart } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  Loader2,
+  PieChart,
+  Wallet,
+  AlertCircle,
+  Star,
+} from "lucide-react";
 
 interface AnalyticsProps {
   tAtt: any;
@@ -18,24 +27,26 @@ export function AttendanceAnalytics({
   const [loading, setLoading] = useState(true);
   const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
   const [classRates, setClassRates] = useState<any[]>([]);
+  const [hoveredBar, setHoveredBar] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       setLoading(true);
       try {
-        // 1. Calculate 6-month revenue trend
+        // 6-month list
         const monthsList = [];
         for (let i = 5; i >= 0; i--) {
           const d = new Date(year, month - 1 - i, 1);
           monthsList.push({
             m: d.getMonth() + 1,
             y: d.getFullYear(),
-            label: `T${d.getMonth() + 1}/${String(d.getFullYear()).slice(-2)}`,
+            label: `T${d.getMonth() + 1}`,
+            fullLabel: `Tháng ${d.getMonth() + 1}/${d.getFullYear()}`,
           });
         }
 
         const trendData = await Promise.all(
-          monthsList.map(async ({ m, y, label }) => {
+          monthsList.map(async ({ m, y, label, fullLabel }) => {
             const startDate = new Date(y, m - 1, 1).toISOString();
             const endDate = new Date(y, m, 0, 23, 59, 59).toISOString();
 
@@ -75,27 +86,19 @@ export function AttendanceAnalytics({
             Object.entries(studentSessions).forEach(([studId, count]) => {
               const fee = count * (priceMap[studId] || 0);
               projected += fee;
-              // For the selected current month, use real-time paymentsMap if provided
               const isPaid =
                 m === month && y === year && paymentsMap
                   ? !!paymentsMap[studId]
                   : paidStudents.has(studId);
-
-              if (isPaid) {
-                collected += fee;
-              }
+              if (isPaid) collected += fee;
             });
 
-            return {
-              label,
-              projected,
-              collected,
-            };
+            return { label, fullLabel, projected, collected, m, y };
           }),
         );
         setMonthlyTrends(trendData);
 
-        // 2. Calculate current month class attendance rate
+        // Class attendance rates for current month
         const startDate = new Date(year, month - 1, 1).toISOString();
         const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
 
@@ -122,7 +125,7 @@ export function AttendanceAnalytics({
           });
 
           recRes.data.forEach((r) => {
-            const student = studRes.data.find((s) => s.id === r.student_id);
+            const student = studRes.data!.find((s) => s.id === r.student_id);
             if (student) {
               const cls =
                 student.class_name || tAtt.unassignedClass || "Chưa phân lớp";
@@ -131,18 +134,15 @@ export function AttendanceAnalytics({
           });
 
           const classStats = Object.entries(byClass)
-            .map(([cls, data]) => {
-              const avgSessionsPerStudent =
+            .map(([cls, data]) => ({
+              cls,
+              totalStudents: data.totalStudents,
+              totalSessions: data.totalSessions,
+              avgSessions:
                 data.totalStudents > 0
-                  ? (data.totalSessions / data.totalStudents).toFixed(1)
-                  : "0";
-              return {
-                cls,
-                totalStudents: data.totalStudents,
-                totalSessions: data.totalSessions,
-                avgSessions: Number(avgSessionsPerStudent),
-              };
-            })
+                  ? Number((data.totalSessions / data.totalStudents).toFixed(1))
+                  : 0,
+            }))
             .sort((a, b) => b.totalSessions - a.totalSessions);
 
           setClassRates(classStats);
@@ -157,173 +157,398 @@ export function AttendanceAnalytics({
     fetchAnalytics();
   }, [month, year, paymentsMap, tAtt]);
 
+  // ---- Derived stats ----
   const maxProjected = Math.max(...monthlyTrends.map((t) => t.projected), 1);
+  const totalProjected6m = monthlyTrends.reduce((s, t) => s + t.projected, 0);
+  const totalCollected6m = monthlyTrends.reduce((s, t) => s + t.collected, 0);
+  const totalOutstanding6m = totalProjected6m - totalCollected6m;
+  const collectionRate6m =
+    totalProjected6m > 0
+      ? Math.round((totalCollected6m / totalProjected6m) * 100)
+      : 0;
+
+  const bestMonth = [...monthlyTrends].sort(
+    (a, b) => b.projected - a.projected,
+  )[0];
+
+  // Trend: compare last 2 months
+  const lastTwo = monthlyTrends.slice(-2);
+  const trendDelta =
+    lastTwo.length === 2 ? lastTwo[1].projected - lastTwo[0].projected : 0;
+
   const maxClassSessions = Math.max(
     ...classRates.map((c) => c.totalSessions),
     1,
   );
 
+  const classColors = [
+    "from-purple-500 to-violet-500",
+    "from-blue-500 to-cyan-400",
+    "from-emerald-500 to-teal-400",
+    "from-amber-500 to-orange-400",
+    "from-rose-500 to-pink-400",
+  ];
+
+  const fmt = (n: number) =>
+    n >= 1_000_000
+      ? `${(n / 1_000_000).toLocaleString("vi-VN", { maximumFractionDigits: 1 })}tr`
+      : `${(n / 1_000).toLocaleString("vi-VN", { maximumFractionDigits: 0 })}k`;
+
   return (
-    <div className="space-y-6 print:hidden">
-      {/* Container Header */}
+    <div className="space-y-5 print:hidden">
+      {/* Header */}
       <div className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+        <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
           <BarChart3 size={20} />
         </div>
         <div>
-          <h3 className="font-black text-slate-800 text-base sm:text-lg">
-            {tAtt.analyticsTitle || "Biểu Đồ Thống Kê & Doanh Thu"}
+          <h3 className="font-black text-slate-800 text-base">
+            {tAtt.analyticsTitle || "Biểu Đồ Doanh Thu & Thống Kê"}
           </h3>
           <p className="text-xs text-slate-400 font-bold">
-            Phân tích xu hướng học phí và tỷ lệ tham gia học tập
+            Phân tích xu hướng học phí 6 tháng gần đây
           </p>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-10 bg-white rounded-2xl border border-slate-100">
+        <div className="flex justify-center py-12 bg-white rounded-2xl border border-slate-100">
           <Loader2 className="animate-spin text-purple-600" size={32} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Chart 1: 6-Month Revenue Bar Chart */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <TrendingUp size={18} className="text-purple-600" />
-                <h4 className="font-black text-slate-800 text-sm sm:text-base">
-                  {tAtt.revenueTrendTitle || "Doanh thu 6 tháng gần đây"}
-                </h4>
-              </div>
-              <div className="flex items-center gap-3 text-xs font-bold">
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm bg-purple-500 inline-block" />
-                  {tAtt.projectedLabel || "Cần thu"}
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" />
-                  {tAtt.collectedLabel || "Đã thu"}
-                </span>
-              </div>
+        <div className="space-y-5">
+          {/* ---- Summary cards 4 cols ---- */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/* Tổng cần thu 6 tháng */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-1">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                Cần thu (6T)
+              </p>
+              <p className="text-lg font-black text-slate-800 leading-tight">
+                {fmt(totalProjected6m)}
+              </p>
+              <p className="text-[10px] text-slate-400 font-medium">
+                {totalProjected6m.toLocaleString()} đ
+              </p>
             </div>
-
-            {/* Custom Bar Chart with Y-Axis */}
-            <div className="flex items-stretch gap-2 pt-4">
-              {/* Y-Axis Column (Units in Millions / Triệu) */}
-              <div className="flex flex-col justify-between text-[10px] font-bold text-slate-400 h-48 py-1 pr-1 text-right border-r border-slate-200 border-dashed shrink-0 select-none w-14">
-                <span>
-                  {(maxProjected / 1000000).toLocaleString("vi-VN", {
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  tr
-                </span>
-                <span>
-                  {(maxProjected / 2 / 1000000).toLocaleString("vi-VN", {
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  tr
-                </span>
-                <span>0 tr</span>
-              </div>
-
-              {/* Chart Bars Area */}
-              <div className="flex-1 h-48 flex items-end justify-between gap-2 pb-2 px-1 relative border-b border-slate-200">
-                {/* Horizontal Guide Lines */}
-                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-30 z-0">
-                  <div className="border-b border-slate-200 border-dashed w-full" />
-                  <div className="border-b border-slate-200 border-dashed w-full" />
-                  <div className="border-b border-slate-200 w-full" />
-                </div>
-
-                {monthlyTrends.map((t, i) => {
-                  const projectedHeight =
-                    t.projected > 0
-                      ? Math.max(
-                          6,
-                          Math.round((t.projected / maxProjected) * 100),
-                        )
-                      : 0;
-                  const collectedHeight =
-                    t.collected > 0
-                      ? Math.max(
-                          6,
-                          Math.round((t.collected / maxProjected) * 100),
-                        )
-                      : 0;
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1 flex flex-col items-center h-full justify-end group z-10"
-                    >
-                      <div className="w-full max-w-[36px] flex items-end justify-center gap-1 h-full">
-                        {/* Projected Bar */}
-                        <div
-                          className="w-1/2 bg-purple-200 group-hover:bg-purple-300 rounded-t transition-all relative"
-                          style={{ height: `${projectedHeight}%` }}
-                          title={`Cần thu: ${(t.projected / 1000000).toLocaleString("vi-VN", { maximumFractionDigits: 3 })} tr (${t.projected.toLocaleString()} đ)`}
-                        />
-                        {/* Collected Bar */}
-                        <div
-                          className="w-1/2 bg-emerald-500 group-hover:bg-emerald-600 rounded-t transition-all relative"
-                          style={{ height: `${collectedHeight}%` }}
-                          title={`Đã thu: ${(t.collected / 1000000).toLocaleString("vi-VN", { maximumFractionDigits: 3 })} tr (${t.collected.toLocaleString()} đ)`}
-                        />
-                      </div>
-                      <span className="text-[11px] font-bold text-slate-500 mt-2">
-                        {t.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+            {/* Đã thu */}
+            <div className="bg-white rounded-2xl border border-emerald-200 p-4 shadow-sm space-y-1">
+              <p className="text-[10px] font-black text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+                <Wallet size={10} /> Đã thu (6T)
+              </p>
+              <p className="text-lg font-black text-emerald-700 leading-tight">
+                {fmt(totalCollected6m)}
+              </p>
+              <p className="text-[10px] text-slate-400 font-medium">
+                {collectionRate6m}% tỷ lệ thu
+              </p>
             </div>
-            <p className="text-[11px] text-slate-400 font-medium text-center">
-              💡 Đơn vị trục Y: Triệu VNĐ (tr) · Cột tím = Cần thu · Cột xanh =
-              Thực tế đã nộp
-            </p>
+            {/* Tồn đọng */}
+            <div className="bg-white rounded-2xl border border-rose-200 p-4 shadow-sm space-y-1">
+              <p className="text-[10px] font-black text-rose-500 uppercase tracking-wider flex items-center gap-1">
+                <AlertCircle size={10} /> Tồn đọng
+              </p>
+              <p className="text-lg font-black text-rose-600 leading-tight">
+                {fmt(totalOutstanding6m)}
+              </p>
+              <p className="text-[10px] text-slate-400 font-medium">
+                {100 - collectionRate6m}% chưa thu
+              </p>
+            </div>
+            {/* Tháng tốt nhất */}
+            <div className="bg-white rounded-2xl border border-amber-200 p-4 shadow-sm space-y-1">
+              <p className="text-[10px] font-black text-amber-600 uppercase tracking-wider flex items-center gap-1">
+                <Star size={10} /> Tháng tốt nhất
+              </p>
+              <p className="text-lg font-black text-amber-700 leading-tight">
+                {bestMonth ? bestMonth.fullLabel : "—"}
+              </p>
+              <p className="text-[10px] text-slate-400 font-medium">
+                {bestMonth ? fmt(bestMonth.projected) : ""}
+              </p>
+            </div>
           </div>
 
-          {/* Chart 2: Attendance per class */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-            <div className="flex items-center gap-2">
-              <PieChart size={18} className="text-emerald-600" />
-              <h4 className="font-black text-slate-800 text-sm sm:text-base">
-                {tAtt.attendanceRateTitle || "Chuyên cần theo Lớp"} (Tháng{" "}
-                {month})
-              </h4>
+          {/* ---- Main charts row ---- */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+            {/* Revenue stacked bar chart (3/5) */}
+            <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={16} className="text-purple-600" />
+                    <h4 className="font-black text-slate-800 text-sm">
+                      {tAtt.revenueTrendTitle || "Doanh thu 6 tháng gần đây"}
+                    </h4>
+                  </div>
+                  <div className="flex items-center gap-3 mt-2 text-[11px] font-bold">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" />
+                      Đã thu
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-purple-200 inline-block" />
+                      Chưa thu
+                    </span>
+                  </div>
+                </div>
+                {/* Trend indicator */}
+                {trendDelta !== 0 && (
+                  <div
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black ${
+                      trendDelta > 0
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-rose-50 text-rose-600"
+                    }`}
+                  >
+                    {trendDelta > 0 ? (
+                      <TrendingUp size={12} />
+                    ) : (
+                      <TrendingDown size={12} />
+                    )}
+                    {trendDelta > 0 ? "+" : ""}
+                    {fmt(Math.abs(trendDelta))}
+                  </div>
+                )}
+              </div>
+
+              {/* Chart area */}
+              <div className="flex items-stretch gap-2">
+                {/* Y-axis */}
+                <div className="flex flex-col justify-between text-[10px] font-bold text-slate-400 h-44 py-1 pr-2 text-right border-r border-slate-100 shrink-0 w-12 select-none">
+                  <span>{fmt(maxProjected)}</span>
+                  <span>{fmt(maxProjected * 0.75)}</span>
+                  <span>{fmt(maxProjected * 0.5)}</span>
+                  <span>{fmt(maxProjected * 0.25)}</span>
+                  <span>0</span>
+                </div>
+
+                {/* Bars */}
+                <div className="flex-1 h-44 flex items-end gap-2 relative border-b border-slate-100">
+                  {/* Grid lines */}
+                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                    {[0, 1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="border-b border-dashed border-slate-100 w-full"
+                      />
+                    ))}
+                  </div>
+
+                  {monthlyTrends.map((t, i) => {
+                    const isCurrentMonth = t.m === month && t.y === year;
+                    const totalPct =
+                      t.projected > 0
+                        ? Math.max(
+                            8,
+                            Math.round((t.projected / maxProjected) * 100),
+                          )
+                        : 0;
+                    const collectedPct =
+                      t.projected > 0 && t.collected > 0
+                        ? Math.round((t.collected / t.projected) * totalPct)
+                        : 0;
+                    const outstandingPct = totalPct - collectedPct;
+                    const isHovered = hoveredBar === i;
+
+                    return (
+                      <div
+                        key={i}
+                        className="flex-1 flex flex-col items-center h-full justify-end z-10 cursor-pointer"
+                        onMouseEnter={() => setHoveredBar(i)}
+                        onMouseLeave={() => setHoveredBar(null)}
+                      >
+                        {/* Tooltip */}
+                        {isHovered && t.projected > 0 && (
+                          <div
+                            className="absolute bottom-full mb-2 bg-slate-800 text-white rounded-xl px-3 py-2 text-[11px] font-bold shadow-xl z-20 whitespace-nowrap pointer-events-none"
+                            style={{
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                            }}
+                          >
+                            <p className="text-slate-300 mb-1">{t.fullLabel}</p>
+                            <p className="text-emerald-400">
+                              ✓ Đã thu: {t.collected.toLocaleString()}đ
+                            </p>
+                            <p className="text-rose-400">
+                              ✗ Chưa thu:{" "}
+                              {(t.projected - t.collected).toLocaleString()}đ
+                            </p>
+                            <p className="text-white mt-1 border-t border-slate-600 pt-1">
+                              Tổng: {t.projected.toLocaleString()}đ
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Stacked bar */}
+                        <div
+                          className={`w-full max-w-[40px] flex flex-col justify-end rounded-t-lg overflow-hidden transition-all duration-200 ${
+                            isHovered ? "scale-105 shadow-lg" : ""
+                          } ${isCurrentMonth ? "ring-2 ring-purple-400 ring-offset-1" : ""}`}
+                          style={{ height: `${totalPct}%` }}
+                        >
+                          {/* Outstanding (top = purple) */}
+                          {outstandingPct > 0 && (
+                            <div
+                              className="w-full bg-purple-200"
+                              style={{
+                                height: `${(outstandingPct / totalPct) * 100}%`,
+                              }}
+                            />
+                          )}
+                          {/* Collected (bottom = green) */}
+                          {collectedPct > 0 && (
+                            <div
+                              className="w-full bg-emerald-500"
+                              style={{
+                                height: `${(collectedPct / totalPct) * 100}%`,
+                              }}
+                            />
+                          )}
+                          {/* No data */}
+                          {t.projected === 0 && (
+                            <div className="w-full h-2 bg-slate-100 rounded-t-lg" />
+                          )}
+                        </div>
+
+                        {/* Label */}
+                        <span
+                          className={`text-[11px] font-black mt-1.5 ${
+                            isCurrentMonth
+                              ? "text-purple-700"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          {t.label}
+                        </span>
+                        {isCurrentMonth && (
+                          <span className="text-[9px] font-black text-purple-500">
+                            ▲
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <p className="text-[10px] text-slate-400 font-medium text-center mt-3">
+                Cột xếp chồng: 🟢 Đã thu + 🟣 Chưa thu = Tổng cần thu · Viền tím
+                = tháng đang xem
+              </p>
             </div>
 
-            {classRates.length === 0 ? (
-              <p className="text-center text-slate-400 text-xs py-10 font-bold">
-                Chưa có dữ liệu học tập tháng này
-              </p>
-            ) : (
-              <div className="space-y-3.5 pt-2">
-                {classRates.map((c, i) => {
-                  const pct = Math.round(
-                    (c.totalSessions / maxClassSessions) * 100,
-                  );
-                  return (
-                    <div key={i} className="space-y-1">
-                      <div className="flex justify-between text-xs font-bold">
-                        <span className="text-slate-700">
-                          {c.cls} ({c.totalStudents} HS)
-                        </span>
-                        <span className="text-emerald-700 font-black">
-                          {c.totalSessions} buổi · TRB {c.avgSessions} buổi/HS
-                        </span>
-                      </div>
-                      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+            {/* Right column: Collection rate ring + Class attendance (2/5) */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* Collection rate donut */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col items-center">
+                <h4 className="font-black text-slate-800 text-sm mb-3 self-start flex items-center gap-1.5">
+                  <Wallet size={14} className="text-emerald-600" />
+                  Tỷ lệ thu học phí
+                </h4>
+                {/* SVG donut */}
+                <div className="relative w-28 h-28">
+                  <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                    {/* Background track */}
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="14"
+                      fill="none"
+                      stroke="#f1f5f9"
+                      strokeWidth="4"
+                    />
+                    {/* Outstanding arc */}
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="14"
+                      fill="none"
+                      stroke="#e9d5ff"
+                      strokeWidth="4"
+                      strokeDasharray="87.96 0"
+                      strokeLinecap="round"
+                    />
+                    {/* Collected arc */}
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="14"
+                      fill="none"
+                      stroke="#10b981"
+                      strokeWidth="4"
+                      strokeDasharray={`${(collectionRate6m / 100) * 87.96} 87.96`}
+                      strokeLinecap="round"
+                      className="transition-all duration-700"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-black text-slate-800">
+                      {collectionRate6m}%
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-400 leading-tight text-center">
+                      đã thu
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-4 mt-2 text-xs font-bold">
+                  <span className="flex items-center gap-1 text-emerald-600">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                    {fmt(totalCollected6m)}
+                  </span>
+                  <span className="flex items-center gap-1 text-purple-500">
+                    <span className="w-2 h-2 rounded-full bg-purple-200 inline-block" />
+                    {fmt(totalOutstanding6m)}
+                  </span>
+                </div>
               </div>
-            )}
+
+              {/* Class attendance bars */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                <h4 className="font-black text-slate-800 text-sm mb-3 flex items-center gap-1.5">
+                  <PieChart size={14} className="text-blue-600" />
+                  Chuyên cần theo Lớp (T{month})
+                </h4>
+                {classRates.length === 0 ? (
+                  <p className="text-center text-slate-400 text-xs py-6 font-bold">
+                    Chưa có dữ liệu tháng này
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {classRates.map((c, i) => {
+                      const pct = Math.round(
+                        (c.totalSessions / maxClassSessions) * 100,
+                      );
+                      return (
+                        <div key={i} className="space-y-1">
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-slate-700 truncate max-w-[60%]">
+                              {c.cls}
+                              <span className="text-slate-400 font-medium ml-1">
+                                ({c.totalStudents} HS)
+                              </span>
+                            </span>
+                            <span className="text-slate-700 shrink-0">
+                              {c.totalSessions} buổi
+                            </span>
+                          </div>
+                          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full bg-gradient-to-r ${classColors[i % classColors.length]} rounded-full transition-all duration-500`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <p className="text-[10px] text-slate-400 font-medium text-right">
+                            TB {c.avgSessions} buổi/HS
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
