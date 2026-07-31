@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { supabase } from "../../../lib/supabase";
-import { uploadToStorage } from "../../../services/storageService";
+import { storyService } from "../../../services/storyService";
+import { uploadService } from "../../../services/uploadService";
 import { Story } from "../../../types";
 
 export function useStories(t: any) {
@@ -53,14 +53,8 @@ export function useStories(t: any) {
 
   const fetchStories = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("stories")
-        .select(
-          "id, title, type, emoji, image_url, content, age_group, created_at, is_active",
-        )
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      setStories((data || []) as Story[]);
+      const data = await storyService.fetchAllStories();
+      setStories(data);
     } catch (err) {
       console.error("Fetch stories error:", err);
     } finally {
@@ -86,10 +80,7 @@ export function useStories(t: any) {
   }, [stories, filterText, filterStatus]);
 
   const toggleStoryActive = async (storyId: string, currentValue: boolean) => {
-    await supabase
-      .from("stories")
-      .update({ is_active: !currentValue })
-      .eq("id", storyId);
+    await storyService.toggleStoryActive(storyId, currentValue);
     setStories((prev) =>
       prev.map((s) =>
         s.id === storyId ? { ...s, is_active: !currentValue } : s,
@@ -117,15 +108,11 @@ export function useStories(t: any) {
     }
     setEditSaving(true);
     try {
-      const { error } = await supabase
-        .from("stories")
-        .update({
-          title: trimTitle,
-          content: trimContent,
-          emoji: editEmoji.trim() || "📚",
-        })
-        .eq("id", editingStory.id);
-      if (error) throw error;
+      await storyService.updateStory(editingStory.id, {
+        title: trimTitle,
+        content: trimContent,
+        emoji: editEmoji.trim() || "📚",
+      });
       setStories((prev) =>
         prev.map((s) =>
           s.id === editingStory.id
@@ -151,11 +138,7 @@ export function useStories(t: any) {
     setDeleteSaving(true);
     setDeleteError("");
     try {
-      const { error } = await supabase
-        .from("stories")
-        .delete()
-        .eq("id", deleteStoryTarget.id);
-      if (error) throw error;
+      await storyService.deleteStory(deleteStoryTarget.id);
       setStories((prev) => prev.filter((s) => s.id !== deleteStoryTarget.id));
       setDeleteStoryTarget(null);
     } catch (err: any) {
@@ -179,21 +162,17 @@ export function useStories(t: any) {
         parseInt(manualYearBorn) >= new Date().getFullYear() - 5
           ? "kindergarten"
           : "primary";
-      const { data, error } = await supabase
-        .from("stories")
-        .insert({
-          title: trimTitle,
-          age_group: ageGroup,
-          type: manualType,
-          emoji: manualEmoji.trim() || "📚",
-          content: trimContent,
-          image_url: null,
-          is_active: true,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      setStories([data as Story, ...stories]);
+
+      const data = await storyService.createStory({
+        title: trimTitle,
+        age_group: ageGroup,
+        type: manualType,
+        emoji: manualEmoji.trim() || "📚",
+        content: trimContent,
+        image_url: null,
+        is_active: true,
+      });
+      setStories([data, ...stories]);
       setShowManual(false);
       setManualTitle("");
       setManualContent("");
@@ -208,9 +187,6 @@ export function useStories(t: any) {
   const handleGenerateAiStory = async () => {
     if (!prompt)
       return setAiError(t.common?.promptRequired || "Nhập gợi ý câu chuyện");
-    const aiApiKey = import.meta.env.VITE_AI_API_KEY;
-    if (!aiApiKey)
-      return setAiError(t.common?.missingAiApiKey || "Thiếu AI API Key");
 
     setIsGenerating(true);
     setAiError("");
@@ -219,41 +195,10 @@ export function useStories(t: any) {
     setGeneratedImageUrl("");
 
     try {
-      const age = parseInt(yearBorn)
-        ? new Date().getFullYear() - parseInt(yearBorn)
-        : 5;
-      const textPrompt = `You are a friendly storyteller for children. Write a short, simple, and engaging English story based on the prompt: ${prompt}. Keep it under 150 words. The story is for a ${age}-year-old child, so use appropriate simple vocabulary and short sentences. Return only the story text.`;
+      const storyText = await storyService.generateAiText(prompt, yearBorn);
+      setGeneratedStory(storyText);
 
-      const textRes = await fetch(
-        "https://free-image-generation-api.levanthanh29111999.workers.dev/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${aiApiKey}`,
-          },
-          body: JSON.stringify({ prompt: textPrompt, type: "text" }),
-        },
-      );
-      if (!textRes.ok)
-        throw new Error(t.common?.aiTextError || "Lỗi tạo nội dung AI");
-      const textData = await textRes.json();
-      setGeneratedStory(textData.story);
-
-      const imgRes = await fetch(
-        "https://free-image-generation-api.levanthanh29111999.workers.dev/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${aiApiKey}`,
-          },
-          body: JSON.stringify({ prompt, type: "image" }),
-        },
-      );
-      if (!imgRes.ok)
-        throw new Error(t.common?.aiImageError || "Lỗi tạo ảnh AI");
-      const imgBlob = await imgRes.blob();
+      const imgBlob = await storyService.generateAiImage(prompt);
       setGeneratedImageBlob(imgBlob);
       setGeneratedImageUrl(URL.createObjectURL(imgBlob));
     } catch (err: any) {
@@ -271,7 +216,7 @@ export function useStories(t: any) {
     setIsSaving(true);
     setAiError("");
     try {
-      const imageUrl = await uploadToStorage(
+      const imageUrl = await uploadService.uploadFile(
         generatedImageBlob,
         `stories/${yearBorn}`,
       );
@@ -280,22 +225,17 @@ export function useStories(t: any) {
           ? "kindergarten"
           : "primary";
 
-      const { data, error } = await supabase
-        .from("stories")
-        .insert({
-          title,
-          age_group: ageGroup,
-          type,
-          emoji,
-          content: generatedStory,
-          image_url: imageUrl,
-          is_active: true,
-        })
-        .select()
-        .single();
+      const data = await storyService.createStory({
+        title,
+        age_group: ageGroup,
+        type,
+        emoji,
+        content: generatedStory,
+        image_url: imageUrl,
+        is_active: true,
+      });
 
-      if (error) throw error;
-      setStories([data as Story, ...stories]);
+      setStories([data, ...stories]);
       setShowCreate(false);
       setTitle("");
       setPrompt("");

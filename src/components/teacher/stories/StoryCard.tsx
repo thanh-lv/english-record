@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Pencil, Trash2, Link, Check } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { Story } from "../../../types";
 
 interface StoryCardProps {
@@ -17,17 +16,6 @@ export function StoryCard({
   onDelete,
   onToggleActive,
 }: StoryCardProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopyLink = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const url = `${window.location.origin}/share/story/${story.id}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
   const tm = (t as any).teacherModal || {};
   const tc = (t as any).common || {};
 
@@ -67,18 +55,6 @@ export function StoryCard({
             className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
           >
             <Pencil size={12} /> {tc.edit || "Sửa"}
-          </button>
-          <button
-            type="button"
-            title="Copy link chia sẻ cho học sinh"
-            onClick={handleCopyLink}
-            className={`px-2 py-1.5 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 ${
-              copied
-                ? "bg-emerald-50 text-emerald-600"
-                : "bg-indigo-50 hover:bg-indigo-100 text-indigo-600"
-            }`}
-          >
-            {copied ? <Check size={12} /> : <Link size={12} />}
           </button>
           <button
             type="button"

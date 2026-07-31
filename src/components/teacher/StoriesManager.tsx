@@ -1,17 +1,12 @@
-import {
-  AlertCircle,
-  Loader2,
-  Pencil,
-  Plus,
-  Search,
-  Wand2,
-  X,
-} from "lucide-react";
+import { Loader2, Plus, Search, Wand2, X } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../hooks/useEscapeToClose";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { useStories } from "./stories/useStories";
 import { StoryCard } from "./stories/StoryCard";
+import { StoryCreateModal } from "./stories/StoryCreateModal";
+import { StoryManualModal } from "./stories/StoryManualModal";
+import { StoryEditModal } from "./stories/StoryEditModal";
 
 export function StoriesManager() {
   const { t } = useLanguage();
@@ -33,7 +28,6 @@ export function StoriesManager() {
     setEditingStory,
     deleteStoryTarget,
     setDeleteStoryTarget,
-    deleteError,
     editTitle,
     setEditTitle,
     editContent,
@@ -58,10 +52,6 @@ export function StoriesManager() {
     setTitle,
     yearBorn,
     setYearBorn,
-    type,
-    setType,
-    emoji,
-    setEmoji,
     prompt,
     setPrompt,
     isGenerating,
@@ -180,323 +170,62 @@ export function StoriesManager() {
 
       {/* Edit Story Modal */}
       {editingStory && (
-        <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="bg-white rounded-lg w-full max-w-2xl shadow-md border-4 border-amber-100 p-6 space-y-5 my-8">
-            <div className="flex justify-between items-center border-b-2 border-slate-100 pb-4">
-              <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
-                <Pencil className="text-amber-500" />{" "}
-                {tc.editStoryInfo || "Chỉnh sửa câu chuyện"}
-              </h4>
-              <button
-                type="button"
-                onClick={() => setEditingStory(null)}
-                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    {tc.storyTitle || "Tiêu đề"}
-                  </label>
-                  <input
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-amber-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    {tc.storyEmoji || "Biểu tượng"}
-                  </label>
-                  <input
-                    value={editEmoji}
-                    onChange={(e) => setEditEmoji(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-amber-400 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                  {tc.storyContent || "Nội dung tiếng Anh"}
-                </label>
-                <textarea
-                  rows={6}
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-medium focus:border-amber-400 focus:outline-none leading-relaxed"
-                />
-              </div>
-
-              {editError && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs font-bold text-rose-600 flex items-center gap-2">
-                  <AlertCircle size={15} /> {editError}
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setEditingStory(null)}
-                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors"
-              >
-                {tc.cancel || "Hủy"}
-              </button>
-              <button
-                type="button"
-                onClick={saveEditStory}
-                disabled={editSaving}
-                className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-extrabold rounded-lg text-sm shadow-md transition-colors flex items-center gap-1.5"
-              >
-                {editSaving && <Loader2 size={16} className="animate-spin" />}
-                {tc.save || "Lưu thay đổi"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <StoryEditModal
+          t={t}
+          editingStory={editingStory}
+          editTitle={editTitle}
+          editEmoji={editEmoji}
+          editContent={editContent}
+          editError={editError}
+          editSaving={editSaving}
+          onTitleChange={setEditTitle}
+          onEmojiChange={setEditEmoji}
+          onContentChange={setEditContent}
+          onSave={saveEditStory}
+          onClose={() => setEditingStory(null)}
+        />
       )}
 
       {/* Manual Create Modal */}
       {showManual && (
-        <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="bg-white rounded-lg w-full max-w-xl shadow-md border-4 border-blue-100 p-6 space-y-4 my-8">
-            <div className="flex justify-between items-center border-b-2 border-slate-100 pb-3">
-              <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
-                ✍️ {tc.createManualStory || "Viết truyện mới"}
-              </h4>
-              <button
-                type="button"
-                onClick={() => setShowManual(false)}
-                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2">
-                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                    {tc.storyTitle || "Tiêu đề"}
-                  </label>
-                  <input
-                    value={manualTitle}
-                    onChange={(e) => setManualTitle(e.target.value)}
-                    placeholder="VD: The Little Cat"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:border-blue-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                    Emoji
-                  </label>
-                  <input
-                    value={manualEmoji}
-                    onChange={(e) => setManualEmoji(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-center focus:border-blue-400 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                    Thể loại
-                  </label>
-                  <input
-                    value={manualType}
-                    onChange={(e) => setManualType(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-blue-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                    Độ tuổi (Năm sinh)
-                  </label>
-                  <select
-                    value={manualYearBorn}
-                    onChange={(e) => setManualYearBorn(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-blue-400 focus:outline-none"
-                  >
-                    <option value="2018">Mầm non (dưới 6 tuổi)</option>
-                    <option value="2015">Tiểu học (trên 6 tuổi)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                  Nội dung bài đọc (Tiếng Anh)
-                </label>
-                <textarea
-                  rows={5}
-                  value={manualContent}
-                  onChange={(e) => setManualContent(e.target.value)}
-                  placeholder="Nhập nội dung truyện bằng tiếng Anh..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:border-blue-400 focus:outline-none leading-relaxed"
-                />
-              </div>
-
-              {manualError && (
-                <p className="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 p-2 rounded-lg">
-                  {manualError}
-                </p>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setShowManual(false)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs"
-              >
-                {tc.cancel || "Hủy"}
-              </button>
-              <button
-                type="button"
-                onClick={handleManualSave}
-                disabled={manualSaving}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1"
-              >
-                {manualSaving && <Loader2 size={14} className="animate-spin" />}
-                {tc.save || "Lưu truyện"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <StoryManualModal
+          t={t}
+          manualTitle={manualTitle}
+          manualContent={manualContent}
+          manualEmoji={manualEmoji}
+          manualType={manualType}
+          manualYearBorn={manualYearBorn}
+          manualSaving={manualSaving}
+          manualError={manualError}
+          onTitleChange={setManualTitle}
+          onEmojiChange={setManualEmoji}
+          onTypeChange={setManualType}
+          onYearBornChange={setManualYearBorn}
+          onContentChange={setManualContent}
+          onSave={handleManualSave}
+          onClose={() => setShowManual(false)}
+        />
       )}
 
       {/* AI Generate Story Modal */}
       {showCreate && (
-        <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto overscroll-contain"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="bg-white rounded-lg w-full max-w-xl shadow-md border-4 border-purple-100 p-6 space-y-4 my-8">
-            <div className="flex justify-between items-center border-b-2 border-slate-100 pb-3">
-              <h4 className="font-black text-lg text-purple-800 flex items-center gap-2">
-                ✨ {tc.createAiStory || "Tạo truyện bằng AI"}
-              </h4>
-              <button
-                type="button"
-                onClick={() => setShowCreate(false)}
-                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                    Tiêu đề
-                  </label>
-                  <input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="VD: The Magic Dragon"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-purple-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                    Năm sinh học sinh
-                  </label>
-                  <input
-                    value={yearBorn}
-                    onChange={(e) => setYearBorn(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-purple-400 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                  Ý tưởng / Gợi ý cho AI (Prompt)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="VD: A friendly dragon who loves eating apples..."
-                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:border-purple-400 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleGenerateAiStory}
-                    disabled={isGenerating || !prompt.trim()}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-lg shadow-sm flex items-center gap-1.5 shrink-0"
-                  >
-                    {isGenerating ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Wand2 size={14} />
-                    )}
-                    Tạo thử
-                  </button>
-                </div>
-              </div>
-
-              {/* Generated preview */}
-              {generatedStory && (
-                <div className="space-y-3 p-3 bg-purple-50 rounded-lg border border-purple-200 animate-in fade-in duration-200">
-                  <div className="flex gap-3 items-start">
-                    {generatedImageUrl && (
-                      <img
-                        src={generatedImageUrl}
-                        alt="AI Generated"
-                        className="w-20 h-20 object-cover rounded-lg border border-purple-200 shrink-0"
-                      />
-                    )}
-                    <p className="text-xs text-slate-700 font-medium leading-relaxed max-h-32 overflow-y-auto">
-                      {generatedStory}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {aiError && (
-                <p className="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 p-2 rounded-lg">
-                  {aiError}
-                </p>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setShowCreate(false)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs"
-              >
-                {tc.cancel || "Hủy"}
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveAiStory}
-                disabled={isSaving || !generatedStory}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1"
-              >
-                {isSaving && <Loader2 size={14} className="animate-spin" />}
-                {tc.save || "Lưu câu chuyện"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <StoryCreateModal
+          t={t}
+          title={title}
+          yearBorn={yearBorn}
+          prompt={prompt}
+          isGenerating={isGenerating}
+          generatedStory={generatedStory}
+          generatedImageUrl={generatedImageUrl}
+          isSaving={isSaving}
+          aiError={aiError}
+          onTitleChange={setTitle}
+          onYearBornChange={setYearBorn}
+          onPromptChange={setPrompt}
+          onGenerate={handleGenerateAiStory}
+          onSave={handleSaveAiStory}
+          onClose={() => setShowCreate(false)}
+        />
       )}
 
       {/* Delete Confirmation Modal */}

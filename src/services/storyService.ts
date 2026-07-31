@@ -1,0 +1,92 @@
+import { supabase } from "../lib/supabase";
+import { Story } from "../types";
+
+const WORKER_URL =
+  "https://free-image-generation-api.levanthanh29111999.workers.dev/";
+
+export const storyService = {
+  async fetchAllStories(): Promise<Story[]> {
+    const { data, error } = await supabase
+      .from("stories")
+      .select(
+        "id, title, type, emoji, image_url, content, age_group, created_at, is_active",
+      )
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return (data || []) as Story[];
+  },
+
+  async toggleStoryActive(
+    storyId: string,
+    currentValue: boolean,
+  ): Promise<void> {
+    const { error } = await supabase
+      .from("stories")
+      .update({ is_active: !currentValue })
+      .eq("id", storyId);
+    if (error) throw error;
+  },
+
+  async updateStory(storyId: string, updates: Partial<Story>): Promise<void> {
+    const { error } = await supabase
+      .from("stories")
+      .update(updates)
+      .eq("id", storyId);
+    if (error) throw error;
+  },
+
+  async createStory(storyData: Partial<Story>): Promise<Story> {
+    const { data, error } = await supabase
+      .from("stories")
+      .insert(storyData)
+      .select()
+      .single();
+    if (error) throw error;
+    return data as Story;
+  },
+
+  async deleteStory(storyId: string): Promise<void> {
+    const { error } = await supabase.from("stories").delete().eq("id", storyId);
+    if (error) throw error;
+  },
+
+  async generateAiText(prompt: string, yearBorn: string): Promise<string> {
+    const aiApiKey = import.meta.env.VITE_AI_API_KEY;
+    if (!aiApiKey) throw new Error("Thiếu AI API Key");
+
+    const age = parseInt(yearBorn)
+      ? new Date().getFullYear() - parseInt(yearBorn)
+      : 5;
+    const textPrompt = `You are a friendly storyteller for children. Write a short, simple, and engaging English story based on the prompt: ${prompt}. Keep it under 150 words. The story is for a ${age}-year-old child, so use appropriate simple vocabulary and short sentences. Return only the story text.`;
+
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${aiApiKey}`,
+      },
+      body: JSON.stringify({ prompt: textPrompt, type: "text" }),
+    });
+
+    if (!res.ok) throw new Error("Lỗi tạo nội dung câu chuyện AI");
+    const data = await res.json();
+    return data.story;
+  },
+
+  async generateAiImage(prompt: string): Promise<Blob> {
+    const aiApiKey = import.meta.env.VITE_AI_API_KEY;
+    if (!aiApiKey) throw new Error("Thiếu AI API Key");
+
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${aiApiKey}`,
+      },
+      body: JSON.stringify({ prompt, type: "image" }),
+    });
+
+    if (!res.ok) throw new Error("Lỗi tạo hình ảnh AI");
+    return await res.blob();
+  },
+};

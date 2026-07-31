@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { supabase } from "../../../lib/supabase";
-import { uploadToStorage } from "../../../services/storageService";
+import { vocabService } from "../../../services/vocabService";
+import { uploadService } from "../../../services/uploadService";
 import { VocabSet, VocabCard } from "../../../types/vocabulary";
 
 export function useVocabulary(t: any) {
@@ -50,18 +50,8 @@ export function useVocabulary(t: any) {
   const fetchSets = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("vocabulary_sets")
-        .select("id, title, emoji, age_group, created_at, vocabulary_cards(id)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-
-      const setsWithCounts = (data || []).map((set: any) => ({
-        ...set,
-        card_count: set.vocabulary_cards?.length ?? 0,
-        vocabulary_cards: undefined,
-      }));
-      setSets(setsWithCounts);
+      const data = await vocabService.fetchSets();
+      setSets(data);
     } catch (err: any) {
       console.error("Fetch sets error:", err);
     } finally {
@@ -77,15 +67,8 @@ export function useVocabulary(t: any) {
     if (cardsBySet[setId]) return;
     setCardsLoading((prev) => ({ ...prev, [setId]: true }));
     try {
-      const { data, error } = await supabase
-        .from("vocabulary_cards")
-        .select(
-          "id, set_id, front, back, ipa, image_url, order_index, created_at",
-        )
-        .eq("set_id", setId)
-        .order("order_index", { ascending: true });
-      if (error) throw error;
-      setCardsBySet((prev) => ({ ...prev, [setId]: data || [] }));
+      const data = await vocabService.fetchCards(setId);
+      setCardsBySet((prev) => ({ ...prev, [setId]: data }));
     } catch (err: any) {
       console.error("Fetch cards error:", err);
     } finally {
@@ -124,17 +107,12 @@ export function useVocabulary(t: any) {
     setCreateSetSaving(true);
     setCreateSetError("");
     try {
-      const { data, error } = await supabase
-        .from("vocabulary_sets")
-        .insert({
-          title: newTitle.trim(),
-          emoji: newEmoji,
-          age_group: newAgeGroup,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      setSets([{ ...data, card_count: 0 }, ...sets]);
+      const newSet = await vocabService.createSet(
+        newTitle.trim(),
+        newEmoji,
+        newAgeGroup,
+      );
+      setSets([newSet, ...sets]);
       setShowCreateSet(false);
       setNewTitle("");
       setNewEmoji("📚");
@@ -151,11 +129,7 @@ export function useVocabulary(t: any) {
     setDeleteSetSaving(true);
     setDeleteSetError("");
     try {
-      const { error } = await supabase
-        .from("vocabulary_sets")
-        .delete()
-        .eq("id", deleteSetTarget.id);
-      if (error) throw error;
+      await vocabService.deleteSet(deleteSetTarget.id);
       setSets(sets.filter((s) => s.id !== deleteSetTarget.id));
       if (expandedSetId === deleteSetTarget.id) setExpandedSetId(null);
       setDeleteSetTarget(null);
@@ -169,26 +143,10 @@ export function useVocabulary(t: any) {
   const autoGenIpa = async () => {
     const word = cardFront.trim();
     if (!word) return;
-    const apiKey = import.meta.env.VITE_AI_API_KEY;
-    if (!apiKey) return;
     setIpaLoading(true);
     try {
-      const res = await fetch(
-        "https://free-image-generation-api.levanthanh29111999.workers.dev/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({ type: "ipa", prompt: word }),
-        },
-      );
-      if (!res.ok) throw new Error("Failed");
-      const data = await res.json();
-      if (data.ipa) setCardIpa(data.ipa);
-    } catch {
-      // silently fail
+      const ipa = await vocabService.generateIpa(word);
+      if (ipa) setCardIpa(ipa);
     } finally {
       setIpaLoading(false);
     }
@@ -198,7 +156,7 @@ export function useVocabulary(t: any) {
     setCardImageUploading(true);
     setCardImageError("");
     try {
-      const url = await uploadToStorage(file, "vocab_images");
+      const url = await uploadService.uploadFile(file, "vocab_images");
       setCardImageUrl(url);
     } catch (err) {
       console.error("Upload error:", err);
@@ -223,19 +181,14 @@ export function useVocabulary(t: any) {
     try {
       const currentCards = cardsBySet[addCardSetId] || [];
       const orderIndex = currentCards.length;
-      const { data, error } = await supabase
-        .from("vocabulary_cards")
-        .insert({
-          set_id: addCardSetId,
-          front: cardFront.trim(),
-          back: cardBack.trim(),
-          ipa: cardIpa.trim() || null,
-          image_url: cardImageUrl || null,
-          order_index: orderIndex,
-        })
-        .select()
-        .single();
-      if (error) throw error;
+      const data = await vocabService.createCard({
+        set_id: addCardSetId,
+        front: cardFront.trim(),
+        back: cardBack.trim(),
+        ipa: cardIpa.trim() || null,
+        image_url: cardImageUrl || null,
+        order_index: orderIndex,
+      });
 
       setCardsBySet((prev) => ({
         ...prev,
@@ -265,12 +218,7 @@ export function useVocabulary(t: any) {
     setDeleteCardSaving(true);
     setDeleteCardError("");
     try {
-      const { error } = await supabase
-        .from("vocabulary_cards")
-        .delete()
-        .eq("id", deleteCardTarget.id);
-      if (error) throw error;
-
+      await vocabService.deleteCard(deleteCardTarget.id);
       const setId = deleteCardTarget.set_id;
       setCardsBySet((prev) => ({
         ...prev,

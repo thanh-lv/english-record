@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "../../../lib/supabase";
-import { Topic, Question } from "../../../types";
+import { topicService } from "../../../services/topicService";
+import { Topic } from "../../../types";
 
 export function useTopics() {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -34,21 +34,8 @@ export function useTopics() {
     setLoading(true);
     setLoadError(false);
     try {
-      const { data, error } = await supabase
-        .from("topics")
-        .select("*, questions(*)")
-        .order("order_index");
-
-      if (error) throw error;
-
-      const normalized: Topic[] = (data || []).map((t: any) => ({
-        ...t,
-        questions: (t.questions || []).sort(
-          (a: any, b: any) => a.order_index - b.order_index,
-        ),
-      }));
-
-      setTopics(normalized);
+      const data = await topicService.fetchAllTopics();
+      setTopics(data);
     } catch (err) {
       console.error("Fetch topics error:", err);
       setLoadError(true);
@@ -80,10 +67,7 @@ export function useTopics() {
   );
 
   const toggleTopicActive = async (topicId: string, currentValue: boolean) => {
-    await supabase
-      .from("topics")
-      .update({ is_active: !currentValue })
-      .eq("id", topicId);
+    await topicService.toggleTopicActive(topicId, currentValue);
     setTopics((prev) =>
       prev.map((t) =>
         t.id === topicId ? { ...t, is_active: !currentValue } : t,
@@ -96,11 +80,7 @@ export function useTopics() {
     if (trimTitle.length < 2) return;
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("topics")
-        .update({ title: trimTitle })
-        .eq("id", topicId);
-      if (error) throw error;
+      await topicService.updateTopicTitle(topicId, trimTitle);
       setEditingTopic(null);
       fetchTopics();
     } finally {
@@ -114,13 +94,7 @@ export function useTopics() {
     setSaving(true);
     try {
       const maxOrder = topics.filter((t) => t.type === addingTopic).length + 1;
-      const { error } = await supabase.from("topics").insert({
-        title: trimTitle,
-        type: addingTopic,
-        order_index: maxOrder,
-        is_active: true,
-      });
-      if (error) throw error;
+      await topicService.createTopic(trimTitle, addingTopic, maxOrder);
       setNewTopicTitle("");
       setAddingTopic(null);
       fetchTopics();
@@ -133,9 +107,9 @@ export function useTopics() {
     e.preventDefault();
     if (!deleteTarget) return;
     if (deleteTarget.type === "question") {
-      await supabase.from("questions").delete().eq("id", deleteTarget.id);
+      await topicService.deleteQuestion(deleteTarget.id);
     } else {
-      await supabase.from("topics").delete().eq("id", deleteTarget.id);
+      await topicService.deleteTopic(deleteTarget.id);
     }
     setDeleteTarget(null);
     fetchTopics();
@@ -146,15 +120,8 @@ export function useTopics() {
     parsed: { text: string; sample_answer: string }[],
   ) => {
     const topic = topics.find((t) => t.id === topicId);
-    let nextOrder = topic?.questions?.length || 0;
-    const rows = parsed.map((q) => ({
-      topic_id: topicId,
-      text: q.text,
-      sample_answer: q.sample_answer || null,
-      order_index: nextOrder++,
-    }));
-    const { error } = await supabase.from("questions").insert(rows);
-    if (error) throw error;
+    const startingOrder = topic?.questions?.length || 0;
+    await topicService.insertParsedQuestions(topicId, parsed, startingOrder);
     fetchTopics();
   };
 

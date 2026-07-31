@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -8,7 +7,6 @@ import {
   X,
   Plus,
   Sparkles,
-  Link,
 } from "lucide-react";
 import { Topic, Question } from "../../../types";
 
@@ -53,17 +51,6 @@ export function TopicItem({
   onDeleteQuestion,
   onOpenAiParser,
 }: TopicItemProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopyLink = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const url = `${window.location.origin}/share/topic/${topic.id}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
   return (
     <div className="bg-white rounded-lg border-2 border-slate-100 shadow-sm overflow-hidden">
       {isEditing ? (
@@ -134,18 +121,6 @@ export function TopicItem({
               {(topic.is_active ?? true)
                 ? t.teacherModal.topicStatusActive
                 : t.teacherModal.topicStatusHidden}
-            </button>
-            <button
-              type="button"
-              title="Copy link chia sẻ cho học sinh"
-              onClick={handleCopyLink}
-              className={`p-1.5 rounded-lg transition-colors ${
-                copied
-                  ? "text-emerald-600 bg-emerald-50"
-                  : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
-              }`}
-            >
-              {copied ? <Check size={14} /> : <Link size={14} />}
             </button>
             <button
               type="button"

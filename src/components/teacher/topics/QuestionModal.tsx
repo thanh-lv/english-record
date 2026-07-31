@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, ImagePlus, Loader2 } from "lucide-react";
-import { uploadToStorage } from "../../../services/storageService";
+import { uploadToStorage } from "../../../services/uploadService";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 interface QuestionModalProps {
