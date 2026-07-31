@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../../lib/supabase";
 import {
   Download,
@@ -7,6 +7,9 @@ import {
   Loader2,
   Image as ImageIcon,
   CheckCircle2,
+  Eye,
+  FileSpreadsheet,
+  X as XIcon,
 } from "lucide-react";
 import html2canvas from "html2canvas";
 import JSZip from "jszip";
@@ -16,7 +19,6 @@ import { AttendanceAnalytics } from "./AttendanceAnalytics";
 import { ZaloShareModal } from "./ZaloShareModal";
 import { MessageCircle } from "lucide-react";
 import { Check, X, DollarSign } from "lucide-react";
-import { useRef } from "react";
 
 export function SummaryTab({ tAtt }: { tAtt: any }) {
   const [records, setRecords] = useState<any[]>([]);
@@ -40,6 +42,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
   );
   const [paymentsMap, setPaymentsMap] = useState<Record<string, boolean>>({});
   const [zaloStudent, setZaloStudent] = useState<any | null>(null);
+  const [previewMode, setPreviewMode] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -578,139 +582,86 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   </div>
                 </div>
 
-                {/* Student rows */}
-                <div className="overflow-x-auto pb-2">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50 border-b border-slate-200">
-                      <tr>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
-                          #
-                        </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
-                          {tAtt.studentName}
-                        </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center whitespace-nowrap">
-                          {tAtt.totalSessions}
-                        </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-right whitespace-nowrap">
-                          {tAtt.unitPrice}
-                        </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-right whitespace-nowrap">
-                          {tAtt.totalFee}
-                        </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center print:hidden whitespace-nowrap">
-                          {tAtt.paymentStatus || "Trạng thái HP"}
-                        </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center print:hidden whitespace-nowrap">
-                          Gửi Zalo
-                        </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-left print:hidden whitespace-nowrap min-w-[160px]">
-                          Ghi chú cá nhân
-                        </th>
-                        <th className="px-4 py-2.5 text-xs font-black text-slate-500 uppercase tracking-wider text-center print:hidden whitespace-nowrap">
-                          Chi tiết
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {rows.map((s, i) => (
-                        <tr
-                          key={s.id}
-                          className="hover:bg-purple-50 transition-colors"
+                {/* Student card list – no horizontal scroll */}
+                <div className="divide-y divide-slate-100">
+                  {rows.map((s, i) => (
+                    <div
+                      key={s.id}
+                      className={`px-4 py-3 hover:bg-purple-50/60 transition-colors ${
+                        paymentsMap[s.id] ? "" : ""
+                      }`}
+                    >
+                      {/* Row 1: STT + Tên + Buổi + Học phí */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-slate-400 font-bold w-5 shrink-0">{i + 1}</span>
+                        <span className="font-black text-slate-800 flex-1 min-w-0 truncate">{s.name}</span>
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 font-black text-xs shrink-0">
+                          {s.total_sessions}
+                        </span>
+                        <span className="text-xs text-slate-400 font-medium shrink-0">buổi</span>
+                        <span className="font-black text-purple-700 text-sm shrink-0">
+                          {tAtt.currencyVnd.replace("{amount}", s.total_fee.toLocaleString())}
+                        </span>
+                      </div>
+                      {/* Row 2: Đơn giá + Controls */}
+                      <div className="flex items-center gap-2 mt-2 flex-wrap pl-7">
+                        <span className="text-xs text-slate-400 font-medium">
+                          {s.unit_price.toLocaleString()}đ/buổi
+                        </span>
+                        <div className="flex-1" />
+                        {/* Toggle trạng thái HP */}
+                        <button
+                          onClick={() => handleTogglePayment(s.id)}
+                          className={`px-2.5 py-1 text-xs font-black rounded-full border transition-all flex items-center gap-1 print:hidden ${
+                            paymentsMap[s.id]
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                              : "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100"
+                          }`}
                         >
-                          <td className="px-4 py-3 text-sm text-slate-400 font-bold whitespace-nowrap">
-                            {i + 1}
-                          </td>
-                          <td className="px-4 py-3 font-black text-slate-800 whitespace-nowrap">
-                            {s.name}
-                          </td>
-                          <td className="px-4 py-3 text-center whitespace-nowrap">
-                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 font-black text-sm">
-                              {s.total_sessions}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right text-sm text-slate-500 font-bold whitespace-nowrap">
-                            {s.unit_price.toLocaleString()}
-                          </td>
-                          <td className="px-4 py-3 text-right font-black text-purple-700 whitespace-nowrap">
-                            {tAtt.currencyVnd.replace(
-                              "{amount}",
-                              s.total_fee.toLocaleString(),
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-center print:hidden whitespace-nowrap">
-                            <button
-                              onClick={() => handleTogglePayment(s.id)}
-                              className={`px-3 py-1 text-xs font-black rounded-full border transition-all flex items-center gap-1 mx-auto ${
-                                paymentsMap[s.id]
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
-                                  : "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100"
-                              }`}
-                            >
-                              <span
-                                className={`w-2 h-2 rounded-full ${paymentsMap[s.id] ? "bg-emerald-500" : "bg-rose-500"}`}
-                              />
-                              {paymentsMap[s.id]
-                                ? tAtt.paid || "Đã nộp"
-                                : tAtt.unpaid || "Chưa nộp"}
-                            </button>
-                          </td>
-                          <td className="px-4 py-3 text-center print:hidden whitespace-nowrap">
-                            <button
-                              onClick={() => setZaloStudent(s)}
-                              className="px-2.5 py-1 text-xs font-black text-[#0068FF] bg-[#0068FF]/10 hover:bg-[#0068FF]/20 rounded-lg transition-all flex items-center gap-1 mx-auto shadow-sm active:scale-95"
-                              title="Gửi thông báo Zalo cho Phụ huynh"
-                            >
-                              <MessageCircle size={13} /> Gửi Zalo
-                            </button>
-                          </td>
-                          <td className="px-4 py-2 print:hidden">
-                            <input
-                              type="text"
-                              placeholder="Nhập ghi chú riêng..."
-                              value={studentNotes[s.id] || ""}
-                              onChange={(e) =>
-                                setStudentNotes((prev) => ({
-                                  ...prev,
-                                  [s.id]: e.target.value,
-                                }))
-                              }
-                              className="w-full px-2 py-1 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-purple-400 bg-white"
-                            />
-                          </td>
-                          <td className="px-4 py-3 text-center print:hidden whitespace-nowrap">
-                            <button
-                              onClick={() => setSelectedStudent(s)}
-                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-black text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors mx-auto whitespace-nowrap"
-                            >
-                              <CalendarDays size={12} />
-                              Xem
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot className="bg-purple-50 border-t-2 border-purple-200">
-                      <tr>
-                        <td
-                          colSpan={2}
-                          className="px-4 py-3 font-black text-purple-800 text-sm whitespace-nowrap"
+                          <span className={`w-1.5 h-1.5 rounded-full ${paymentsMap[s.id] ? "bg-emerald-500" : "bg-rose-500"}`} />
+                          {paymentsMap[s.id] ? tAtt.paid || "Đã nộp" : tAtt.unpaid || "Chưa nộp"}
+                        </button>
+                        {/* Gửi Zalo */}
+                        <button
+                          onClick={() => setZaloStudent(s)}
+                          className="px-2.5 py-1 text-xs font-black text-[#0068FF] bg-[#0068FF]/10 hover:bg-[#0068FF]/20 rounded-lg transition-all flex items-center gap-1 print:hidden shadow-sm active:scale-95"
+                          title="Gửi thông báo Zalo cho Phụ huynh"
                         >
-                          Cộng
-                        </td>
-                        <td className="px-4 py-3 text-center font-black text-purple-800 whitespace-nowrap">
-                          {classSessions}
-                        </td>
-                        <td />
-                        <td className="px-4 py-3 text-right font-black text-purple-700 text-base">
-                          {tAtt.currencyVnd.replace(
-                            "{amount}",
-                            classTotal.toLocaleString(),
-                          )}
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
+                          <MessageCircle size={12} /> Zalo
+                        </button>
+                        {/* Xem chi tiết */}
+                        <button
+                          onClick={() => { setSelectedStudent(s); setPreviewMode(false); }}
+                          className="flex items-center gap-1 px-2.5 py-1 text-xs font-black text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors print:hidden"
+                        >
+                          <CalendarDays size={12} /> Xem
+                        </button>
+                      </div>
+                      {/* Row 3: Ghi chú */}
+                      <div className="mt-2 pl-7 print:hidden">
+                        <input
+                          type="text"
+                          placeholder="Nhập ghi chú riêng..."
+                          value={studentNotes[s.id] || ""}
+                          onChange={(e) =>
+                            setStudentNotes((prev) => ({ ...prev, [s.id]: e.target.value }))
+                          }
+                          className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-purple-400 bg-white placeholder:text-slate-300"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Footer tổng lớp */}
+                <div className="bg-purple-50 border-t-2 border-purple-200 px-4 py-3 flex items-center justify-between">
+                  <span className="font-black text-purple-800 text-sm">Cộng</span>
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-200 text-purple-800 font-black text-xs">{classSessions}</span>
+                    <span className="text-xs text-purple-600 font-bold">buổi</span>
+                    <span className="font-black text-purple-700 text-base">
+                      {tAtt.currencyVnd.replace("{amount}", classTotal.toLocaleString())}
+                    </span>
+                  </div>
                 </div>
               </div>
             );
@@ -752,9 +703,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
             );
           return (
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 print:hidden">
-              <div className="bg-white rounded-lg w-full max-w-lg shadow-md overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="bg-white rounded-xl w-full max-w-2xl shadow-xl overflow-hidden flex flex-col max-h-[92vh]">
                 {/* Modal header */}
-                <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-6 py-4 flex items-start justify-between">
+                <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-6 py-4 flex items-start justify-between shrink-0">
                   <div>
                     <h2 className="font-black text-white text-xl">{s.name}</h2>
                     <p className="text-purple-200 text-sm font-bold mt-0.5">
@@ -770,128 +721,148 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                 </div>
 
                 {/* Summary strip */}
-                <div className="grid grid-cols-3 border-b border-slate-100">
+                <div className="grid grid-cols-3 border-b border-slate-100 shrink-0">
                   <div className="px-5 py-3 text-center border-r border-slate-100">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
-                      Số buổi
-                    </p>
-                    <p className="text-2xl font-black text-emerald-600 mt-0.5">
-                      {s.total_sessions}
-                    </p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">Số buổi</p>
+                    <p className="text-2xl font-black text-emerald-600 mt-0.5">{s.total_sessions}</p>
                   </div>
                   <div className="px-5 py-3 text-center border-r border-slate-100">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
-                      Đơn giá
-                    </p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">Đơn giá</p>
                     <p className="text-sm font-black text-slate-700 mt-0.5">
-                      {tAtt.currencyVnd.replace(
-                        "{amount}",
-                        s.unit_price.toLocaleString(),
-                      )}
+                      {tAtt.currencyVnd.replace("{amount}", s.unit_price.toLocaleString())}
                     </p>
                   </div>
                   <div className="px-5 py-3 text-center">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
-                      Học phí
-                    </p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">Học phí</p>
                     <p className="text-sm font-black text-purple-700 mt-0.5">
-                      {tAtt.currencyVnd.replace(
-                        "{amount}",
-                        s.total_fee.toLocaleString(),
-                      )}
+                      {tAtt.currencyVnd.replace("{amount}", s.total_fee.toLocaleString())}
                     </p>
                   </div>
                 </div>
 
-                {/* Session list */}
+                {/* Tab switcher */}
+                <div className="flex border-b border-slate-200 shrink-0 bg-slate-50">
+                  <button
+                    onClick={() => setPreviewMode(false)}
+                    className={`flex-1 py-2.5 text-sm font-black flex items-center justify-center gap-1.5 transition-colors ${
+                      !previewMode
+                        ? "text-purple-700 border-b-2 border-purple-600 bg-white"
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    <CalendarDays size={14} /> Lịch điểm danh
+                  </button>
+                  <button
+                    onClick={() => setPreviewMode(true)}
+                    className={`flex-1 py-2.5 text-sm font-black flex items-center justify-center gap-1.5 transition-colors ${
+                      previewMode
+                        ? "text-purple-700 border-b-2 border-purple-600 bg-white"
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    <Eye size={14} /> Preview phiếu học phí
+                  </button>
+                </div>
+
+                {/* Content area */}
                 <div className="flex-1 overflow-y-auto">
-                  {studentRecs.length === 0 ? (
-                    <p className="text-center py-8 text-slate-400 font-bold">
-                      Không có buổi nào
-                    </p>
+                  {!previewMode ? (
+                    /* ---- Attendance list tab ---- */
+                    studentRecs.length === 0 ? (
+                      <p className="text-center py-8 text-slate-400 font-bold">Không có buổi nào</p>
+                    ) : (
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-50 sticky top-0 border-b border-slate-200">
+                          <tr>
+                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">STT</th>
+                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">Ngày</th>
+                            <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">Giờ</th>
+                            <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase">Trạng thái</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {studentRecs.map((r, i) => {
+                            const dt = new Date(r.checkin_time);
+                            return (
+                              <tr key={r.id} className="hover:bg-purple-50 transition-colors">
+                                <td className="px-4 py-3 text-slate-400 font-bold">{i + 1}</td>
+                                <td className="px-4 py-3">
+                                  <p className="font-black text-slate-800">
+                                    {dt.toLocaleDateString("vi-VN", { weekday: "short", day: "2-digit", month: "2-digit" })}
+                                  </p>
+                                </td>
+                                <td className="px-4 py-3 font-bold text-slate-500">
+                                  {dt.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-black rounded-lg">
+                                    <CheckCircle2 size={11} /> Có mặt
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    )
                   ) : (
-                    <table className="w-full text-sm">
-                      <thead className="bg-slate-50 sticky top-0 border-b border-slate-200">
-                        <tr>
-                          <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
-                            STT
-                          </th>
-                          <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
-                            Ngày
-                          </th>
-                          <th className="px-4 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
-                            Giờ
-                          </th>
-                          <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase">
-                            Trạng thái
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {studentRecs.map((r, i) => {
-                          const dt = new Date(r.checkin_time);
-                          return (
-                            <tr
-                              key={r.id}
-                              className="hover:bg-purple-50 transition-colors"
-                            >
-                              <td className="px-4 py-3 text-slate-400 font-bold">
-                                {i + 1}
-                              </td>
-                              <td className="px-4 py-3">
-                                <p className="font-black text-slate-800">
-                                  {dt.toLocaleDateString("vi-VN", {
-                                    weekday: "short",
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                  })}
-                                </p>
-                              </td>
-                              <td className="px-4 py-3 font-bold text-slate-500">
-                                {dt.toLocaleTimeString("vi-VN", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </td>
-                              <td className="px-4 py-3 text-center">
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-black rounded-lg">
-                                  <CheckCircle2 size={11} /> Có mặt
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                    /* ---- Preview phiếu học phí tab ---- */
+                    <div className="flex flex-col items-center bg-slate-100 min-h-full py-6 px-4">
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                        <Eye size={12} /> Đây là hình ảnh phiếu học phí sẽ được tải về
+                      </p>
+                      {/* Preview scaled down to fit modal */}
+                      <div
+                        className="origin-top shadow-xl rounded-lg overflow-hidden"
+                        style={{ transform: "scale(0.72)", transformOrigin: "top center", marginBottom: "-100px" }}
+                      >
+                        <TuitionSlipTemplate
+                          tAtt={tAtt}
+                          student={s}
+                          records={studentRecs}
+                          month={month}
+                          note={(studentNotes[s.id] && studentNotes[s.id].trim()) || generalNote}
+                        />
+                      </div>
+                    </div>
                   )}
                 </div>
 
                 {/* Modal footer: export actions */}
-                <div className="border-t border-slate-100 px-5 py-3 flex justify-end gap-2 bg-slate-50">
+                <div className="border-t border-slate-100 px-5 py-3 flex justify-between items-center gap-2 bg-slate-50 shrink-0">
                   <button
                     onClick={() => setSelectedStudent(null)}
                     className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition-colors"
                   >
                     Đóng
                   </button>
-                  <button
-                    onClick={() => exportStudentExcel(s)}
-                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow transition-colors"
-                  >
-                    <Download size={14} /> Excel
-                  </button>
-                  <button
-                    onClick={() => handleExportSingle(selectedStudent)}
-                    disabled={exporting}
-                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg shadow transition-colors"
-                  >
-                    {exporting ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <ImageIcon size={14} />
-                    )}
-                    {tAtt.printImage}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => exportStudentExcel(s)}
+                      className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow transition-colors"
+                    >
+                      <Download size={14} /> Excel
+                    </button>
+                    <button
+                      onClick={() => { setPreviewMode(true); }}
+                      className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg shadow-sm transition-colors"
+                      title="Xem trước phiếu học phí"
+                    >
+                      <Eye size={14} /> Preview
+                    </button>
+                    <button
+                      onClick={() => handleExportSingle(selectedStudent)}
+                      disabled={exporting}
+                      className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg shadow transition-colors"
+                    >
+                      {exporting ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <ImageIcon size={14} />
+                      )}
+                      {tAtt.printImage}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
