@@ -1,5 +1,5 @@
 import { Library } from "lucide-react";
-import { interpolate, useLanguage } from "../../i18n/LanguageContext";
+import { interpolate, useLanguage } from "../../../i18n/LanguageContext";
 
 interface StoriesTabProps {
   dbStories: any[];

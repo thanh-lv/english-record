@@ -11,7 +11,7 @@ import {
   Video,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage } from "../../../i18n/LanguageContext";
 import { useState } from "react";
 
 export type ActiveTab =

@@ -1,9 +1,9 @@
 import { ArrowLeft, ArrowRight, Shuffle, Volume2, X } from "lucide-react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 
 interface VocabSet {
   id: string;
@@ -69,7 +69,6 @@ function FlipCard({ card }: { card: VocabCard }) {
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
         }}
       >
-        {/* Front */}
         <div
           style={{
             position: "absolute",
@@ -108,7 +107,6 @@ function FlipCard({ card }: { card: VocabCard }) {
           </p>
         </div>
 
-        {/* Back */}
         <div
           style={{
             position: "absolute",
@@ -190,7 +188,6 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
       aria-labelledby="flashcards-study-title"
     >
       <div className="bg-white w-full sm:max-w-lg rounded-lg sm:rounded-lg shadow-md animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3">
           <div className="flex items-center gap-3">
             <span className="text-4xl" aria-hidden="true">
@@ -240,7 +237,6 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
           </div>
         </div>
 
-        {/* Card area */}
         <div className="px-6 pb-2">
           {loading ? (
             <div className="h-[340px] flex items-center justify-center">
@@ -258,7 +254,6 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
           ) : null}
         </div>
 
-        {/* Progress dots */}
         {!loading && total > 1 && (
           <div className="flex justify-center gap-1.5 py-3">
             {cards.map((_, i) => (
@@ -277,7 +272,6 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
           </div>
         )}
 
-        {/* Navigation */}
         <div className="px-6 pb-6 pt-2 flex gap-3">
           {!loading && total > 0 ? (
             <>

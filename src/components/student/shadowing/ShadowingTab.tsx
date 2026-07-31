@@ -1,8 +1,8 @@
 import { Play, Video } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { supabase } from "../../lib/supabase";
-import { OfflineBanner } from "../common/OfflineBanner";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { supabase } from "../../../lib/supabase";
+import { OfflineBanner } from "../../../components/common/OfflineBanner";
 
 interface ShadowingTabProps {
   onVideoClick: (video: any) => void;

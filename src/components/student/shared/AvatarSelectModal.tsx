@@ -1,7 +1,7 @@
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage } from "../../../i18n/LanguageContext";
 import { X } from "lucide-react";
-import { AVATARS } from "./hooks/useAvatar";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { AVATARS } from "../hooks/useAvatar";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 interface AvatarSelectModalProps {
   currentAvatar: string;

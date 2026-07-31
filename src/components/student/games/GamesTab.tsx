@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { supabase } from "../../lib/supabase";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { supabase } from "../../../lib/supabase";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import {
   Volume2,
   X,
@@ -12,7 +12,7 @@ import {
   Gamepad2,
   Zap,
 } from "lucide-react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage } from "../../../i18n/LanguageContext";
 
 interface VocabCard {
   id: string;

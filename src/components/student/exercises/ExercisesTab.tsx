@@ -1,5 +1,5 @@
 import { CheckCircle, Star } from "lucide-react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { useLanguage } from "../../../i18n/LanguageContext";
 
 const PRIZES = [
   "🎈",

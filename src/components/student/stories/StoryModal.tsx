@@ -1,6 +1,6 @@
 import { BookOpen, Square, Volume2, X } from "lucide-react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 interface StoryModalProps {
   story: any;

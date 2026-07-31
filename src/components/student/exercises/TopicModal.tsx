@@ -12,9 +12,9 @@ import {
   Volume2,
   X,
 } from "lucide-react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
-import { TeacherFeedback } from "../common/TeacherFeedback";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { TeacherFeedback } from "../../common/TeacherFeedback";
 
 interface TopicModalProps {
   selectedNumber: number;
@@ -128,7 +128,6 @@ export function TopicModal({
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
             <div className="md:col-span-5 space-y-5 flex flex-col items-center sm:bg-[#F4F9FF] sm:p-5 sm:rounded-lg rounded-lg sm:border-2 sm:border-[#E3F2FD]">
-              {/* Ẩn image box trên mobile khi không có ảnh */}
               {imageLoading ? (
                 <div
                   className={`w-full aspect-square bg-white rounded-lg border-3 border-[#FFFDE7] flex flex-col items-center justify-center overflow-hidden relative group shadow-md ${!topicImage && !imageLoading ? "hidden md:flex" : "flex"}`}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useLanguage, interpolate } from "../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../hooks/useEscapeToClose";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
+import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
 const EMOJIS = ["🎉", "⭐", "🌟", "🎈", "🏆", "💫", "🎊", "✨", "🥳", "🎀"];
 

@@ -8,10 +8,10 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { supabase } from "../../lib/supabase";
-import { useRecording } from "./hooks/useRecording";
-import YouTubePlayer from "../common/YouTubePlayer";
+import { useLanguage } from "../../../i18n/LanguageContext";
+import { supabase } from "../../../lib/supabase";
+import { useRecording } from "../hooks/useRecording";
+import YouTubePlayer from "../../common/YouTubePlayer";
 
 interface ShadowingDetailProps {
   user: any;
