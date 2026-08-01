@@ -53,13 +53,13 @@ export function useStudentData(
         const { data, error } = await supabase
           .from("recordings")
           .select(
-            "id, topicNumber, audioUrl, createdAt, teacher_rating, teacher_feedback, student_reaction, question_id, questionText, topic, topic_id",
+            "id, topic_number, audio_url, created_at, teacher_rating, teacher_feedback, student_reaction, question_id, question_text, topic, topic_id",
           )
-          .eq("studentName", profile.name.trim());
+          .eq("student_name", profile.name.trim());
         if (error) throw error;
         if (data) {
           setMyRecordings(data);
-          setCompletedNumbers(data.map((rec: any) => rec.topicNumber));
+          setCompletedNumbers(data.map((rec: any) => rec.topic_number));
         }
       } catch (err) {
         console.error("Error downloading student progress:", err);
@@ -76,11 +76,11 @@ export function useStudentData(
           event: "INSERT",
           schema: "public",
           table: "recordings",
-          filter: `studentName=eq.${profile.name.trim()}`,
+          filter: `student_name=eq.${profile.name.trim()}`,
         },
         (payload) => {
           setMyRecordings((prev) => [...prev, payload.new]);
-          setCompletedNumbers((prev) => [...prev, payload.new.topicNumber]);
+          setCompletedNumbers((prev) => [...prev, payload.new.topic_number]);
         },
       )
       .subscribe();

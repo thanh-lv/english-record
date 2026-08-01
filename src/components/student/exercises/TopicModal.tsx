@@ -369,7 +369,7 @@ function QuestionPanel({
               </span>
               <audio
                 controls
-                src={matchedQuestionRecording.audioUrl}
+                src={matchedQuestionRecording.audio_url}
                 className="w-full h-11"
               />
             </div>

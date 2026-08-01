@@ -131,11 +131,11 @@ export function NotificationBell({
             ) : (
               notifications.map((n) => {
                 const isRead = readIds.has(n.id);
-                const itemLabel = `${n.studentName} ${t.notifications.submitted}${
-                  n.topicNumber !== undefined
-                    ? ` ${t.notifications.topic} ${n.topicNumber}`
+                const itemLabel = `${n.student_name} ${t.notifications.submitted}${
+                  n.topic_number !== undefined
+                    ? ` ${t.notifications.topic} ${n.topic_number}`
                     : ""
-                } — ${timeAgo(n.createdAt)}`;
+                } — ${timeAgo(n.created_at)}`;
                 return (
                   <div
                     key={n.id}
@@ -144,14 +144,14 @@ export function NotificationBell({
                     aria-label={itemLabel}
                     onClick={() => {
                       onMarkRead(n.id);
-                      onNavigate(n.id, n.studentName);
+                      onNavigate(n.id, n.student_name);
                       setOpen(false);
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         onMarkRead(n.id);
-                        onNavigate(n.id, n.studentName);
+                        onNavigate(n.id, n.student_name);
                         setOpen(false);
                       }
                     }}
@@ -168,22 +168,22 @@ export function NotificationBell({
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-slate-700 leading-snug">
                         <span className="font-extrabold text-slate-900">
-                          {n.studentName}
+                          {n.student_name}
                         </span>{" "}
                         {t.notifications.submitted}{" "}
-                        {n.topicNumber !== undefined && (
+                        {n.topic_number !== undefined && (
                           <span className="text-[#1E88E5] font-black">
-                            {t.notifications.topic} {n.topicNumber}
+                            {t.notifications.topic} {n.topic_number}
                           </span>
                         )}
                       </p>
-                      {(n as any).questionText && (
+                      {(n as any).question_text && (
                         <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-                          "{(n as any).questionText}"
+                          "{(n as any).question_text}"
                         </p>
                       )}
                       <p className="text-[10px] text-slate-400 font-bold mt-1">
-                        {timeAgo(n.createdAt)}
+                        {timeAgo(n.created_at)}
                       </p>
                     </div>
                   </div>

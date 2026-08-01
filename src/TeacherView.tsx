@@ -157,13 +157,13 @@ export default function TeacherView({
     let cancelled = false;
     supabase
       .from("recordings")
-      .select("studentName")
+      .select("student_name")
       .eq("id", highlightRecordId)
       .maybeSingle()
       .then(({ data }) => {
-        if (cancelled || !data?.studentName) return;
+        if (cancelled || !data?.student_name) return;
         navigate(
-          `/teacher/recordings/${encodeURIComponent(data.studentName)}?highlight=${highlightRecordId}`,
+          `/teacher/recordings/${encodeURIComponent(data.student_name)}?highlight=${highlightRecordId}`,
           { replace: true },
         );
       });

@@ -69,17 +69,17 @@ export default function StudentView({
         const topicNum = idx + 1;
         const hasGlobalRecording = myRecordings.some(
           (r: any) =>
-            r.topicNumber === topicNum && !r.question_id && !r.questionText,
+            r.topic_number === topicNum && !r.question_id && !r.question_text,
         );
         if (hasGlobalRecording) return true;
         const questions: any[] = topic.questions || [];
         if (questions.length === 0)
-          return myRecordings.some((r: any) => r.topicNumber === topicNum);
+          return myRecordings.some((r: any) => r.topic_number === topicNum);
         return questions.every((q: any) =>
           myRecordings.some(
             (r: any) =>
-              r.topicNumber === topicNum &&
-              (r.question_id === q.id || r.questionText === q.text),
+              r.topic_number === topicNum &&
+              (r.question_id === q.id || r.question_text === q.text),
           ),
         );
       },
@@ -97,7 +97,7 @@ export default function StudentView({
     prevCompletedCount.current = fullyCompletedCount;
   }, [myRecordings, activeTopics, topicsLoading]);
 
-  const retryRecordingRef = useRef<{ id: string; topicNumber: number } | null>(
+  const retryRecordingRef = useRef<{ id: string; topic_number: number } | null>(
     null,
   );
 
@@ -220,7 +220,7 @@ export default function StudentView({
     currentTopic?.questions?.[activeQuestionIndex]?.text;
 
   const matchedRecording = myRecordings.find(
-    (rec) => rec.topicNumber === selectedNumber,
+    (rec) => rec.topic_number === selectedNumber,
   );
 
   const canRetry =
@@ -231,16 +231,16 @@ export default function StudentView({
 
   retryRecordingRef.current =
     canRetry && matchedRecording
-      ? { id: matchedRecording.id, topicNumber: matchedRecording.topicNumber }
+      ? { id: matchedRecording.id, topic_number: matchedRecording.topic_number }
       : null;
 
   const matchedQuestionRecording =
     currentTopic && currentQuestionId
       ? myRecordings.find(
           (rec) =>
-            rec.topicNumber === selectedNumber &&
+            rec.topic_number === selectedNumber &&
             (rec.question_id === currentQuestionId ||
-              rec.questionText === currentQuestionText),
+              rec.question_text === currentQuestionText),
         )
       : null;
 
@@ -248,13 +248,13 @@ export default function StudentView({
     ? currentTopic.questions.every((q: any) =>
         myRecordings.some(
           (rec) =>
-            rec.topicNumber === selectedNumber &&
-            (rec.question_id === q.id || rec.questionText === q.text),
+            rec.topic_number === selectedNumber &&
+            (rec.question_id === q.id || rec.question_text === q.text),
         ),
       ) ||
       (!!matchedRecording &&
         !matchedRecording.question_id &&
-        !matchedRecording.questionText)
+        !matchedRecording.question_text)
     : false;
 
   const totalNumbers = Array.from(
@@ -262,24 +262,24 @@ export default function StudentView({
     (_, i) => i + 1,
   );
 
-  // Standard topics: completed = any recording with matching topicNumber.
+  // Standard topics: completed = any recording with matching topic_number.
   // Bông bé multi-question topics: every question must have a recording.
   const completedTopicNumbers = activeTopics
     .filter((topic: any, idx: number) => {
-      const topicNum = idx + 1; // selectedNumber is 1-based, matches topicNumber in recordings
+      const topicNum = idx + 1; // selectedNumber is 1-based, matches topic_number in recordings
       const hasGlobalRecording = myRecordings.some(
         (r: any) =>
-          r.topicNumber === topicNum && !r.question_id && !r.questionText,
+          r.topic_number === topicNum && !r.question_id && !r.question_text,
       );
       if (hasGlobalRecording) return true;
       const questions: any[] = topic.questions || [];
       if (questions.length === 0)
-        return myRecordings.some((r: any) => r.topicNumber === topicNum);
+        return myRecordings.some((r: any) => r.topic_number === topicNum);
       return questions.every((q: any) =>
         myRecordings.some(
           (r: any) =>
-            r.topicNumber === topicNum &&
-            (r.question_id === q.id || r.questionText === q.text),
+            r.topic_number === topicNum &&
+            (r.question_id === q.id || r.question_text === q.text),
         ),
       );
     })

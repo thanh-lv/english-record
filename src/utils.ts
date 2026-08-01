@@ -6,8 +6,8 @@ export function calculateStreak(records: any[]): number {
   // Extract unique dates in YYYY-MM-DD format based on local time
   const datesSet = new Set<string>();
   records.forEach((rec) => {
-    if (rec.createdAt) {
-      const d = new Date(rec.createdAt);
+    if (rec.created_at) {
+      const d = new Date(rec.created_at);
       // We can use local date strings or UTC. Let's use local string to be intuitive.
       const dateStr = d.toLocaleDateString("en-CA"); // YYYY-MM-DD format
       datesSet.add(dateStr);

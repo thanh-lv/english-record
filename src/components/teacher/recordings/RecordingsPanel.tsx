@@ -383,10 +383,10 @@ export function RecordingItem({
     >
       <div className="flex items-center gap-2 flex-wrap">
         <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#E3F2FD] border border-[#90CAF9] text-[#1E88E5] font-black text-xs shadow-md shrink-0">
-          {rec.topicNumber}
+          {rec.topic_number}
         </span>
         <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded font-bold">
-          {formatDate(rec.createdAt)}
+          {formatDate(rec.created_at)}
         </span>
         {rec.student_reaction === "heart" && (
           <span
@@ -430,7 +430,7 @@ export function RecordingItem({
             }
             className="w-50 h-full"
           />
-          <AudioPlayer src={rec.audioUrl} compact />
+          <AudioPlayer src={rec.audio_url} compact />
         </div>
       ) : (
         <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-lg px-3 py-2 min-w-0">
@@ -445,9 +445,9 @@ export function RecordingItem({
             {t.recordings.question.replace(":", "")}
           </span>
           <span className="text-xs font-bold text-slate-600 flex-1 min-w-0 truncate">
-            {rec.questionText}
+            {rec.question_text}
           </span>
-          <AudioPlayer src={rec.audioUrl} compact />
+          <AudioPlayer src={rec.audio_url} compact />
         </div>
       )}
 

@@ -63,7 +63,7 @@ export function ExercisesTab({
 
           const hasGlobalRecording = myRecordings.some(
             (r: any) =>
-              r.topicNumber === num && !r.question_id && !r.questionText,
+              r.topic_number === num && !r.question_id && !r.question_text,
           );
 
           let totalQs = 1;
@@ -80,8 +80,8 @@ export function ExercisesTab({
             answeredQs = topic.questions.filter((q: any) =>
               myRecordings.some(
                 (rec) =>
-                  rec.topicNumber === num &&
-                  (rec.question_id === q.id || rec.questionText === q.text),
+                  rec.topic_number === num &&
+                  (rec.question_id === q.id || rec.question_text === q.text),
               ),
             ).length;
 
@@ -102,7 +102,7 @@ export function ExercisesTab({
             totalQs > 0 ? Math.round((answeredQs / totalQs) * 100) : 0;
 
           const topicRating = !isBongBe
-            ? (myRecordings.find((rec) => rec.topicNumber === num)
+            ? (myRecordings.find((rec) => rec.topic_number === num)
                 ?.teacher_rating ?? 0)
             : 0;
           const needsRetry = isCompleted && topicRating > 0 && topicRating <= 3;

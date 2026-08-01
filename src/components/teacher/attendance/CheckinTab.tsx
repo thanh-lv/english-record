@@ -313,7 +313,8 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
             </h2>
             {totalMonthRevenue > 0 && (
               <p className="text-xs font-black text-emerald-600 mt-0.5">
-                Tổng ngày: {monthRecords.length} buổi · Dự kiến: {totalMonthRevenue.toLocaleString()}đ
+                Tổng ngày: {monthRecords.length} buổi · Dự kiến:{" "}
+                {totalMonthRevenue.toLocaleString()}đ
               </p>
             )}
           </div>
@@ -401,9 +402,12 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                     {/* Doanh thu ngày */}
                     {revenue > 0 && (
                       <span className="text-[9px] sm:text-[11px] font-black px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200/80 leading-tight w-fit flex items-center gap-0.5">
-                        <span className="hidden sm:inline">+{revenue.toLocaleString()}đ</span>
+                        <span className="hidden sm:inline">
+                          +{revenue.toLocaleString()}đ
+                        </span>
                         <span className="sm:hidden">
-                          +{revenue >= 1000000
+                          +
+                          {revenue >= 1000000
                             ? `${(revenue / 1000000).toFixed(1)}tr`
                             : `${Math.round(revenue / 1000)}k`}
                         </span>

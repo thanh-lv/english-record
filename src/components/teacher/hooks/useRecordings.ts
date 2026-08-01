@@ -7,7 +7,7 @@ interface UseRecordingsOptions {
 }
 
 const RECORDING_COLUMNS =
-  "id, studentName, topicNumber, topic, questionText, audioUrl, createdAt, teacher_rating, teacher_feedback, student_reaction, userId, shadowing_video_id";
+  "id, student_name, topic_number, topic, question_text, audio_url, created_at, teacher_rating, teacher_feedback, student_reaction, user_id, shadowing_video_id";
 
 export interface StudentSummary {
   key: string;
@@ -29,7 +29,7 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
 
   const fetchSummaries = async () => {
     try {
-      // Step 2: Try querying Database View first for pre-aggregated stats
+      // Try querying Database View first for pre-aggregated stats
       const viewRes = await supabase
         .from("student_recording_stats_view")
         .select("*");
@@ -53,16 +53,16 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
         return;
       }
 
-      // Fallback if View is not created yet
+      // Fallback: query directly from recordings table
       const { data, error } = await supabase
         .from("recordings")
-        .select("studentName, createdAt, teacher_rating, teacher_feedback")
-        .order("createdAt", { ascending: false });
+        .select("student_name, created_at, teacher_rating, teacher_feedback")
+        .order("created_at", { ascending: false });
       if (error) throw error;
 
       const map = new Map<string, StudentSummary>();
       for (const rec of data || []) {
-        const key = (rec.studentName || "").trim().toLowerCase();
+        const key = (rec.student_name || "").trim().toLowerCase();
         const hasFeedback =
           (rec.teacher_rating || 0) > 0 ||
           (rec.teacher_feedback && rec.teacher_feedback.trim().length > 0);
@@ -70,9 +70,9 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
         if (!existing) {
           map.set(key, {
             key,
-            studentName: rec.studentName,
+            studentName: rec.student_name,
             count: 1,
-            latestCreatedAt: rec.createdAt,
+            latestCreatedAt: rec.created_at,
             hasUngraded: !hasFeedback,
           });
         } else {
@@ -161,8 +161,6 @@ export async function fetchStudentRecordings(
 ) {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
-  // When requesting shadowing records, include only the related video's `youtube_url`.
-  // For other types, keep the standard recording columns.
   let selectStr = RECORDING_COLUMNS;
   if (type === "shadowing") {
     selectStr = `${RECORDING_COLUMNS}, shadowing_videos(youtube_url)`;
@@ -171,8 +169,8 @@ export async function fetchStudentRecordings(
   let query = supabase
     .from("recordings")
     .select(selectStr, { count: "exact" })
-    .ilike("studentName", studentName)
-    .order("createdAt", { ascending: false })
+    .ilike("student_name", studentName)
+    .order("created_at", { ascending: false })
     .range(from, to);
 
   if (type === "shadowing") {
@@ -202,9 +200,9 @@ export async function fetchRecordingPage(
 ) {
   const { data, error } = await supabase
     .from("recordings")
-    .select("id, createdAt")
-    .ilike("studentName", studentName)
-    .order("createdAt", { ascending: false });
+    .select("id, created_at")
+    .ilike("student_name", studentName)
+    .order("created_at", { ascending: false });
   if (error) throw error;
   const idx = (data || []).findIndex((r) => r.id === recordId);
   if (idx === -1) return 1;

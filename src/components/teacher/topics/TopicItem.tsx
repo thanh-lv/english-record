@@ -167,7 +167,11 @@ export function TopicItem({
                 {q.image_url && (
                   <img
                     src={q.image_url}
-                    alt="Question"
+                    alt={
+                      q.text
+                        ? `Minh họa: ${q.text.slice(0, 30)}`
+                        : "Hình minh họa câu hỏi"
+                    }
                     className="w-12 h-12 object-cover rounded-lg border-2 border-slate-100 shrink-0 ml-2"
                   />
                 )}

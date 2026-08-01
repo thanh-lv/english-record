@@ -81,7 +81,7 @@ function FlipCard({ card }: { card: VocabCard }) {
           {card.image_url && (
             <img
               src={card.image_url}
-              alt=""
+              alt={card.front || "Hình minh họa thẻ từ vựng Flashcard"}
               className="w-40 h-40 object-cover rounded-lg shadow-md border-2 border-white"
             />
           )}

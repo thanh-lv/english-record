@@ -283,7 +283,9 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
                 >
                   <input
                     type="text"
-                    value={displayValue > 0 ? displayValue.toLocaleString() : ""}
+                    value={
+                      displayValue > 0 ? displayValue.toLocaleString() : ""
+                    }
                     placeholder="0"
                     onChange={(e) => {
                       const raw =

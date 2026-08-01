@@ -64,7 +64,7 @@ export function StudentsManager({
           supabase
             .from("profiles")
             .select(
-              "id, name, created_at, role, password, avatar, year_born, grade",
+              "id, name, updated_at, role, password, avatar, year_born, grade",
             )
             .eq("role", "student")
             .order("name"),

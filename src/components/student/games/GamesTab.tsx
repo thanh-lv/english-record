@@ -253,7 +253,7 @@ function MatchingGame({
                         {tile.type === "word" && tile.image_url && (
                           <img
                             src={tile.image_url}
-                            alt=""
+                            alt={tile.text || "Hình minh họa từ vựng"}
                             className="w-12 h-12 object-cover rounded-lg"
                           />
                         )}
@@ -475,7 +475,7 @@ function QuizGame({
                 {current.image_url && (
                   <img
                     src={current.image_url}
-                    alt=""
+                    alt={current.front || "Hình minh họa câu hỏi game"}
                     className="w-28 h-28 object-cover rounded-lg shadow-md border-2 border-white"
                   />
                 )}
@@ -717,7 +717,7 @@ function ScrambleGame({
                 {current.image_url && (
                   <img
                     src={current.image_url}
-                    alt=""
+                    alt={current.back || "Gợi ý từ vựng game"}
                     className="w-24 h-24 object-cover rounded-lg shadow-md border-2 border-white"
                   />
                 )}

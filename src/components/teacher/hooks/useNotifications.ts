@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 
 export interface Notification {
   id: string;
-  studentName: string;
-  topicNumber?: number;
-  createdAt: string;
+  student_name: string;
+  topic_number?: number;
+  created_at: string;
 }
 
 const STORAGE_KEY = "teacher-notifications";
@@ -43,9 +43,9 @@ export function useNotifications() {
   const addNotification = useCallback((record: any) => {
     const item: Notification = {
       id: record.id ?? Math.random().toString(36).slice(2),
-      studentName: record.studentName || record.student_name || "Học sinh",
-      topicNumber: record.topicNumber ?? record.topic_number,
-      createdAt: record.createdAt || new Date().toISOString(),
+      student_name: record.student_name || "Học sinh",
+      topic_number: record.topic_number,
+      created_at: record.created_at || new Date().toISOString(),
     };
     setNotifications((prev) => {
       const next = [item, ...prev].slice(0, MAX_ITEMS);

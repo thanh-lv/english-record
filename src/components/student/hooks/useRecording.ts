@@ -169,13 +169,13 @@ export function useRecording({
         const topicId = selectedNumber != null ? currentTopic?.id : null;
 
         const newRecording = {
-          studentName: profile.name,
+          student_name: profile.name,
           topic: currentTopic.title,
-          topicNumber: selectedNumber,
-          audioUrl,
-          createdAt: new Date().toISOString(),
-          userId: user.id,
-          questionText,
+          topic_number: selectedNumber,
+          audio_url: audioUrl,
+          created_at: new Date().toISOString(),
+          user_id: user.id,
+          question_text: questionText,
           topic_id: topicId,
           question_id: questionId,
           shadowing_video_id: shadowingVideoId ?? null,

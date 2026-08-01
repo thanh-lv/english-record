@@ -131,7 +131,10 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
     }
   };
 
-  const handleUpdateStudentNote = async (studentId: string, noteVal: string) => {
+  const handleUpdateStudentNote = async (
+    studentId: string,
+    noteVal: string,
+  ) => {
     setStudentNotes((prev) => ({ ...prev, [studentId]: noteVal }));
 
     setStudents((prev) =>
@@ -885,7 +888,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         placeholder="0"
                         onChange={(e) => {
                           const raw =
-                            parseInt(e.target.value.replace(/\D/g, ""), 10) || 0;
+                            parseInt(e.target.value.replace(/\D/g, ""), 10) ||
+                            0;
                           handleUpdateClassHocLieuMap(cls, undefined, raw);
                         }}
                         className="w-24 px-2 py-1 text-xs font-black text-right text-purple-900 bg-white border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none shadow-sm"
@@ -1493,18 +1497,16 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
               )}
             month={month}
             hocLieuLabel={
-              classHocLieuMap[
-                exportStudent.class_name || tAtt.unassignedClass
-              ]?.label !== undefined
+              classHocLieuMap[exportStudent.class_name || tAtt.unassignedClass]
+                ?.label !== undefined
                 ? classHocLieuMap[
                     exportStudent.class_name || tAtt.unassignedClass
                   ].label
                 : exportStudent.hoc_lieu_label || "📚 Học liệu"
             }
             hocLieuValue={
-              classHocLieuMap[
-                exportStudent.class_name || tAtt.unassignedClass
-              ]?.value !== undefined
+              classHocLieuMap[exportStudent.class_name || tAtt.unassignedClass]
+                ?.value !== undefined
                 ? classHocLieuMap[
                     exportStudent.class_name || tAtt.unassignedClass
                   ].value
