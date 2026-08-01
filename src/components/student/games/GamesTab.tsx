@@ -7,10 +7,8 @@ import {
   X,
   CheckCircle2,
   XCircle,
-  Trophy,
   RefreshCw,
   Gamepad2,
-  Zap,
 } from "lucide-react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 

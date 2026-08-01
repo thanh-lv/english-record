@@ -15,14 +15,12 @@ import {
   Music,
   Pause,
   Play,
-  RotateCcw,
   Save,
   Library,
   Trash2,
   Sliders,
   Sparkles,
   Volume2,
-  VolumeX,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "../../../lib/supabase";

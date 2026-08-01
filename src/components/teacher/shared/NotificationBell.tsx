@@ -1,4 +1,4 @@
-import { Bell, Check, Trash2, X } from "lucide-react";
+import { Bell, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Notification } from "../hooks/useNotifications";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";

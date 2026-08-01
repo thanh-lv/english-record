@@ -1,9 +1,5 @@
 import {
-  Award,
   BarChart2,
-  BookOpen,
-  ChevronDown,
-  Circle,
   CheckCircle2,
   Flame,
   Key,

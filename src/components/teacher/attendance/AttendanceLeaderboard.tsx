@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
-import { Trophy, Medal, Crown, Loader2, Calendar, Award } from "lucide-react";
+import { Trophy, Crown, Loader2, Calendar } from "lucide-react";
 import { formatClassName } from "../../../utils";
 
 interface LeaderboardProps {

@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   AlertCircle,
   Check,
-  ChevronRight,
   Loader2,
   Plus,
   Search,

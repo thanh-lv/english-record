@@ -3,8 +3,6 @@ import {
   Award,
   CheckCircle,
   Eye,
-  HelpCircle,
-  ImageOff,
   Loader2,
   Mic,
   Square,

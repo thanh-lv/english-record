@@ -8,22 +8,18 @@ import {
   Image as ImageIcon,
   CheckCircle2,
   Eye,
-  FileSpreadsheet,
-  X as XIcon,
   Plus,
   Pencil,
   Trash2,
   Save,
-  Clock,
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import JSZip from "jszip";
 import { TuitionSlipTemplate } from "./TuitionSlipTemplate";
-import { AttendanceLeaderboard } from "./AttendanceLeaderboard";
 import { AttendanceAnalytics } from "./AttendanceAnalytics";
 import { ZaloShareModal } from "./ZaloShareModal";
 import { MessageCircle } from "lucide-react";
-import { Check, X, DollarSign } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { formatClassName, useBodyScrollLock } from "../../../utils";
 
 export function SummaryTab({ tAtt }: { tAtt: any }) {

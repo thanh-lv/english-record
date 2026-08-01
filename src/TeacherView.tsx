@@ -15,7 +15,7 @@ import { DeleteConfirmModal } from "./components/teacher/shared/DeleteConfirmMod
 import { OfflineBanner } from "./components/common/OfflineBanner";
 import { useRecordings } from "./components/teacher/hooks/useRecordings";
 import { supabase } from "./lib/supabase";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
 const StoriesManager = lazy(() =>
   import("./components/teacher/stories/StoriesManager").then((m) => ({
