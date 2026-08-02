@@ -79,14 +79,10 @@ export function useRecording({
         const audioBlob = new Blob(audioChunksRef.current, {
           type: mediaRecorder.mimeType || "audio/webm",
         });
-        if (true) {
-          setBongBeAudios((prev) => ({
-            ...prev,
-            [capturedQuestionIndex]: audioBlob,
-          }));
-        } else {
-          setAudioBase64(audioBlob);
-        }
+        setBongBeAudios((prev) => ({
+          ...prev,
+          [capturedQuestionIndex]: audioBlob,
+        }));
         stream.getTracks().forEach((track) => track.stop());
       };
 
@@ -217,9 +213,7 @@ export function useRecording({
     setBongBeAudios({});
   };
 
-  const hasPendingAudios = true
-    ? Object.keys(bongBeAudios).length > 0
-    : !!audioBase64;
+  const hasPendingAudios = Object.keys(bongBeAudios).length > 0;
 
   return {
     isRecording,
