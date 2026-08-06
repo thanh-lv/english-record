@@ -366,14 +366,12 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
             const count = recordsCountByDay[day] || 0;
             const revenue = revenueByDay[day] || 0;
             const isSunday = idx % 7 === 0;
-            const isFuture = new Date(calYear, calMonth, day) > today;
             return (
               <button
                 key={day}
-                onClick={() => !isFuture && openModal(day)}
-                disabled={isFuture}
+                onClick={() => openModal(day)}
                 className={`min-h-[80px] sm:min-h-[100px] p-1.5 sm:p-2 flex flex-col justify-between items-start text-left transition-all
-                  ${isFuture ? "opacity-30 cursor-not-allowed bg-white" : tod ? "bg-emerald-50/80 hover:bg-emerald-100/80 cursor-pointer" : "hover:bg-slate-50 cursor-pointer"}
+                  ${tod ? "bg-emerald-50/80 hover:bg-emerald-100/80 cursor-pointer" : "hover:bg-slate-50 cursor-pointer"}
                 `}
               >
                 {/* Day number */}
