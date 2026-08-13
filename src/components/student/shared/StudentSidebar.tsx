@@ -16,11 +16,11 @@ import { useState } from "react";
 
 export type ActiveTab =
   | "exercises"
+  | "shadowing"
   | "stories"
   | "achievements"
   | "flashcards"
-  | "games"
-  | "shadowing";
+  | "games";
 
 interface StudentSidebarProps {
   profile: any;
@@ -50,6 +50,11 @@ export function StudentSidebar({
       icon: <BookOpen size={20} />,
     },
     {
+      id: "shadowing" as ActiveTab,
+      label: t.sidebar.shadowing,
+      icon: <Video size={20} />,
+    },
+    {
       id: "stories" as ActiveTab,
       label: t.sidebar.stories,
       icon: <Library size={20} />,
@@ -68,11 +73,6 @@ export function StudentSidebar({
       id: "games" as ActiveTab,
       label: "Games",
       icon: <Gamepad2 size={20} />,
-    },
-    {
-      id: "shadowing" as ActiveTab,
-      label: t.sidebar.shadowing,
-      icon: <Video size={20} />,
     },
   ];
 
@@ -168,33 +168,6 @@ export function StudentSidebar({
           ))}
         </nav>
       </aside>
-
-      {/* Mobile: compact profile bar at top */}
-      <div className="md:hidden bg-white/80 backdrop-blur-sm px-4 py-3 rounded-lg border-2 border-[#E3F2FD] shadow-md flex items-center gap-3 mb-3">
-        <button
-          type="button"
-          onClick={onAvatarClick}
-          className="w-11 h-11 bg-white border-2 border-amber-200 rounded-lg flex items-center justify-center text-2xl shadow-md shrink-0"
-        >
-          {currentAvatar}
-        </button>
-        <div className="flex-1 min-w-0">
-          <p className="font-black text-slate-800 text-sm truncate">
-            {t.sidebar.hello}{" "}
-            <span className="text-[#FF8A80]">{profile.name}</span>! 👋
-          </p>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs font-bold text-amber-600">
-              🎁 {completedNumbers.length} {t.sidebar.prizes}
-            </span>
-            {streak > 0 && (
-              <span className="text-xs font-bold text-orange-500">
-                🔥 {streak} {t.sidebar.days}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* Mobile: hamburger button */}
       <button

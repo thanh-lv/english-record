@@ -16,9 +16,14 @@ export function ShadowingManager() {
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [editingVideo, setEditingVideo] = useState<any>(null);
 
   const [title, setTitle] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [previewStart, setPreviewStart] = useState("");
+  const [previewEnd, setPreviewEnd] = useState("");
+  const [recordStart, setRecordStart] = useState("");
+  const [recordEnd, setRecordEnd] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -29,6 +34,25 @@ export function ShadowingManager() {
   useEffect(() => {
     fetchVideos();
   }, []);
+
+  const formatTime = (seconds: number | null | undefined): string => {
+    if (seconds === null || seconds === undefined || seconds === "") return "";
+    const m = Math.floor(Number(seconds) / 60);
+    const s = Math.floor(Number(seconds) % 60);
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const parseTime = (timeStr: string): number | null => {
+    if (!timeStr || !timeStr.trim()) return null;
+    if (!timeStr.includes(":")) {
+      const val = Number(timeStr);
+      return isNaN(val) ? null : val;
+    }
+    const parts = timeStr.split(":");
+    const m = parseInt(parts[0], 10) || 0;
+    const s = parseInt(parts[1], 10) || 0;
+    return m * 60 + s;
+  };
 
   const fetchVideos = async () => {
     try {
@@ -68,25 +92,71 @@ export function ShadowingManager() {
     setIsSaving(true);
     setError("");
     try {
-      const { data, error } = await supabase
-        .from("shadowing_videos")
-        .insert({
-          title: trimTitle,
-          youtube_url: trimUrl,
-        })
-        .select()
-        .single();
+      const parsedPreviewStart = parseTime(previewStart);
+      const parsedPreviewEnd = parseTime(previewEnd);
+      const parsedRecordStart = parseTime(recordStart);
+      const parsedRecordEnd = parseTime(recordEnd);
 
-      if (error) throw error;
-      setVideos([data, ...videos]);
+      if (editingVideo) {
+        const { data, error } = await supabase
+          .from("shadowing_videos")
+          .update({
+            title: trimTitle,
+            youtube_url: trimUrl,
+            preview_start: parsedPreviewStart,
+            preview_end: parsedPreviewEnd,
+            record_start: parsedRecordStart,
+            record_end: parsedRecordEnd,
+          })
+          .eq("id", editingVideo.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        setVideos(videos.map((v) => (v.id === editingVideo.id ? data : v)));
+      } else {
+        const { data, error } = await supabase
+          .from("shadowing_videos")
+          .insert({
+            title: trimTitle,
+            youtube_url: trimUrl,
+            preview_start: parsedPreviewStart,
+            preview_end: parsedPreviewEnd,
+            record_start: parsedRecordStart,
+            record_end: parsedRecordEnd,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        setVideos([data, ...videos]);
+      }
+
       setShowCreate(false);
+      setEditingVideo(null);
       setTitle("");
       setYoutubeUrl("");
+      setPreviewStart("");
+      setPreviewEnd("");
+      setRecordStart("");
+      setRecordEnd("");
     } catch (err: any) {
       setError(err.message);
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleEdit = (video: any) => {
+    setEditingVideo(video);
+    setTitle(video.title);
+    setYoutubeUrl(video.youtube_url);
+    setPreviewStart(formatTime(video.preview_start));
+    setPreviewEnd(formatTime(video.preview_end));
+    setRecordStart(formatTime(video.record_start));
+    setRecordEnd(formatTime(video.record_end));
+    setShowCreate(true);
+    setError("");
   };
 
   const toggleActive = async (id: string, currentValue: boolean) => {
@@ -133,6 +203,13 @@ export function ShadowingManager() {
         </h3>
         <button
           onClick={() => {
+            setEditingVideo(null);
+            setTitle("");
+            setYoutubeUrl("");
+            setPreviewStart("");
+            setPreviewEnd("");
+            setRecordStart("");
+            setRecordEnd("");
             setShowCreate(true);
             setError("");
           }}
@@ -178,18 +255,34 @@ export function ShadowingManager() {
                 <h4 className="font-extrabold text-slate-800 text-sm line-clamp-2 mb-2">
                   {video.title}
                 </h4>
-                <div className="mt-auto flex gap-1.5 pt-2 border-t border-slate-100">
+                <div className="flex-1 text-xs font-bold text-slate-500 mb-2 space-y-1">
+                  <p>
+                    Preview: {formatTime(video.preview_start) || "00:00"} -{" "}
+                    {formatTime(video.preview_end) || "Hết"}
+                  </p>
+                  <p>
+                    Record: {formatTime(video.record_start) || "00:00"} -{" "}
+                    {formatTime(video.record_end) || "Hết"}
+                  </p>
+                </div>
+                <div className="mt-auto flex gap-1.5 pt-2 border-t border-slate-100 flex-wrap">
+                  <button
+                    onClick={() => handleEdit(video)}
+                    className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[60px]"
+                  >
+                    Sửa
+                  </button>
                   <button
                     onClick={() => setDeleteTarget(video)}
-                    className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1"
+                    className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[60px]"
                   >
-                    <Trash2 size={12} /> {t.common.delete}
+                    <Trash2 size={12} /> Xóa
                   </button>
                   <button
                     onClick={() =>
                       toggleActive(video.id, video.is_active ?? true)
                     }
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-black transition-colors ${
+                    className={`w-full mt-1 py-1.5 rounded-lg text-xs font-black transition-colors ${
                       (video.is_active ?? true)
                         ? "bg-slate-100 text-slate-500 hover:bg-slate-200"
                         : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
@@ -217,7 +310,7 @@ export function ShadowingManager() {
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
                 <Youtube className="text-rose-600" />{" "}
-                {t.teacherModal.addVideoTitle}
+                {editingVideo ? "Sửa Video" : t.teacherModal.addVideoTitle}
               </h4>
               <button
                 onClick={() => setShowCreate(false)}
@@ -247,6 +340,60 @@ export function ShadowingManager() {
                   placeholder={t.teacherModal.videoUrlPlaceholder}
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Preview Start (mm:ss)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="00:00"
+                    value={previewStart}
+                    onChange={(e) => setPreviewStart(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Preview End (mm:ss)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="00:00"
+                    value={previewEnd}
+                    onChange={(e) => setPreviewEnd(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Record Start (mm:ss)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="00:00"
+                    value={recordStart}
+                    onChange={(e) => setRecordStart(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                    Record End (mm:ss)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="00:00"
+                    value={recordEnd}
+                    onChange={(e) => setRecordEnd(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
+                  />
+                </div>
               </div>
               {error && (
                 <div className="p-3 bg-rose-50 text-rose-600 text-xs font-bold rounded-lg flex items-center gap-2">

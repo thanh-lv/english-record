@@ -1,10 +1,14 @@
 import React from "react";
+import YouTube, { YouTubeProps } from "react-youtube";
 
 interface YouTubePlayerProps {
   url?: string | null;
   videoId?: string | null;
   title?: string;
   className?: string;
+  onReady?: YouTubeProps["onReady"];
+  onStateChange?: YouTubeProps["onStateChange"];
+  opts?: YouTubeProps["opts"];
 }
 
 export function extractYoutubeId(url?: string | null) {
@@ -19,6 +23,9 @@ export default function YouTubePlayer({
   videoId,
   title,
   className = "",
+  onReady,
+  onStateChange,
+  opts,
 }: YouTubePlayerProps) {
   const id = videoId ?? extractYoutubeId(url) ?? null;
 
@@ -32,16 +39,29 @@ export default function YouTubePlayer({
     );
   }
 
-  const src = `https://www.youtube.com/embed/${id}?rel=0`;
+  const playerOpts = {
+    height: "100%",
+    width: "100%",
+    ...opts,
+    playerVars: {
+      rel: 0,
+      modestbranding: 1,
+      ...(opts?.playerVars || {}),
+    },
+  };
 
   return (
-    <iframe
-      title={title || `youtube-${id}`}
-      src={src}
-      className={className}
-      allowFullScreen
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    />
+    <div className={className}>
+      <YouTube
+        videoId={id}
+        title={title || `youtube-${id}`}
+        opts={playerOpts}
+        onReady={onReady}
+        onStateChange={onStateChange}
+        className="w-full h-full"
+        iframeClassName="w-full h-full"
+      />
+    </div>
   );
 }
 

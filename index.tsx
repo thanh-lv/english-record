@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import LoginScreen from "./src/LoginScreen";
 
 const TeacherView = lazy(() => import("./src/TeacherView"));
@@ -28,6 +28,7 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const { t, lang, setLang } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     notifications,
@@ -170,15 +171,15 @@ export default function App() {
   return (
     <div className="min-h-[100dvh] bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] text-slate-800 font-sans selection:bg-pink-100 flex flex-col">
       <header className="bg-white/80 backdrop-blur-md shadow-md px-4 md:px-6 py-3 h-[68px] sm:height-auto flex justify-between items-center sticky top-0 z-10 border-b-4 border-[#FFF0F0]">
-        <h1 className="font-extrabold text-[#1E88E5] items-center gap-2 hidden sm:flex">
-          <span className="p-1.5 bg-[#E3F2FD] rounded-lg inline-block shadow-inner shrink-0">
+        <h1 className="font-extrabold text-[#1E88E5] flex items-center gap-2">
+          <span className="p-1.5 bg-[#E3F2FD] rounded-lg shadow-inner shrink-0 hidden sm:inline-block">
             <Mic size={16} className="text-[#1E88E5]" />
           </span>
-          <span className="text-base md:text-2xl tracking-wide">
+          <span className="text-lg md:text-2xl tracking-wide hidden sm:block">
             {t.appName}
           </span>
         </h1>
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-2 ml-auto w-full sm:w-auto justify-end">
           {/* Language switcher */}
           <button
             type="button"
@@ -192,11 +193,11 @@ export default function App() {
 
           {userProfile && (
             <>
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#FFFDE7] border-2 border-[#FFF59D] rounded-lg shadow-md">
-                <User size={14} className="text-[#FFB74D]" />
-                <span className="text-sm font-bold text-slate-700">
+              <div className="flex items-center gap-1.5 p-1 bg-[#FFFDE7] border border-[#FFF59D] rounded-lg shadow-md max-w-[140px] sm:max-w-none sm:mr-0">
+                <span className="text-sm sm:text-base shrink-0">{userProfile.avatar || (isTeacher ? '👩‍🏫' : '👦')}</span>
+                <span className="text-xs sm:text-sm font-bold text-slate-700 truncate">
                   {userProfile.name}
-                  <span className="text-slate-400 font-normal ml-1">
+                  <span className="text-slate-400 font-normal ml-1 hidden sm:inline">
                     ({isTeacher ? t.teacher : t.student})
                   </span>
                 </span>
@@ -238,7 +239,7 @@ export default function App() {
               path="/login"
               element={
                 userProfile ? (
-                  <Navigate to={isTeacher ? "/teacher" : "/student"} replace />
+                  <Navigate to={location.state?.from || (isTeacher ? "/teacher" : "/student")} replace />
                 ) : (
                   <LoginScreen setProfile={setUserProfile} user={user} />
                 )
@@ -250,7 +251,7 @@ export default function App() {
                 userProfile?.role === "student" ? (
                   <StudentView user={user} profile={userProfile} />
                 ) : (
-                  <Navigate to={userProfile ? "/teacher" : "/login"} replace />
+                  <Navigate to={userProfile ? "/teacher" : "/login"} state={{ from: location.pathname }} replace />
                 )
               }
             />
@@ -260,7 +261,7 @@ export default function App() {
                 isTeacher ? (
                   <TeacherView user={user} addNotification={addNotification} />
                 ) : (
-                  <Navigate to={userProfile ? "/student" : "/login"} replace />
+                  <Navigate to={userProfile ? "/student" : "/login"} state={{ from: location.pathname }} replace />
                 )
               }
             />
@@ -275,6 +276,7 @@ export default function App() {
                         ? "/teacher"
                         : "/student"
                   }
+                  state={!userProfile ? { from: location.pathname } : undefined}
                   replace
                 />
               }
