@@ -240,12 +240,12 @@ export const vi = {
     step1Title: "Nghe mẫu",
     step2Title: "Lồng tiếng",
     step3Title: "Nộp bài",
-    backToListen: "Quay lại nghe mẫu",
+    backToListen: "Quay lại luyện tập",
     step1Desc:
-      "Hãy nghe một đoạn hội thoại thật kỹ rồi bấm nút bên dưới để bắt đầu lồng tiếng nhé!",
+      "Con hãy nghe và luyện phát âm theo video. Sau đó, bấm nút “Ghi âm” để làm bài nhé!",
     step2Desc:
       "Bấm nút bên dưới để thu âm. Video sẽ tự động tắt tiếng để bạn lồng tiếng.",
-    step3Desc: "Tuyệt vời! Hãy nghe lại bản thu âm của bạn và nộp bài nhé.",
+    step3Desc: "Con có thể nghe lại bài ghi âm của mình ở dưới",
     practiceListen: "Luyện nghe",
     startRecording: "Bắt đầu thu âm",
     submit: "Gửi bài",

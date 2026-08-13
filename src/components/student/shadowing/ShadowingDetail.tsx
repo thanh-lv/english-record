@@ -69,6 +69,8 @@ export function ShadowingDetail({
   const [player, setPlayer] = useState<any>(null);
   const playIntervalRef = useRef<any>(null);
 
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
   const shadowingRecording = useRecording({
     user,
     profile,
@@ -78,7 +80,7 @@ export function ShadowingDetail({
     shadowingVideoId: video?.id ?? null,
     onSaveSuccess: (saved) => {
       onSaveSuccess(saved);
-      navigate("/student/shadowing");
+      setShowSuccessModal(true);
     },
   });
 
@@ -440,6 +442,26 @@ export function ShadowingDetail({
           )}
         </div>
       </div>
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-[100] p-4">
+          <div className="bg-white rounded-xl p-8 max-w-sm w-full mx-auto flex flex-col items-center shadow-2xl border-4 border-emerald-100 animate-in zoom-in-95 duration-300 text-center">
+            <div className="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mb-6 shadow-inner ring-8 ring-emerald-50">
+              <CheckCircle size={40} className="animate-bounce" />
+            </div>
+            <h3 className="text-2xl font-black text-slate-800 mb-3">{t.shadowing.saved}</h3>
+            <button 
+              onClick={() => {
+                setShowSuccessModal(false);
+                navigate("/student/shadowing");
+              }}
+              className="mt-4 w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl shadow-[0_4px_0_rgb(4,120,87)] hover:shadow-[0_2px_0_rgb(4,120,87)] hover:translate-y-[2px] active:scale-95 transition-all text-lg"
+            >
+              {t.common.close}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
