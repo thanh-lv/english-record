@@ -36,7 +36,7 @@ export function ShadowingManager() {
   }, []);
 
   const formatTime = (seconds: number | null | undefined): string => {
-    if (seconds === null || seconds === undefined || seconds === "") return "";
+    if (seconds === null || seconds === undefined) return "";
     const m = Math.floor(Number(seconds) / 60);
     const s = Math.floor(Number(seconds) % 60);
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
