@@ -2,6 +2,7 @@ import {
   Mic,
   Square,
   X,
+  Play,
   Loader2,
   CheckCircle,
   AlertCircle,
@@ -226,7 +227,7 @@ export function ShadowingDetail({
             <span
               className={`text-xs sm:text-sm font-bold text-center mt-1 ${currentStep >= 1 ? "text-indigo-600" : "text-slate-400"}`}
             >
-              Nghe mẫu
+              {t.shadowing.step1Title}
             </span>
           </div>
 
@@ -240,7 +241,7 @@ export function ShadowingDetail({
             <span
               className={`text-xs sm:text-sm font-bold text-center mt-1 ${currentStep >= 2 ? "text-indigo-600" : "text-slate-400"}`}
             >
-              Lồng tiếng
+              {t.shadowing.step2Title}
             </span>
           </div>
 
@@ -254,7 +255,7 @@ export function ShadowingDetail({
             <span
               className={`text-xs sm:text-sm font-bold text-center mt-1 ${currentStep >= 3 ? "text-indigo-600" : "text-slate-400"}`}
             >
-              Nộp bài
+              {t.shadowing.step3Title}
             </span>
           </div>
         </div>
@@ -308,8 +309,7 @@ export function ShadowingDetail({
           {currentStep === 1 && (
             <div className="flex flex-col items-center gap-4 py-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <p className="text-slate-600 font-bold text-center">
-                Hãy bấm "Luyện nghe" để nghe đoạn mẫu. Bạn có thể nghe đi nghe
-                lại nhiều lần.
+                {t.shadowing.step1Desc}
               </p>
               <div className="flex gap-4 flex-col sm:flex-row mt-2 w-full sm:w-auto">
                 <button
@@ -323,14 +323,15 @@ export function ShadowingDetail({
                   }}
                   className="flex-1 px-8 py-3 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-black rounded-lg shadow-[0_4px_0_rgb(4,120,87)] hover:shadow-[0_2px_0_rgb(4,120,87)] hover:translate-y-[2px] transition-all text-base sm:text-lg flex items-center justify-center gap-2"
                 >
-                  ▶ Luyện nghe
+                  <Play size={20} className="fill-current" />{" "}
+                  {t.shadowing.practiceListen}
                 </button>
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
                   className="flex-1 px-8 py-3 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-black rounded-lg shadow-[0_4px_0_rgb(67,56,202)] hover:shadow-[0_2px_0_rgb(67,56,202)] hover:translate-y-[2px] transition-all text-base sm:text-lg"
                 >
-                  Bắt đầu thu âm
+                  {t.shadowing.startRecording}
                 </button>
               </div>
             </div>
@@ -338,9 +339,8 @@ export function ShadowingDetail({
 
           {currentStep === 2 && (
             <div className="flex flex-col items-center gap-4 py-2 animate-in fade-in zoom-in-95 duration-300">
-              <p className="text-slate-600 font-bold text-center">
-                Bấm nút bên dưới để thu âm. Video sẽ tự động tắt tiếng để bạn
-                lồng tiếng.
+              <p className="text-slate-600 font-bold text-center max-w-sm">
+                {t.shadowing.step2Desc}
               </p>
 
               {shadowingRecording.isRecording ? (
@@ -374,7 +374,7 @@ export function ShadowingDetail({
                     }}
                     className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black rounded-lg shadow-[0_4px_0_rgb(203,213,225)] hover:shadow-[0_2px_0_rgb(203,213,225)] hover:translate-y-[2px] transition-all text-sm sm:text-base h-fit"
                   >
-                    Quay lại nghe mẫu
+                    {t.shadowing.backToListen}
                   </button>
 
                   <button
@@ -392,7 +392,7 @@ export function ShadowingDetail({
           {currentStep === 3 && (
             <div className="flex flex-col items-center gap-6 py-2 animate-in zoom-in-95 duration-300">
               <p className="text-slate-600 font-bold text-center">
-                Tuyệt vời! Hãy nghe lại bản thu âm của bạn và nộp bài nhé.
+                {t.shadowing.step3Desc}
               </p>
 
               <div className="w-full max-w-md bg-white p-4 rounded-lg shadow-md border-2 border-indigo-100 flex items-center gap-4">
@@ -420,7 +420,7 @@ export function ShadowingDetail({
                   disabled={shadowingRecording.isSaving}
                   className="flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black rounded-lg transition-all shadow-md flex items-center justify-center gap-2"
                 >
-                  Thu âm lại
+                  {t.shadowing.reRecord}
                 </button>
                 <button
                   type="button"
@@ -433,7 +433,7 @@ export function ShadowingDetail({
                   ) : (
                     <CheckCircle size={24} />
                   )}
-                  Gửi bài
+                  {t.shadowing.submit}
                 </button>
               </div>
             </div>

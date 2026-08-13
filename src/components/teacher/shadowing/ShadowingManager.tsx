@@ -258,11 +258,11 @@ export function ShadowingManager() {
                 <div className="flex-1 text-xs font-bold text-slate-500 mb-2 space-y-1">
                   <p>
                     Preview: {formatTime(video.preview_start) || "00:00"} -{" "}
-                    {formatTime(video.preview_end) || "Hết"}
+                    {formatTime(video.preview_end) || t.common.end}
                   </p>
                   <p>
                     Record: {formatTime(video.record_start) || "00:00"} -{" "}
-                    {formatTime(video.record_end) || "Hết"}
+                    {formatTime(video.record_end) || t.common.end}
                   </p>
                 </div>
                 <div className="mt-auto flex gap-1.5 pt-2 border-t border-slate-100 flex-wrap">
@@ -270,13 +270,13 @@ export function ShadowingManager() {
                     onClick={() => handleEdit(video)}
                     className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[60px]"
                   >
-                    Sửa
+                    {t.common.edit}
                   </button>
                   <button
                     onClick={() => setDeleteTarget(video)}
                     className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[60px]"
                   >
-                    <Trash2 size={12} /> Xóa
+                    <Trash2 size={12} /> {t.common.delete}
                   </button>
                   <button
                     onClick={() =>
@@ -310,7 +310,9 @@ export function ShadowingManager() {
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
                 <Youtube className="text-rose-600" />{" "}
-                {editingVideo ? "Sửa Video" : t.teacherModal.addVideoTitle}
+                {editingVideo
+                  ? t.teacherModal.editVideoTitle
+                  : t.teacherModal.addVideoTitle}
               </h4>
               <button
                 onClick={() => setShowCreate(false)}
@@ -345,7 +347,7 @@ export function ShadowingManager() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Preview Start (mm:ss)
+                    {t.teacherModal.previewStart}
                   </label>
                   <input
                     type="text"
@@ -357,7 +359,7 @@ export function ShadowingManager() {
                 </div>
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Preview End (mm:ss)
+                    {t.teacherModal.previewEnd}
                   </label>
                   <input
                     type="text"
@@ -372,7 +374,7 @@ export function ShadowingManager() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Record Start (mm:ss)
+                    {t.teacherModal.recordStart}
                   </label>
                   <input
                     type="text"
@@ -384,7 +386,7 @@ export function ShadowingManager() {
                 </div>
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-                    Record End (mm:ss)
+                    {t.teacherModal.recordEnd}
                   </label>
                   <input
                     type="text"

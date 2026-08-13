@@ -231,8 +231,20 @@ export const en = {
     stop: "Stop",
     save: "Save Recording",
     reRecord: "Re-record",
-    saved: "Your recording is saved!",
+    saved: "Recording saved!",
     close: "Close",
+    step1Title: "Listen",
+    step2Title: "Dubbing",
+    step3Title: "Submit",
+    backToListen: "Back to listen",
+    step1Desc:
+      "Listen carefully to the conversation and click the button below to start dubbing!",
+    step2Desc:
+      "Click the button below to record. The video will be muted automatically so you can dub over it.",
+    step3Desc: "Great! Let's listen to your recording and submit it.",
+    practiceListen: "Practice listening",
+    startRecording: "Start recording",
+    submit: "Submit",
   },
 
   // Common
@@ -241,6 +253,7 @@ export const en = {
     save: "Save",
     delete: "Delete",
     edit: "Edit",
+    end: "End",
     close: "Close",
     confirm: "Confirm",
     loading: "Loading...",
@@ -431,6 +444,11 @@ export const en = {
     videoUrlRequired: "Please enter a valid YouTube URL",
     videoConfirmDelete: "Confirm delete",
     deleteVideoWarning: "Are you sure you want to delete this video?",
+    editVideoTitle: "Edit Video",
+    previewStart: "Preview Start (mm:ss)",
+    previewEnd: "Preview End (mm:ss)",
+    recordStart: "Record Start (mm:ss)",
+    recordEnd: "Record End (mm:ss)",
   },
   aiParser: {
     openButton: "AI Question Parser",

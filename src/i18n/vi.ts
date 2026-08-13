@@ -237,6 +237,18 @@ export const vi = {
     reRecord: "Ghi âm lại",
     saved: "Bài ghi âm đã được lưu!",
     close: "Đóng",
+    step1Title: "Nghe mẫu",
+    step2Title: "Lồng tiếng",
+    step3Title: "Nộp bài",
+    backToListen: "Quay lại nghe mẫu",
+    step1Desc:
+      "Hãy nghe một đoạn hội thoại thật kỹ rồi bấm nút bên dưới để bắt đầu lồng tiếng nhé!",
+    step2Desc:
+      "Bấm nút bên dưới để thu âm. Video sẽ tự động tắt tiếng để bạn lồng tiếng.",
+    step3Desc: "Tuyệt vời! Hãy nghe lại bản thu âm của bạn và nộp bài nhé.",
+    practiceListen: "Luyện nghe",
+    startRecording: "Bắt đầu thu âm",
+    submit: "Gửi bài",
   },
 
   // Common
@@ -245,6 +257,7 @@ export const vi = {
     save: "Lưu",
     delete: "Xóa",
     edit: "Sửa",
+    end: "Hết",
     close: "Đóng",
     confirm: "Xác nhận",
     loading: "Đang tải...",
@@ -431,6 +444,11 @@ export const vi = {
     videoUrlRequired: "Vui lòng nhập link YouTube hợp lệ",
     videoConfirmDelete: "Đồng ý xóa",
     deleteVideoWarning: "Bạn có chắc chắn muốn xóa video này không?",
+    editVideoTitle: "Sửa Video",
+    previewStart: "Thời gian bắt đầu preview (mm:ss)",
+    previewEnd: "Thời gian kết thúc preview (mm:ss)",
+    recordStart: "Thời gian bắt đầu record (mm:ss)",
+    recordEnd: "Thời gian kết thúc record (mm:ss)",
   },
   aiParser: {
     openButton: "AI Tách câu hỏi",
