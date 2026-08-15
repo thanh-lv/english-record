@@ -19,5 +19,6 @@ export interface Topic {
   is_active: boolean;
   order_index?: number;
   created_at?: string;
+  grades?: number[];
   questions: Question[];
 }

@@ -17,14 +17,16 @@ interface TopicItemProps {
   isExpanded: boolean;
   isEditing: boolean;
   editTopicTitle: string;
+  editTopicGrades: number[];
   saving: boolean;
   onToggleExpand: () => void;
   onToggleActive: (id: string, current: boolean) => void;
-  onStartEdit: (id: string, title: string) => void;
+  onStartEdit: (id: string, title: string, grades?: number[]) => void;
   onSaveEdit: (id: string) => void;
   onCancelEdit: () => void;
   onDeleteTopic: (id: string, title: string) => void;
   onEditTopicTitleChange: (value: string) => void;
+  onEditTopicGradesChange: (grades: number[]) => void;
   onOpenAddQuestion: (topicId: string, topicType: string) => void;
   onOpenEditQuestion: (topicId: string, topicType: string, q: Question) => void;
   onDeleteQuestion: (id: string, text: string) => void;
@@ -38,6 +40,7 @@ export function TopicItem({
   isExpanded,
   isEditing,
   editTopicTitle,
+  editTopicGrades,
   saving,
   onToggleExpand,
   onToggleActive,
@@ -46,6 +49,7 @@ export function TopicItem({
   onCancelEdit,
   onDeleteTopic,
   onEditTopicTitleChange,
+  onEditTopicGradesChange,
   onOpenAddQuestion,
   onOpenEditQuestion,
   onDeleteQuestion,
@@ -54,34 +58,77 @@ export function TopicItem({
   return (
     <div className="bg-white rounded-lg border-2 border-slate-100 shadow-sm overflow-hidden">
       {isEditing ? (
-        <div className="flex items-center gap-2 p-3 bg-blue-50 border-b-2 border-blue-100">
-          <span className="w-7 h-7 rounded-lg bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
-            {idx + 1}
-          </span>
-          <input
-            autoFocus
-            value={editTopicTitle}
-            onChange={(e) => onEditTopicTitleChange(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onSaveEdit(topic.id)}
-            className="flex-1 px-3 py-2 rounded-lg border-2 border-blue-300 text-sm font-bold focus:outline-none focus:border-blue-500 bg-white"
-          />
-          <button
-            type="button"
-            onClick={() => onSaveEdit(topic.id)}
-            disabled={saving}
-            aria-label={t.common.save}
-            className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shrink-0"
-          >
-            <Check size={14} />
-          </button>
-          <button
-            type="button"
-            onClick={onCancelEdit}
-            aria-label={t.common.cancel}
-            className="p-2 bg-white text-slate-500 rounded-lg hover:bg-slate-100 border border-slate-200 shrink-0"
-          >
-            <X size={14} />
-          </button>
+        <div className="p-3 bg-blue-50 border-b-2 border-blue-100 space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="w-7 h-7 rounded-lg bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
+              {idx + 1}
+            </span>
+            <input
+              autoFocus
+              value={editTopicTitle}
+              onChange={(e) => onEditTopicTitleChange(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && onSaveEdit(topic.id)}
+              className="flex-1 px-3 py-2 rounded-lg border-2 border-blue-300 text-sm font-bold focus:outline-none focus:border-blue-500 bg-white"
+            />
+            <button
+              type="button"
+              onClick={() => onSaveEdit(topic.id)}
+              disabled={saving}
+              aria-label={t.common.save}
+              className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shrink-0"
+            >
+              <Check size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={onCancelEdit}
+              aria-label={t.common.cancel}
+              className="p-2 bg-white text-slate-500 rounded-lg hover:bg-slate-100 border border-slate-200 shrink-0"
+            >
+              <X size={14} />
+            </button>
+          </div>
+
+          {/* Grade pill selection in edit mode */}
+          <div className="pl-9 flex flex-wrap gap-1 items-center">
+            <span className="text-[11px] font-black text-slate-500 mr-1">
+              {t.teacherModal.targetGrades}:
+            </span>
+            <button
+              type="button"
+              onClick={() => onEditTopicGradesChange([])}
+              className={`px-2 py-0.5 rounded text-[10px] font-black border transition-all ${
+                editTopicGrades.length === 0
+                  ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
+                  : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
+              }`}
+            >
+              {t.teacherModal.allGradesOption}
+            </button>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => {
+              const isSelected = editTopicGrades.includes(g);
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => {
+                    onEditTopicGradesChange(
+                      isSelected
+                        ? editTopicGrades.filter((x) => x !== g)
+                        : [...editTopicGrades, g].sort((a, b) => a - b),
+                    );
+                  }}
+                  className={`px-2 py-0.5 rounded text-[10px] font-black border transition-all ${
+                    isSelected
+                      ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
+                      : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
+                  }`}
+                >
+                  Lớp {g}
+                </button>
+              );
+            })}
+          </div>
         </div>
       ) : (
         <div
@@ -96,9 +143,24 @@ export function TopicItem({
           <span className="w-7 h-7 rounded-lg bg-[#E3F2FD] text-[#1E88E5] font-black text-xs flex items-center justify-center shrink-0">
             {idx + 1}
           </span>
-          <span className="flex-1 font-extrabold text-slate-800 truncate">
-            {topic.title}
-          </span>
+          <div className="flex-1 min-w-0 flex items-center gap-2 truncate">
+            <span className="font-extrabold text-slate-800 truncate">
+              {topic.title}
+            </span>
+            {Array.isArray(topic.grades) && topic.grades.length > 0 ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 shrink-0">
+                Lớp{" "}
+                {topic.grades
+                  .slice()
+                  .sort((a: number, b: number) => a - b)
+                  .join(", ")}
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 shrink-0">
+                {t.teacherModal.allGradesOption}
+              </span>
+            )}
+          </div>
           <span className="text-xs text-slate-400 font-bold shrink-0">
             {topic.questions.length} {t.common.questionCount}
           </span>
@@ -124,7 +186,7 @@ export function TopicItem({
             </button>
             <button
               type="button"
-              onClick={() => onStartEdit(topic.id, topic.title)}
+              onClick={() => onStartEdit(topic.id, topic.title, topic.grades)}
               className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
             >
               <Pencil size={14} />

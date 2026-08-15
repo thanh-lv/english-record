@@ -13,16 +13,19 @@ export function useTopics() {
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "hidden">(
     "all",
   );
+  const [filterGrade, setFilterGrade] = useState<string>("all");
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 20;
 
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
   const [editingTopic, setEditingTopic] = useState<string | null>(null);
   const [editTopicTitle, setEditTopicTitle] = useState("");
+  const [editTopicGrades, setEditTopicGrades] = useState<number[]>([]);
   const [addingTopic, setAddingTopic] = useState<"standard" | "bongbe" | null>(
     null,
   );
   const [newTopicTitle, setNewTopicTitle] = useState("");
+  const [newTopicGrades, setNewTopicGrades] = useState<number[]>([]);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "topic" | "question";
@@ -58,6 +61,13 @@ export function useTopics() {
       if (filterStatus === "active") return t.is_active ?? true;
       if (filterStatus === "hidden") return !(t.is_active ?? true);
       return true;
+    })
+    .filter((t) => {
+      if (filterGrade === "all") return true;
+      if (filterGrade === "unassigned")
+        return !t.grades || t.grades.length === 0;
+      const gNum = Number(filterGrade);
+      return Array.isArray(t.grades) && t.grades.includes(gNum);
     });
 
   const totalPages = Math.ceil(filteredTopics.length / PAGE_SIZE);
@@ -80,7 +90,10 @@ export function useTopics() {
     if (trimTitle.length < 2) return;
     setSaving(true);
     try {
-      await topicService.updateTopicTitle(topicId, trimTitle);
+      await topicService.updateTopic(topicId, {
+        title: trimTitle,
+        grades: editTopicGrades,
+      });
       setEditingTopic(null);
       fetchTopics();
     } finally {
@@ -94,8 +107,14 @@ export function useTopics() {
     setSaving(true);
     try {
       const maxOrder = topics.filter((t) => t.type === addingTopic).length + 1;
-      await topicService.createTopic(trimTitle, addingTopic, maxOrder);
+      await topicService.createTopic(
+        trimTitle,
+        addingTopic,
+        maxOrder,
+        newTopicGrades,
+      );
       setNewTopicTitle("");
+      setNewTopicGrades([]);
       setAddingTopic(null);
       fetchTopics();
     } finally {
@@ -145,10 +164,16 @@ export function useTopics() {
     setEditingTopic,
     editTopicTitle,
     setEditTopicTitle,
+    editTopicGrades,
+    setEditTopicGrades,
     addingTopic,
     setAddingTopic,
     newTopicTitle,
     setNewTopicTitle,
+    newTopicGrades,
+    setNewTopicGrades,
+    filterGrade,
+    setFilterGrade,
     saving,
     deleteTarget,
     setDeleteTarget,

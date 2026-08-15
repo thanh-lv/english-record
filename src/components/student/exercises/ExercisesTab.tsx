@@ -28,6 +28,7 @@ interface ExercisesTabProps {
   completedNumbers: number[];
   myRecordings: any[];
   onTopicClick: (num: number, e: React.MouseEvent) => void;
+  studentGrade?: number | string | null;
 }
 
 export function ExercisesTab({
@@ -36,6 +37,7 @@ export function ExercisesTab({
   completedNumbers,
   myRecordings,
   onTopicClick,
+  studentGrade,
 }: ExercisesTabProps) {
   const { t } = useLanguage();
   const totalNumbers = Array.from(
@@ -46,9 +48,16 @@ export function ExercisesTab({
   return (
     <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
       <div className="mb-6 space-y-1">
-        <h3 className="text-2xl font-black text-slate-800">
-          {t.exercises.title}
-        </h3>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="text-2xl font-black text-slate-800">
+            {t.exercises.title}
+          </h3>
+          {studentGrade && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-100">
+              Lớp {studentGrade}
+            </span>
+          )}
+        </div>
         <p className="text-slate-500 font-bold text-sm">
           {isBongBe ? t.exercises.subtitleBongBe : t.exercises.subtitleNormal}
         </p>

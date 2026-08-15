@@ -299,6 +299,7 @@ export default function StudentView({
                 completedNumbers={completedNumbers}
                 myRecordings={myRecordings}
                 onTopicClick={handleNumberClick}
+                studentGrade={profile?.grade}
               />
             }
           />

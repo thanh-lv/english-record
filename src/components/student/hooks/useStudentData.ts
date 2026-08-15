@@ -21,6 +21,7 @@ export function useStudentData(
       setTopicsLoading(true);
       try {
         const topicType = isBongBe ? "bongbe" : "standard";
+        const studentGrade = profile?.grade ? Number(profile.grade) : null;
         const { data, error } = await supabase
           .from("topics")
           .select("*, questions(*)")
@@ -29,12 +30,24 @@ export function useStudentData(
           .order("order_index");
         if (error) throw error;
 
-        const normalized = (data || []).map((t: any) => ({
-          ...t,
-          questions: (t.questions || []).sort(
-            (a: any, b: any) => a.order_index - b.order_index,
-          ),
-        }));
+        const normalized = (data || [])
+          .filter((t: any) => {
+            if (!studentGrade) return true;
+            if (
+              !t.grades ||
+              !Array.isArray(t.grades) ||
+              t.grades.length === 0
+            ) {
+              return true;
+            }
+            return t.grades.includes(studentGrade);
+          })
+          .map((t: any) => ({
+            ...t,
+            questions: (t.questions || []).sort(
+              (a: any, b: any) => a.order_index - b.order_index,
+            ),
+          }));
         setActiveTopics(normalized);
       } catch (err) {
         console.error("Error fetching topics:", err);
@@ -43,7 +56,7 @@ export function useStudentData(
       }
     };
     fetchTopics();
-  }, [isBongBe]);
+  }, [isBongBe, profile?.grade]);
 
   useEffect(() => {
     if (!user) return;

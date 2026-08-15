@@ -31,6 +31,8 @@ export function TopicsManager() {
     setFilterText,
     filterStatus,
     setFilterStatus,
+    filterGrade,
+    setFilterGrade,
     page,
     setPage,
     totalPages,
@@ -41,10 +43,14 @@ export function TopicsManager() {
     setEditingTopic,
     editTopicTitle,
     setEditTopicTitle,
+    editTopicGrades,
+    setEditTopicGrades,
     addingTopic,
     setAddingTopic,
     newTopicTitle,
     setNewTopicTitle,
+    newTopicGrades,
+    setNewTopicGrades,
     saving,
     deleteTarget,
     setDeleteTarget,
@@ -153,6 +159,28 @@ export function TopicsManager() {
               {tm.filterTopicStatusHidden || tm.topicStatusHidden || "Đã ẩn"}
             </option>
           </select>
+
+          {/* Grade filter dropdown */}
+          <select
+            value={filterGrade}
+            onChange={(e) => {
+              setFilterGrade(e.target.value);
+              setPage(0);
+            }}
+            className="px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs font-bold text-slate-600 focus:outline-none"
+          >
+            <option value="all">
+              {tm.allGradesOption || "Tất cả các khối"}
+            </option>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+              <option key={g} value={g.toString()}>
+                Lớp {g}
+              </option>
+            ))}
+            <option value="unassigned">
+              {tm.allGradesOption || "Tất cả các khối"} (Mặc định)
+            </option>
+          </select>
         </div>
 
         {/* Add topic button */}
@@ -162,6 +190,7 @@ export function TopicsManager() {
             onClick={() => {
               setAddingTopic(activeType);
               setNewTopicTitle("");
+              setNewTopicGrades([]);
             }}
             className="px-4 py-2 bg-[#1E88E5] hover:bg-blue-600 text-white font-extrabold text-xs rounded-lg shadow-sm transition-all flex items-center gap-1.5"
           >
@@ -172,39 +201,85 @@ export function TopicsManager() {
 
       {/* Add new topic form */}
       {addingTopic === activeType && (
-        <div className="flex items-center gap-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-lg animate-in fade-in duration-200">
-          <input
-            autoFocus
-            value={newTopicTitle}
-            onChange={(e) => setNewTopicTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addTopic()}
-            placeholder={
-              tc.topicTitlePlaceholder ||
-              tc.newTopicPlaceholder ||
-              "Nhập tên chủ đề..."
-            }
-            className="flex-1 px-3 py-2 rounded-lg border border-blue-300 text-sm font-bold focus:outline-none bg-white"
-          />
-          <button
-            type="button"
-            onClick={addTopic}
-            disabled={saving || newTopicTitle.trim().length < 2}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1 shrink-0"
-          >
-            {saving ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Check size={14} />
-            )}
-            {tc.save}
-          </button>
-          <button
-            type="button"
-            onClick={() => setAddingTopic(null)}
-            className="p-2 bg-white text-slate-500 rounded-lg hover:bg-slate-100 border border-slate-200 shrink-0"
-          >
-            <X size={14} />
-          </button>
+        <div className="p-3 bg-blue-50 border-2 border-blue-200 rounded-lg animate-in fade-in duration-200 space-y-2">
+          <div className="flex items-center gap-2">
+            <input
+              autoFocus
+              value={newTopicTitle}
+              onChange={(e) => setNewTopicTitle(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addTopic()}
+              placeholder={
+                tc.topicTitlePlaceholder ||
+                tc.newTopicPlaceholder ||
+                "Nhập tên chủ đề..."
+              }
+              className="flex-1 px-3 py-2 rounded-lg border border-blue-300 text-sm font-bold focus:outline-none bg-white"
+            />
+            <button
+              type="button"
+              onClick={addTopic}
+              disabled={saving || newTopicTitle.trim().length < 2}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1 shrink-0"
+            >
+              {saving ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Check size={14} />
+              )}
+              {tc.save}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAddingTopic(null);
+                setNewTopicGrades([]);
+              }}
+              className="p-2 bg-white text-slate-500 rounded-lg hover:bg-slate-100 border border-slate-200 shrink-0"
+            >
+              <X size={14} />
+            </button>
+          </div>
+
+          {/* Grade selection pills for new topic */}
+          <div className="flex flex-wrap gap-1 items-center">
+            <span className="text-[11px] font-black text-slate-500 mr-1">
+              {tm.targetGrades || "Khối / Lớp áp dụng"}:
+            </span>
+            <button
+              type="button"
+              onClick={() => setNewTopicGrades([])}
+              className={`px-2 py-0.5 rounded text-[10px] font-black border transition-all ${
+                newTopicGrades.length === 0
+                  ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
+                  : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
+              }`}
+            >
+              {tm.allGradesOption || "Tất cả các khối"}
+            </button>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => {
+              const isSelected = newTopicGrades.includes(g);
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => {
+                    setNewTopicGrades((prev) =>
+                      isSelected
+                        ? prev.filter((x) => x !== g)
+                        : [...prev, g].sort((a, b) => a - b),
+                    );
+                  }}
+                  className={`px-2 py-0.5 rounded text-[10px] font-black border transition-all ${
+                    isSelected
+                      ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
+                      : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
+                  }`}
+                >
+                  Lớp {g}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -238,14 +313,16 @@ export function TopicsManager() {
               isExpanded={expandedTopic === topic.id}
               isEditing={editingTopic === topic.id}
               editTopicTitle={editTopicTitle}
+              editTopicGrades={editTopicGrades}
               saving={saving}
               onToggleExpand={() =>
                 setExpandedTopic(expandedTopic === topic.id ? null : topic.id)
               }
               onToggleActive={toggleTopicActive}
-              onStartEdit={(id, title) => {
+              onStartEdit={(id, title, grades) => {
                 setEditingTopic(id);
                 setEditTopicTitle(title);
+                setEditTopicGrades(Array.isArray(grades) ? grades : []);
               }}
               onSaveEdit={saveTopic}
               onCancelEdit={() => setEditingTopic(null)}
@@ -253,6 +330,7 @@ export function TopicsManager() {
                 setDeleteTarget({ type: "topic", id, label: title })
               }
               onEditTopicTitleChange={setEditTopicTitle}
+              onEditTopicGradesChange={setEditTopicGrades}
               onOpenAddQuestion={(topicId, topicType) =>
                 setQuestionModal({ mode: "add", topicId, topicType })
               }
