@@ -104,8 +104,9 @@ export function ShadowingDetail({
     }
   }, [recordedBlob, currentStep]);
 
+  // Effect for Step 1: Preview playback
   useEffect(() => {
-    if (!player || !video) return;
+    if (currentStep !== 1 || !player || !video) return;
 
     try {
       if (!player.getIframe()) return;
@@ -116,46 +117,62 @@ export function ShadowingDetail({
     if (playIntervalRef.current) clearInterval(playIntervalRef.current);
 
     try {
-      if (currentStep === 1) {
-        const prevStart = video.preview_start || 0;
-        const prevEnd = video.preview_end || 999999;
-        player.unMute();
+      const prevStart = video.preview_start || 0;
+      const prevEnd = video.preview_end || 999999;
+      player.unMute();
+
+      playIntervalRef.current = setInterval(async () => {
+        try {
+          const currentTime = await player.getCurrentTime();
+          if (currentTime >= prevEnd) {
+            player.pauseVideo();
+            if (playIntervalRef.current) clearInterval(playIntervalRef.current);
+          }
+        } catch (err) {}
+      }, 500);
+    } catch (error) {
+      console.warn("YouTube player action failed", error);
+    }
+
+    return () => {
+      if (playIntervalRef.current) clearInterval(playIntervalRef.current);
+    };
+  }, [currentStep, player, video]);
+
+  // Effect for Step 2: Recording with muted playback
+  useEffect(() => {
+    if (currentStep !== 2 || !player || !video) return;
+
+    try {
+      if (!player.getIframe()) return;
+    } catch (e) {
+      return;
+    }
+
+    if (playIntervalRef.current) clearInterval(playIntervalRef.current);
+
+    try {
+      const recStart = video.record_start || 0;
+      const recEnd = video.record_end || 999999;
+
+      if (shadowingRecording.isRecording) {
+        player.mute();
+        player.seekTo(recStart);
+        player.playVideo();
 
         playIntervalRef.current = setInterval(async () => {
           try {
             const currentTime = await player.getCurrentTime();
-            if (currentTime >= prevEnd) {
+            if (currentTime >= recEnd) {
               player.pauseVideo();
               if (playIntervalRef.current)
                 clearInterval(playIntervalRef.current);
+              shadowingRecording.stopRecording();
             }
           } catch (err) {}
         }, 500);
-      } else if (currentStep === 2) {
-        const recStart = video.record_start || 0;
-        const recEnd = video.record_end || 999999;
-
-        if (shadowingRecording.isRecording) {
-          player.mute();
-          player.seekTo(recStart);
-          player.playVideo();
-
-          playIntervalRef.current = setInterval(async () => {
-            try {
-              const currentTime = await player.getCurrentTime();
-              if (currentTime >= recEnd) {
-                player.pauseVideo();
-                if (playIntervalRef.current)
-                  clearInterval(playIntervalRef.current);
-                shadowingRecording.stopRecording();
-              }
-            } catch (err) {}
-          }, 500);
-        } else {
-          player.seekTo(recStart);
-          player.pauseVideo();
-        }
-      } else if (currentStep === 3) {
+      } else {
+        player.seekTo(recStart);
         player.pauseVideo();
       }
     } catch (error) {
@@ -166,6 +183,23 @@ export function ShadowingDetail({
       if (playIntervalRef.current) clearInterval(playIntervalRef.current);
     };
   }, [currentStep, shadowingRecording.isRecording, player, video]);
+
+  // Effect for Step 3: Pause video
+  useEffect(() => {
+    if (currentStep !== 3 || !player) return;
+
+    try {
+      if (!player.getIframe()) return;
+    } catch (e) {
+      return;
+    }
+
+    try {
+      player.pauseVideo();
+    } catch (error) {
+      console.warn("YouTube player action failed", error);
+    }
+  }, [currentStep, player]);
 
   const onPlayerReady = (event: any) => {
     setPlayer(event.target);
@@ -454,25 +488,25 @@ export function ShadowingDetail({
 
       {showSuccessModal && (
         <div className="fixed inset-0 bg-gradient-to-b from-emerald-50 via-white to-emerald-50 flex flex-col justify-center items-center z-[100] animate-in fade-in duration-300">
-            <div className="flex flex-col items-center text-center px-6">
-              <div className="w-28 h-28 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mb-8 shadow-inner ring-8 ring-emerald-50">
-                <CheckCircle size={56} className="animate-bounce" />
-              </div>
-              <h3 className="text-3xl font-black text-slate-800 mb-3">
-                {t.shadowing.saved}
-              </h3>
-              <p className="text-slate-400 font-bold mb-10">🎉</p>
-              <button
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  navigate("/student/shadowing");
-                }}
-                className="w-full max-w-xs py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl shadow-[0_4px_0_rgb(4,120,87)] hover:shadow-[0_2px_0_rgb(4,120,87)] hover:translate-y-[2px] active:scale-95 transition-all text-lg"
-              >
-                {t.common.close}
-              </button>
+          <div className="flex flex-col items-center text-center px-6">
+            <div className="w-28 h-28 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mb-8 shadow-inner ring-8 ring-emerald-50">
+              <CheckCircle size={56} className="animate-bounce" />
             </div>
+            <h3 className="text-3xl font-black text-slate-800 mb-3">
+              {t.shadowing.saved}
+            </h3>
+            <p className="text-slate-400 font-bold mb-10">🎉</p>
+            <button
+              onClick={() => {
+                setShowSuccessModal(false);
+                navigate("/student/shadowing");
+              }}
+              className="w-full max-w-xs py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl shadow-[0_4px_0_rgb(4,120,87)] hover:shadow-[0_2px_0_rgb(4,120,87)] hover:translate-y-[2px] active:scale-95 transition-all text-lg"
+            >
+              {t.common.close}
+            </button>
           </div>
+        </div>
       )}
     </div>
   );

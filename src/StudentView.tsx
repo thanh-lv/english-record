@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { AchievementsTab } from "./components/student/achievements/AchievementsTab";
 import { AvatarSelectModal } from "./components/student/shared/AvatarSelectModal";
@@ -17,6 +17,8 @@ import { useAvatar } from "./components/student/hooks/useAvatar";
 import { useRecording } from "./components/student/hooks/useRecording";
 import { useStudentData } from "./components/student/hooks/useStudentData";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { useStoryPlayer } from "./components/student/hooks/useStoryPlayer";
+import { getCompletedTopicNumbers } from "./utils/topicCompletion";
 
 export default function StudentView({
   user,
@@ -42,6 +44,19 @@ export default function StudentView({
   const { currentAvatar, showAvatarSelect, setShowAvatarSelect, changeAvatar } =
     useAvatar(profile);
 
+  const {
+    selectedStory,
+    setSelectedStory,
+    isPlayingStoryAudio,
+    playStoryAudio,
+    closeStoryModal,
+  } = useStoryPlayer();
+
+  const completedTopicNumbers = useMemo(
+    () => getCompletedTopicNumbers(activeTopics, myRecordings),
+    [activeTopics, myRecordings],
+  );
+
   const [showCelebration, setShowCelebration] = useState(false);
   const prevCompletedCount = useRef(0);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
@@ -54,9 +69,6 @@ export default function StudentView({
   const [ttsLoading] = useState(false);
   const [isPlayingTopicAudio, setIsPlayingTopicAudio] = useState(false);
 
-  const [selectedStory, setSelectedStory] = useState<any>(null);
-  const [isPlayingStoryAudio, setIsPlayingStoryAudio] = useState(false);
-
   const topicAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const isDataReady = useRef(false);
@@ -64,26 +76,7 @@ export default function StudentView({
   useEffect(() => {
     if (topicsLoading || activeTopics.length === 0) return;
 
-    const fullyCompletedCount = activeTopics.filter(
-      (topic: any, idx: number) => {
-        const topicNum = idx + 1;
-        const hasGlobalRecording = myRecordings.some(
-          (r: any) =>
-            r.topic_number === topicNum && !r.question_id && !r.question_text,
-        );
-        if (hasGlobalRecording) return true;
-        const questions: any[] = topic.questions || [];
-        if (questions.length === 0)
-          return myRecordings.some((r: any) => r.topic_number === topicNum);
-        return questions.every((q: any) =>
-          myRecordings.some(
-            (r: any) =>
-              r.topic_number === topicNum &&
-              (r.question_id === q.id || r.question_text === q.text),
-          ),
-        );
-      },
-    ).length;
+    const fullyCompletedCount = completedTopicNumbers.length;
 
     if (!isDataReady.current) {
       isDataReady.current = true;
@@ -95,7 +88,7 @@ export default function StudentView({
       setShowCelebration(true);
     }
     prevCompletedCount.current = fullyCompletedCount;
-  }, [myRecordings, activeTopics, topicsLoading]);
+  }, [completedTopicNumbers, topicsLoading, activeTopics.length]);
 
   const retryRecordingRef = useRef<{ id: string; topic_number: number } | null>(
     null,
@@ -188,33 +181,6 @@ export default function StudentView({
     }
   };
 
-  const playStoryAudio = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!selectedStory) return;
-
-    if (isPlayingStoryAudio) {
-      window.speechSynthesis.cancel();
-      setIsPlayingStoryAudio(false);
-    } else {
-      const utterance = new SpeechSynthesisUtterance(selectedStory.content);
-      utterance.lang = "en-US";
-      utterance.rate = 0.85;
-      utterance.onend = () => setIsPlayingStoryAudio(false);
-      utterance.onerror = () => setIsPlayingStoryAudio(false);
-
-      setIsPlayingStoryAudio(true);
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  const closeStoryModal = () => {
-    window.speechSynthesis.cancel();
-    setIsPlayingStoryAudio(false);
-    setSelectedStory(null);
-  };
-
   const currentQuestionId = currentTopic?.questions?.[activeQuestionIndex]?.id;
   const currentQuestionText =
     currentTopic?.questions?.[activeQuestionIndex]?.text;
@@ -261,29 +227,6 @@ export default function StudentView({
     { length: activeTopics.length },
     (_, i) => i + 1,
   );
-
-  // Standard topics: completed = any recording with matching topic_number.
-  // Bông bé multi-question topics: every question must have a recording.
-  const completedTopicNumbers = activeTopics
-    .filter((topic: any, idx: number) => {
-      const topicNum = idx + 1; // selectedNumber is 1-based, matches topic_number in recordings
-      const hasGlobalRecording = myRecordings.some(
-        (r: any) =>
-          r.topic_number === topicNum && !r.question_id && !r.question_text,
-      );
-      if (hasGlobalRecording) return true;
-      const questions: any[] = topic.questions || [];
-      if (questions.length === 0)
-        return myRecordings.some((r: any) => r.topic_number === topicNum);
-      return questions.every((q: any) =>
-        myRecordings.some(
-          (r: any) =>
-            r.topic_number === topicNum &&
-            (r.question_id === q.id || r.question_text === q.text),
-        ),
-      );
-    })
-    .map((_: any, idx: number) => idx + 1);
 
   useKeyboardShortcuts({
     isModalOpen: !!selectedNumber,

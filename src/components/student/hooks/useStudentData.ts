@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { calculateStreak } from "../../../utils";
 
@@ -14,7 +14,7 @@ export function useStudentData(
   const [completedNumbers, setCompletedNumbers] = useState<number[]>([]);
   const [dbStories, setDbStories] = useState<any[]>([]);
 
-  const streak = calculateStreak(myRecordings);
+  const streak = useMemo(() => calculateStreak(myRecordings), [myRecordings]);
 
   useEffect(() => {
     const fetchTopics = async () => {
