@@ -258,6 +258,11 @@ export const vi = {
     invalidVideo: "Video shadowing không hợp lệ.",
     videoNotFound: "Không tìm thấy video shadowing.",
     loadError: "Không thể tải video shadowing.",
+    myGradeOnly: "Lớp {grade} của con",
+    allVideos: "Tất cả bài học",
+    filterByGrade: "Lọc theo lớp",
+    forGrades: "Lớp {grades}",
+    forAllGrades: "Tất cả các lớp",
   },
 
   // Common
@@ -463,6 +468,10 @@ export const vi = {
     previewEnd: "Thời gian kết thúc preview (mm:ss)",
     recordStart: "Thời gian bắt đầu record (mm:ss)",
     recordEnd: "Thời gian kết thúc record (mm:ss)",
+    targetGrades: "Khối / Lớp áp dụng",
+    allGradesOption: "Tất cả các khối",
+    gradesHint:
+      "Chọn các lớp áp dụng (có thể chọn nhiều lớp). Để trống = Áp dụng cho tất cả các lớp.",
   },
   aiParser: {
     openButton: "AI Tách câu hỏi",

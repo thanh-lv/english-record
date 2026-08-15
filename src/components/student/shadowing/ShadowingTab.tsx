@@ -1,16 +1,24 @@
-import { Play, Video } from "lucide-react";
+import { Play, Video, Sparkles } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useLanguage } from "../../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
 
 interface ShadowingTabProps {
   onVideoClick: (video: any) => void;
+  studentGrade?: number | string | null;
 }
 
-export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
+export function ShadowingTab({
+  onVideoClick,
+  studentGrade,
+}: ShadowingTabProps) {
   const { t } = useLanguage();
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const parsedStudentGrade = studentGrade ? Number(studentGrade) : null;
+  const [filterMode, setFilterMode] = useState<string>(
+    parsedStudentGrade ? "myGrade" : "all",
+  );
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -47,25 +55,79 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
     );
   }
 
+  const isVideoForGrade = (video: any, grade: number) => {
+    if (
+      !video.grades ||
+      !Array.isArray(video.grades) ||
+      video.grades.length === 0
+    ) {
+      return true;
+    }
+    return video.grades.includes(grade);
+  };
+
+  const filteredVideos = videos.filter((video) => {
+    if (filterMode === "all") return true;
+    if (filterMode === "myGrade" && parsedStudentGrade) {
+      return isVideoForGrade(video, parsedStudentGrade);
+    }
+    const specificGrade = Number(filterMode);
+    if (!isNaN(specificGrade)) {
+      return isVideoForGrade(video, specificGrade);
+    }
+    return true;
+  });
+
   return (
     <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
-      <div className="mb-6 space-y-1">
-        <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-          <Video className="text-indigo-500" /> {t.shadowing.title}
-        </h3>
-        <p className="text-slate-500 font-bold text-sm">
-          {t.shadowing.subtitle}
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+            <Video className="text-indigo-500" /> {t.shadowing.title}
+          </h3>
+          <p className="text-slate-500 font-bold text-sm">
+            {t.shadowing.subtitle}
+          </p>
+        </div>
+
+        {/* Grade Filter Tabs */}
+        {parsedStudentGrade && (
+          <div className="flex items-center gap-2 bg-slate-100/80 p-1 rounded-xl self-start sm:self-auto">
+            <button
+              onClick={() => setFilterMode("myGrade")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 ${
+                filterMode === "myGrade"
+                  ? "bg-white text-indigo-600 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <Sparkles size={14} className="text-indigo-500" />
+              {interpolate(t.shadowing.myGradeOnly, {
+                grade: parsedStudentGrade,
+              })}
+            </button>
+            <button
+              onClick={() => setFilterMode("all")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all ${
+                filterMode === "all"
+                  ? "bg-white text-indigo-600 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              {t.shadowing.allVideos}
+            </button>
+          </div>
+        )}
       </div>
 
-      {videos.length === 0 ? (
+      {filteredVideos.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-slate-200">
           <Video className="mx-auto text-slate-300 mb-3" size={48} />
           <p className="text-slate-500 font-bold">{t.shadowing.empty}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
-          {videos.map((video) => {
+          {filteredVideos.map((video) => {
             const ytId = extractYoutubeId(video.youtube_url);
             const thumb = ytId
               ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
@@ -95,10 +157,26 @@ export function ShadowingTab({ onVideoClick }: ShadowingTabProps) {
                     </div>
                   </div>
                 </div>
-                <div className="p-4 flex-1">
-                  <h4 className="font-extrabold text-slate-800 text-sm line-clamp-2">
-                    {video.title}
-                  </h4>
+                <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div>
+                    {Array.isArray(video.grades) && video.grades.length > 0 ? (
+                      <span className="inline-block bg-indigo-50 text-indigo-700 text-[11px] font-black px-2 py-0.5 rounded-md border border-indigo-100 mb-1.5">
+                        {interpolate(t.shadowing.forGrades, {
+                          grades: video.grades
+                            .slice()
+                            .sort((a: number, b: number) => a - b)
+                            .join(", "),
+                        })}
+                      </span>
+                    ) : (
+                      <span className="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-black px-2 py-0.5 rounded-md border border-emerald-100 mb-1.5">
+                        {t.shadowing.forAllGrades}
+                      </span>
+                    )}
+                    <h4 className="font-extrabold text-slate-800 text-sm line-clamp-2">
+                      {video.title}
+                    </h4>
+                  </div>
                 </div>
               </button>
             );

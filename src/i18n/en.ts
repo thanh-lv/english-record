@@ -254,6 +254,11 @@ export const en = {
     invalidVideo: "Invalid shadowing video.",
     videoNotFound: "Shadowing video not found.",
     loadError: "Failed to load shadowing video.",
+    myGradeOnly: "My Grade ({grade})",
+    allVideos: "All Videos",
+    filterByGrade: "Filter by Grade",
+    forGrades: "Grade {grades}",
+    forAllGrades: "All Grades",
   },
 
   // Common
@@ -463,6 +468,10 @@ export const en = {
     previewEnd: "Preview End (mm:ss)",
     recordStart: "Record Start (mm:ss)",
     recordEnd: "Record End (mm:ss)",
+    targetGrades: "Target Grades",
+    allGradesOption: "All Grades",
+    gradesHint:
+      "Select target grades (multiple allowed). Leave empty = applies to all grades.",
   },
   aiParser: {
     openButton: "AI Question Parser",

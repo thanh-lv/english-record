@@ -33,6 +33,8 @@ export function ShadowingManager() {
   const [deleteSaving, setDeleteSaving] = useState(false);
   const [deleteError, setDeleteError] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [selectedGrades, setSelectedGrades] = useState<number[]>([]);
+  const [filterGrade, setFilterGrade] = useState<string>("all");
 
   useEffect(() => {
     fetchVideos();
@@ -126,39 +128,54 @@ export function ShadowingManager() {
       const parsedRecordStart = parseTime(recordStart);
       const parsedRecordEnd = parseTime(recordEnd);
 
+      const payload: any = {
+        title: trimTitle,
+        youtube_url: trimUrl,
+        preview_start: parsedPreviewStart,
+        preview_end: parsedPreviewEnd,
+        record_start: parsedRecordStart,
+        record_end: parsedRecordEnd,
+        grades: selectedGrades,
+      };
+
       if (editingVideo) {
-        const { data, error } = await supabase
+        let res = await supabase
           .from("shadowing_videos")
-          .update({
-            title: trimTitle,
-            youtube_url: trimUrl,
-            preview_start: parsedPreviewStart,
-            preview_end: parsedPreviewEnd,
-            record_start: parsedRecordStart,
-            record_end: parsedRecordEnd,
-          })
+          .update(payload)
           .eq("id", editingVideo.id)
           .select()
           .single();
 
-        if (error) throw error;
-        setVideos(videos.map((v) => (v.id === editingVideo.id ? data : v)));
+        if (res.error && res.error.message?.includes("grades")) {
+          delete payload.grades;
+          res = await supabase
+            .from("shadowing_videos")
+            .update(payload)
+            .eq("id", editingVideo.id)
+            .select()
+            .single();
+        }
+
+        if (res.error) throw res.error;
+        setVideos(videos.map((v) => (v.id === editingVideo.id ? res.data : v)));
       } else {
-        const { data, error } = await supabase
+        let res = await supabase
           .from("shadowing_videos")
-          .insert({
-            title: trimTitle,
-            youtube_url: trimUrl,
-            preview_start: parsedPreviewStart,
-            preview_end: parsedPreviewEnd,
-            record_start: parsedRecordStart,
-            record_end: parsedRecordEnd,
-          })
+          .insert(payload)
           .select()
           .single();
 
-        if (error) throw error;
-        setVideos([data, ...videos]);
+        if (res.error && res.error.message?.includes("grades")) {
+          delete payload.grades;
+          res = await supabase
+            .from("shadowing_videos")
+            .insert(payload)
+            .select()
+            .single();
+        }
+
+        if (res.error) throw res.error;
+        setVideos([res.data, ...videos]);
       }
 
       setShowCreate(false);
@@ -169,6 +186,7 @@ export function ShadowingManager() {
       setPreviewEnd("");
       setRecordStart("");
       setRecordEnd("");
+      setSelectedGrades([]);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -184,6 +202,7 @@ export function ShadowingManager() {
     setPreviewEnd(formatTime(video.preview_end));
     setRecordStart(formatTime(video.record_start));
     setRecordEnd(formatTime(video.record_end));
+    setSelectedGrades(Array.isArray(video.grades) ? video.grades : []);
     setShowCreate(true);
     setError("");
   };
@@ -224,32 +243,59 @@ export function ShadowingManager() {
       </div>
     );
 
+  const filteredVideos = videos.filter((v) => {
+    if (filterGrade === "all") return true;
+    if (filterGrade === "unassigned") return !v.grades || v.grades.length === 0;
+    const gNum = Number(filterGrade);
+    return Array.isArray(v.grades) && v.grades.includes(gNum);
+  });
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
           <Youtube className="text-rose-600" /> {t.teacherModal.manageShadowing}
         </h3>
-        <button
-          onClick={() => {
-            setEditingVideo(null);
-            setTitle("");
-            setYoutubeUrl("");
-            setPreviewStart("");
-            setPreviewEnd("");
-            setRecordStart("");
-            setRecordEnd("");
-            setShowCreate(true);
-            setError("");
-          }}
-          className="bg-[#1E88E5] hover:bg-[#1565C0] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md text-sm"
-        >
-          <Plus size={16} /> {t.teacherModal.addVideoTitle}
-        </button>
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+          {/* Grade filter */}
+          <select
+            value={filterGrade}
+            onChange={(e) => setFilterGrade(e.target.value)}
+            className="px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-xs font-bold text-slate-700 focus:outline-none focus:border-indigo-400"
+          >
+            <option value="all">{t.teacherModal.allGradesOption}</option>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+              <option key={g} value={g.toString()}>
+                Lớp {g}
+              </option>
+            ))}
+            <option value="unassigned">
+              {t.teacherModal.allGradesOption} (Mặc định)
+            </option>
+          </select>
+
+          <button
+            onClick={() => {
+              setEditingVideo(null);
+              setTitle("");
+              setYoutubeUrl("");
+              setPreviewStart("");
+              setPreviewEnd("");
+              setRecordStart("");
+              setRecordEnd("");
+              setSelectedGrades([]);
+              setShowCreate(true);
+              setError("");
+            }}
+            className="bg-[#1E88E5] hover:bg-[#1565C0] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md text-sm ml-auto sm:ml-0"
+          >
+            <Plus size={16} /> {t.teacherModal.addVideoTitle}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {videos.map((video) => {
+        {filteredVideos.map((video) => {
           const ytId = extractYoutubeId(video.youtube_url);
           const thumb = ytId
             ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
@@ -281,9 +327,24 @@ export function ShadowingManager() {
                 )}
               </div>
               <div className="p-3 flex flex-col flex-1">
-                <h4 className="font-extrabold text-slate-800 text-sm line-clamp-2 mb-2">
+                <h4 className="font-extrabold text-slate-800 text-sm line-clamp-2 mb-1.5">
                   {video.title}
                 </h4>
+                <div className="mb-2">
+                  {Array.isArray(video.grades) && video.grades.length > 0 ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                      Lớp{" "}
+                      {video.grades
+                        .slice()
+                        .sort((a: number, b: number) => a - b)
+                        .join(", ")}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-500">
+                      {t.teacherModal.allGradesOption}
+                    </span>
+                  )}
+                </div>
                 <div className="flex-1 text-xs font-bold text-slate-500 mb-2 space-y-1">
                   <p>
                     Preview: {formatTime(video.preview_start) || "00:00"} -{" "}
@@ -448,6 +509,52 @@ export function ShadowingManager() {
                   />
                 </div>
               </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
+                  {t.teacherModal.targetGrades}
+                </label>
+                <div className="flex flex-wrap gap-1.5 mb-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedGrades([])}
+                    className={`px-3 py-1 rounded-lg text-xs font-black border transition-all ${
+                      selectedGrades.length === 0
+                        ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200"
+                    }`}
+                  >
+                    {t.teacherModal.allGradesOption}
+                  </button>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => {
+                    const isSelected = selectedGrades.includes(g);
+                    return (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => {
+                          setSelectedGrades((prev) =>
+                            isSelected
+                              ? prev.filter((x) => x !== g)
+                              : [...prev, g].sort((a, b) => a - b),
+                          );
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-black border transition-all ${
+                          isSelected
+                            ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200"
+                        }`}
+                      >
+                        Lớp {g}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-slate-400 font-medium">
+                  {t.teacherModal.gradesHint}
+                </p>
+              </div>
+
               {error && (
                 <div className="p-3 bg-rose-50 text-rose-600 text-xs font-bold rounded-lg flex items-center gap-2">
                   <AlertCircle size={14} /> {error}

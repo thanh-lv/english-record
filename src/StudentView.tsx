@@ -331,6 +331,7 @@ export default function StudentView({
             path="shadowing"
             element={
               <ShadowingTab
+                studentGrade={profile?.grade}
                 onVideoClick={(v) => navigate(`/student/shadowing/${v.id}`)}
               />
             }
