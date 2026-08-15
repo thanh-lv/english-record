@@ -335,13 +335,13 @@ export function ShadowingManager() {
                     }
                     className={`w-full py-1.5 rounded-lg text-xs font-black transition-colors ${
                       (video.is_active ?? true)
-                        ? "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                        : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                        ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                     }`}
                   >
                     {(video.is_active ?? true)
-                      ? t.teacherModal.filterStoryStatusHidden
-                      : t.teacherModal.filterStoryStatusActive}
+                      ? t.teacherModal.filterStoryStatusActive
+                      : t.teacherModal.filterStoryStatusHidden}
                   </button>
                 </div>
               </div>
