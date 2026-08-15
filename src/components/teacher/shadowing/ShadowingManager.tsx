@@ -1,6 +1,8 @@
 import {
   AlertCircle,
+  Check,
   CheckCircle,
+  Copy,
   Loader2,
   Plus,
   Trash2,
@@ -30,6 +32,7 @@ export function ShadowingManager() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchVideos();
@@ -74,6 +77,32 @@ export function ShadowingManager() {
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return match && match[2].length === 11 ? match[2] : null;
+  };
+
+  const handleCopyLink = async (videoId: string) => {
+    const url = `${window.location.origin}/student/shadowing/${videoId}`;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = url;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        textArea.remove();
+      }
+      setCopiedId(videoId);
+      setTimeout(() => {
+        setCopiedId(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to copy link", err);
+    }
   };
 
   const handleSave = async () => {
@@ -265,24 +294,46 @@ export function ShadowingManager() {
                     {formatTime(video.record_end) || t.common.end}
                   </p>
                 </div>
-                <div className="mt-auto flex gap-1.5 pt-2 border-t border-slate-100 flex-wrap">
+                <div className="mt-auto flex flex-col gap-1.5 pt-2 border-t border-slate-100">
+                  <div className="flex gap-1.5 flex-wrap">
+                    <button
+                      onClick={() => handleEdit(video)}
+                      className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[50px]"
+                    >
+                      {t.common.edit}
+                    </button>
+                    <button
+                      onClick={() => setDeleteTarget(video)}
+                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[50px]"
+                    >
+                      <Trash2 size={12} /> {t.common.delete}
+                    </button>
+                  </div>
                   <button
-                    onClick={() => handleEdit(video)}
-                    className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[60px]"
+                    onClick={() => handleCopyLink(video.id)}
+                    className={`w-full py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      copiedId === video.id
+                        ? "bg-emerald-100 text-emerald-700 border border-emerald-300 shadow-sm"
+                        : "bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-100"
+                    }`}
                   >
-                    {t.common.edit}
-                  </button>
-                  <button
-                    onClick={() => setDeleteTarget(video)}
-                    className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[60px]"
-                  >
-                    <Trash2 size={12} /> {t.common.delete}
+                    {copiedId === video.id ? (
+                      <>
+                        <Check size={13} className="text-emerald-600" />
+                        <span>{t.common.linkCopied}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={13} />
+                        <span>{t.common.copyLink}</span>
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={() =>
                       toggleActive(video.id, video.is_active ?? true)
                     }
-                    className={`w-full mt-1 py-1.5 rounded-lg text-xs font-black transition-colors ${
+                    className={`w-full py-1.5 rounded-lg text-xs font-black transition-colors ${
                       (video.is_active ?? true)
                         ? "bg-slate-100 text-slate-500 hover:bg-slate-200"
                         : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"

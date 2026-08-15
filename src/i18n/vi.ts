@@ -275,6 +275,8 @@ export const vi = {
     openMenu: "Mở menu",
     closeMenu: "Đóng menu",
     invalidVideoUrl: "Link Video không hợp lệ",
+    copyLink: "Sao chép link",
+    linkCopied: "Đã chép link!",
     connecting: "Đang kết nối...",
     saving: "Đang lưu...",
     saveChanges: "Lưu thay đổi",

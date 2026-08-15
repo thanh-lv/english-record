@@ -271,6 +271,8 @@ export const en = {
     openMenu: "Open menu",
     closeMenu: "Close menu",
     invalidVideoUrl: "Invalid Video URL",
+    copyLink: "Copy link",
+    linkCopied: "Copied!",
     connecting: "Connecting...",
     saving: "Saving...",
     saveChanges: "Save changes",
