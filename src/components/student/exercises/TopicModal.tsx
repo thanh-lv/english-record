@@ -228,19 +228,19 @@ export function TopicModal({
               <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono">
                 Space
               </kbd>{" "}
-              play audio
+              {t.topic.kbPlayAudio}
             </span>
             <span>
               <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono">
                 R
               </kbd>{" "}
-              record
+              {t.topic.kbRecord}
             </span>
             <span>
               <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono">
                 Esc
               </kbd>{" "}
-              close
+              {t.topic.kbClose}
             </span>
           </div>
 
@@ -362,7 +362,7 @@ function QuestionPanel({
           {q.sample_answer && (
             <div className="text-sm font-extrabold text-slate-600 leading-relaxed mt-3 pt-3 border-t border-slate-200">
               <span className="text-[#FFB74D] inline-flex items-center gap-1 mr-1.5 align-middle">
-                <Award size={14} /> Example:
+                <Award size={14} /> {t.topic.sampleAnswer}
               </span>
               {q.sample_answer}
             </div>

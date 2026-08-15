@@ -5,6 +5,8 @@ export const vi = {
   logout: "Đăng xuất",
   teacher: "Cô Giáo",
   student: "Học sinh",
+  footerTagline: "English with Ms My 🎤",
+  footerCopyright: "© {year} · Made with ❤️ for young learners",
 
   // Login
   login: {
@@ -35,6 +37,7 @@ export const vi = {
     achievements: "Thành tích",
     flashcards: "Từ vựng",
     shadowing: "Shadowing",
+    games: "Trò chơi",
   },
 
   // Exercises tab
@@ -91,6 +94,9 @@ export const vi = {
     allDone: "Bé đã làm hết các câu hỏi rồi! 🎉",
     sampleAnswer: "Câu mẫu:",
     target: "Mục tiêu:",
+    kbPlayAudio: "Bật audio",
+    kbRecord: "Ghi âm",
+    kbClose: "Đóng",
   },
 
   // Completion celebration
@@ -249,6 +255,9 @@ export const vi = {
     practiceListen: "Luyện nghe",
     startRecording: "Bắt đầu thu âm",
     submit: "Gửi bài",
+    invalidVideo: "Video shadowing không hợp lệ.",
+    videoNotFound: "Không tìm thấy video shadowing.",
+    loadError: "Không thể tải video shadowing.",
   },
 
   // Common
@@ -263,6 +272,9 @@ export const vi = {
     loading: "Đang tải...",
     error: "Lỗi",
     success: "Thành công",
+    openMenu: "Mở menu",
+    closeMenu: "Đóng menu",
+    invalidVideoUrl: "Link Video không hợp lệ",
     connecting: "Đang kết nối...",
     saving: "Đang lưu...",
     saveChanges: "Lưu thay đổi",
@@ -523,6 +535,7 @@ export const vi = {
     delete: "Xóa",
     confirmDelete: "Bạn có chắc chắn muốn xóa audio này?",
     close: "Đóng",
+    saveFailed: "Lưu thất bại.",
   },
   attendance: {
     title: "Điểm danh & Học phí",
@@ -681,5 +694,41 @@ export const vi = {
     attendanceRateTitle: "Tỉ lệ Chuyên cần các Lớp",
     collectedLabel: "Đã thu",
     projectedLabel: "Cần thu",
+  },
+  games: {
+    title: "Trò chơi 🎮",
+    subtitle: "Chọn bộ từ vựng và chơi nhé!",
+    emptySets: "Chưa có bộ từ vựng nào.",
+    selectSet: "Chọn bộ từ vựng",
+    needMoreCards: "Cần ít nhất 4 thẻ để chơi.",
+    play: "Chơi!",
+    playAgain: "Chơi lại 🔄",
+    tryAgain: "Thử lại 🔄",
+    wellDone: "Làm tốt lắm!",
+    amazing: "Tuyệt vời! Con giỏi quá! 🌟",
+    goodJob: "Làm tốt lắm! Cố gắng phát huy nhé! 💪",
+    keepPractising: "Cố gắng luyện tập thêm nhé! Con làm được mà! 🥰",
+    score: "Điểm: {score}",
+    streak: "🔥 Chuỗi {count} câu đúng!",
+    moves: "lượt",
+    restart: "Chơi lại",
+    close: "Đóng",
+    correctCount: "{score}/{total} câu đúng",
+    movesAndElapsed: "{moves} lượt · {time}",
+    matchingTitle: "🃏 Trò chơi Nối từ",
+    matchingName: "Trò chơi Nối từ",
+    matchingDesc: "Nối từ tiếng Anh với nghĩa tương ứng",
+    quizTitle: "⚡ Trắc nghiệm Nhanh",
+    quizName: "Trắc nghiệm Nhanh",
+    quizDesc: "Thử thách 10 giây — chọn nghĩa đúng nhất!",
+    scrambleTitle: "🔤 Ghép chữ thành từ",
+    scrambleName: "Ghép chữ thành từ",
+    scrambleDesc: "Sắp xếp lại các chữ cái để tạo thành từ đúng!",
+    scrambleHint: "Sắp xếp các chữ cái thành từ tiếng Anh",
+    scrambleCorrect: "✅ Chính xác!",
+    scrambleAnswer: "❌ Đáp án:",
+    tapLettersBelow: "Chạm các chữ cái bên dưới...",
+    reset: "Đặt lại ↺",
+    check: "Kiểm tra ✓",
   },
 };

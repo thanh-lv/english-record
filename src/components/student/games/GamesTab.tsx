@@ -10,7 +10,7 @@ import {
   RefreshCw,
   Gamepad2,
 } from "lucide-react";
-import { useLanguage } from "../../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 
 interface VocabCard {
   id: string;
@@ -43,6 +43,7 @@ function MatchingGame({
   cards: VocabCard[];
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const [tiles, setTiles] = useState<MatchTile[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [wrongPair, setWrongPair] = useState<[string, string] | null>(null);
@@ -173,23 +174,26 @@ function MatchingGame({
               id="matching-game-title"
               className="font-black text-slate-800 text-2xl"
             >
-              🃏 Matching Game
+              {t.games.matchingTitle}
             </h3>
             <p className="text-sm font-bold text-slate-400 mt-0.5">
-              {moves} moves · {fmt(elapsed)}
+              {interpolate(t.games.movesAndElapsed, {
+                moves,
+                time: fmt(elapsed),
+              })}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={restart}
-              aria-label="Restart"
+              aria-label={t.games.restart}
               className="p-2.5 hover:bg-slate-100 rounded-lg text-slate-400"
             >
               <RefreshCw size={20} />
             </button>
             <button
               onClick={onClose}
-              aria-label="Close"
+              aria-label={t.games.close}
               className="p-2.5 hover:bg-slate-100 rounded-lg text-slate-400"
             >
               <X size={22} />
@@ -202,22 +206,27 @@ function MatchingGame({
           {finished ? (
             <div className="py-12 flex flex-col items-center gap-4">
               <div className="text-8xl animate-bounce">🏆</div>
-              <p className="font-black text-3xl text-amber-600">Well done!</p>
+              <p className="font-black text-3xl text-amber-600">
+                {t.games.wellDone}
+              </p>
               <p className="text-slate-500 font-bold">
-                {moves} moves · {fmt(elapsed)}
+                {interpolate(t.games.movesAndElapsed, {
+                  moves,
+                  time: fmt(elapsed),
+                })}
               </p>
               <div className="flex gap-3 mt-2">
                 <button
                   onClick={restart}
                   className="px-8 py-4 bg-[#1E88E5] text-white font-black text-lg rounded-lg shadow-md border-b-4 border-blue-900 active:scale-95 transition-all"
                 >
-                  Play again 🔄
+                  {t.games.playAgain}
                 </button>
                 <button
                   onClick={onClose}
                   className="px-8 py-4 bg-slate-100 text-slate-700 font-black text-lg rounded-lg active:scale-95 transition-all"
                 >
-                  Close
+                  {t.games.close}
                 </button>
               </div>
             </div>
@@ -282,6 +291,7 @@ function QuizGame({
   cards: VocabCard[];
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const TOTAL = Math.min(10, cards.length);
   const [questions] = useState(() =>
     cards.sort(() => Math.random() - 0.5).slice(0, TOTAL),
@@ -378,14 +388,14 @@ function QuizGame({
               id="quiz-game-title"
               className="font-black text-slate-800 text-2xl"
             >
-              ⚡ Quick Quiz
+              {t.games.quizTitle}
             </h3>
             {!finished && (
               <p className="text-sm font-bold text-slate-400 mt-0.5">
-                {index + 1}/{TOTAL} · Score: {score}
+                {index + 1}/{TOTAL} · {interpolate(t.games.score, { score })}
                 {streak >= 2 && (
                   <span className="ml-2 text-orange-500">
-                    🔥 {streak}x streak!
+                    {interpolate(t.games.streak, { count: streak })}
                   </span>
                 )}
               </p>
@@ -393,7 +403,7 @@ function QuizGame({
           </div>
           <button
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t.games.close}
             className="p-2.5 hover:bg-slate-100 rounded-lg text-slate-400"
           >
             <X size={22} />
@@ -417,27 +427,30 @@ function QuizGame({
                 {"☆".repeat(3 - stars)}
               </p>
               <p className="font-black text-2xl text-[#1E88E5]">
-                {score}/{TOTAL} correct
+                {interpolate(t.games.correctCount, {
+                  score,
+                  total: TOTAL,
+                })}
               </p>
               <p className="text-slate-400 font-bold">
                 {pct >= 90
-                  ? "Amazing! You're a star! 🌟"
+                  ? t.games.amazing
                   : pct >= 60
-                    ? "Good job! Keep it up! 💪"
-                    : "Keep practising! You got this! 🥰"}
+                    ? t.games.goodJob
+                    : t.games.keepPractising}
               </p>
               <div className="flex gap-3 mt-3">
                 <button
                   onClick={restart}
                   className="px-8 py-4 bg-[#1E88E5] text-white font-black text-lg rounded-lg shadow-md border-b-4 border-blue-900 active:scale-95 transition-all"
                 >
-                  Try again 🔄
+                  {t.games.tryAgain}
                 </button>
                 <button
                   onClick={onClose}
                   className="px-8 py-4 bg-slate-100 text-slate-700 font-black text-lg rounded-lg active:scale-95 transition-all"
                 >
-                  Close
+                  {t.games.close}
                 </button>
               </div>
             </div>
@@ -552,6 +565,7 @@ function ScrambleGame({
   cards: VocabCard[];
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const pool = cards.filter((c) => c.front.length >= 3 && c.front.length <= 10);
   const [index, setIndex] = useState(0);
   const [scrambled, setScrambled] = useState<string[]>([]);
@@ -647,17 +661,17 @@ function ScrambleGame({
               id="scramble-game-title"
               className="font-black text-slate-800 text-2xl"
             >
-              🔤 Word Scramble
+              {t.games.scrambleTitle}
             </h3>
             {!finished && (
               <p className="text-sm font-bold text-slate-400 mt-0.5">
-                {index + 1}/{TOTAL} · Score: {score}
+                {index + 1}/{TOTAL} · {interpolate(t.games.score, { score })}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t.games.close}
             className="p-2.5 hover:bg-slate-100 rounded-lg text-slate-400"
           >
             <X size={22} />
@@ -681,20 +695,23 @@ function ScrambleGame({
                 {"☆".repeat(3 - stars)}
               </p>
               <p className="font-black text-2xl text-[#1E88E5]">
-                {score}/{TOTAL} correct
+                {interpolate(t.games.correctCount, {
+                  score,
+                  total: TOTAL,
+                })}
               </p>
               <div className="flex gap-3 mt-2">
                 <button
                   onClick={restart}
                   className="px-8 py-4 bg-[#1E88E5] text-white font-black text-lg rounded-lg shadow-md border-b-4 border-blue-900 active:scale-95 transition-all"
                 >
-                  Try again 🔄
+                  {t.games.tryAgain}
                 </button>
                 <button
                   onClick={onClose}
                   className="px-8 py-4 bg-slate-100 text-slate-700 font-black text-lg rounded-lg active:scale-95 transition-all"
                 >
-                  Close
+                  {t.games.close}
                 </button>
               </div>
             </div>
@@ -723,16 +740,16 @@ function ScrambleGame({
                   {current.back}
                 </p>
                 <p className="text-sm font-bold text-emerald-500/70">
-                  Arrange the letters to spell the English word
+                  {t.games.scrambleHint}
                 </p>
                 {result === "correct" && (
                   <p className="text-emerald-600 font-black text-lg animate-bounce">
-                    ✅ Correct!
+                    {t.games.scrambleCorrect}
                   </p>
                 )}
                 {result === "wrong" && (
                   <p className="text-rose-500 font-black text-lg">
-                    ❌ Answer:{" "}
+                    {t.games.scrambleAnswer}{" "}
                     <span className="text-rose-700">
                       {current.front.toUpperCase()}
                     </span>
@@ -755,7 +772,7 @@ function ScrambleGame({
                 ))}
                 {answer.length === 0 && !result && (
                   <p className="text-slate-300 font-bold text-sm self-center">
-                    Tap letters below...
+                    {t.games.tapLettersBelow}
                   </p>
                 )}
               </div>
@@ -785,14 +802,14 @@ function ScrambleGame({
                   disabled={!!result}
                   className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black rounded-lg text-sm transition-colors disabled:opacity-40"
                 >
-                  Reset ↺
+                  {t.games.reset}
                 </button>
                 <button
                   onClick={checkAnswer}
                   disabled={answer.length !== current.front.length || !!result}
                   className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-lg text-sm shadow-md border-b-4 border-emerald-800 active:scale-95 transition-all disabled:opacity-40"
                 >
-                  Check ✓
+                  {t.games.check}
                 </button>
               </div>
             </div>
@@ -850,8 +867,8 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
     {
       id: "matching" as const,
       emoji: "🃏",
-      name: "Matching Game",
-      desc: "Match English words with their meanings",
+      name: t.games.matchingName,
+      desc: t.games.matchingDesc,
       color: "from-violet-100 to-purple-100 border-violet-200",
       btn: "bg-violet-500 hover:bg-violet-600 border-violet-800",
       min: 4,
@@ -859,8 +876,8 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
     {
       id: "quiz" as const,
       emoji: "⚡",
-      name: "Quick Quiz",
-      desc: "10-second challenge — pick the right meaning!",
+      name: t.games.quizName,
+      desc: t.games.quizDesc,
       color: "from-amber-100 to-orange-100 border-amber-200",
       btn: "bg-amber-500 hover:bg-amber-600 border-amber-800",
       min: 4,
@@ -868,8 +885,8 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
     {
       id: "scramble" as const,
       emoji: "🔤",
-      name: "Word Scramble",
-      desc: "Rearrange the letters to spell the word!",
+      name: t.games.scrambleName,
+      desc: t.games.scrambleDesc,
       color: "from-emerald-100 to-teal-100 border-emerald-200",
       btn: "bg-emerald-500 hover:bg-emerald-600 border-emerald-800",
       min: 3,
@@ -893,23 +910,21 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
     <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
       <div className="mb-6 space-y-1">
         <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-          <Gamepad2 size={22} className="text-violet-500" /> Games
+          <Gamepad2 size={22} className="text-violet-500" /> {t.games.title}
         </h3>
-        <p className="text-slate-500 font-bold text-sm">
-          Choose a vocabulary set and play!
-        </p>
+        <p className="text-slate-500 font-bold text-sm">{t.games.subtitle}</p>
       </div>
 
       {sets.length === 0 ? (
         <div className="py-12 px-2 text-center text-slate-400 font-bold rounded-lg border-2 border-dashed border-slate-200">
-          No vocabulary sets available yet.
+          {t.games.emptySets}
         </div>
       ) : (
         <>
           {/* Set picker */}
           <div>
             <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
-              Select a set
+              {t.games.selectSet}
             </p>
             <div className="flex flex-wrap gap-2">
               {sets.map((set) => (
@@ -936,7 +951,7 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
                 <div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
               ) : cards.length < 4 ? (
                 <p className="text-sm font-bold text-slate-400 text-center py-4">
-                  Need at least 4 cards to play.
+                  {t.games.needMoreCards}
                 </p>
               ) : (
                 GAMES.map((game) => (
@@ -955,7 +970,7 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
                       onClick={() => setActiveGame(game.id)}
                       className={`shrink-0 px-4 py-2.5 ${game.btn} text-white font-black rounded-lg text-sm border-b-4 active:scale-95 transition-all shadow-md`}
                     >
-                      Play!
+                      {t.games.play}
                     </button>
                   </div>
                 ))

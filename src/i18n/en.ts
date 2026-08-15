@@ -5,6 +5,8 @@ export const en = {
   logout: "Logout",
   teacher: "Teacher",
   student: "Student",
+  footerTagline: "English with Ms My 🎤",
+  footerCopyright: "© {year} · Made with ❤️ for young learners",
 
   // Login
   login: {
@@ -35,6 +37,7 @@ export const en = {
     achievements: "Achievements",
     flashcards: "Vocabulary",
     shadowing: "Shadowing",
+    games: "Games",
   },
 
   // Exercises tab
@@ -88,6 +91,9 @@ export const en = {
     allDone: "You've answered all questions! 🎉",
     sampleAnswer: "Sample:",
     target: "Goal:",
+    kbPlayAudio: "play audio",
+    kbRecord: "record",
+    kbClose: "close",
   },
 
   // Completion celebration
@@ -245,6 +251,9 @@ export const en = {
     practiceListen: "Practice listening",
     startRecording: "Start recording",
     submit: "Submit",
+    invalidVideo: "Invalid shadowing video.",
+    videoNotFound: "Shadowing video not found.",
+    loadError: "Failed to load shadowing video.",
   },
 
   // Common
@@ -259,6 +268,9 @@ export const en = {
     loading: "Loading...",
     error: "Error",
     success: "Success",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
+    invalidVideoUrl: "Invalid Video URL",
     connecting: "Connecting...",
     saving: "Saving...",
     saveChanges: "Save changes",
@@ -524,6 +536,7 @@ export const en = {
     delete: "Delete",
     confirmDelete: "Are you sure you want to delete this audio?",
     close: "Close",
+    saveFailed: "Save failed.",
   },
   attendance: {
     title: "Attendance & Tuition",
@@ -682,5 +695,41 @@ export const en = {
     attendanceRateTitle: "Class Attendance Rates",
     collectedLabel: "Collected",
     projectedLabel: "Projected",
+  },
+  games: {
+    title: "Games 🎮",
+    subtitle: "Choose a vocabulary set and play!",
+    emptySets: "No vocabulary sets available yet.",
+    selectSet: "Select a set",
+    needMoreCards: "Need at least 4 cards to play.",
+    play: "Play!",
+    playAgain: "Play again 🔄",
+    tryAgain: "Try again 🔄",
+    wellDone: "Well done!",
+    amazing: "Amazing! You're a star! 🌟",
+    goodJob: "Good job! Keep it up! 💪",
+    keepPractising: "Keep practising! You got this! 🥰",
+    score: "Score: {score}",
+    streak: "🔥 {count}x streak!",
+    moves: "moves",
+    restart: "Restart",
+    close: "Close",
+    correctCount: "{score}/{total} correct",
+    movesAndElapsed: "{moves} moves · {time}",
+    matchingTitle: "🃏 Matching Game",
+    matchingName: "Matching Game",
+    matchingDesc: "Match English words with their meanings",
+    quizTitle: "⚡ Quick Quiz",
+    quizName: "Quick Quiz",
+    quizDesc: "10-second challenge — pick the right meaning!",
+    scrambleTitle: "🔤 Word Scramble",
+    scrambleName: "Word Scramble",
+    scrambleDesc: "Rearrange the letters to spell the word!",
+    scrambleHint: "Arrange the letters to spell the English word",
+    scrambleCorrect: "✅ Correct!",
+    scrambleAnswer: "❌ Answer:",
+    tapLettersBelow: "Tap letters below...",
+    reset: "Reset ↺",
+    check: "Check ✓",
   },
 };

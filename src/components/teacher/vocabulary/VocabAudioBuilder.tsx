@@ -161,7 +161,7 @@ export function VocabAudioBuilder() {
       fetchLibrary();
     } catch (err: any) {
       console.error("Save error:", err);
-      setErrorMsg(err.message || "Save failed");
+      setErrorMsg(err.message || t.audioBuilder.saveFailed);
     } finally {
       setIsSaving(false);
     }

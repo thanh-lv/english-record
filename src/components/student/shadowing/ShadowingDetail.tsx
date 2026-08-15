@@ -37,7 +37,7 @@ export function ShadowingDetail({
   useEffect(() => {
     const loadVideo = async () => {
       if (!videoId) {
-        setFetchError("Invalid shadowing video.");
+        setFetchError(t.shadowing.invalidVideo);
         setLoading(false);
         return;
       }
@@ -51,20 +51,20 @@ export function ShadowingDetail({
 
         if (error) throw error;
         if (!data) {
-          setFetchError("Shadowing video not found.");
+          setFetchError(t.shadowing.videoNotFound);
         } else {
           setVideo(data);
         }
       } catch (err) {
         console.error(err);
-        setFetchError("Failed to load shadowing video.");
+        setFetchError(t.shadowing.loadError);
       } finally {
         setLoading(false);
       }
     };
 
     loadVideo();
-  }, [videoId]);
+  }, [videoId, t.shadowing]);
 
   const [player, setPlayer] = useState<any>(null);
   const playIntervalRef = useRef<any>(null);

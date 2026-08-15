@@ -71,7 +71,7 @@ export function StudentSidebar({
     },
     {
       id: "games" as ActiveTab,
-      label: "Games",
+      label: t.sidebar.games,
       icon: <Gamepad2 size={20} />,
     },
   ];
@@ -173,7 +173,7 @@ export function StudentSidebar({
       <button
         onClick={() => setMobileOpen(true)}
         className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 rounded-lg bg-white shadow-md border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"
-        aria-label="Open menu"
+        aria-label={t.common.openMenu}
       >
         <Menu size={20} />
       </button>
@@ -199,7 +199,7 @@ export function StudentSidebar({
           <button
             onClick={() => setMobileOpen(false)}
             className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
-            aria-label="Close menu"
+            aria-label={t.common.closeMenu}
           >
             <X size={18} />
           </button>

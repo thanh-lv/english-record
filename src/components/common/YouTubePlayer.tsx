@@ -1,5 +1,6 @@
 import React from "react";
 import YouTube, { YouTubeProps } from "react-youtube";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 interface YouTubePlayerProps {
   url?: string | null;
@@ -27,6 +28,7 @@ export default function YouTubePlayer({
   onStateChange,
   opts,
 }: YouTubePlayerProps) {
+  const { t } = useLanguage();
   const id = videoId ?? extractYoutubeId(url) ?? null;
 
   if (!id) {
@@ -34,7 +36,7 @@ export default function YouTubePlayer({
       <div
         className={`w-full h-full flex items-center justify-center text-white font-bold ${className}`}
       >
-        Invalid Video URL
+        {t.common.invalidVideoUrl}
       </div>
     );
   }

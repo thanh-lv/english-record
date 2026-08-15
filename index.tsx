@@ -7,7 +7,7 @@ const StudentView = lazy(() => import("./src/StudentView"));
 import { Mic, User, LogOut, Loader2 } from "lucide-react";
 import { NotificationBell } from "./src/components/teacher/shared/NotificationBell";
 import { useNotifications } from "./src/components/teacher/hooks/useNotifications";
-import { useLanguage } from "./src/i18n/LanguageContext";
+import { useLanguage, interpolate } from "./src/i18n/LanguageContext";
 import { supabase } from "./src/lib/supabase";
 
 
@@ -277,10 +277,10 @@ export default function App() {
 
       <footer className="border-t border-slate-100 py-5 px-4 text-center space-y-1 mt-auto">
         <p className="text-sm font-extrabold text-slate-500">
-          English with Ms My 🎤
+          {t.footerTagline}
         </p>
         <p className="text-xs text-slate-400 font-medium">
-          © {new Date().getFullYear()} · Made with ❤️ for young learners
+          {interpolate(t.footerCopyright, { year: new Date().getFullYear() })}
         </p>
       </footer>
     </div>
