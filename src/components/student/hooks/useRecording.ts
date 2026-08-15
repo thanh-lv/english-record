@@ -46,7 +46,10 @@ export function useRecording({
       e.preventDefault();
       e.stopPropagation();
     }
-    if (mediaRecorderRef.current && isRecording) {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       clearInterval(timerRef.current);

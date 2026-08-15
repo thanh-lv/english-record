@@ -10,6 +10,7 @@ import {
   Volume2,
   X,
 } from "lucide-react";
+import { useMemo, useEffect } from "react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { TeacherFeedback } from "../../common/TeacherFeedback";
@@ -328,6 +329,17 @@ function QuestionPanel({
   const audioBlob = bongBeAudios[activeQuestionIndex] || null;
   const q = currentTopic?.questions?.[activeQuestionIndex];
 
+  const audioBlobUrl = useMemo(
+    () => (audioBlob ? URL.createObjectURL(audioBlob) : null),
+    [audioBlob],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
+    };
+  }, [audioBlobUrl]);
+
   return (
     <div className="sm:bg-white sm:rounded-lg rounded-lg md:p-6 sm:border-3 sm:border-dashed sm:border-[#FF8A80] space-y-6 sm:shadow-md text-center">
       <div className="bg-pink-50 border-2 border-pink-200 rounded-lg py-2 px-5 inline-block">
@@ -415,7 +427,7 @@ function QuestionPanel({
               <div className="w-full max-w-md space-y-4 bg-white p-4 rounded-lg border-2 border-amber-100 shadow-md">
                 <audio
                   controls
-                  src={URL.createObjectURL(audioBlob)}
+                  src={audioBlobUrl || ""}
                   className="w-full h-12"
                 />
                 <div className="flex justify-center">

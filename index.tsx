@@ -5,22 +5,12 @@ import LoginScreen from "./src/LoginScreen";
 const TeacherView = lazy(() => import("./src/TeacherView"));
 const StudentView = lazy(() => import("./src/StudentView"));
 import { Mic, User, LogOut, Loader2 } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
 import { NotificationBell } from "./src/components/teacher/shared/NotificationBell";
 import { useNotifications } from "./src/components/teacher/hooks/useNotifications";
 import { useLanguage } from "./src/i18n/LanguageContext";
+import { supabase } from "./src/lib/supabase";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  "";
-const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storageKey: "english-app-auth-v3",
-    lock: (_name: string, _timeout: number, fn: () => Promise<any>) => fn(),
-  },
-});
+
 
 export default function App() {
   const [user, setUser] = useState<any>(null);

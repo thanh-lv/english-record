@@ -7,7 +7,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
@@ -86,7 +86,16 @@ export function ShadowingDetail({
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const recordedBlob = shadowingRecording.bongBeAudios[0] ?? null;
-  const audioUrl = recordedBlob ? URL.createObjectURL(recordedBlob) : null;
+  const audioUrl = useMemo(
+    () => (recordedBlob ? URL.createObjectURL(recordedBlob) : null),
+    [recordedBlob],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+    };
+  }, [audioUrl]);
 
   // Auto transition to step 3 when recording stops and blob is created
   useEffect(() => {
@@ -331,7 +340,7 @@ export function ShadowingDetail({
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
-                  className="flex-1 px-8 py-3 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-black rounded-lg shadow-[0_4px_0_rgb(67,56,202)] hover:shadow-[0_2px_0_rgb(67,56,202)] hover:translate-y-[2px] transition-all text-base sm:text-lg"
+                  className="flex-1 px-8 py-3 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-black rounded-lg shadow-[0_4px_0_rgb(67,56,202)] hover:shadow-[0_2px_0_rgb(67,56,202)] hover:translate-y-[2px] transition-all text-base sm:text-lg whitespace-nowrap"
                 >
                   {t.shadowing.startRecording}
                 </button>
@@ -444,23 +453,26 @@ export function ShadowingDetail({
       </div>
 
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-[100] p-4">
-          <div className="bg-white rounded-xl p-8 max-w-sm w-full mx-auto flex flex-col items-center shadow-2xl border-4 border-emerald-100 animate-in zoom-in-95 duration-300 text-center">
-            <div className="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mb-6 shadow-inner ring-8 ring-emerald-50">
-              <CheckCircle size={40} className="animate-bounce" />
+        <div className="fixed inset-0 bg-gradient-to-b from-emerald-50 via-white to-emerald-50 flex flex-col justify-center items-center z-[100] animate-in fade-in duration-300">
+            <div className="flex flex-col items-center text-center px-6">
+              <div className="w-28 h-28 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mb-8 shadow-inner ring-8 ring-emerald-50">
+                <CheckCircle size={56} className="animate-bounce" />
+              </div>
+              <h3 className="text-3xl font-black text-slate-800 mb-3">
+                {t.shadowing.saved}
+              </h3>
+              <p className="text-slate-400 font-bold mb-10">🎉</p>
+              <button
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  navigate("/student/shadowing");
+                }}
+                className="w-full max-w-xs py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl shadow-[0_4px_0_rgb(4,120,87)] hover:shadow-[0_2px_0_rgb(4,120,87)] hover:translate-y-[2px] active:scale-95 transition-all text-lg"
+              >
+                {t.common.close}
+              </button>
             </div>
-            <h3 className="text-2xl font-black text-slate-800 mb-3">{t.shadowing.saved}</h3>
-            <button 
-              onClick={() => {
-                setShowSuccessModal(false);
-                navigate("/student/shadowing");
-              }}
-              className="mt-4 w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl shadow-[0_4px_0_rgb(4,120,87)] hover:shadow-[0_2px_0_rgb(4,120,87)] hover:translate-y-[2px] active:scale-95 transition-all text-lg"
-            >
-              {t.common.close}
-            </button>
           </div>
-        </div>
       )}
     </div>
   );
