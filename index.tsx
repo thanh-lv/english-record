@@ -160,69 +160,71 @@ export default function App() {
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] text-slate-800 font-sans selection:bg-pink-100 flex flex-col">
-      <header className="bg-white/80 backdrop-blur-md shadow-md px-4 md:px-6 py-3 h-[68px] sm:height-auto flex justify-between items-center sticky top-0 z-10 border-b-4 border-[#FFF0F0]">
-        <h1 className="font-extrabold text-[#1E88E5] flex items-center gap-2">
-          <span className="p-1.5 bg-[#E3F2FD] rounded-lg shadow-inner shrink-0 hidden sm:inline-block">
-            <Mic size={16} className="text-[#1E88E5]" />
-          </span>
-          <span className="text-lg md:text-2xl tracking-wide hidden sm:block">
-            {t.appName}
-          </span>
-        </h1>
-        <div className="flex items-center gap-2 ml-auto w-full sm:w-auto justify-end">
-          {/* Language switcher */}
-          <button
-            type="button"
-            onClick={() =>
-              setLang(lang === "vi" ? "en" : "vi", userProfile?.id)
-            }
-            className="text-xs font-black px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
-          >
-            {lang === "vi" ? "🇬🇧 English" : "🇻🇳 Vietnamese"}
-          </button>
+      <header className="bg-white/90 backdrop-blur-md shadow-xs sticky top-0 z-30 border-b border-slate-200/80">
+        <div className="max-w-[1600px] mx-auto w-full px-4 md:px-6 lg:px-8 py-2.5 flex justify-between items-center">
+          <h1 className="font-extrabold text-[#1E88E5] flex items-center gap-2.5">
+            <span className="p-2 bg-[#E3F2FD] rounded-xl shadow-xs shrink-0 hidden sm:inline-flex items-center justify-center text-[#1E88E5]">
+              <Mic size={18} />
+            </span>
+            <span className="text-lg md:text-xl font-black tracking-tight text-slate-800 hidden sm:block">
+              {t.appName}
+            </span>
+          </h1>
+          <div className="flex items-center gap-2.5 ml-auto w-full sm:w-auto justify-end">
+            {/* Language switcher */}
+            <button
+              type="button"
+              onClick={() =>
+                setLang(lang === "vi" ? "en" : "vi", userProfile?.id)
+              }
+              className="h-9 text-xs font-black px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all shadow-xs flex items-center gap-1.5"
+            >
+              {lang === "vi" ? "🇬🇧 English" : "🇻🇳 Vietnamese"}
+            </button>
 
-          {userProfile && (
-            <>
-              <div className="flex items-center gap-1.5 p-1 bg-[#FFFDE7] border border-[#FFF59D] rounded-lg shadow-md max-w-[140px] sm:max-w-none sm:mr-0">
-                <span className="text-sm sm:text-base shrink-0">{userProfile.avatar || (isTeacher ? '👩‍🏫' : '👦')}</span>
-                <span className="text-xs sm:text-sm font-bold text-slate-700 truncate">
-                  {userProfile.name}
-                  <span className="text-slate-400 font-normal ml-1 hidden sm:inline">
-                    ({isTeacher ? t.teacher : t.student})
+            {userProfile && (
+              <>
+                <div className="h-9 flex items-center gap-2 px-3 py-1 bg-amber-50/90 border border-amber-200/80 rounded-xl shadow-xs max-w-[160px] sm:max-w-none">
+                  <span className="text-base shrink-0">{userProfile.avatar || (isTeacher ? '👩‍🏫' : '👦')}</span>
+                  <span className="text-xs font-extrabold text-slate-700 truncate">
+                    {userProfile.name}
+                    <span className="text-slate-400 font-bold ml-1 hidden sm:inline">
+                      ({isTeacher ? t.teacher : t.student})
+                    </span>
                   </span>
-                </span>
-              </div>
-
-              {isTeacher && (
-                <div className="text-slate-600">
-                  <NotificationBell
-                    notifications={notifications}
-                    unreadCount={unreadCount}
-                    readIds={readIds}
-                    onMarkRead={markRead}
-                    onMarkAllRead={markAllRead}
-                    onClearAll={clearAll}
-                    onNavigate={(recordId) => {
-                      navigate(`/teacher/recordings?highlight=${recordId}`);
-                    }}
-                  />
                 </div>
-              )}
 
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-2 rounded-lg border border-rose-200 transition-all"
-              >
-                <LogOut size={13} />
-                <span className="hidden sm:inline">{t.logout}</span>
-              </button>
-            </>
-          )}
+                {isTeacher && (
+                  <div className="text-slate-600 flex items-center">
+                    <NotificationBell
+                      notifications={notifications}
+                      unreadCount={unreadCount}
+                      readIds={readIds}
+                      onMarkRead={markRead}
+                      onMarkAllRead={markAllRead}
+                      onClearAll={clearAll}
+                      onNavigate={(recordId) => {
+                        navigate(`/teacher/recordings?highlight=${recordId}`);
+                      }}
+                    />
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="h-9 flex items-center gap-1.5 text-xs font-black text-rose-600 hover:text-rose-700 bg-rose-50/90 hover:bg-rose-100/90 px-3 py-1.5 rounded-xl border border-rose-200/80 transition-all shadow-xs"
+                >
+                  <LogOut size={14} />
+                  <span className="hidden sm:inline">{t.logout}</span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto p-3 md:p-6 lg:p-8 flex-1 w-full flex flex-col">
+      <main className="max-w-[1600px] mx-auto w-full px-4 md:px-6 lg:px-8 py-4 lg:py-6 flex-1 flex flex-col">
         <Suspense fallback={null}>
           <Routes>
             <Route

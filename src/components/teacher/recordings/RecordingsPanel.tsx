@@ -121,58 +121,92 @@ export function RecordingsPanel({
     "bg-[#E0F7FA] text-[#00838F] border-[#80DEEA]",
   ];
 
+  const totalSubmissions = React.useMemo(() => {
+    return summaries.reduce((acc, curr) => acc + (curr.count || 0), 0);
+  }, [summaries]);
+
+  const ungradedCount = React.useMemo(() => {
+    return summaries.filter((s) => s.hasUngraded).length;
+  }, [summaries]);
+
   return (
-    <div className="bg-white rounded-lg shadow-md border-3 border-[#FFF59D] overflow-hidden">
-      <div className="p-4 border-b-2 border-slate-100 flex items-center justify-between bg-[#FFFDF6]">
-        <div className="flex items-center gap-2">
-          <Clock size={18} className="text-slate-500" />
-          <h3 className="font-extrabold text-slate-700 text-md">
-            {t.recordings.title}
-          </h3>
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+      {/* Top Header */}
+      <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-slate-50/80 to-white">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black shadow-xs shrink-0">
+            <Clock size={20} />
+          </div>
+          <div>
+            <h3 className="font-black text-slate-800 text-base sm:text-lg">
+              {t.recordings.title}
+            </h3>
+            <p className="text-xs text-slate-400 font-bold mt-0.5 flex items-center gap-2 flex-wrap">
+              <span>{summaries.length} {t.recordings.students}</span>
+              <span>·</span>
+              <span>{totalSubmissions} {t.recordings.lessons}</span>
+              {ungradedCount > 0 && (
+                <>
+                  <span>·</span>
+                  <span className="text-rose-500 font-black flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                    {ungradedCount} {t.recordings.filterUngraded.toLowerCase()}
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowFilters(!showFilters)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-extrabold transition-colors border-2 ${
-            showFilters ||
-            filterName ||
-            filterStatus !== "all" ||
-            filterGrade !== "all"
-              ? "bg-amber-50 text-amber-700 border-amber-200"
-              : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
-          }`}
-        >
-          <Filter size={16} /> {t.recordings.filter}
-        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all border ${
+              showFilters ||
+              filterName ||
+              filterStatus !== "all" ||
+              filterGrade !== "all"
+                ? "bg-blue-50 text-blue-600 border-blue-200 shadow-xs"
+                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-800 shadow-xs"
+            }`}
+          >
+            <Filter size={15} /> {t.recordings.filter}
+            {(filterName || filterStatus !== "all" || filterGrade !== "all") && (
+              <span className="w-2 h-2 rounded-full bg-blue-600" />
+            )}
+          </button>
+        </div>
       </div>
 
+      {/* Filter drawer */}
       {showFilters && (
-        <div className="p-4 bg-slate-50 border-b-2 border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="p-4 sm:p-5 bg-slate-50/80 border-b border-slate-200/80 grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in fade-in duration-200">
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-500 uppercase">
+            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
               {t.recordings.filterName}
             </label>
             <div className="relative">
               <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                size={15}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
               />
               <input
                 value={filterName}
                 onChange={(e) => setFilterName(e.target.value)}
                 placeholder={t.recordings.searchPlaceholder}
-                className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
+                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-xs"
               />
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-500 uppercase">
+            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
               {t.recordings.filterGrade}
             </label>
             <select
               value={filterGrade}
               onChange={(e) => setFilterGrade(e.target.value)}
-              className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-xs"
             >
               <option value="all">{t.recordings.filterAllGrades}</option>
               {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
@@ -184,13 +218,13 @@ export function RecordingsPanel({
             </select>
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-500 uppercase">
+            <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
               {t.recordings.filterStatus}
             </label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-amber-400"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-xs"
             >
               <option value="all">{t.recordings.filterAll}</option>
               <option value="ungraded">{t.recordings.filterUngraded}</option>
@@ -201,18 +235,19 @@ export function RecordingsPanel({
       )}
 
       {loading ? (
-        <div className="p-12 text-center text-slate-400 font-bold animate-pulse">
-          {t.recordings.loading}
+        <div className="p-16 text-center text-slate-400 font-bold flex flex-col items-center gap-3">
+          <Loader2 size={28} className="animate-spin text-blue-500" />
+          <p className="text-xs font-extrabold">{t.recordings.loading}</p>
         </div>
       ) : filteredSummaries.length === 0 ? (
-        <div className="p-12 text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+        <div className="p-16 text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs">
             <Mic size={24} className="text-slate-400" />
           </div>
-          <p className="text-slate-500 font-bold">{t.recordings.empty}</p>
+          <p className="text-slate-500 font-extrabold text-sm">{t.recordings.empty}</p>
         </div>
       ) : (
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-slate-100/80">
           {groupedSummaries.map((group) => {
             const isOther = group.gradeKey === "other";
             const groupTitle = isOther
@@ -221,19 +256,19 @@ export function RecordingsPanel({
 
             return (
               <div key={group.gradeKey} className="bg-white">
-                <div className="bg-slate-100/90 px-5 py-2 flex items-center justify-between border-y border-slate-200/60 sticky top-0 z-10 backdrop-blur-sm">
+                <div className="bg-slate-50/90 px-5 py-2.5 flex items-center justify-between border-y border-slate-200/70 sticky top-0 z-10 backdrop-blur-sm">
                   <div className="flex items-center gap-2">
-                    <GraduationCap size={15} className="text-emerald-600" />
-                    <span className="font-extrabold text-xs text-slate-700 uppercase tracking-wide">
+                    <GraduationCap size={16} className="text-emerald-600" />
+                    <span className="font-black text-xs text-slate-700 uppercase tracking-wide">
                       {groupTitle}
                     </span>
                   </div>
-                  <span className="bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-[11px] font-extrabold text-slate-600 shadow-md">
+                  <span className="bg-white px-2.5 py-0.5 rounded-lg border border-slate-200/80 text-[11px] font-black text-slate-600 shadow-xs">
                     {group.items.length} {t.recordings.students}
                   </span>
                 </div>
 
-                <div className="divide-y divide-slate-100">
+                <div className="p-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
                   {group.items.map((s, idx) => {
                     const info = studentInfo[s.key];
                     const avatar = info?.avatar;
@@ -252,12 +287,12 @@ export function RecordingsPanel({
                         key={s.key}
                         type="button"
                         onClick={() => onSelectStudent(s.studentName, avatar)}
-                        className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
+                        className="group relative flex items-center gap-3.5 p-4 bg-slate-50/60 hover:bg-white rounded-xl border border-slate-200/80 hover:border-blue-300 hover:shadow-md transition-all duration-200 text-left hover:-translate-y-0.5 active:translate-y-0"
                       >
                         <span
-                          className={`w-10 h-10 rounded-lg border-2 font-black flex items-center justify-center shrink-0 ${
+                          className={`w-11 h-11 rounded-xl border-2 font-black flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform ${
                             avatar
-                              ? "bg-amber-50 text-2xl shadow-md border-amber-200"
+                              ? "bg-amber-50 text-2xl shadow-xs border-amber-200"
                               : `text-sm ${colorClass}`
                           }`}
                         >
@@ -266,34 +301,36 @@ export function RecordingsPanel({
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <p className="font-extrabold text-slate-800 text-base truncate">
+                            <p className="font-black text-slate-800 text-sm truncate group-hover:text-blue-600 transition-colors">
                               {s.studentName}
                             </p>
                             {grade && (
-                              <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-extrabold shrink-0 border border-emerald-200">
+                              <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.2 rounded-md font-black shrink-0 border border-emerald-200/80">
                                 {interpolate(t.common.gradeLabel, {
                                   grade,
                                 })}
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
+                          <p className="text-[11px] text-slate-400 font-bold mt-1 truncate">
                             {t.recordings.latest} {latestDate}
                           </p>
                         </div>
 
-                        {s.hasUngraded && (
-                          <span className="shrink-0 w-2.5 h-2.5 rounded-lg bg-rose-400" />
-                        )}
-
-                        <span className="shrink-0 px-3 py-1 bg-[#E3F2FD] text-[#1E88E5] text-xs font-black rounded-lg border border-[#90CAF9]">
-                          {s.count} {t.recordings.lessons}
-                        </span>
-
-                        <ChevronRight
-                          size={18}
-                          className="shrink-0 text-slate-400"
-                        />
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <div className="flex items-center gap-1.5">
+                            {s.hasUngraded && (
+                              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 ring-4 ring-rose-100 animate-pulse" />
+                            )}
+                            <span className="px-2.5 py-1 bg-blue-50 text-[#1E88E5] text-xs font-black rounded-lg border border-blue-200/80 group-hover:bg-[#1E88E5] group-hover:text-white transition-colors">
+                              {s.count} {t.recordings.lessons}
+                            </span>
+                          </div>
+                          <ChevronRight
+                            size={16}
+                            className="text-slate-300 group-hover:text-[#1E88E5] group-hover:translate-x-0.5 transition-all"
+                          />
+                        </div>
                       </button>
                     );
                   })}
@@ -375,22 +412,22 @@ export function RecordingItem({
   return (
     <div
       ref={itemRef}
-      className={`px-4 py-3 flex flex-col gap-2.5 transition-colors ${
+      className={`px-5 py-4 flex flex-col gap-3 transition-colors ${
         isHighlighted
-          ? "bg-emerald-50 ring-2 ring-inset ring-emerald-400"
-          : "hover:bg-white"
+          ? "bg-emerald-50/80 ring-2 ring-inset ring-emerald-400"
+          : "hover:bg-slate-50/60 bg-white"
       }`}
     >
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#E3F2FD] border border-[#90CAF9] text-[#1E88E5] font-black text-xs shadow-md shrink-0">
+        <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 text-[#1E88E5] font-black text-xs shadow-xs shrink-0">
           {rec.topic_number}
         </span>
-        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded font-bold">
+        <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg font-bold">
           {formatDate(rec.created_at)}
         </span>
         {rec.student_reaction === "heart" && (
           <span
-            className="text-xs text-rose-500"
+            className="text-xs text-rose-500 flex items-center gap-1 font-bold"
             title={t.recordings.heartReaction}
           >
             ❤️
@@ -404,7 +441,7 @@ export function RecordingItem({
               e.stopPropagation();
               onDeleteRequest(rec.id);
             }}
-            className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all border border-transparent"
+            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all border border-transparent"
             title={t.common.delete}
             aria-label={t.common.delete}
           >
@@ -414,11 +451,11 @@ export function RecordingItem({
       </div>
 
       {rec.shadowing_video_id ? (
-        <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-lg px-3 py-2 min-w-0">
-          <span className="text-[10px] font-black text-indigo-400 shrink-0 uppercase tracking-wide">
+        <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 min-w-0 flex-wrap sm:flex-nowrap">
+          <span className="text-xs font-black text-indigo-500 shrink-0 uppercase tracking-wide">
             🎬
           </span>
-          <span className="text-xs font-bold text-slate-700 shrink-0 truncate">
+          <span className="text-xs font-black text-slate-700 shrink-0 truncate max-w-[140px]">
             {rec.topic}
           </span>
           <YouTubePlayer
@@ -428,32 +465,36 @@ export function RecordingItem({
               rec.shadowing_video?.youtube_url ??
               null
             }
-            className="w-50 h-full"
+            className="w-40 h-full shrink-0"
           />
-          <AudioPlayer src={rec.audio_url} compact />
+          <div className="flex-1 min-w-[180px]">
+            <AudioPlayer src={rec.audio_url} compact />
+          </div>
         </div>
       ) : (
-        <div className="flex items-center gap-2 bg-white border border-slate-100 rounded-lg px-3 py-2 min-w-0">
-          <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">
+        <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 min-w-0 flex-wrap sm:flex-nowrap">
+          <span className="text-[10px] font-black text-slate-400 bg-white px-2 py-0.5 rounded-md border border-slate-200 shrink-0 uppercase tracking-wider">
             {t.recordings.topic}
           </span>
-          <span className="text-xs font-bold text-slate-700 shrink-0 max-w-[80px] truncate">
+          <span className="text-xs font-black text-slate-800 shrink-0 max-w-[100px] truncate">
             {rec.topic}
           </span>
-          <span className="text-slate-200 shrink-0">·</span>
-          <span className="text-[10px] font-black text-slate-400 shrink-0 uppercase tracking-wide">
+          <span className="text-slate-300 shrink-0 hidden sm:inline">·</span>
+          <span className="text-[10px] font-black text-slate-400 bg-white px-2 py-0.5 rounded-md border border-slate-200 shrink-0 uppercase tracking-wider hidden sm:inline">
             {t.recordings.question.replace(":", "")}
           </span>
           <span className="text-xs font-bold text-slate-600 flex-1 min-w-0 truncate">
             {rec.question_text}
           </span>
-          <AudioPlayer src={rec.audio_url} compact />
+          <div className="shrink-0">
+            <AudioPlayer src={rec.audio_url} compact />
+          </div>
         </div>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5 pt-1">
         <div
-          className="flex items-center gap-0.5"
+          className="flex items-center gap-1 bg-amber-50/70 border border-amber-200/60 px-2 py-1 rounded-xl shrink-0"
           role="radiogroup"
           aria-label={t.recordings.feedback}
         >
@@ -465,7 +506,7 @@ export function RecordingItem({
               role="radio"
               aria-checked={star === rating}
               aria-label={`${star} star`}
-              className="transition-transform hover:scale-110 focus:outline-none"
+              className="transition-transform hover:scale-125 focus:outline-none"
             >
               <Star
                 size={16}
@@ -484,17 +525,17 @@ export function RecordingItem({
           onChange={(e) => handleFeedbackChange(e.target.value)}
           onBlur={handleFeedbackBlur}
           placeholder={t.recordings.feedbackPlaceholder}
-          className="flex-1 px-2.5 py-1 bg-white border border-slate-200 focus:border-blue-300 rounded-lg text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+          className="flex-1 px-3 py-1.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-2xs"
         />
         {saving && (
-          <Loader2 size={12} className="animate-spin text-slate-400 shrink-0" />
+          <Loader2 size={14} className="animate-spin text-blue-500 shrink-0" />
         )}
         {saveSuccess && (
-          <Check size={12} className="text-emerald-500 shrink-0" />
+          <Check size={14} className="text-emerald-500 shrink-0" />
         )}
         {saveError && (
           <span title={saveError}>
-            <AlertCircle size={12} className="text-rose-500 shrink-0" />
+            <AlertCircle size={14} className="text-rose-500 shrink-0" />
           </span>
         )}
       </div>

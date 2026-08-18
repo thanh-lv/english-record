@@ -24,6 +24,56 @@ export type TeacherTab =
   | "shadowing"
   | "audio-builder";
 
+const TAB_THEMES: Record<
+  TeacherTab,
+  {
+    activeClass: string;
+    iconActiveClass: string;
+    dotClass: string;
+  }
+> = {
+  attendance: {
+    activeClass: "bg-purple-50 text-purple-700 border-purple-200/90 shadow-xs",
+    iconActiveClass: "text-purple-600",
+    dotClass: "bg-purple-600 shadow-purple-200",
+  },
+  recordings: {
+    activeClass: "bg-blue-50 text-[#1E88E5] border-blue-200/90 shadow-xs",
+    iconActiveClass: "text-[#1E88E5]",
+    dotClass: "bg-[#1E88E5] shadow-blue-200",
+  },
+  topics: {
+    activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200/90 shadow-xs",
+    iconActiveClass: "text-emerald-600",
+    dotClass: "bg-emerald-600 shadow-emerald-200",
+  },
+  students: {
+    activeClass: "bg-cyan-50 text-cyan-700 border-cyan-200/90 shadow-xs",
+    iconActiveClass: "text-cyan-600",
+    dotClass: "bg-cyan-600 shadow-cyan-200",
+  },
+  stories: {
+    activeClass: "bg-amber-50 text-amber-800 border-amber-200/90 shadow-xs",
+    iconActiveClass: "text-amber-600",
+    dotClass: "bg-amber-600 shadow-amber-200",
+  },
+  vocabulary: {
+    activeClass: "bg-rose-50 text-rose-700 border-rose-200/90 shadow-xs",
+    iconActiveClass: "text-rose-600",
+    dotClass: "bg-rose-600 shadow-rose-200",
+  },
+  shadowing: {
+    activeClass: "bg-indigo-50 text-indigo-700 border-indigo-200/90 shadow-xs",
+    iconActiveClass: "text-indigo-600",
+    dotClass: "bg-indigo-600 shadow-indigo-200",
+  },
+  "audio-builder": {
+    activeClass: "bg-teal-50 text-teal-700 border-teal-200/90 shadow-xs",
+    iconActiveClass: "text-teal-600",
+    dotClass: "bg-teal-600 shadow-teal-200",
+  },
+};
+
 export function TeacherSidebar() {
   const { t } = useLanguage();
   const location = useLocation();
@@ -77,23 +127,33 @@ export function TeacherSidebar() {
 
   const NavLink = ({ item }: { item: (typeof NAV_ITEMS)[0] }) => {
     const active = activeTab === item.id;
+    const theme = TAB_THEMES[item.id] || TAB_THEMES.recordings;
+
     return (
       <Link
         key={item.id}
         to={`/teacher/${item.id}`}
         onClick={() => setMobileOpen(false)}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-extrabold text-sm transition-all ${
+        className={`group relative w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-black text-xs transition-all border ${
           active
-            ? "bg-[#E3F2FD] text-[#1E88E5] shadow-md"
-            : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+            ? theme.activeClass
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-bold border-transparent"
         }`}
       >
-        <span className={active ? "text-[#1E88E5]" : "text-slate-400"}>
+        <span
+          className={`shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+            active
+              ? theme.iconActiveClass
+              : "text-slate-400 group-hover:text-slate-600"
+          }`}
+        >
           {item.icon}
         </span>
-        {item.label}
+        <span className="truncate tracking-wide">{item.label}</span>
         {active && (
-          <span className="ml-auto w-1.5 h-1.5 rounded-lg bg-[#1E88E5]" />
+          <span
+            className={`ml-auto w-2 h-2 rounded-full shadow-xs shrink-0 ${theme.dotClass}`}
+          />
         )}
       </Link>
     );
@@ -102,13 +162,16 @@ export function TeacherSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-white rounded-lg shadow-md border border-slate-100 overflow-hidden sticky top-4">
-        <div className="px-5 pt-5 pb-3 border-b border-slate-100">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
+      <aside className="hidden md:flex flex-col w-64 shrink-0 bg-white/95 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200/80 sticky top-[84px] max-h-[calc(100vh-100px)] overflow-hidden">
+        <div className="px-5 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
             Menu
           </p>
+          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-blue-50 text-blue-600 rounded-lg border border-blue-100">
+            Teacher
+          </span>
         </div>
-        <nav className="p-3 space-y-1">
+        <nav className="p-3 space-y-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.id} item={item} />
           ))}

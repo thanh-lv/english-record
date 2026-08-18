@@ -194,22 +194,22 @@ export function StudentSubmissionsView({
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md border-3 border-[#FFF59D] overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b-2 border-slate-100 flex items-center gap-3 bg-[#FFFDF6]">
+      <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center gap-3 bg-gradient-to-r from-slate-50/80 to-white">
         <button
           type="button"
           onClick={onBack}
           aria-label={t.common.back}
-          className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors shrink-0"
+          className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors shrink-0 border border-slate-200/60 shadow-xs"
         >
           <ArrowLeft size={18} />
         </button>
         <span
-          className={`w-10 h-10 rounded-lg border-2 font-black flex items-center justify-center shrink-0 ${
+          className={`w-11 h-11 rounded-xl border-2 font-black flex items-center justify-center shrink-0 shadow-xs ${
             avatar
-              ? "bg-amber-50 text-2xl shadow-md border-amber-200"
-              : "text-sm bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]"
+              ? "bg-amber-50 text-2xl shadow-xs border-amber-200"
+              : "text-sm bg-blue-50 text-blue-600 border-blue-200"
           }`}
         >
           {avatar ||
@@ -221,23 +221,26 @@ export function StudentSubmissionsView({
               .slice(0, 2)}
         </span>
         <div className="flex-1 min-w-0">
-          <h3 className="font-extrabold text-slate-700 text-md truncate">
+          <h3 className="font-black text-slate-800 text-base sm:text-lg truncate">
             {studentName}
           </h3>
+          <p className="text-xs text-slate-400 font-bold mt-0.5">
+            {t.recordings.title}
+          </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b-2 border-slate-100 bg-[#FFFDF6]">
+      <div className="flex border-b border-slate-200/80 bg-slate-50/60 p-1.5 gap-1.5">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-extrabold transition-colors border-b-2 -mb-0.5 ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-black transition-all ${
               activeTab === tab.id
-                ? "border-amber-400 text-amber-600 bg-amber-50"
-                : "border-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                ? "bg-white text-blue-600 shadow-xs border border-slate-200/80"
+                : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
             }`}
           >
             {tab.icon}

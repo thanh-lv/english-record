@@ -176,7 +176,7 @@ export default function TeacherView({
   return (
     <div className="animate-in fade-in duration-500 min-h-[100dvh] flex flex-col">
       <OfflineBanner />
-      <div className="flex gap-5 flex-1 items-start">
+      <div className="flex gap-6 flex-1 items-start w-full">
         <TeacherSidebar />
 
         <div className="flex-1 min-w-0 space-y-4">
