@@ -4,6 +4,7 @@ import {
   CheckCircle,
   Copy,
   Loader2,
+  Play,
   Plus,
   Search,
   Trash2,
@@ -380,10 +381,20 @@ export function ShadowingManager() {
                   </div>
                 )}
 
+                {/* Top Scrim Gradient Overlay for Badges readability */}
+                <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none z-0" />
+
+                {/* Center Hover Play Icon */}
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none z-0">
+                  <div className="w-10 h-10 rounded-full bg-white/95 text-slate-800 shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200">
+                    <Play size={16} className="fill-slate-800 ml-0.5 text-slate-800" />
+                  </div>
+                </div>
+
                 {/* Grade Badge (Top Left Floating) */}
-                <div className="absolute top-2.5 left-2.5">
+                <div className="absolute top-2.5 left-2.5 z-10">
                   {Array.isArray(video.grades) && video.grades.length > 0 ? (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-indigo-600/90 text-white shadow-xs backdrop-blur-md">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-indigo-600/90 text-white shadow-md backdrop-blur-md border border-white/20">
                       {interpolate(t.common.gradeLabel, {
                         grade: video.grades
                           .slice()
@@ -392,7 +403,7 @@ export function ShadowingManager() {
                       })}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-slate-900/80 text-white shadow-xs backdrop-blur-md">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-black/60 text-white shadow-md backdrop-blur-md border border-white/20">
                       {t.teacherModal.allGradesOption}
                     </span>
                   )}
@@ -402,10 +413,10 @@ export function ShadowingManager() {
                 <button
                   type="button"
                   onClick={() => toggleActive(video.id, isActive)}
-                  className={`absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg text-[11px] font-black shadow-xs backdrop-blur-md transition-all flex items-center gap-1.5 ${
+                  className={`absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg text-[11px] font-black shadow-md backdrop-blur-md transition-all flex items-center gap-1.5 z-10 border ${
                     isActive
-                      ? "bg-emerald-500/90 hover:bg-emerald-600 text-white"
-                      : "bg-slate-900/80 hover:bg-slate-900 text-slate-300"
+                      ? "bg-emerald-600/90 hover:bg-emerald-600 text-white border-white/20"
+                      : "bg-black/70 hover:bg-black/85 text-slate-200 border-white/20"
                   }`}
                   title={isActive ? "Bấm để ẩn video" : "Bấm để hiện video"}
                 >
