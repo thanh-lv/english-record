@@ -3,6 +3,8 @@ import {
   Check,
   CheckCircle,
   Copy,
+  Eye,
+  EyeOff,
   Loader2,
   Play,
   Plus,
@@ -394,7 +396,7 @@ export function ShadowingManager() {
                 {/* Grade Badge (Top Left Floating) */}
                 <div className="absolute top-2.5 left-2.5 z-10">
                   {Array.isArray(video.grades) && video.grades.length > 0 ? (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-indigo-600/90 text-white shadow-md backdrop-blur-md border border-white/20">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-[11px] font-black bg-indigo-600/90 text-white shadow-xs backdrop-blur-md border border-indigo-400/30">
                       {interpolate(t.common.gradeLabel, {
                         grade: video.grades
                           .slice()
@@ -403,30 +405,35 @@ export function ShadowingManager() {
                       })}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-black/60 text-white shadow-md backdrop-blur-md border border-white/20">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-[11px] font-black bg-slate-900/75 text-white shadow-xs backdrop-blur-md border border-white/20">
                       {t.teacherModal.allGradesOption}
                     </span>
                   )}
                 </div>
 
                 {/* Active / Hidden Quick Toggle (Top Right Floating) */}
-                <button
-                  type="button"
-                  onClick={() => toggleActive(video.id, isActive)}
-                  className={`absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg text-[11px] font-black shadow-md backdrop-blur-md transition-all flex items-center gap-1.5 z-10 border ${
-                    isActive
-                      ? "bg-emerald-600/90 hover:bg-emerald-600 text-white border-white/20"
-                      : "bg-black/70 hover:bg-black/85 text-slate-200 border-white/20"
-                  }`}
-                  title={isActive ? "Bấm để ẩn video" : "Bấm để hiện video"}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white" : "bg-slate-400"}`} />
-                  <span>
-                    {isActive
-                      ? t.teacherModal.filterStoryStatusActive
-                      : t.teacherModal.filterStoryStatusHidden}
-                  </span>
-                </button>
+                <div className="absolute top-2.5 right-2.5 z-10">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleActive(video.id, isActive);
+                    }}
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black backdrop-blur-md border shadow-xs transition-all active:scale-95 ${
+                      isActive
+                        ? "bg-emerald-500/90 text-white border-emerald-400/50 hover:bg-emerald-600"
+                        : "bg-slate-800/85 text-slate-200 border-slate-700/60 hover:bg-slate-900"
+                    }`}
+                    title={isActive ? "Bấm để ẩn video" : "Bấm để hiện video"}
+                  >
+                    {isActive ? <Eye size={12} /> : <EyeOff size={12} />}
+                    <span>
+                      {isActive
+                        ? t.teacherModal.filterStoryStatusActive
+                        : t.teacherModal.filterStoryStatusHidden}
+                    </span>
+                  </button>
+                </div>
               </div>
 
               {/* Card Body */}

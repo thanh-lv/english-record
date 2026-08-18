@@ -1,4 +1,4 @@
-import { Loader2, Plus, Search, Wand2, X } from "lucide-react";
+import { BookOpen, Loader2, Plus, Search, Sparkles, Wand2, X } from "lucide-react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
@@ -78,86 +78,100 @@ export function StoriesManager() {
   useEscapeToClose(() => setShowCreate(false), showCreate);
 
   return (
-    <div className="space-y-4">
-      {/* Top action buttons */}
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
-          📚 {tc.storyManagerTitle || "Quản Lý Truyện Tiếng Anh"}
-        </h3>
-        <div className="flex items-center gap-2">
+    <div className="space-y-6">
+      {/* Header and Filter Toolbar */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white/95 backdrop-blur-sm p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div>
+          <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
+              <BookOpen size={22} />
+            </span>
+            {tc.storyManagerTitle || "Quản Lý Truyện Tiếng Anh"}
+          </h3>
+          <p className="text-xs text-slate-400 font-bold mt-1">
+            {filteredStories.length} câu chuyện tiếng Anh
+          </p>
+        </div>
+
+        {/* Toolbar Controls */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Search bar */}
+          <div className="relative min-w-[180px] sm:min-w-[220px]">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+            <input
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              placeholder={tm.searchStories || "Tìm truyện theo tiêu đề..."}
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-purple-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs"
+            />
+            {filterText && (
+              <button
+                type="button"
+                onClick={() => setFilterText("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
+
+          {/* Grade filter */}
+          <select
+            value={filterGrade}
+            onChange={(e) => setFilterGrade(e.target.value)}
+            className="px-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-purple-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs cursor-pointer"
+          >
+            <option value="all">{t.teacherModal?.allGradesOption || "Tất cả các khối"}</option>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+              <option key={g} value={g.toString()}>
+                {t.common?.gradeLabel ? t.common.gradeLabel.replace("{grade}", g.toString()) : `Khối ${g}`}
+              </option>
+            ))}
+            <option value="unassigned">
+              {t.teacherModal?.allGradesOption || "Tất cả các khối"} (Mặc định)
+            </option>
+          </select>
+
+          {/* Status filter */}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as any)}
+            className="px-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-purple-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs cursor-pointer"
+          >
+            <option value="all">
+              {tm.filterStoryStatusAll || "Tất cả trạng thái"}
+            </option>
+            <option value="active">
+              {tm.filterStoryStatusActive || "Đang hiện"}
+            </option>
+            <option value="hidden">
+              {tm.filterStoryStatusHidden || "Đã ẩn"}
+            </option>
+          </select>
+
+          {/* Manual Create Button */}
           <button
             type="button"
             onClick={() => setShowManual(true)}
-            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-lg transition-all flex items-center gap-1.5 border border-slate-200"
+            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs rounded-xl transition-all flex items-center gap-1.5 border border-slate-200/80 shadow-2xs active:scale-95 shrink-0"
           >
-            <Plus size={15} /> {tc.createManualStory || "Viết truyện tay"}
+            <Plus size={15} />
+            <span className="hidden sm:inline">{tc.createManualStory || "Viết truyện tay"}</span>
           </button>
+
+          {/* AI Create Button */}
           <button
             type="button"
             onClick={() => setShowCreate(true)}
-            className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs rounded-lg shadow-sm transition-all flex items-center gap-1.5"
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-95 shrink-0"
           >
-            <Wand2 size={15} /> {tc.createAiStory || "Tạo bằng AI"}
+            <Sparkles size={15} />
+            <span>{tc.createAiStory || "Tạo bằng AI"}</span>
           </button>
         </div>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-          />
-          <input
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-            placeholder={tm.searchStories || "Tìm truyện theo tiêu đề..."}
-            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:border-purple-400"
-          />
-          {filterText && (
-            <button
-              type="button"
-              onClick={() => setFilterText("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-            >
-              <X size={13} />
-            </button>
-          )}
-        </div>
-
-        {/* Grade filter */}
-        <select
-          value={filterGrade}
-          onChange={(e) => setFilterGrade(e.target.value)}
-          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 focus:outline-none cursor-pointer"
-        >
-          <option value="all">{t.teacherModal?.allGradesOption || "Tất cả các khối"}</option>
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
-            <option key={g} value={g.toString()}>
-              {t.common?.gradeLabel ? t.common.gradeLabel.replace("{grade}", g.toString()) : `Khối ${g}`}
-            </option>
-          ))}
-          <option value="unassigned">
-            {t.teacherModal?.allGradesOption || "Tất cả các khối"} (Mặc định)
-          </option>
-        </select>
-
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value as any)}
-          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 focus:outline-none"
-        >
-          <option value="all">
-            {tm.filterStoryStatusAll || "Tất cả trạng thái"}
-          </option>
-          <option value="active">
-            {tm.filterStoryStatusActive || "Đang hiện"}
-          </option>
-          <option value="hidden">
-            {tm.filterStoryStatusHidden || "Đã ẩn"}
-          </option>
-        </select>
       </div>
 
       {/* Stories Grid */}
@@ -166,7 +180,7 @@ export function StoriesManager() {
           <Loader2 size={32} className="animate-spin text-purple-600" />
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
           {filteredStories.map((story) => (
             <StoryCard
               key={story.id}
@@ -182,7 +196,7 @@ export function StoriesManager() {
           ))}
 
           {filteredStories.length === 0 && (
-            <div className="col-span-full py-12 text-center text-slate-400 font-bold bg-white rounded-lg border-2 border-dashed border-slate-200">
+            <div className="col-span-full py-16 text-center text-slate-400 font-bold bg-white rounded-2xl border border-slate-200/80">
               {tm.noStoriesFound || "Không tìm thấy truyện nào"}
             </div>
           )}
