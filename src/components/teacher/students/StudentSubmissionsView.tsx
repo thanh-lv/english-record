@@ -19,6 +19,41 @@ const PAGE_SIZE = 10;
 
 type TabType = "topic" | "shadowing";
 
+function getPaginationItems(
+  currentPage: number,
+  totalPages: number,
+): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, "...", totalPages];
+  }
+
+  if (currentPage >= totalPages - 3) {
+    return [
+      1,
+      "...",
+      totalPages - 4,
+      totalPages - 3,
+      totalPages - 2,
+      totalPages - 1,
+      totalPages,
+    ];
+  }
+
+  return [
+    1,
+    "...",
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+    "...",
+    totalPages,
+  ];
+}
+
 function RecordingsList({
   studentName,
   type,
@@ -121,7 +156,7 @@ function RecordingsList({
 
   return (
     <>
-      <div className="divide-y divide-slate-100">
+      <div className="p-4 sm:p-6 space-y-4 bg-slate-50/50">
         {records.map((rec: any) => (
           <RecordingItem
             key={rec.id}
@@ -133,28 +168,55 @@ function RecordingsList({
         ))}
       </div>
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100 bg-white">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-t border-slate-100 bg-white rounded-b-2xl">
           <button
             type="button"
             onClick={() => goToPage(page - 1)}
             disabled={page <= 1}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold text-slate-500 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs"
           >
-            <ChevronLeft size={14} />
-            {t.recordings.prev}
+            <ChevronLeft size={15} />
+            <span>{t.recordings.prev}</span>
           </button>
-          <span className="text-xs font-bold text-slate-400 flex items-center gap-2">
-            {loading && <Loader2 size={12} className="animate-spin" />}
-            {page} {t.recordings.of} {totalPages}
-          </span>
+
+          <div className="flex items-center gap-1 flex-wrap justify-center">
+            {getPaginationItems(page, totalPages).map((item, idx) => {
+              if (item === "...") {
+                return (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="w-8 h-8 flex items-center justify-center text-slate-400 text-xs font-black select-none"
+                  >
+                    ...
+                  </span>
+                );
+              }
+              const isCurrent = item === page;
+              return (
+                <button
+                  key={`page-${item}`}
+                  type="button"
+                  onClick={() => goToPage(item as number)}
+                  className={`w-8 h-8 rounded-xl font-black text-xs transition-all flex items-center justify-center ${
+                    isCurrent
+                      ? "bg-[#1E88E5] text-white shadow-xs scale-105"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`}
+                >
+                  {item}
+                </button>
+              );
+            })}
+          </div>
+
           <button
             type="button"
             onClick={() => goToPage(page + 1)}
             disabled={page >= totalPages}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold text-slate-500 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black text-slate-600 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs"
           >
-            {t.recordings.next}
-            <ChevronRight size={14} />
+            <span>{t.recordings.next}</span>
+            <ChevronRight size={15} />
           </button>
         </div>
       )}

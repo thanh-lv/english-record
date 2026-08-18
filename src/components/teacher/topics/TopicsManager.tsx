@@ -15,6 +15,40 @@ import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
 import { useTopics } from "./useTopics";
 import { TopicItem } from "./TopicItem";
 import { QuestionModal } from "./QuestionModal";
+function getPaginationItems(
+  currentPage: number,
+  totalPages: number,
+): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, "...", totalPages];
+  }
+
+  if (currentPage >= totalPages - 3) {
+    return [
+      1,
+      "...",
+      totalPages - 4,
+      totalPages - 3,
+      totalPages - 2,
+      totalPages - 1,
+      totalPages,
+    ];
+  }
+
+  return [
+    1,
+    "...",
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+    "...",
+    totalPages,
+  ];
+}
 
 export function TopicsManager() {
   const { t } = useLanguage();
@@ -360,42 +394,56 @@ export function TopicsManager() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 mt-3">
               <span className="text-xs font-bold text-slate-400">
                 {page * PAGE_SIZE + 1}–
                 {Math.min((page + 1) * PAGE_SIZE, topics.length)} /{" "}
-                {topics.length} topics
+                {topics.length} {t.teacherNav.topics}
               </span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-[#1E88E5]/10 hover:bg-slate-50 disabled:opacity-40"
+                  className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-2xs"
                 >
                   {tm.paginationPrev || "Trước"}
                 </button>
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setPage(i)}
-                    className={`w-7 h-7 text-xs font-black rounded-lg transition-colors ${
-                      page === i
-                        ? "bg-[#1E88E5] text-white"
-                        : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
+                {getPaginationItems(page + 1, totalPages).map((item, idx) => {
+                  if (item === "...") {
+                    return (
+                      <span
+                        key={`ellipsis-${idx}`}
+                        className="w-7 h-7 flex items-center justify-center text-slate-400 text-xs font-black select-none"
+                      >
+                        ...
+                      </span>
+                    );
+                  }
+                  const pageIndex = (item as number) - 1;
+                  const isCurrent = page === pageIndex;
+                  return (
+                    <button
+                      key={`page-${item}`}
+                      type="button"
+                      onClick={() => setPage(pageIndex)}
+                      className={`w-7 h-7 text-xs font-black rounded-lg transition-all ${
+                        isCurrent
+                          ? "bg-[#1E88E5] text-white shadow-xs"
+                          : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  );
+                })}
                 <button
                   type="button"
                   onClick={() =>
                     setPage((p) => Math.min(totalPages - 1, p + 1))
                   }
                   disabled={page >= totalPages - 1}
-                  className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40"
+                  className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-2xs"
                 >
                   {tm.paginationNext || "Sau"}
                 </button>

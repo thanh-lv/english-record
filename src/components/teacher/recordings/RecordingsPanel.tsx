@@ -7,6 +7,7 @@ import {
   GraduationCap,
   Loader2,
   Mic,
+  Play,
   Search,
   Star,
   Trash2,
@@ -409,31 +410,60 @@ export function RecordingItem({
     saveTimeoutRef.current = setTimeout(() => doSave(rating, val), 1500);
   };
 
+  const [showVideo, setShowVideo] = useState(false);
+
   return (
     <div
       ref={itemRef}
-      className={`px-5 py-4 flex flex-col gap-3 transition-colors ${
+      className={`bg-white rounded-xl border transition-all duration-200 p-3 sm:p-3.5 space-y-2 shadow-2xs hover:shadow-xs ${
         isHighlighted
-          ? "bg-emerald-50/80 ring-2 ring-inset ring-emerald-400"
-          : "hover:bg-slate-50/60 bg-white"
+          ? "border-emerald-400 ring-2 ring-emerald-300/40 bg-emerald-50/20"
+          : "border-slate-200/80 hover:border-blue-300"
       }`}
     >
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 text-[#1E88E5] font-black text-xs shadow-xs shrink-0">
-          {rec.topic_number}
-        </span>
-        <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg font-bold">
-          {formatDate(rec.created_at)}
-        </span>
-        {rec.student_reaction === "heart" && (
-          <span
-            className="text-xs text-rose-500 flex items-center gap-1 font-bold"
-            title={t.recordings.heartReaction}
-          >
-            ❤️
-          </span>
+      {/* Line 1: Meta + Question + Timestamp & Delete */}
+      <div className="flex items-center justify-between gap-2">
+        {rec.shadowing_video_id ? (
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <span className="text-[11px] font-black text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-2 py-0.5 rounded-md shrink-0 flex items-center gap-1">
+              🎬 Shadowing
+            </span>
+            <p className="text-xs font-black text-slate-800 truncate" title={rec.topic}>
+              {rec.topic || "Bài Shadowing"}
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            {rec.topic_number != null && (
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-blue-50 border border-blue-200 text-[#1E88E5] font-black text-[11px] shrink-0">
+                #{rec.topic_number}
+              </span>
+            )}
+            {rec.topic && (
+              <span className="text-[11px] font-black text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md shrink-0">
+                {rec.topic}
+              </span>
+            )}
+            {rec.question_text && rec.question_text !== rec.topic && (
+              <p className="text-xs font-black text-slate-800 truncate" title={rec.question_text}>
+                Q: {rec.question_text}
+              </p>
+            )}
+          </div>
         )}
-        <div className="ml-auto flex items-center gap-1">
+
+        <div className="flex items-center gap-2 shrink-0">
+          {rec.student_reaction === "heart" && (
+            <span
+              className="text-xs text-rose-500"
+              title={t.recordings.heartReaction}
+            >
+              ❤️
+            </span>
+          )}
+          <span className="text-[11px] text-slate-400 font-bold hidden sm:inline">
+            {formatDate(rec.created_at)}
+          </span>
           <button
             type="button"
             onClick={(e) => {
@@ -441,60 +471,46 @@ export function RecordingItem({
               e.stopPropagation();
               onDeleteRequest(rec.id);
             }}
-            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all border border-transparent"
+            className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
             title={t.common.delete}
             aria-label={t.common.delete}
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </button>
         </div>
       </div>
 
-      {rec.shadowing_video_id ? (
-        <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 min-w-0 flex-wrap sm:flex-nowrap">
-          <span className="text-xs font-black text-indigo-500 shrink-0 uppercase tracking-wide">
-            🎬
-          </span>
-          <span className="text-xs font-black text-slate-700 shrink-0 truncate max-w-[140px]">
-            {rec.topic}
-          </span>
-          <YouTubePlayer
-            url={
-              rec.youtube_url ??
-              rec.shadowing_videos?.youtube_url ??
-              rec.shadowing_video?.youtube_url ??
-              null
-            }
-            className="w-40 h-full shrink-0"
-          />
-          <div className="flex-1 min-w-[180px]">
+      {/* Line 2: Audio Player + Stars + Feedback input all in one row */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-0.5">
+        {/* Audio / Video player */}
+        {rec.shadowing_video_id ? (
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowVideo(!showVideo)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-black transition-all shadow-2xs border ${
+                showVideo
+                  ? "bg-red-600 text-white border-red-600"
+                  : "bg-red-50 text-red-600 border-red-200/80 hover:bg-red-100"
+              }`}
+              title="Xem video YouTube mẫu"
+            >
+              <Play size={12} className={showVideo ? "fill-white" : "fill-red-600"} />
+              <span>{showVideo ? "Đóng video" : "Video mẫu"}</span>
+            </button>
+            <div className="shrink-0 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1 flex items-center">
+              <AudioPlayer src={rec.audio_url} compact />
+            </div>
+          </div>
+        ) : (
+          <div className="shrink-0 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1 flex items-center">
             <AudioPlayer src={rec.audio_url} compact />
           </div>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 min-w-0 flex-wrap sm:flex-nowrap">
-          <span className="text-[10px] font-black text-slate-400 bg-white px-2 py-0.5 rounded-md border border-slate-200 shrink-0 uppercase tracking-wider">
-            {t.recordings.topic}
-          </span>
-          <span className="text-xs font-black text-slate-800 shrink-0 max-w-[100px] truncate">
-            {rec.topic}
-          </span>
-          <span className="text-slate-300 shrink-0 hidden sm:inline">·</span>
-          <span className="text-[10px] font-black text-slate-400 bg-white px-2 py-0.5 rounded-md border border-slate-200 shrink-0 uppercase tracking-wider hidden sm:inline">
-            {t.recordings.question.replace(":", "")}
-          </span>
-          <span className="text-xs font-bold text-slate-600 flex-1 min-w-0 truncate">
-            {rec.question_text}
-          </span>
-          <div className="shrink-0">
-            <AudioPlayer src={rec.audio_url} compact />
-          </div>
-        </div>
-      )}
+        )}
 
-      <div className="flex items-center gap-2.5 pt-1">
+        {/* Rating Stars */}
         <div
-          className="flex items-center gap-1 bg-amber-50/70 border border-amber-200/60 px-2 py-1 rounded-xl shrink-0"
+          className="flex items-center gap-0.5 px-2 py-1 bg-amber-50/60 border border-amber-200/60 rounded-lg shrink-0"
           role="radiogroup"
           aria-label={t.recordings.feedback}
         >
@@ -506,10 +522,10 @@ export function RecordingItem({
               role="radio"
               aria-checked={star === rating}
               aria-label={`${star} star`}
-              className="transition-transform hover:scale-125 focus:outline-none"
+              className="transition-transform hover:scale-125 focus:outline-none p-0.5"
             >
               <Star
-                size={16}
+                size={14}
                 className={
                   star <= rating
                     ? "text-amber-400 fill-amber-400"
@@ -519,26 +535,50 @@ export function RecordingItem({
             </button>
           ))}
         </div>
-        <input
-          type="text"
-          value={feedback}
-          onChange={(e) => handleFeedbackChange(e.target.value)}
-          onBlur={handleFeedbackBlur}
-          placeholder={t.recordings.feedbackPlaceholder}
-          className="flex-1 px-3 py-1.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-2xs"
-        />
-        {saving && (
-          <Loader2 size={14} className="animate-spin text-blue-500 shrink-0" />
-        )}
-        {saveSuccess && (
-          <Check size={14} className="text-emerald-500 shrink-0" />
-        )}
-        {saveError && (
-          <span title={saveError}>
-            <AlertCircle size={14} className="text-rose-500 shrink-0" />
-          </span>
-        )}
+
+        {/* Feedback Input with inline indicator */}
+        <div className="flex-1 relative flex items-center min-w-0">
+          <input
+            type="text"
+            value={feedback}
+            onChange={(e) => handleFeedbackChange(e.target.value)}
+            onBlur={handleFeedbackBlur}
+            placeholder={t.recordings.feedbackPlaceholder}
+            className="w-full h-8 px-3 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-200 transition-all shadow-2xs pr-16"
+          />
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-black">
+            {saving && (
+              <span className="text-blue-500 flex items-center gap-1">
+                <Loader2 size={11} className="animate-spin" />
+              </span>
+            )}
+            {saveSuccess && (
+              <span className="text-emerald-600 flex items-center gap-0.5 animate-in fade-in">
+                <Check size={11} />
+                <span className="hidden md:inline">Lưu</span>
+              </span>
+            )}
+            {saveError && (
+              <span className="text-rose-500" title={saveError}>
+                <AlertCircle size={11} />
+              </span>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Expandable YouTube Video Preview */}
+      {showVideo && rec.youtube_url && (
+        <div className="pt-2.5 border-t border-slate-100 flex flex-col sm:flex-row items-start gap-3 animate-in fade-in duration-200">
+          <div className="w-full sm:w-80 max-w-full aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-black shrink-0">
+            <YouTubePlayer url={rec.youtube_url} className="w-full h-full" />
+          </div>
+          <div className="text-xs text-slate-500 font-bold space-y-1 py-1">
+            <p className="font-black text-slate-700">🎬 {rec.topic}</p>
+            <p className="text-[11px] text-slate-400 font-medium">Bấm "Đóng video" để thu gọn danh sách.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
