@@ -242,7 +242,9 @@ export function ShadowingManager() {
   };
 
   const [searchText, setSearchText] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "hidden">("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "hidden">(
+    "all",
+  );
 
   if (loading)
     return (
@@ -303,7 +305,9 @@ export function ShadowingManager() {
               type="text"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder={t.teacherModal.searchShadowingPlaceholder || "Tìm kiếm video..."}
+              placeholder={
+                t.teacherModal.searchShadowingPlaceholder || "Tìm kiếm video..."
+              }
               className="w-full pl-9 pr-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs"
             />
             {searchText && (
@@ -389,7 +393,10 @@ export function ShadowingManager() {
                 {/* Center Hover Play Icon */}
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none z-0">
                   <div className="w-10 h-10 rounded-full bg-white/95 text-slate-800 shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200">
-                    <Play size={16} className="fill-slate-800 ml-0.5 text-slate-800" />
+                    <Play
+                      size={16}
+                      className="fill-slate-800 ml-0.5 text-slate-800"
+                    />
                   </div>
                 </div>
 
@@ -484,12 +491,16 @@ export function ShadowingManager() {
                     {copiedId === video.id ? (
                       <>
                         <Check size={13} className="text-emerald-600" />
-                        <span className="hidden sm:inline">{t.common.linkCopied}</span>
+                        <span className="hidden sm:inline">
+                          {t.common.linkCopied}
+                        </span>
                       </>
                     ) : (
                       <>
                         <Copy size={13} />
-                        <span className="hidden sm:inline">{t.common.copyLink}</span>
+                        <span className="hidden sm:inline">
+                          {t.common.copyLink}
+                        </span>
                       </>
                     )}
                   </button>

@@ -1,4 +1,12 @@
-import { BookOpen, Loader2, Plus, Search, Sparkles, Wand2, X } from "lucide-react";
+import {
+  BookOpen,
+  Loader2,
+  Plus,
+  Search,
+  Sparkles,
+  Wand2,
+  X,
+} from "lucide-react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
@@ -124,10 +132,14 @@ export function StoriesManager() {
             onChange={(e) => setFilterGrade(e.target.value)}
             className="px-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-purple-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs cursor-pointer"
           >
-            <option value="all">{t.teacherModal?.allGradesOption || "Tất cả các khối"}</option>
+            <option value="all">
+              {t.teacherModal?.allGradesOption || "Tất cả các khối"}
+            </option>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
               <option key={g} value={g.toString()}>
-                {t.common?.gradeLabel ? t.common.gradeLabel.replace("{grade}", g.toString()) : `Khối ${g}`}
+                {t.common?.gradeLabel
+                  ? t.common.gradeLabel.replace("{grade}", g.toString())
+                  : `Khối ${g}`}
               </option>
             ))}
             <option value="unassigned">
@@ -159,7 +171,9 @@ export function StoriesManager() {
             className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs rounded-xl transition-all flex items-center gap-1.5 border border-slate-200/80 shadow-2xs active:scale-95 shrink-0"
           >
             <Plus size={15} />
-            <span className="hidden sm:inline">{tc.createManualStory || "Viết truyện tay"}</span>
+            <span className="hidden sm:inline">
+              {tc.createManualStory || "Viết truyện tay"}
+            </span>
           </button>
 
           {/* AI Create Button */}

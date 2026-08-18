@@ -43,7 +43,8 @@ const TAB_THEMES: Record<
     dotClass: "bg-[#1E88E5] shadow-blue-200",
   },
   topics: {
-    activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200/90 shadow-xs",
+    activeClass:
+      "bg-emerald-50 text-emerald-700 border-emerald-200/90 shadow-xs",
     iconActiveClass: "text-emerald-600",
     dotClass: "bg-emerald-600 shadow-emerald-200",
   },

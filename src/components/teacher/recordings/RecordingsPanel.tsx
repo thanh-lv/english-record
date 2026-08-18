@@ -143,9 +143,13 @@ export function RecordingsPanel({
               {t.recordings.title}
             </h3>
             <p className="text-xs text-slate-400 font-bold mt-0.5 flex items-center gap-2 flex-wrap">
-              <span>{summaries.length} {t.recordings.students}</span>
+              <span>
+                {summaries.length} {t.recordings.students}
+              </span>
               <span>·</span>
-              <span>{totalSubmissions} {t.recordings.lessons}</span>
+              <span>
+                {totalSubmissions} {t.recordings.lessons}
+              </span>
               {ungradedCount > 0 && (
                 <>
                   <span>·</span>
@@ -173,7 +177,9 @@ export function RecordingsPanel({
             }`}
           >
             <Filter size={15} /> {t.recordings.filter}
-            {(filterName || filterStatus !== "all" || filterGrade !== "all") && (
+            {(filterName ||
+              filterStatus !== "all" ||
+              filterGrade !== "all") && (
               <span className="w-2 h-2 rounded-full bg-blue-600" />
             )}
           </button>
@@ -245,7 +251,9 @@ export function RecordingsPanel({
           <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs">
             <Mic size={24} className="text-slate-400" />
           </div>
-          <p className="text-slate-500 font-extrabold text-sm">{t.recordings.empty}</p>
+          <p className="text-slate-500 font-extrabold text-sm">
+            {t.recordings.empty}
+          </p>
         </div>
       ) : (
         <div className="divide-y divide-slate-100/80">
@@ -428,7 +436,10 @@ export function RecordingItem({
             <span className="text-[11px] font-black text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-2 py-0.5 rounded-md shrink-0 flex items-center gap-1">
               🎬 Shadowing
             </span>
-            <p className="text-xs font-black text-slate-800 truncate" title={rec.topic}>
+            <p
+              className="text-xs font-black text-slate-800 truncate"
+              title={rec.topic}
+            >
               {rec.topic || "Bài Shadowing"}
             </p>
           </div>
@@ -445,7 +456,10 @@ export function RecordingItem({
               </span>
             )}
             {rec.question_text && rec.question_text !== rec.topic && (
-              <p className="text-xs font-black text-slate-800 truncate" title={rec.question_text}>
+              <p
+                className="text-xs font-black text-slate-800 truncate"
+                title={rec.question_text}
+              >
                 Q: {rec.question_text}
               </p>
             )}
@@ -495,7 +509,10 @@ export function RecordingItem({
               }`}
               title="Xem video YouTube mẫu"
             >
-              <Play size={12} className={showVideo ? "fill-white" : "fill-red-600"} />
+              <Play
+                size={12}
+                className={showVideo ? "fill-white" : "fill-red-600"}
+              />
               <span>{showVideo ? "Đóng video" : "Video mẫu"}</span>
             </button>
             <div className="shrink-0 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1 flex items-center">
@@ -575,7 +592,9 @@ export function RecordingItem({
           </div>
           <div className="text-xs text-slate-500 font-bold space-y-1 py-1">
             <p className="font-black text-slate-700">🎬 {rec.topic}</p>
-            <p className="text-[11px] text-slate-400 font-medium">Bấm "Đóng video" để thu gọn danh sách.</p>
+            <p className="text-[11px] text-slate-400 font-medium">
+              Bấm "Đóng video" để thu gọn danh sách.
+            </p>
           </div>
         </div>
       )}

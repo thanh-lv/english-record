@@ -99,7 +99,8 @@ export function VocabularyManager() {
             {vm.title || "Quản Lý Từ Vựng & Flashcards"}
           </h3>
           <p className="text-xs text-slate-400 font-bold mt-1">
-            {filteredSets.length} {vm.title ? vm.title.toLowerCase() : "bộ từ vựng"}
+            {filteredSets.length}{" "}
+            {vm.title ? vm.title.toLowerCase() : "bộ từ vựng"}
           </p>
         </div>
 
@@ -133,7 +134,9 @@ export function VocabularyManager() {
             onChange={(e) => setFilterGrade(e.target.value)}
             className="px-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-2xs cursor-pointer"
           >
-            <option value="all">{t.teacherModal?.allGradesOption || "Tất cả các khối"}</option>
+            <option value="all">
+              {t.teacherModal?.allGradesOption || "Tất cả các khối"}
+            </option>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
               <option key={g} value={g.toString()}>
                 {interpolate(t.common.gradeLabel, { grade: g })}
@@ -427,9 +430,7 @@ export function VocabularyManager() {
                 disabled={editSaving}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs shadow-xs flex items-center gap-1.5 active:scale-95 transition-all"
               >
-                {editSaving && (
-                  <Loader2 size={14} className="animate-spin" />
-                )}
+                {editSaving && <Loader2 size={14} className="animate-spin" />}
                 {vm.saveChanges || tc.save || "Lưu thay đổi"}
               </button>
             </div>

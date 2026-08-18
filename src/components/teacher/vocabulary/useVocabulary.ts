@@ -90,7 +90,8 @@ export function useVocabulary(t: any) {
           if (s.grades && s.grades.length > 0) return false;
         } else {
           const gNum = Number(filterGrade);
-          if (!Array.isArray(s.grades) || !s.grades.includes(gNum)) return false;
+          if (!Array.isArray(s.grades) || !s.grades.includes(gNum))
+            return false;
         }
       }
       return matchText;
@@ -144,9 +145,7 @@ export function useVocabulary(t: any) {
   const handleUpdateSet = async () => {
     if (!editingSet) return;
     if (!editTitle.trim()) {
-      setEditError(
-        t.vocabManager?.titleRequired || "Vui lòng nhập tên bộ từ",
-      );
+      setEditError(t.vocabManager?.titleRequired || "Vui lòng nhập tên bộ từ");
       return;
     }
     setEditSaving(true);

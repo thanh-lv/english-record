@@ -330,9 +330,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
       try {
         const { data, error } = await supabase
           .from("vocabulary_sets")
-          .select(
-            "id, title, emoji, grades, created_at, vocabulary_cards(id)",
-          )
+          .select("id, title, emoji, grades, created_at, vocabulary_cards(id)")
           .order("created_at", { ascending: false });
         if (error) throw error;
 

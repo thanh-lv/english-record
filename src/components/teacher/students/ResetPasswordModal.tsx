@@ -64,7 +64,9 @@ export function ResetPasswordModal({
               >
                 {t.common.resetPasswordTitle}
               </h4>
-              <p className="text-xs font-bold text-slate-400 mt-0.5">{student.name}</p>
+              <p className="text-xs font-bold text-slate-400 mt-0.5">
+                {student.name}
+              </p>
             </div>
           </div>
           <button

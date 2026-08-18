@@ -58,7 +58,11 @@ export function StoryCard({
             title={isActive ? "Bấm để ẩn" : "Bấm để hiện"}
           >
             {isActive ? <Eye size={12} /> : <EyeOff size={12} />}
-            <span>{isActive ? tm.filterStoryStatusActive || "Đang hiện" : tm.filterStoryStatusHidden || "Đã ẩn"}</span>
+            <span>
+              {isActive
+                ? tm.filterStoryStatusActive || "Đang hiện"
+                : tm.filterStoryStatusHidden || "Đã ẩn"}
+            </span>
           </button>
         </div>
 

@@ -109,7 +109,9 @@ export function useStudentData(
         const studentGrade = profile?.grade ? Number(profile.grade) : null;
         const { data, error } = await supabase
           .from("stories")
-          .select("id, title, type, emoji, image_url, content, grades, is_active")
+          .select(
+            "id, title, type, emoji, image_url, content, grades, is_active",
+          )
           .eq("is_active", true)
           .order("created_at", { ascending: false });
         if (error) throw error;

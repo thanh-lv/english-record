@@ -184,7 +184,11 @@ export function TopicItem({
                   : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"
               }`}
             >
-              {(topic.is_active ?? true) ? <Eye size={12} /> : <EyeOff size={12} />}
+              {(topic.is_active ?? true) ? (
+                <Eye size={12} />
+              ) : (
+                <EyeOff size={12} />
+              )}
               <span>
                 {(topic.is_active ?? true)
                   ? t.teacherModal.topicStatusActive || "Đang hiện"
@@ -215,7 +219,10 @@ export function TopicItem({
       {isExpanded && (
         <div className="border-t border-slate-100 bg-slate-50/30 p-2 space-y-2">
           {topic.questions.map((q) => (
-            <div key={q.id} className="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs">
+            <div
+              key={q.id}
+              className="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs"
+            >
               <div className="flex items-start gap-2.5 group">
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-slate-800">{q.text}</p>

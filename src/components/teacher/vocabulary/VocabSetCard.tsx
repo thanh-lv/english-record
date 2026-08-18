@@ -1,4 +1,11 @@
-import { ChevronDown, ChevronUp, Plus, Trash2, Loader2, Pencil } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Trash2,
+  Loader2,
+  Pencil,
+} from "lucide-react";
 import { VocabSet, VocabCard } from "../../../types/vocabulary";
 import { Translations, interpolate } from "../../../i18n/LanguageContext";
 
@@ -103,9 +110,15 @@ export function VocabSetCard({
           </button>
           <div className="p-1 text-slate-400">
             {isExpanded ? (
-              <ChevronUp size={20} className="transition-transform duration-200" />
+              <ChevronUp
+                size={20}
+                className="transition-transform duration-200"
+              />
             ) : (
-              <ChevronDown size={20} className="transition-transform duration-200" />
+              <ChevronDown
+                size={20}
+                className="transition-transform duration-200"
+              />
             )}
           </div>
         </div>

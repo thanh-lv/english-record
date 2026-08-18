@@ -327,7 +327,10 @@ export default function StudentView({
             path="flashcards"
             element={<FlashcardsTab studentGrade={profile?.grade} />}
           />
-          <Route path="games" element={<GamesTab studentGrade={profile?.grade} />} />
+          <Route
+            path="games"
+            element={<GamesTab studentGrade={profile?.grade} />}
+          />
           <Route
             path="shadowing"
             element={

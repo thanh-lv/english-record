@@ -1393,7 +1393,10 @@ export function SummaryTab() {
                                               setEditTimeVal(tStr);
                                             }}
                                             className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-100 rounded transition-colors"
-                                            title={tAtt.editDateTime || "Sửa ngày/giờ"}
+                                            title={
+                                              tAtt.editDateTime ||
+                                              "Sửa ngày/giờ"
+                                            }
                                           >
                                             <Pencil size={13} />
                                           </button>
@@ -1402,7 +1405,10 @@ export function SummaryTab() {
                                               handleDeleteSession(r.id)
                                             }
                                             className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-100 rounded transition-colors"
-                                            title={tAtt.deleteThisSession || "Xóa buổi này"}
+                                            title={
+                                              tAtt.deleteThisSession ||
+                                              "Xóa buổi này"
+                                            }
                                           >
                                             <Trash2 size={13} />
                                           </button>
