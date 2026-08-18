@@ -26,6 +26,7 @@ import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 export function SummaryTab() {
   const { t, lang } = useLanguage();
   const tAtt = t.attendance;
+  const tc = t.common;
   const [records, setRecords] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -752,7 +753,7 @@ export function SummaryTab() {
       {/* Print header (visible only when printing) */}
       <div className="hidden print:block text-center mb-6">
         <h1 className="text-2xl font-black text-slate-800">
-          Báo Cáo Điểm Danh
+          {tAtt.title || "Báo Cáo Điểm Danh"}
         </h1>
         <p className="text-slate-500 font-bold mt-1">
           {MONTH_LABEL}
@@ -771,19 +772,19 @@ export function SummaryTab() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 print:grid-cols-4">
             <div className="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-lg p-4 shadow-md">
               <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
-                Học sinh
+                {tAtt.studentsStat || "Học sinh"}
               </p>
               <p className="text-3xl font-black mt-1">{summary.length}</p>
             </div>
             <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-lg p-4 shadow-md">
               <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
-                Tổng buổi
+                {tAtt.totalSessionsStat || "Tổng buổi"}
               </p>
               <p className="text-3xl font-black mt-1">{grandSessions}</p>
             </div>
             <div className="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-lg p-4 shadow-md">
               <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
-                Số lớp
+                {tAtt.totalClassesStat || "Số lớp"}
               </p>
               <p className="text-3xl font-black mt-1">
                 {Object.keys(byClass).length}
@@ -791,7 +792,7 @@ export function SummaryTab() {
             </div>
             <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-lg p-4 shadow-md">
               <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
-                Tổng học phí
+                {tAtt.totalFeeStat || "Tổng học phí"}
               </p>
               <p className="text-xl font-black mt-1">
                 {tAtt.currencyVnd.replace(
@@ -1118,7 +1119,7 @@ export function SummaryTab() {
                 <div className="grid grid-cols-3 border-b border-slate-100 shrink-0">
                   <div className="px-5 py-3 text-center border-r border-slate-100">
                     <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
-                      Số buổi
+                      {tAtt.totalSessionsStat || "Số buổi"}
                     </p>
                     <p className="text-2xl font-black text-emerald-600 mt-0.5">
                       {s.total_sessions}
@@ -1126,7 +1127,7 @@ export function SummaryTab() {
                   </div>
                   <div className="px-5 py-3 text-center border-r border-slate-100">
                     <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
-                      Đơn giá
+                      {tAtt.unitPrice || "Đơn giá"}
                     </p>
                     <p className="text-sm font-black text-slate-700 mt-0.5">
                       {tAtt.currencyVnd.replace(
@@ -1137,7 +1138,7 @@ export function SummaryTab() {
                   </div>
                   <div className="px-5 py-3 text-center">
                     <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
-                      Học phí
+                      {tAtt.tuitionFeeLabel || "Học phí"}
                     </p>
                     <p className="text-sm font-black text-purple-700 mt-0.5">
                       {tAtt.currencyVnd.replace(
@@ -1223,7 +1224,7 @@ export function SummaryTab() {
                           <div className="flex flex-wrap items-center gap-3">
                             <div className="flex-1 min-w-[140px]">
                               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                                Ngày học
+                                {tAtt.sessionDate || "Ngày học"}
                               </label>
                               <input
                                 type="date"
@@ -1234,7 +1235,7 @@ export function SummaryTab() {
                             </div>
                             <div className="w-28">
                               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                                Giờ học
+                                {tAtt.sessionTime || "Giờ học"}
                               </label>
                               <input
                                 type="time"
@@ -1254,13 +1255,13 @@ export function SummaryTab() {
                                 ) : (
                                   <Check size={13} />
                                 )}
-                                Lưu
+                                {tc.save || "Lưu"}
                               </button>
                               <button
                                 onClick={() => setShowAddDateForm(false)}
                                 className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-bold transition-colors"
                               >
-                                Hủy
+                                {tc.cancel || "Hủy"}
                               </button>
                             </div>
                           </div>
@@ -1285,19 +1286,19 @@ export function SummaryTab() {
                             <thead className="bg-slate-50 border-b border-slate-200">
                               <tr>
                                 <th className="px-3 py-2.5 text-left text-xs font-black text-slate-500 uppercase w-10">
-                                  STT
+                                  {tAtt.tableIndex || "STT"}
                                 </th>
                                 <th className="px-3 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
-                                  Ngày
+                                  {tAtt.dateHeader || "Ngày"}
                                 </th>
                                 <th className="px-3 py-2.5 text-left text-xs font-black text-slate-500 uppercase">
-                                  Giờ
+                                  {tAtt.timeHeader || "Giờ"}
                                 </th>
                                 <th className="px-3 py-2.5 text-center text-xs font-black text-slate-500 uppercase">
-                                  Trạng thái
+                                  {tAtt.statusHeader || "Trạng thái"}
                                 </th>
                                 <th className="px-3 py-2.5 text-right text-xs font-black text-slate-500 uppercase w-24">
-                                  Thao tác
+                                  {tAtt.actionsHeader || "Thao tác"}
                                 </th>
                               </tr>
                             </thead>
@@ -1367,7 +1368,7 @@ export function SummaryTab() {
                                             }
                                             disabled={recActionLoading}
                                             className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded transition-colors"
-                                            title="Lưu"
+                                            title={tc.save || "Lưu"}
                                           >
                                             <Save size={13} />
                                           </button>
@@ -1376,7 +1377,7 @@ export function SummaryTab() {
                                               setEditingRecId(null)
                                             }
                                             className="p-1.5 bg-slate-200 text-slate-600 rounded transition-colors"
-                                            title="Hủy"
+                                            title={tc.cancel || "Hủy"}
                                           >
                                             <X size={13} />
                                           </button>
@@ -1392,7 +1393,7 @@ export function SummaryTab() {
                                               setEditTimeVal(tStr);
                                             }}
                                             className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-100 rounded transition-colors"
-                                            title="Sửa ngày/giờ"
+                                            title={tAtt.editDateTime || "Sửa ngày/giờ"}
                                           >
                                             <Pencil size={13} />
                                           </button>
@@ -1401,7 +1402,7 @@ export function SummaryTab() {
                                               handleDeleteSession(r.id)
                                             }
                                             className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-100 rounded transition-colors"
-                                            title="Xóa buổi này"
+                                            title={tAtt.deleteThisSession || "Xóa buổi này"}
                                           >
                                             <Trash2 size={13} />
                                           </button>

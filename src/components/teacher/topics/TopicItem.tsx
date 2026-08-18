@@ -9,9 +9,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Topic, Question } from "../../../types";
+import { Translations, interpolate } from "../../../i18n/LanguageContext";
 
 interface TopicItemProps {
-  t: any;
+  t: Translations;
   topic: Topic;
   idx: number;
   isExpanded: boolean;
@@ -124,7 +125,7 @@ export function TopicItem({
                       : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
                   }`}
                 >
-                  Lớp {g}
+                  {interpolate(t.common.gradeLabel, { grade: g })}
                 </button>
               );
             })}
@@ -149,11 +150,12 @@ export function TopicItem({
             </span>
             {Array.isArray(topic.grades) && topic.grades.length > 0 ? (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 shrink-0">
-                Lớp{" "}
-                {topic.grades
-                  .slice()
-                  .sort((a: number, b: number) => a - b)
-                  .join(", ")}
+                {interpolate(t.common.gradeLabel, {
+                  grade: topic.grades
+                    .slice()
+                    .sort((a: number, b: number) => a - b)
+                    .join(", "),
+                })}
               </span>
             ) : (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 shrink-0">
@@ -231,8 +233,10 @@ export function TopicItem({
                     src={q.image_url}
                     alt={
                       q.text
-                        ? `Minh họa: ${q.text.slice(0, 30)}`
-                        : "Hình minh họa câu hỏi"
+                        ? interpolate(t.common.questionIllustration, {
+                            text: q.text.slice(0, 30),
+                          })
+                        : t.common.questionIllustrationDefault
                     }
                     className="w-12 h-12 object-cover rounded-lg border-2 border-slate-100 shrink-0 ml-2"
                   />

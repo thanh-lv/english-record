@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useLanguage } from "../../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
 
 export function ShadowingManager() {
@@ -266,7 +266,7 @@ export function ShadowingManager() {
             <option value="all">{t.teacherModal.allGradesOption}</option>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
               <option key={g} value={g.toString()}>
-                Lớp {g}
+                {interpolate(t.common.gradeLabel, { grade: g })}
               </option>
             ))}
             <option value="unassigned">
@@ -333,11 +333,12 @@ export function ShadowingManager() {
                 <div className="mb-2">
                   {Array.isArray(video.grades) && video.grades.length > 0 ? (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                      Lớp{" "}
-                      {video.grades
-                        .slice()
-                        .sort((a: number, b: number) => a - b)
-                        .join(", ")}
+                      {interpolate(t.common.gradeLabel, {
+                        grade: video.grades
+                          .slice()
+                          .sort((a: number, b: number) => a - b)
+                          .join(", "),
+                      })}
                     </span>
                   ) : (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-500">
@@ -545,7 +546,7 @@ export function ShadowingManager() {
                             : "bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200"
                         }`}
                       >
-                        Lớp {g}
+                        {interpolate(t.common.gradeLabel, { grade: g })}
                       </button>
                     );
                   })}
