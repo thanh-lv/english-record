@@ -1,4 +1,13 @@
-import { Play, Video, Sparkles, Search, X, RotateCcw, ArrowRight } from "lucide-react";
+import {
+  Play,
+  Video,
+  Sparkles,
+  Search,
+  X,
+  RotateCcw,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
@@ -6,11 +15,13 @@ import { supabase } from "../../../lib/supabase";
 interface ShadowingTabProps {
   onVideoClick: (video: any) => void;
   studentGrade?: number | string | null;
+  myRecordings?: any[];
 }
 
 export function ShadowingTab({
   onVideoClick,
   studentGrade,
+  myRecordings,
 }: ShadowingTabProps) {
   const { t } = useLanguage();
   const [videos, setVideos] = useState<any[]>([]);
@@ -253,20 +264,31 @@ export function ShadowingTab({
                 {/* Card Content */}
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                   <div className="space-y-1.5">
-                    {Array.isArray(video.grades) && video.grades.length > 0 ? (
-                      <span className="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-lg border border-indigo-200/60">
-                        {interpolate(t.shadowing.forGrades, {
-                          grades: video.grades
-                            .slice()
-                            .sort((a: number, b: number) => a - b)
-                            .join(", "),
-                        })}
-                      </span>
-                    ) : (
-                      <span className="inline-block bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-lg border border-emerald-200/60">
-                        {t.shadowing.forAllGrades}
-                      </span>
-                    )}
+                    <div className="flex items-center justify-between gap-1 flex-wrap">
+                      {Array.isArray(video.grades) && video.grades.length > 0 ? (
+                        <span className="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-lg border border-indigo-200/60">
+                          {interpolate(t.shadowing.forGrades, {
+                            grades: video.grades
+                              .slice()
+                              .sort((a: number, b: number) => a - b)
+                              .join(", "),
+                          })}
+                        </span>
+                      ) : (
+                        <span className="inline-block bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-lg border border-emerald-200/60">
+                          {t.shadowing.forAllGrades}
+                        </span>
+                      )}
+
+                      {myRecordings?.some(
+                        (rec: any) => rec.shadowing_video_id === video.id,
+                      ) && (
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-lg border border-emerald-200/60 shadow-2xs">
+                          <CheckCircle2 size={11} className="text-emerald-600" />
+                          {t.shadowing.completedBadge || "Đã thu âm"}
+                        </span>
+                      )}
+                    </div>
 
                     <h4 className="font-black text-slate-800 text-xs sm:text-sm leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors">
                       {video.title}
@@ -275,7 +297,13 @@ export function ShadowingTab({
 
                   {/* Card footer CTA */}
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-400 group-hover:text-indigo-600 transition-colors">
-                    <span>Luyện tập ngay</span>
+                    <span>
+                      {myRecordings?.some(
+                        (rec: any) => rec.shadowing_video_id === video.id,
+                      )
+                        ? "Xem lại & Luyện tập"
+                        : "Luyện tập ngay"}
+                    </span>
                     <ArrowRight size={13} className="transform group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>

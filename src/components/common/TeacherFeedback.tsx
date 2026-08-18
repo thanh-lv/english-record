@@ -1,24 +1,35 @@
 import { AlertCircle, Heart, MessageSquare, Star } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { supabase } from "../../lib/supabase";
 
-export function TeacherFeedback({ recording }: { recording: any }) {
+export function TeacherFeedback({
+  recording,
+  showAlways = true,
+}: {
+  recording: any;
+  showAlways?: boolean;
+}) {
   const { t } = useLanguage();
   const [reacting, setReacting] = useState(false);
   const [reacted, setReacted] = useState(!!recording?.student_reaction);
   const [showEffect, setShowEffect] = useState(false);
   const [reactionError, setReactionError] = useState("");
 
+  useEffect(() => {
+    setReacted(!!recording?.student_reaction);
+  }, [recording?.student_reaction, recording?.id]);
+
   if (!recording) return null;
-  const hasRating = recording.teacher_rating > 0;
+  const rating = Number(recording.teacher_rating || 0);
+  const hasRating = rating > 0;
   const hasText =
     recording.teacher_feedback && recording.teacher_feedback.trim().length > 0;
 
-  if (!hasRating && !hasText) return null;
+  if (!hasRating && !hasText && !showAlways) return null;
 
   const handleReact = async () => {
-    if (reacted) return;
+    if (reacted || reacting) return;
     setReacting(true);
     setReactionError("");
     try {
@@ -39,43 +50,63 @@ export function TeacherFeedback({ recording }: { recording: any }) {
   };
 
   return (
-    <div className="w-full mt-3 bg-gradient-to-br from-[#FFF8E1] to-[#FFF9C4] border-2 border-[#FFD54F] rounded-lg p-4 shadow-md relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-bl-full -mr-2 -mt-2 blur-md"></div>
+    <div className="w-full mt-3 bg-gradient-to-br from-[#FFFDE7] via-[#FFF9C4]/70 to-[#FFF8E1] border-2 border-amber-300/80 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+      {/* Background soft glow */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-amber-300/20 rounded-full -mr-6 -mt-6 blur-xl pointer-events-none" />
 
-      <h4 className="text-sm font-black text-amber-800 flex items-center gap-2 mb-3 relative z-10">
-        <MessageSquare size={16} className="text-amber-600" />{" "}
-        {t.feedback.title}
-      </h4>
+      {/* Top Header: Title & Stars */}
+      <div className="flex items-center justify-between gap-2 flex-wrap mb-3 relative z-10">
+        <h4 className="text-xs sm:text-sm font-black text-amber-900 flex items-center gap-1.5">
+          <MessageSquare size={16} className="text-amber-600 shrink-0" />
+          <span>{t.feedback.title}</span>
+        </h4>
 
+        {/* 5-Star Rating Badge */}
+        <div className="flex items-center gap-1 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-xl border border-amber-200 shadow-2xs">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              size={16}
+              className={
+                star <= rating
+                  ? "text-amber-400 fill-amber-400 drop-shadow-xs scale-105"
+                  : "text-slate-200 fill-slate-100"
+              }
+            />
+          ))}
+          <span className="text-[11px] font-black text-amber-800 ml-1">
+            {hasRating
+              ? `${rating}/5`
+              : (t.feedback.waitingRating || "Chờ chấm điểm")}
+          </span>
+        </div>
+      </div>
+
+      {/* Teacher Comment Text */}
       <div className="space-y-3 relative z-10">
-        {hasRating && (
-          <div className="flex items-center gap-1.5 bg-white/50 w-fit px-3 py-1.5 rounded-lg border border-amber-200">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                size={20}
-                className={
-                  star <= recording.teacher_rating
-                    ? "text-amber-400 fill-amber-400 drop-shadow-md"
-                    : "text-amber-100 fill-amber-100"
-                }
-              />
-            ))}
+        {hasText ? (
+          <div className="bg-white/95 backdrop-blur-xs p-3.5 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-slate-800 font-bold text-xs sm:text-sm italic leading-relaxed">
+              "{recording.teacher_feedback}"
+            </p>
           </div>
-        )}
-
-        {hasText && (
-          <p className="text-slate-700 font-bold bg-white p-3 rounded-lg border border-amber-200 text-sm italic">
-            "{recording.teacher_feedback}"
-          </p>
+        ) : (
+          <div className="bg-white/70 p-3 rounded-xl border border-amber-200/60">
+            <p className="text-slate-500 font-semibold text-xs italic">
+              {t.feedback.waitingFeedback ||
+                "Cô giáo đang xem bài và sẽ sớm nhận xét cho con nhé! 🌟"}
+            </p>
+          </div>
         )}
 
         {reactionError && (
-          <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
             <AlertCircle size={14} className="shrink-0" /> {reactionError}
           </div>
         )}
-        <div className="pt-2 flex justify-end relative">
+
+        {/* Heart Reaction Row */}
+        <div className="pt-1 flex justify-end items-center relative">
           {showEffect && (
             <div className="absolute bottom-full right-10 pointer-events-none z-50 flex items-center justify-center">
               {[...Array(6)].map((_, i) => (
@@ -104,25 +135,30 @@ export function TeacherFeedback({ recording }: { recording: any }) {
               `}</style>
             </div>
           )}
+
           <button
             type="button"
             disabled={reacted || reacting}
             onClick={handleReact}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all shadow-2xs active:scale-95 ${
               reacted
-                ? "bg-rose-100 text-rose-600 border border-rose-200 shadow-md"
-                : "bg-white text-slate-500 border border-slate-200 hover:border-rose-300 hover:text-rose-500 hover:bg-rose-50"
+                ? "bg-rose-100 text-rose-600 border border-rose-200 shadow-rose-500/10 cursor-default"
+                : "bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-amber-200 hover:border-rose-200 cursor-pointer"
             }`}
           >
             <Heart
               size={14}
-              className={reacted ? "fill-rose-500 text-rose-500" : ""}
+              className={
+                reacted ? "fill-rose-500 text-rose-500 animate-pulse" : ""
+              }
             />
-            {reacting
-              ? t.feedback.hearting
-              : reacted
-                ? t.feedback.hearted
-                : t.feedback.heart}
+            <span>
+              {reacting
+                ? t.feedback.hearting
+                : reacted
+                  ? t.feedback.hearted
+                  : t.feedback.heart}
+            </span>
           </button>
         </div>
       </div>

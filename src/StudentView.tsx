@@ -336,6 +336,7 @@ export default function StudentView({
             element={
               <ShadowingTab
                 studentGrade={profile?.grade}
+                myRecordings={myRecordings}
                 onVideoClick={(v) => navigate(`/student/shadowing/${v.id}`)}
               />
             }
@@ -346,6 +347,7 @@ export default function StudentView({
               <ShadowingDetail
                 user={user}
                 profile={profile}
+                myRecordings={myRecordings}
                 onSaveSuccess={(saved) =>
                   setMyRecordings((prev) => [...prev, ...saved])
                 }

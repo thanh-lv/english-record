@@ -188,6 +188,9 @@ export const en = {
     hearted: "Reacted ❤️",
     hearting: "Sending...",
     reactionError: "Couldn't send the reaction. Please try again.",
+    waitingRating: "Awaiting rating",
+    waitingFeedback:
+      "The teacher is reviewing your recording and will leave feedback soon! 🌟",
   },
 
   // Vocabulary Manager (teacher)
@@ -275,6 +278,16 @@ export const en = {
     filterByGrade: "Filter by Grade",
     forGrades: "Grade {grades}",
     forAllGrades: "All Grades",
+    previousRecordings: "Previous Recordings",
+    recordingHistory: "Practice History",
+    noPreviousRecordings: "No recordings for this video yet.",
+    noPreviousRecordingsSub:
+      "Listen to the video and click “Start Recording” to dub over it! 🎙️",
+    latestAttempt: "Latest recording",
+    attempt: "Attempt {number}",
+    recordedAt: "Recorded at",
+    recordingsCount: "{count} recordings",
+    completedBadge: "Recorded",
   },
 
   // Common

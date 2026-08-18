@@ -66,13 +66,17 @@ export function useStudentData(
         const { data, error } = await supabase
           .from("recordings")
           .select(
-            "id, topic_number, audio_url, created_at, teacher_rating, teacher_feedback, student_reaction, question_id, question_text, topic, topic_id",
+            "id, topic_number, audio_url, created_at, teacher_rating, teacher_feedback, student_reaction, question_id, question_text, topic, topic_id, shadowing_video_id",
           )
           .eq("student_name", profile.name.trim());
         if (error) throw error;
         if (data) {
           setMyRecordings(data);
-          setCompletedNumbers(data.map((rec: any) => rec.topic_number));
+          setCompletedNumbers(
+            data
+              .filter((rec: any) => rec.topic_number != null)
+              .map((rec: any) => rec.topic_number),
+          );
         }
       } catch (err) {
         console.error("Error downloading student progress:", err);
@@ -86,14 +90,29 @@ export function useStudentData(
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "recordings",
           filter: `student_name=eq.${profile.name.trim()}`,
         },
         (payload) => {
-          setMyRecordings((prev) => [...prev, payload.new]);
-          setCompletedNumbers((prev) => [...prev, payload.new.topic_number]);
+          if (payload.eventType === "INSERT") {
+            setMyRecordings((prev) => {
+              if (prev.some((r) => r.id === payload.new.id)) return prev;
+              return [...prev, payload.new];
+            });
+            if (payload.new.topic_number != null) {
+              setCompletedNumbers((prev) => [...prev, payload.new.topic_number]);
+            }
+          } else if (payload.eventType === "UPDATE") {
+            setMyRecordings((prev) =>
+              prev.map((r) => (r.id === payload.new.id ? payload.new : r)),
+            );
+          } else if (payload.eventType === "DELETE") {
+            setMyRecordings((prev) =>
+              prev.filter((r) => r.id !== payload.old.id),
+            );
+          }
         },
       )
       .subscribe();

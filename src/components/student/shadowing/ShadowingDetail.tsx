@@ -10,27 +10,31 @@ import {
   Headphones,
   RotateCcw,
   Check,
+  Clock,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
-import { useLanguage } from "../../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
 import { useRecording } from "../hooks/useRecording";
 import YouTubePlayer from "../../common/YouTubePlayer";
+import { TeacherFeedback } from "../../common/TeacherFeedback";
 
 interface ShadowingDetailProps {
   user: any;
   profile: any;
+  myRecordings?: any[];
   onSaveSuccess: (saved: any[]) => void;
 }
 
 export function ShadowingDetail({
   user,
   profile,
+  myRecordings,
   onSaveSuccess,
 }: ShadowingDetailProps) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const { videoId } = useParams<{ videoId: string }>();
   const [video, setVideo] = useState<any>(null);
@@ -95,6 +99,16 @@ export function ShadowingDetail({
     () => (recordedBlob ? URL.createObjectURL(recordedBlob) : null),
     [recordedBlob],
   );
+
+  const videoRecordings = useMemo(() => {
+    if (!videoId || !myRecordings) return [];
+    return myRecordings
+      .filter((r: any) => r.shadowing_video_id === videoId)
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+  }, [videoId, myRecordings]);
 
   useEffect(() => {
     return () => {
@@ -255,29 +269,44 @@ export function ShadowingDetail({
   }
 
   return (
-    <div className="bg-white/90 backdrop-blur-md rounded-3xl p-4 sm:p-7 border border-white/80 shadow-sm space-y-6 animate-in fade-in duration-300">
-      {/* Top bar: Back Button & Step Navigator */}
-      <div className="flex items-center justify-between gap-4 pb-1">
-        <button
-          type="button"
-          onClick={() => navigate("/student/shadowing")}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-100/80 hover:bg-slate-200 text-slate-700 text-xs font-black transition-all active:scale-95 border border-slate-200/60 shadow-2xs shrink-0"
-        >
-          <ArrowLeft size={16} /> Quay lại danh sách
-        </button>
+    <div className="sm:bg-white/90 sm:backdrop-blur-md sm:rounded-3xl sm:p-7 sm:border sm:border-white/80 sm:shadow-sm space-y-6 animate-in fade-in duration-300">
+      {/* Top bar: Back Button & Badges & Title */}
+      <div className="space-y-3 pb-2 border-b border-slate-100/80">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={() => navigate("/student/shadowing")}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100/80 hover:bg-slate-200 text-slate-700 text-xs font-black transition-all active:scale-95 border border-slate-200/60 shadow-2xs shrink-0 cursor-pointer"
+          >
+            <ArrowLeft size={16} />
+            <span>Quay lại danh sách</span>
+          </button>
 
-        <div className="flex items-center gap-2 min-w-0 justify-end flex-1">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200/60 shrink-0">
-            🎬 Shadowing
-          </span>
-          <h2 className="text-sm sm:text-lg font-black text-slate-800 truncate text-right" title={video.title}>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200/60 shrink-0">
+              🎬 Shadowing
+            </span>
+            {videoRecordings.length > 0 && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200/70 shrink-0">
+                <CheckCircle2 size={12} className="text-emerald-600" />
+                {t.shadowing.completedBadge || "Đã thu âm"} ({videoRecordings.length})
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h2
+            className="text-base sm:text-xl font-black text-slate-800 leading-snug tracking-tight"
+            title={video.title}
+          >
             {video.title}
           </h2>
         </div>
       </div>
 
       {/* Stepper Progress Bar */}
-      <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200/60">
+      <div className="bg-slate-50/80 rounded-2xl p-3 border border-slate-200/60">
         <div className="relative flex justify-between items-start max-w-lg mx-auto">
           {/* Connector Line - precisely positioned at vertical center of circles (top-5 = 20px) */}
           <div className="absolute top-5 left-[16%] right-[16%] h-1 bg-slate-200 -z-0 rounded-full" />
@@ -401,7 +430,7 @@ export function ShadowingDetail({
         </div>
 
         {/* Step Action Studio Card (Col 12 on mobile, Col 5 on desktop) */}
-        <div className="lg:col-span-5 bg-gradient-to-b from-slate-50/90 to-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs space-y-5 flex flex-col justify-between min-h-[300px]">
+        <div className="lg:col-span-5 bg-gradient-to-b from-slate-50/90 to-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs space-y-5 flex flex-col justify-between sm:min-h-[300px]">
           {/* Error Alert */}
           {shadowingRecording.appError && (
             <div className="bg-rose-50 border border-rose-200 p-3.5 rounded-2xl flex items-start gap-2.5 relative text-xs font-bold text-rose-700 shadow-2xs animate-in fade-in">
@@ -574,6 +603,112 @@ export function ShadowingDetail({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Previous Recordings List Section */}
+      <div className="mt-8 pt-6 border-t border-slate-200/80 space-y-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black shadow-2xs">
+              <Headphones size={18} />
+            </div>
+            <div>
+              <h3 className="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                {t.shadowing.previousRecordings}
+                {videoRecordings.length > 0 && (
+                  <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                    {videoRecordings.length}
+                  </span>
+                )}
+              </h3>
+              <p className="text-[11px] font-semibold text-slate-400">
+                {videoRecordings.length > 0
+                  ? t.shadowing.recordingHistory
+                  : t.shadowing.noPreviousRecordingsSub}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {videoRecordings.length === 0 ? (
+          <div className="bg-slate-50/70 rounded-2xl p-6 sm:p-8 border border-dashed border-slate-200 text-center space-y-2">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto shadow-2xs">
+              <Mic size={22} />
+            </div>
+            <p className="text-sm font-black text-slate-700">
+              {t.shadowing.noPreviousRecordings}
+            </p>
+            <p className="text-xs text-slate-400 font-medium max-w-md mx-auto">
+              {t.shadowing.noPreviousRecordingsSub}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {videoRecordings.map((rec, index) => {
+              const isLatest = index === 0;
+              const formattedDate = new Date(rec.created_at).toLocaleString(
+                lang === "vi" ? "vi-VN" : "en-US",
+                {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                },
+              );
+
+              return (
+                <div
+                  key={rec.id || index}
+                  className={`bg-white rounded-2xl p-4 sm:p-5 border transition-all space-y-3.5 shadow-2xs relative ${
+                    isLatest
+                      ? "border-indigo-200/90 shadow-indigo-500/5 ring-1 ring-indigo-500/10"
+                      : "border-slate-200/80 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg ${
+                          isLatest
+                            ? "bg-indigo-100 text-indigo-700"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {isLatest
+                          ? t.shadowing.latestAttempt
+                          : interpolate(t.shadowing.attempt, {
+                              number: videoRecordings.length - index,
+                            })}
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
+                        <Clock size={12} />
+                        {formattedDate}
+                      </span>
+                    </div>
+
+                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60">
+                      <CheckCircle2 size={12} className="text-emerald-600" />
+                      {t.shadowing.completedBadge || "Đã thu âm"}
+                    </span>
+                  </div>
+
+                  {/* Audio player */}
+                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                    <audio
+                      controls
+                      src={rec.audio_url}
+                      className="w-full h-9"
+                    />
+                  </div>
+
+                  {/* Teacher Feedback */}
+                  <TeacherFeedback recording={rec} />
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Success Celebration Modal */}

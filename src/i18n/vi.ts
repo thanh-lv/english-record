@@ -191,6 +191,9 @@ export const vi = {
     hearted: "Đã thả tim",
     hearting: "Đang gửi...",
     reactionError: "Không thể gửi lượt thả tim. Vui lòng thử lại.",
+    waitingRating: "Chờ chấm điểm",
+    waitingFeedback:
+      "Cô giáo đang xem bài và sẽ sớm nhận xét cho con nhé! 🌟",
   },
 
   // Vocabulary Manager (teacher)
@@ -279,6 +282,16 @@ export const vi = {
     filterByGrade: "Lọc theo lớp",
     forGrades: "Lớp {grades}",
     forAllGrades: "Tất cả các lớp",
+    previousRecordings: "Bài đã ghi âm trước đây",
+    recordingHistory: "Lịch sử luyện tập",
+    noPreviousRecordings: "Bé chưa có bản thu âm nào cho video này.",
+    noPreviousRecordingsSub:
+      "Hãy nghe và nhấn “Bắt đầu thu âm” để lồng tiếng cho video nhé! 🎙️",
+    latestAttempt: "Bản thu mới nhất",
+    attempt: "Lần thu {number}",
+    recordedAt: "Ghi âm lúc",
+    recordingsCount: "{count} bài thu",
+    completedBadge: "Đã thu âm",
   },
 
   // Common
