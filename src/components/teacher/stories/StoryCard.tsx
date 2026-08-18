@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Pencil, Trash2, BookOpen } from "lucide-react";
+import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import { Story } from "../../../types";
 import { Translations, interpolate } from "../../../i18n/LanguageContext";
 

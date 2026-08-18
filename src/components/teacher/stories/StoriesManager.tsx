@@ -4,7 +4,6 @@ import {
   Plus,
   Search,
   Sparkles,
-  Wand2,
   X,
 } from "lucide-react";
 import { useLanguage } from "../../../i18n/LanguageContext";

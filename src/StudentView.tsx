@@ -282,7 +282,7 @@ export default function StudentView({
       <StudentSidebar
         profile={profile}
         currentAvatar={currentAvatar}
-        completedNumbers={completedNumbers}
+        completedNumbers={completedTopicNumbers}
         streak={streak}
         onAvatarClick={() => setShowAvatarSelect(true)}
       />
@@ -296,7 +296,7 @@ export default function StudentView({
               <ExercisesTab
                 activeTopics={activeTopics}
                 isBongBe={isBongBe}
-                completedNumbers={completedNumbers}
+                completedNumbers={completedTopicNumbers}
                 myRecordings={myRecordings}
                 onTopicClick={handleNumberClick}
                 studentGrade={profile?.grade}

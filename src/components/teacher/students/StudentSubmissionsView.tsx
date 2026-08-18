@@ -2,7 +2,6 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
-  Loader2,
   Mic,
   Video,
   ArrowLeft,

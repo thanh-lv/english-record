@@ -83,18 +83,18 @@ export function StudentSidebar({
         key={item.id}
         to={`/student/${item.id}`}
         onClick={() => setMobileOpen(false)}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-extrabold text-sm transition-all ${
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-extrabold text-sm transition-all active:scale-95 ${
           active
-            ? "bg-[#E3F2FD] text-[#1E88E5] shadow-md"
+            ? "bg-blue-50 text-blue-600 shadow-2xs font-black"
             : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
         }`}
       >
-        <span className={active ? "text-[#1E88E5]" : "text-slate-400"}>
+        <span className={active ? "text-blue-600" : "text-slate-400"}>
           {item.icon}
         </span>
         {item.label}
         {active && (
-          <span className="ml-auto w-1.5 h-1.5 rounded-lg bg-[#1E88E5]" />
+          <span className="ml-auto w-2 h-2 rounded-full bg-blue-600" />
         )}
       </Link>
     );
@@ -104,31 +104,36 @@ export function StudentSidebar({
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-64 shrink-0 space-y-4">
-        <div className="bg-white/80 backdrop-blur-sm p-3 rounded-lg border-3 border-[#E3F2FD] shadow-md text-center relative group">
+        <div className="bg-white/85 backdrop-blur-md p-4 rounded-3xl border border-slate-200/80 shadow-sm text-center relative group">
           <button
             type="button"
             onClick={onAvatarClick}
-            className="w-20 h-20 mx-auto bg-white border-4 border-amber-200 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all rounded-lg flex items-center justify-center text-4xl shadow-md relative mb-4"
+            className="w-20 h-20 mx-auto bg-gradient-to-tr from-amber-50 to-orange-50 border-3 border-amber-200 hover:border-amber-400 hover:scale-105 active:scale-95 transition-all rounded-2xl flex items-center justify-center text-4xl shadow-sm relative mb-3 cursor-pointer"
             title={t.common.changeAvatar}
           >
             {currentAvatar}
-            <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-lg border-2 border-white flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform">
-              <Pencil size={12} />
+            <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 rounded-xl border-2 border-white flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform shadow-2xs">
+              <Pencil size={11} />
             </span>
           </button>
-          <h2 className="text-xl font-black text-slate-800 tracking-tight">
+          <h2 className="text-lg font-black text-slate-800 tracking-tight">
             {t.sidebar.hello}{" "}
-            <span className="text-[#FF8A80]">{profile.name}</span>! 👋
+            <span className="text-blue-600">{profile.name}</span>! 👋
           </h2>
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm font-bold shadow-md">
-              <Award size={16} /> {completedNumbers.length} {t.sidebar.prizes}
+          <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200/80 rounded-xl text-amber-800 text-xs font-black shadow-2xs">
+              <Award size={14} className="text-amber-600" />{" "}
+              {completedNumbers.length} {t.sidebar.prizes}
             </div>
             <div
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-bold shadow-md border ${streak > 0 ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-50 border-slate-200 text-slate-400"}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black shadow-2xs border ${
+                streak > 0
+                  ? "bg-orange-50 border-orange-200/80 text-orange-600"
+                  : "bg-slate-50 border-slate-200 text-slate-400"
+              }`}
             >
               <Flame
-                size={16}
+                size={14}
                 className={
                   streak > 0
                     ? "fill-orange-500 text-orange-600"
@@ -142,27 +147,27 @@ export function StudentSidebar({
           </div>
         </div>
 
-        <nav className="bg-white/80 backdrop-blur-sm p-3 rounded-lg border-3 border-slate-100 shadow-md flex flex-col gap-2">
+        <nav className="bg-white/85 backdrop-blur-md p-2.5 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col gap-1">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.id}
               to={`/student/${item.id}`}
-              className={`flex items-center gap-3 px-5 py-4 rounded-lg font-extrabold text-sm transition-all ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-extrabold text-sm transition-all active:scale-95 ${
                 activeTab === item.id
-                  ? "bg-[#E3F2FD] text-[#1E88E5] shadow-md"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                  ? "bg-blue-50 text-blue-600 shadow-2xs font-black"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
               }`}
             >
               <span
                 className={
-                  activeTab === item.id ? "text-[#1E88E5]" : "text-slate-400"
+                  activeTab === item.id ? "text-blue-600" : "text-slate-400"
                 }
               >
                 {item.icon}
               </span>
               {item.label}
               {activeTab === item.id && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-lg bg-[#1E88E5]" />
+                <span className="ml-auto w-2 h-2 rounded-full bg-blue-600" />
               )}
             </Link>
           ))}
@@ -172,7 +177,7 @@ export function StudentSidebar({
       {/* Mobile: hamburger button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 rounded-lg bg-white shadow-md border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"
+        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 rounded-2xl bg-white shadow-md border border-slate-200/80 flex items-center justify-center text-slate-700 active:scale-95 transition-transform"
         aria-label={t.common.openMenu}
       >
         <Menu size={20} />
@@ -181,14 +186,14 @@ export function StudentSidebar({
       {/* Mobile: backdrop */}
       {mobileOpen && (
         <div
-          className="md:hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm"
+          className="md:hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm animate-in fade-in"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       {/* Mobile: left drawer */}
       <div
-        className={`md:hidden fixed top-0 left-0 h-full w-72 max-w-[85vw] z-[60] bg-white shadow-md flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`md:hidden fixed top-0 left-0 h-full w-72 max-w-[85vw] z-[60] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -198,7 +203,7 @@ export function StudentSidebar({
           </p>
           <button
             onClick={() => setMobileOpen(false)}
-            className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
+            className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
             aria-label={t.common.closeMenu}
           >
             <X size={18} />
