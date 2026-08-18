@@ -5,6 +5,7 @@ import {
   Copy,
   Loader2,
   Plus,
+  Search,
   Trash2,
   Youtube,
   X,
@@ -12,6 +13,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
+import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
 
 export function ShadowingManager() {
   const { t } = useLanguage();
@@ -236,32 +238,87 @@ export function ShadowingManager() {
     }
   };
 
+  const [searchText, setSearchText] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "hidden">("all");
+
   if (loading)
     return (
-      <div className="p-8 text-center">
-        <Loader2 className="animate-spin mx-auto text-slate-400" />
+      <div className="p-12 text-center">
+        <Loader2 className="animate-spin mx-auto text-indigo-500" size={32} />
       </div>
     );
 
   const filteredVideos = videos.filter((v) => {
-    if (filterGrade === "all") return true;
-    if (filterGrade === "unassigned") return !v.grades || v.grades.length === 0;
-    const gNum = Number(filterGrade);
-    return Array.isArray(v.grades) && v.grades.includes(gNum);
+    // Grade filter
+    if (filterGrade !== "all") {
+      if (filterGrade === "unassigned") {
+        if (v.grades && v.grades.length > 0) return false;
+      } else {
+        const gNum = Number(filterGrade);
+        if (!Array.isArray(v.grades) || !v.grades.includes(gNum)) return false;
+      }
+    }
+
+    // Status filter
+    const isActive = v.is_active ?? true;
+    if (filterStatus === "active" && !isActive) return false;
+    if (filterStatus === "hidden" && isActive) return false;
+
+    // Search filter
+    if (searchText.trim()) {
+      const q = searchText.trim().toLowerCase();
+      if (!v.title?.toLowerCase().includes(q)) return false;
+    }
+
+    return true;
   });
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
-          <Youtube className="text-rose-600" /> {t.teacherModal.manageShadowing}
-        </h3>
-        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+      {/* Top Header & Search/Filter Toolbar */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white/95 backdrop-blur-sm p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div>
+          <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-100">
+              <Youtube size={22} />
+            </span>
+            {t.teacherModal.manageShadowing}
+          </h3>
+          <p className="text-xs text-slate-400 font-bold mt-1">
+            {filteredVideos.length} {t.teacherNav.shadowing.toLowerCase()}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Search bar */}
+          <div className="relative min-w-[180px] sm:min-w-[220px]">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder={t.teacherModal.searchShadowingPlaceholder || "Tìm kiếm video..."}
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs"
+            />
+            {searchText && (
+              <button
+                type="button"
+                onClick={() => setSearchText("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
+
           {/* Grade filter */}
           <select
             value={filterGrade}
             onChange={(e) => setFilterGrade(e.target.value)}
-            className="px-3 py-2 bg-white border-2 border-slate-200 rounded-lg text-xs font-bold text-slate-700 focus:outline-none focus:border-indigo-400"
+            className="px-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs cursor-pointer"
           >
             <option value="all">{t.teacherModal.allGradesOption}</option>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
@@ -274,6 +331,7 @@ export function ShadowingManager() {
             </option>
           </select>
 
+          {/* Add video button */}
           <button
             onClick={() => {
               setEditingVideo(null);
@@ -287,52 +345,45 @@ export function ShadowingManager() {
               setShowCreate(true);
               setError("");
             }}
-            className="bg-[#1E88E5] hover:bg-[#1565C0] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md text-sm ml-auto sm:ml-0"
+            className="bg-[#1E88E5] hover:bg-[#1565C0] text-white px-4 py-2 rounded-xl font-black flex items-center gap-2 transition-all shadow-xs text-xs active:scale-95 shrink-0"
           >
             <Plus size={16} /> {t.teacherModal.addVideoTitle}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      {/* Video Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
         {filteredVideos.map((video) => {
           const ytId = extractYoutubeId(video.youtube_url);
           const thumb = ytId
             ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
             : "";
+          const isActive = video.is_active ?? true;
 
           return (
             <div
               key={video.id}
-              className="bg-white rounded-lg border-2 border-slate-100 overflow-hidden shadow-md flex flex-col"
+              className="bg-white rounded-2xl border border-slate-200/80 hover:border-indigo-300 overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col group"
             >
-              <div className="aspect-video bg-slate-100 relative">
+              {/* Thumbnail Container */}
+              <div className="aspect-video bg-slate-900 relative overflow-hidden">
                 {thumb ? (
                   <img
                     src={thumb}
-                    alt=""
-                    className="w-full h-full object-cover"
+                    alt={video.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-300">
+                  <div className="w-full h-full flex items-center justify-center text-slate-500">
                     <Youtube size={48} />
                   </div>
                 )}
-                {!(video.is_active ?? true) && (
-                  <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center">
-                    <span className="text-white text-xs font-black bg-slate-800/70 px-2 py-1 rounded-lg">
-                      {t.teacherModal.filterStoryStatusHidden}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="p-3 flex flex-col flex-1">
-                <h4 className="font-extrabold text-slate-800 text-sm line-clamp-2 mb-1.5">
-                  {video.title}
-                </h4>
-                <div className="mb-2">
+
+                {/* Grade Badge (Top Left Floating) */}
+                <div className="absolute top-2.5 left-2.5">
                   {Array.isArray(video.grades) && video.grades.length > 0 ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-indigo-600/90 text-white shadow-xs backdrop-blur-md">
                       {interpolate(t.common.gradeLabel, {
                         grade: video.grades
                           .slice()
@@ -341,77 +392,106 @@ export function ShadowingManager() {
                       })}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-500">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black bg-slate-900/80 text-white shadow-xs backdrop-blur-md">
                       {t.teacherModal.allGradesOption}
                     </span>
                   )}
                 </div>
-                <div className="flex-1 text-xs font-bold text-slate-500 mb-2 space-y-1">
-                  <p>
-                    Preview: {formatTime(video.preview_start) || "00:00"} -{" "}
-                    {formatTime(video.preview_end) || t.common.end}
-                  </p>
-                  <p>
-                    Record: {formatTime(video.record_start) || "00:00"} -{" "}
-                    {formatTime(video.record_end) || t.common.end}
-                  </p>
-                </div>
-                <div className="mt-auto flex flex-col gap-1.5 pt-2 border-t border-slate-100">
-                  <div className="flex gap-1.5 flex-wrap">
-                    <button
-                      onClick={() => handleEdit(video)}
-                      className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[50px]"
-                    >
-                      {t.common.edit}
-                    </button>
-                    <button
-                      onClick={() => setDeleteTarget(video)}
-                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-lg transition-colors flex justify-center items-center gap-1 min-w-[50px]"
-                    >
-                      <Trash2 size={12} /> {t.common.delete}
-                    </button>
+
+                {/* Active / Hidden Quick Toggle (Top Right Floating) */}
+                <button
+                  type="button"
+                  onClick={() => toggleActive(video.id, isActive)}
+                  className={`absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg text-[11px] font-black shadow-xs backdrop-blur-md transition-all flex items-center gap-1.5 ${
+                    isActive
+                      ? "bg-emerald-500/90 hover:bg-emerald-600 text-white"
+                      : "bg-slate-900/80 hover:bg-slate-900 text-slate-300"
+                  }`}
+                  title={isActive ? "Bấm để ẩn video" : "Bấm để hiện video"}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white" : "bg-slate-400"}`} />
+                  <span>
+                    {isActive
+                      ? t.teacherModal.filterStoryStatusActive
+                      : t.teacherModal.filterStoryStatusHidden}
+                  </span>
+                </button>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-4 flex flex-col flex-1 gap-3">
+                <h4
+                  className="font-black text-slate-800 text-sm line-clamp-2 min-h-[40px] group-hover:text-indigo-600 transition-colors leading-snug"
+                  title={video.title}
+                >
+                  {video.title}
+                </h4>
+
+                {/* Time markers info box */}
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 text-xs font-bold text-slate-600 space-y-1 mt-auto">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">👁️ Preview:</span>
+                    <span className="text-slate-700 font-black">
+                      {formatTime(video.preview_start) || "00:00"} -{" "}
+                      {formatTime(video.preview_end) || t.common.end}
+                    </span>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">🎙️ Record:</span>
+                    <span className="text-slate-700 font-black">
+                      {formatTime(video.record_start) || "00:00"} -{" "}
+                      {formatTime(video.record_end) || t.common.end}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom Action Buttons (Single Unified Row) */}
+                <div className="flex items-center gap-1.5 pt-1">
+                  <button
+                    onClick={() => handleEdit(video)}
+                    className="flex-1 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-black rounded-xl transition-all flex justify-center items-center gap-1 border border-indigo-100 shadow-2xs"
+                  >
+                    {t.common.edit}
+                  </button>
+
                   <button
                     onClick={() => handleCopyLink(video.id)}
-                    className={`w-full py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    className={`px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 border shadow-2xs ${
                       copiedId === video.id
-                        ? "bg-emerald-100 text-emerald-700 border border-emerald-300 shadow-sm"
-                        : "bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-100"
+                        ? "bg-emerald-100 text-emerald-700 border-emerald-300"
+                        : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-100"
                     }`}
+                    title={t.common.copyLink}
                   >
                     {copiedId === video.id ? (
                       <>
                         <Check size={13} className="text-emerald-600" />
-                        <span>{t.common.linkCopied}</span>
+                        <span className="hidden sm:inline">{t.common.linkCopied}</span>
                       </>
                     ) : (
                       <>
                         <Copy size={13} />
-                        <span>{t.common.copyLink}</span>
+                        <span className="hidden sm:inline">{t.common.copyLink}</span>
                       </>
                     )}
                   </button>
+
                   <button
-                    onClick={() =>
-                      toggleActive(video.id, video.is_active ?? true)
-                    }
-                    className={`w-full py-1.5 rounded-lg text-xs font-black transition-colors ${
-                      (video.is_active ?? true)
-                        ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                    }`}
+                    onClick={() => setDeleteTarget(video)}
+                    className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-black rounded-xl transition-all border border-rose-100 shadow-2xs"
+                    title={t.common.delete}
+                    aria-label={t.common.delete}
                   >
-                    {(video.is_active ?? true)
-                      ? t.teacherModal.filterStoryStatusActive
-                      : t.teacherModal.filterStoryStatusHidden}
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>
             </div>
           );
         })}
-        {videos.length === 0 && (
-          <div className="col-span-full py-10 text-center text-slate-400 font-bold bg-white rounded-lg border-2 border-dashed border-slate-200">
+
+        {filteredVideos.length === 0 && (
+          <div className="col-span-full py-16 text-center text-slate-400 font-bold bg-white rounded-2xl border border-slate-200/80">
             {t.shadowing.empty}
           </div>
         )}
@@ -587,38 +667,14 @@ export function ShadowingManager() {
       )}
 
       {deleteTarget && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg w-full max-w-sm shadow-md p-6 space-y-4 text-center">
-            <Trash2 size={36} className="mx-auto text-rose-500" />
-            <h4 className="font-extrabold text-slate-800 text-base">
-              {t.common.deleteVideoConfirm}?
-            </h4>
-            <p className="text-xs font-bold text-slate-500 line-clamp-2">
-              "{deleteTarget.title}"
-            </p>
-            {deleteError && (
-              <p className="text-xs font-bold text-rose-600 bg-rose-50 p-2 rounded">
-                {deleteError}
-              </p>
-            )}
-            <div className="flex justify-center gap-3 pt-2">
-              <button
-                onClick={() => setDeleteTarget(null)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs"
-              >
-                {t.common.cancel}
-              </button>
-              <button
-                onClick={confirmDelete}
-                disabled={deleteSaving}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs shadow-md flex items-center gap-1.5"
-              >
-                {deleteSaving && <Loader2 size={14} className="animate-spin" />}
-                {t.common.delete}
-              </button>
-            </div>
-          </div>
-        </div>
+        <DeleteConfirmModal
+          title={t.common.deleteVideoConfirm || "Xác nhận xóa video?"}
+          description={`"${deleteTarget.title}"`}
+          saving={deleteSaving}
+          error={deleteError}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
       )}
     </div>
   );
