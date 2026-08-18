@@ -12,6 +12,7 @@ import {
   Check,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
@@ -397,16 +398,6 @@ export function ShadowingDetail({
               }}
             />
           </div>
-
-          <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200/60 flex items-center justify-between text-xs text-slate-500 font-bold">
-            <span className="flex items-center gap-1.5">
-              <Headphones size={15} className="text-indigo-500" />
-              Đoạn luyện: {video.preview_start || 0}s – {video.preview_end || "Hết"}s
-            </span>
-            <span className="text-indigo-600 font-black">
-              Bước {currentStep}/3
-            </span>
-          </div>
         </div>
 
         {/* Step Action Studio Card (Col 12 on mobile, Col 5 on desktop) */}
@@ -586,33 +577,35 @@ export function ShadowingDetail({
       </div>
 
       {/* Success Celebration Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex flex-col justify-center items-center z-[100] animate-in fade-in duration-300 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
-            <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto shadow-inner text-4xl">
-              🏆
+      {showSuccessModal &&
+        createPortal(
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex flex-col justify-center items-center z-[200] animate-in fade-in duration-300 p-4 overscroll-contain">
+            <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+              <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto shadow-inner text-4xl">
+                🏆
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-xl font-black text-slate-800">
+                  {t.shadowing.saved}
+                </h3>
+                <p className="text-xs font-semibold text-slate-500">
+                  Con đã hoàn thành bài luyện Shadowing xuất sắc! 🎉
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  navigate("/student/shadowing");
+                }}
+                className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black rounded-2xl shadow-md shadow-emerald-500/25 active:scale-95 transition-all text-sm cursor-pointer"
+              >
+                {t.common.close}
+              </button>
             </div>
-            <div className="space-y-1.5">
-              <h3 className="text-xl font-black text-slate-800">
-                {t.shadowing.saved}
-              </h3>
-              <p className="text-xs font-semibold text-slate-500">
-                Con đã hoàn thành bài luyện Shadowing xuất sắc! 🎉
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setShowSuccessModal(false);
-                navigate("/student/shadowing");
-              }}
-              className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black rounded-2xl shadow-md shadow-emerald-500/25 active:scale-95 transition-all text-sm"
-            >
-              {t.common.close}
-            </button>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
