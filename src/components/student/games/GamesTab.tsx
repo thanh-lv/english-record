@@ -833,7 +833,7 @@ function ScrambleGame({
   );
 }
 // ─── GAMES TAB ───────────────────────────────────────────────────
-export function GamesTab({ studentAge }: { studentAge: number }) {
+export function GamesTab({ studentGrade }: { studentGrade?: number }) {
   const { t } = useLanguage();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -847,21 +847,28 @@ export function GamesTab({ studentAge }: { studentAge: number }) {
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
-      const ageGroup = studentAge <= 5 ? "kindergarten" : "primary";
+
       const { data } = await supabase
         .from("vocabulary_sets")
-        .select("id, title, emoji, vocabulary_cards(id)")
-        .or(`age_group.eq.all,age_group.eq.${ageGroup}`)
+        .select("id, title, emoji, grades, vocabulary_cards(id)")
         .order("created_at", { ascending: false });
+
       setSets(
         (data || [])
-          .filter((s: any) => (s.vocabulary_cards?.length ?? 0) >= 4)
+          .filter((s: any) => {
+            if ((s.vocabulary_cards?.length ?? 0) < 4) return false;
+            if (Array.isArray(s.grades) && s.grades.length > 0) {
+              if (!studentGrade) return true;
+              return s.grades.includes(studentGrade);
+            }
+            return true;
+          })
           .map((s: any) => ({ id: s.id, title: s.title, emoji: s.emoji })),
       );
       setLoading(false);
     };
     fetch();
-  }, [studentAge]);
+  }, [studentGrade]);
 
   const handleSelectSet = async (set: VocabSet) => {
     setSelectedSet(set);

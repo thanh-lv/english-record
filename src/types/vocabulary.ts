@@ -2,7 +2,7 @@ export interface VocabSet {
   id: string;
   title: string;
   emoji: string;
-  age_group: "kindergarten" | "primary" | "all";
+  grades?: number[];
   created_at: string;
   card_count?: number;
 }

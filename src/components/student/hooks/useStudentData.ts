@@ -106,21 +106,29 @@ export function useStudentData(
   useEffect(() => {
     const fetchStories = async () => {
       try {
-        const targetAgeGroup = studentAge <= 5 ? "kindergarten" : "primary";
+        const studentGrade = profile?.grade ? Number(profile.grade) : null;
         const { data, error } = await supabase
           .from("stories")
-          .select("id, title, type, emoji, image_url, content, age_group")
-          .eq("age_group", targetAgeGroup)
+          .select("id, title, type, emoji, image_url, content, grades, is_active")
           .eq("is_active", true)
           .order("created_at", { ascending: false });
         if (error) throw error;
-        setDbStories(data || []);
+
+        const filtered = (data || []).filter((s: any) => {
+          if (!studentGrade) return true;
+          if (!s.grades || !Array.isArray(s.grades) || s.grades.length === 0) {
+            return true;
+          }
+          return s.grades.includes(studentGrade);
+        });
+
+        setDbStories(filtered);
       } catch (err) {
         console.error("Error fetching stories:", err);
       }
     };
     fetchStories();
-  }, [studentAge]);
+  }, [profile?.grade]);
 
   return {
     activeTopics,

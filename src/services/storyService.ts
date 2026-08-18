@@ -9,7 +9,7 @@ export const storyService = {
     const { data, error } = await supabase
       .from("stories")
       .select(
-        "id, title, type, emoji, image_url, content, age_group, created_at, is_active",
+        "id, title, type, emoji, image_url, content, grades, created_at, is_active",
       )
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -50,14 +50,15 @@ export const storyService = {
     if (error) throw error;
   },
 
-  async generateAiText(prompt: string, yearBorn: string): Promise<string> {
+  async generateAiText(prompt: string, grades: number[] = []): Promise<string> {
     const aiApiKey = import.meta.env.VITE_AI_API_KEY;
     if (!aiApiKey) throw new Error("Thiếu AI API Key");
 
-    const age = parseInt(yearBorn)
-      ? new Date().getFullYear() - parseInt(yearBorn)
-      : 5;
-    const textPrompt = `You are a friendly storyteller for children. Write a short, simple, and engaging English story based on the prompt: ${prompt}. Keep it under 150 words. The story is for a ${age}-year-old child, so use appropriate simple vocabulary and short sentences. Return only the story text.`;
+    const gradeDesc =
+      grades.length > 0
+        ? `Grade ${grades.join(", ")} students`
+        : "children aged 5 to 10";
+    const textPrompt = `You are a friendly storyteller for children. Write a short, simple, and engaging English story based on the prompt: ${prompt}. Keep it under 150 words. The story is for ${gradeDesc}, so use appropriate simple vocabulary and short sentences. Return only the story text.`;
 
     const res = await fetch(WORKER_URL, {
       method: "POST",

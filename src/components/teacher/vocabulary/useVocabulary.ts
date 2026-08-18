@@ -7,9 +7,7 @@ export function useVocabulary(t: any) {
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterText, setFilterText] = useState("");
-  const [filterAgeGroup, setFilterAgeGroup] = useState<
-    "all" | "kindergarten" | "primary"
-  >("all");
+  const [filterGrade, setFilterGrade] = useState<string>("all");
   const [expandedSetId, setExpandedSetId] = useState<string | null>(null);
   const [cardsBySet, setCardsBySet] = useState<Record<string, VocabCard[]>>({});
   const [cardsLoading, setCardsLoading] = useState<Record<string, boolean>>({});
@@ -18,11 +16,17 @@ export function useVocabulary(t: any) {
   const [showCreateSet, setShowCreateSet] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newEmoji, setNewEmoji] = useState("📚");
-  const [newAgeGroup, setNewAgeGroup] = useState<
-    "kindergarten" | "primary" | "all"
-  >("all");
+  const [selectedGrades, setSelectedGrades] = useState<number[]>([]);
   const [createSetSaving, setCreateSetSaving] = useState(false);
   const [createSetError, setCreateSetError] = useState("");
+
+  // Edit set modal
+  const [editingSet, setEditingSet] = useState<VocabSet | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editEmoji, setEditEmoji] = useState("📚");
+  const [editGrades, setEditGrades] = useState<number[]>([]);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState("");
 
   // Add card modal
   const [addCardSetId, setAddCardSetId] = useState<string | null>(null);
@@ -80,13 +84,18 @@ export function useVocabulary(t: any) {
     return sets.filter((s) => {
       const matchText =
         !filterText || s.title.toLowerCase().includes(filterText.toLowerCase());
-      const matchAge =
-        filterAgeGroup === "all" ||
-        s.age_group === filterAgeGroup ||
-        s.age_group === "all";
-      return matchText && matchAge;
+
+      if (filterGrade !== "all") {
+        if (filterGrade === "unassigned") {
+          if (s.grades && s.grades.length > 0) return false;
+        } else {
+          const gNum = Number(filterGrade);
+          if (!Array.isArray(s.grades) || !s.grades.includes(gNum)) return false;
+        }
+      }
+      return matchText;
     });
-  }, [sets, filterText, filterAgeGroup]);
+  }, [sets, filterText, filterGrade]);
 
   const handleToggleSet = (setId: string) => {
     if (expandedSetId === setId) {
@@ -110,17 +119,52 @@ export function useVocabulary(t: any) {
       const newSet = await vocabService.createSet(
         newTitle.trim(),
         newEmoji,
-        newAgeGroup,
+        selectedGrades,
       );
       setSets([newSet, ...sets]);
       setShowCreateSet(false);
       setNewTitle("");
       setNewEmoji("📚");
-      setNewAgeGroup("all");
+      setSelectedGrades([]);
     } catch (err: any) {
       setCreateSetError(err.message);
     } finally {
       setCreateSetSaving(false);
+    }
+  };
+
+  const openEditSet = (set: VocabSet) => {
+    setEditingSet(set);
+    setEditTitle(set.title);
+    setEditEmoji(set.emoji || "📚");
+    setEditGrades(set.grades || []);
+    setEditError("");
+  };
+
+  const handleUpdateSet = async () => {
+    if (!editingSet) return;
+    if (!editTitle.trim()) {
+      setEditError(
+        t.vocabManager?.titleRequired || "Vui lòng nhập tên bộ từ",
+      );
+      return;
+    }
+    setEditSaving(true);
+    setEditError("");
+    try {
+      const updated = await vocabService.updateSet(editingSet.id, {
+        title: editTitle.trim(),
+        emoji: editEmoji,
+        grades: editGrades,
+      });
+      setSets((prev) =>
+        prev.map((s) => (s.id === editingSet.id ? { ...s, ...updated } : s)),
+      );
+      setEditingSet(null);
+    } catch (err: any) {
+      setEditError(err.message);
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -246,8 +290,8 @@ export function useVocabulary(t: any) {
     loading,
     filterText,
     setFilterText,
-    filterAgeGroup,
-    setFilterAgeGroup,
+    filterGrade,
+    setFilterGrade,
     filteredSets,
     expandedSetId,
     cardsBySet,
@@ -258,10 +302,22 @@ export function useVocabulary(t: any) {
     setNewTitle,
     newEmoji,
     setNewEmoji,
-    newAgeGroup,
-    setNewAgeGroup,
+    selectedGrades,
+    setSelectedGrades,
     createSetSaving,
     createSetError,
+    editingSet,
+    setEditingSet,
+    editTitle,
+    setEditTitle,
+    editEmoji,
+    setEditEmoji,
+    editGrades,
+    setEditGrades,
+    editSaving,
+    editError,
+    openEditSet,
+    handleUpdateSet,
     addCardSetId,
     setAddCardSetId,
     cardFront,

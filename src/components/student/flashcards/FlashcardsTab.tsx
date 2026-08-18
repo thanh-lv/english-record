@@ -9,7 +9,7 @@ interface VocabSet {
   id: string;
   title: string;
   emoji: string;
-  age_group: "kindergarten" | "primary" | "all";
+  grades?: number[];
   card_count?: number;
 }
 
@@ -23,7 +23,7 @@ interface VocabCard {
 }
 
 interface FlashcardsTabProps {
-  studentAge: number;
+  studentGrade?: number;
 }
 
 function FlipCard({ card }: { card: VocabCard }) {
@@ -318,7 +318,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
   );
 }
 
-export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
+export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
   const { t } = useLanguage();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -328,23 +328,29 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
     const fetchSets = async () => {
       setLoading(true);
       try {
-        const ageGroup = studentAge <= 5 ? "kindergarten" : "primary";
-
         const { data, error } = await supabase
           .from("vocabulary_sets")
           .select(
-            "id, title, emoji, age_group, created_at, vocabulary_cards(id)",
+            "id, title, emoji, grades, created_at, vocabulary_cards(id)",
           )
-          .or(`age_group.eq.all,age_group.eq.${ageGroup}`)
           .order("created_at", { ascending: false });
         if (error) throw error;
 
-        const setsWithCounts = (data || []).map((set: any) => ({
-          ...set,
-          card_count: set.vocabulary_cards?.length ?? 0,
-          vocabulary_cards: undefined,
-        }));
-        setSets(setsWithCounts);
+        const filtered = (data || [])
+          .filter((set: any) => {
+            if (Array.isArray(set.grades) && set.grades.length > 0) {
+              if (!studentGrade) return true;
+              return set.grades.includes(studentGrade);
+            }
+            return true;
+          })
+          .map((set: any) => ({
+            ...set,
+            card_count: set.vocabulary_cards?.length ?? 0,
+            vocabulary_cards: undefined,
+          }));
+
+        setSets(filtered);
       } catch (err) {
         console.error(err);
       } finally {
@@ -352,7 +358,7 @@ export function FlashcardsTab({ studentAge }: FlashcardsTabProps) {
       }
     };
     fetchSets();
-  }, [studentAge]);
+  }, [studentGrade]);
 
   if (loading) {
     return (

@@ -19,6 +19,8 @@ export function StoriesManager() {
     setFilterText,
     filterStatus,
     setFilterStatus,
+    filterGrade,
+    setFilterGrade,
     filteredStories,
     showCreate,
     setShowCreate,
@@ -34,6 +36,8 @@ export function StoriesManager() {
     setEditContent,
     editEmoji,
     setEditEmoji,
+    editGrades,
+    setEditGrades,
     editError,
     editSaving,
     manualTitle,
@@ -44,14 +48,14 @@ export function StoriesManager() {
     setManualEmoji,
     manualType,
     setManualType,
-    manualYearBorn,
-    setManualYearBorn,
+    manualGrades,
+    setManualGrades,
     manualSaving,
     manualError,
     title,
     setTitle,
-    yearBorn,
-    setYearBorn,
+    aiGrades,
+    setAiGrades,
     prompt,
     setPrompt,
     isGenerating,
@@ -122,6 +126,23 @@ export function StoriesManager() {
           )}
         </div>
 
+        {/* Grade filter */}
+        <select
+          value={filterGrade}
+          onChange={(e) => setFilterGrade(e.target.value)}
+          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 focus:outline-none cursor-pointer"
+        >
+          <option value="all">{t.teacherModal?.allGradesOption || "Tất cả các khối"}</option>
+          {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+            <option key={g} value={g.toString()}>
+              {t.common?.gradeLabel ? t.common.gradeLabel.replace("{grade}", g.toString()) : `Khối ${g}`}
+            </option>
+          ))}
+          <option value="unassigned">
+            {t.teacherModal?.allGradesOption || "Tất cả các khối"} (Mặc định)
+          </option>
+        </select>
+
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value as any)}
@@ -175,11 +196,13 @@ export function StoriesManager() {
           editingStory={editingStory}
           editTitle={editTitle}
           editEmoji={editEmoji}
+          editGrades={editGrades}
           editContent={editContent}
           editError={editError}
           editSaving={editSaving}
           onTitleChange={setEditTitle}
           onEmojiChange={setEditEmoji}
+          onGradesChange={setEditGrades}
           onContentChange={setEditContent}
           onSave={saveEditStory}
           onClose={() => setEditingStory(null)}
@@ -194,13 +217,13 @@ export function StoriesManager() {
           manualContent={manualContent}
           manualEmoji={manualEmoji}
           manualType={manualType}
-          manualYearBorn={manualYearBorn}
+          manualGrades={manualGrades}
           manualSaving={manualSaving}
           manualError={manualError}
           onTitleChange={setManualTitle}
           onEmojiChange={setManualEmoji}
           onTypeChange={setManualType}
-          onYearBornChange={setManualYearBorn}
+          onManualGradesChange={setManualGrades}
           onContentChange={setManualContent}
           onSave={handleManualSave}
           onClose={() => setShowManual(false)}
@@ -212,7 +235,7 @@ export function StoriesManager() {
         <StoryCreateModal
           t={t}
           title={title}
-          yearBorn={yearBorn}
+          aiGrades={aiGrades}
           prompt={prompt}
           isGenerating={isGenerating}
           generatedStory={generatedStory}
@@ -220,7 +243,7 @@ export function StoriesManager() {
           isSaving={isSaving}
           aiError={aiError}
           onTitleChange={setTitle}
-          onYearBornChange={setYearBorn}
+          onAiGradesChange={setAiGrades}
           onPromptChange={setPrompt}
           onGenerate={handleGenerateAiStory}
           onSave={handleSaveAiStory}

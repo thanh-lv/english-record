@@ -5,7 +5,7 @@ export interface Story {
   emoji: string;
   image_url?: string | null;
   content: string;
-  age_group?: string;
+  grades?: number[];
   is_active: boolean;
   created_at?: string;
 }

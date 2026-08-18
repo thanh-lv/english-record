@@ -238,6 +238,9 @@ export const en = {
     agePrimaryOption: "Primary school (over 6)",
     uploadFromDevice: "Upload from device",
     setLabelTitle: "Vocabulary Set Title",
+    editSetTitle: "Edit Vocabulary Set",
+    editSet: "Edit Set",
+    saveChanges: "Save Changes",
   },
 
   // Shadowing

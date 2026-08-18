@@ -242,6 +242,9 @@ export const vi = {
     agePrimaryOption: "Tiểu học (trên 6 tuổi)",
     uploadFromDevice: "Tải ảnh từ máy",
     setLabelTitle: "Tên bộ từ",
+    editSetTitle: "Chỉnh sửa bộ từ vựng",
+    editSet: "Sửa bộ từ",
+    saveChanges: "Lưu thay đổi",
   },
 
   // Shadowing

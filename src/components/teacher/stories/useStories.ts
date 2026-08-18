@@ -10,6 +10,7 @@ export function useStories(t: any) {
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "hidden">(
     "all",
   );
+  const [filterGrade, setFilterGrade] = useState<string>("all");
 
   const [showCreate, setShowCreate] = useState(false);
   const [showManual, setShowManual] = useState(false);
@@ -24,6 +25,7 @@ export function useStories(t: any) {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editEmoji, setEditEmoji] = useState("");
+  const [editGrades, setEditGrades] = useState<number[]>([]);
   const [editError, setEditError] = useState("");
   const [editSaving, setEditSaving] = useState(false);
 
@@ -32,13 +34,13 @@ export function useStories(t: any) {
   const [manualContent, setManualContent] = useState("");
   const [manualEmoji, setManualEmoji] = useState("📚");
   const [manualType, setManualType] = useState("Truyện tranh");
-  const [manualYearBorn, setManualYearBorn] = useState("2015");
+  const [manualGrades, setManualGrades] = useState<number[]>([]);
   const [manualSaving, setManualSaving] = useState(false);
   const [manualError, setManualError] = useState("");
 
   // AI Generator state
   const [title, setTitle] = useState("");
-  const [yearBorn, setYearBorn] = useState("2015");
+  const [aiGrades, setAiGrades] = useState<number[]>([]);
   const [type, setType] = useState("Truyện tranh");
   const [emoji, setEmoji] = useState("📚");
   const [prompt, setPrompt] = useState("");
@@ -75,9 +77,20 @@ export function useStories(t: any) {
         filterStatus === "all" ||
         (filterStatus === "active" && active) ||
         (filterStatus === "hidden" && !active);
-      return matchText && matchStatus;
+
+      let matchGrade = true;
+      if (filterGrade !== "all") {
+        if (filterGrade === "unassigned") {
+          matchGrade = !s.grades || s.grades.length === 0;
+        } else {
+          const gNum = Number(filterGrade);
+          matchGrade = Array.isArray(s.grades) && s.grades.includes(gNum);
+        }
+      }
+
+      return matchText && matchStatus && matchGrade;
     });
-  }, [stories, filterText, filterStatus]);
+  }, [stories, filterText, filterStatus, filterGrade]);
 
   const toggleStoryActive = async (storyId: string, currentValue: boolean) => {
     await storyService.toggleStoryActive(storyId, currentValue);
@@ -93,6 +106,7 @@ export function useStories(t: any) {
     setEditTitle(story.title);
     setEditContent(story.content);
     setEditEmoji(story.emoji || "📚");
+    setEditGrades(story.grades || []);
     setEditError("");
   };
 
@@ -112,6 +126,7 @@ export function useStories(t: any) {
         title: trimTitle,
         content: trimContent,
         emoji: editEmoji.trim() || "📚",
+        grades: editGrades,
       });
       setStories((prev) =>
         prev.map((s) =>
@@ -121,6 +136,7 @@ export function useStories(t: any) {
                 title: trimTitle,
                 content: trimContent,
                 emoji: editEmoji.trim() || "📚",
+                grades: editGrades,
               }
             : s,
         ),
@@ -158,14 +174,9 @@ export function useStories(t: any) {
     setManualSaving(true);
     setManualError("");
     try {
-      const ageGroup =
-        parseInt(manualYearBorn) >= new Date().getFullYear() - 5
-          ? "kindergarten"
-          : "primary";
-
       const data = await storyService.createStory({
         title: trimTitle,
-        age_group: ageGroup,
+        grades: manualGrades,
         type: manualType,
         emoji: manualEmoji.trim() || "📚",
         content: trimContent,
@@ -177,6 +188,7 @@ export function useStories(t: any) {
       setManualTitle("");
       setManualContent("");
       setManualEmoji("📚");
+      setManualGrades([]);
     } catch (err: any) {
       setManualError(err.message);
     } finally {
@@ -195,7 +207,7 @@ export function useStories(t: any) {
     setGeneratedImageUrl("");
 
     try {
-      const storyText = await storyService.generateAiText(prompt, yearBorn);
+      const storyText = await storyService.generateAiText(prompt, aiGrades);
       setGeneratedStory(storyText);
 
       const imgBlob = await storyService.generateAiImage(prompt);
@@ -218,16 +230,12 @@ export function useStories(t: any) {
     try {
       const imageUrl = await uploadService.uploadFile(
         generatedImageBlob,
-        `stories/${yearBorn}`,
+        `stories/${Date.now()}`,
       );
-      const ageGroup =
-        parseInt(yearBorn) >= new Date().getFullYear() - 5
-          ? "kindergarten"
-          : "primary";
 
       const data = await storyService.createStory({
         title,
-        age_group: ageGroup,
+        grades: aiGrades,
         type,
         emoji,
         content: generatedStory,
@@ -242,6 +250,7 @@ export function useStories(t: any) {
       setGeneratedStory("");
       setGeneratedImageUrl("");
       setGeneratedImageBlob(null);
+      setAiGrades([]);
     } catch (err: any) {
       setAiError(err.message);
     } finally {
@@ -256,6 +265,8 @@ export function useStories(t: any) {
     setFilterText,
     filterStatus,
     setFilterStatus,
+    filterGrade,
+    setFilterGrade,
     filteredStories,
     showCreate,
     setShowCreate,
@@ -273,6 +284,8 @@ export function useStories(t: any) {
     setEditContent,
     editEmoji,
     setEditEmoji,
+    editGrades,
+    setEditGrades,
     editError,
     editSaving,
     manualTitle,
@@ -283,14 +296,14 @@ export function useStories(t: any) {
     setManualEmoji,
     manualType,
     setManualType,
-    manualYearBorn,
-    setManualYearBorn,
+    manualGrades,
+    setManualGrades,
     manualSaving,
     manualError,
     title,
     setTitle,
-    yearBorn,
-    setYearBorn,
+    aiGrades,
+    setAiGrades,
     type,
     setType,
     emoji,

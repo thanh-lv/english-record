@@ -8,7 +8,7 @@ export const vocabService = {
   async fetchSets(): Promise<VocabSet[]> {
     const { data, error } = await supabase
       .from("vocabulary_sets")
-      .select("id, title, emoji, age_group, created_at, vocabulary_cards(id)")
+      .select("id, title, emoji, grades, created_at, vocabulary_cards(id)")
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -36,20 +36,35 @@ export const vocabService = {
   async createSet(
     title: string,
     emoji: string,
-    ageGroup: "kindergarten" | "primary" | "all",
+    grades: number[] = [],
   ): Promise<VocabSet> {
     const { data, error } = await supabase
       .from("vocabulary_sets")
       .insert({
         title,
         emoji,
-        age_group: ageGroup,
+        grades,
       })
       .select()
       .single();
 
     if (error) throw error;
     return { ...data, card_count: 0 } as VocabSet;
+  },
+
+  async updateSet(
+    setId: string,
+    updates: { title?: string; emoji?: string; grades?: number[] },
+  ): Promise<VocabSet> {
+    const { data, error } = await supabase
+      .from("vocabulary_sets")
+      .update(updates)
+      .eq("id", setId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as VocabSet;
   },
 
   async deleteSet(setId: string): Promise<void> {
