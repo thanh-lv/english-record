@@ -29,12 +29,12 @@ export function DeleteConfirmModal({
   useBodyScrollLock(true);
   return (
     <div
-      className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overscroll-contain"
+      className="!m-0 fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-confirm-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-sm overflow-hidden shadow-md animate-in zoom-in-95 duration-200 p-6 border-4 border-rose-100 space-y-5">
+      <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 p-6 border border-rose-200 space-y-5">
         <div className="flex items-start gap-3">
           <div className="p-3 bg-rose-50 text-rose-600 rounded-lg border border-rose-100 shadow-md shrink-0">
             <AlertCircle size={24} />

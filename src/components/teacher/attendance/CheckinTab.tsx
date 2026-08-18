@@ -466,7 +466,7 @@ export function CheckinTab() {
 
       {/* ── Day Detail Modal ── */}
       {modalDate && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="!m-0 fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] overscroll-contain">
           <div className="bg-white w-full max-w-2xl rounded-lg shadow-md flex flex-col max-h-[90vh]">
             {/* Modal header */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-4 rounded-t-lg flex items-start justify-between shrink-0">
@@ -812,7 +812,7 @@ export function CheckinTab() {
 
       {/* Delete Confirmation Modal */}
       {deleteTargetStudent && (
-        <div className="fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+        <div className="!m-0 fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in overscroll-contain">
           <div className="bg-white rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-xl border border-slate-100 text-center">
             <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
               <AlertTriangle size={24} />

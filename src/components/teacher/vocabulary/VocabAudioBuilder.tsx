@@ -7,6 +7,7 @@ import {
 } from "../../../utils/audioEncoder";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import {
+  AlertCircle,
   Clock,
   Download,
   FileAudio,
@@ -295,16 +296,17 @@ export function VocabAudioBuilder() {
 
   return (
     <div className="space-y-6 mx-auto">
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-lg p-4 text-white shadow-md relative overflow-hidden">
+      {/* Top Banner */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-600 rounded-2xl p-5 sm:p-7 text-white shadow-sm relative overflow-hidden">
         <div className="relative z-10 space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-xs font-bold text-blue-100">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-xl text-xs font-black text-blue-100 border border-white/20">
             <Sparkles size={14} />
             <span>{tAudio.badge}</span>
           </div>
-          <h1 className="text-lg sm:text-2xl font-black tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
             {tAudio.title}
           </h1>
-          <p className="text-blue-100 text-sm sm:text-base max-w-2xl">
+          <p className="text-blue-100 text-xs sm:text-sm max-w-2xl font-medium leading-relaxed">
             {tAudio.description}
           </p>
         </div>
@@ -313,19 +315,23 @@ export function VocabAudioBuilder() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white rounded-lg p-6 shadow-md border border-slate-100 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Word List & Settings */}
+        <div className="lg:col-span-7 space-y-5">
+          {/* Word List Input Card */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-slate-200/80 space-y-4">
             <div className="flex items-center justify-between">
-              <label className="font-extrabold text-slate-800 text-sm sm:text-base flex items-center gap-2">
-                <ListPlus className="text-blue-500" size={20} />
+              <label className="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+                  <ListPlus size={18} />
+                </span>
                 {tAudio.wordListLabel}
               </label>
               <div className="flex items-center gap-2">
                 {inputText && (
                   <button
                     onClick={() => setInputText("")}
-                    className="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors"
+                    className="text-xs font-black text-slate-400 hover:text-rose-600 transition-colors"
                   >
                     {tAudio.clearAll}
                   </button>
@@ -338,12 +344,12 @@ export function VocabAudioBuilder() {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={tAudio.inputPlaceholder}
-              className="w-full p-4 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-slate-700 font-semibold text-base transition-all resize-none"
+              className="w-full p-4 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100/50 outline-none text-slate-800 font-bold text-sm transition-all resize-none bg-slate-50 focus:bg-white shadow-2xs"
             />
 
             {parsedWords.length > 0 && (
-              <div className="pt-3 border-t border-slate-100 space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+              <div className="pt-3 border-t border-slate-100 space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-black text-slate-500">
                   <span>
                     {tAudio.recognizedWords.replace(
                       "{count}",
@@ -356,7 +362,7 @@ export function VocabAudioBuilder() {
                   {parsedWords.map((word, idx) => (
                     <div
                       key={idx}
-                      className="group flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 rounded-lg text-sm font-extrabold transition-all"
+                      className="group flex items-center gap-1.5 px-3 py-1.5 bg-blue-50/80 hover:bg-blue-100 border border-blue-200/80 text-blue-800 rounded-xl text-xs font-black transition-all shadow-2xs"
                     >
                       <span>{word}</span>
                       <button
@@ -364,7 +370,7 @@ export function VocabAudioBuilder() {
                         title={tAudio.listenTo.replace("{word}", word)}
                         className="text-blue-500 hover:text-blue-700 p-0.5 rounded-lg hover:bg-blue-200 transition-colors"
                       >
-                        <Volume2 size={14} />
+                        <Volume2 size={13} />
                       </button>
                     </div>
                   ))}
@@ -373,19 +379,22 @@ export function VocabAudioBuilder() {
             )}
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-md border border-slate-100 space-y-4">
+          {/* Settings Card */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-slate-200/80 space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Sliders className="text-blue-500" size={20} />
-              <h2 className="font-extrabold text-slate-800 text-base">
+              <span className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100">
+                <Sliders size={18} />
+              </span>
+              <h2 className="font-black text-slate-800 text-sm sm:text-base">
                 {tAudio.settingsTitle}
               </h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600 flex items-center justify-between">
+              <div className="space-y-1.5 bg-slate-50/60 p-3.5 rounded-xl border border-slate-100">
+                <label className="text-xs font-black text-slate-700 flex items-center justify-between">
                   <span>{tAudio.repetitionsLabel}</span>
-                  <span className="text-blue-600 font-extrabold">
+                  <span className="text-blue-600 font-black bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-md">
                     {repetitions} {tAudio.times}
                   </span>
                 </label>
@@ -397,15 +406,15 @@ export function VocabAudioBuilder() {
                   onChange={(e) => setRepetitions(Number(e.target.value))}
                   className="w-full accent-blue-600 cursor-pointer"
                 />
-                <span className="text-[11px] text-slate-400 block">
+                <span className="text-[10px] text-slate-400 font-bold block">
                   {tAudio.defaultTimes}
                 </span>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600 flex items-center justify-between">
+              <div className="space-y-1.5 bg-slate-50/60 p-3.5 rounded-xl border border-slate-100">
+                <label className="text-xs font-black text-slate-700 flex items-center justify-between">
                   <span>{tAudio.durationLabel}</span>
-                  <span className="text-blue-600 font-extrabold">
+                  <span className="text-blue-600 font-black bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-md">
                     {wordDuration} {tAudio.seconds}
                   </span>
                 </label>
@@ -418,18 +427,18 @@ export function VocabAudioBuilder() {
                   onChange={(e) => setWordDuration(Number(e.target.value))}
                   className="w-full accent-blue-600 cursor-pointer"
                 />
-                <span className="text-[11px] text-slate-400 block">
+                <span className="text-[10px] text-slate-400 font-bold block">
                   {tAudio.defaultDuration}
                 </span>
               </div>
 
-              <div className="space-y-1.5 sm:col-span-2 bg-blue-50/60 p-3.5 rounded-lg border border-blue-100">
-                <label className="text-xs font-extrabold text-blue-900 flex items-center justify-between">
+              <div className="space-y-1.5 sm:col-span-2 bg-blue-50/70 p-4 rounded-xl border border-blue-200/70">
+                <label className="text-xs font-black text-blue-950 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Clock size={16} className="text-blue-600" />
                     {tAudio.gapLabel}
                   </span>
-                  <span className="text-blue-700 font-black text-sm bg-blue-200/80 px-2 py-0.5 rounded-lg">
+                  <span className="text-blue-700 font-black text-xs bg-white px-2.5 py-1 rounded-lg border border-blue-200 shadow-2xs">
                     {gapDuration} {tAudio.seconds}
                   </span>
                 </label>
@@ -442,7 +451,7 @@ export function VocabAudioBuilder() {
                   onChange={(e) => setGapDuration(Number(e.target.value))}
                   className="w-full accent-blue-600 cursor-pointer mt-1"
                 />
-                <div className="flex justify-between text-[11px] text-blue-600/80 font-medium">
+                <div className="flex justify-between text-[10px] text-blue-700 font-bold">
                   <span>{tAudio.gapFast}</span>
                   <span>{tAudio.gapDefault}</span>
                   <span>{tAudio.gapSlow}</span>
@@ -452,15 +461,17 @@ export function VocabAudioBuilder() {
           </div>
 
           {errorMsg && (
-            <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-sm font-bold">
-              {errorMsg}
+            <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-black flex items-center gap-2">
+              <AlertCircle size={16} className="shrink-0" />
+              <span>{errorMsg}</span>
             </div>
           )}
 
+          {/* Generate Button */}
           <button
             onClick={handleGenerateAudio}
             disabled={isGenerating || parsedWords.length === 0}
-            className={`w-full py-4 rounded-lg font-black text-base shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 ${
+            className={`w-full py-3.5 rounded-xl font-black text-sm shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 ${
               isGenerating || parsedWords.length === 0
                 ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
                 : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/25"
@@ -468,7 +479,7 @@ export function VocabAudioBuilder() {
           >
             {isGenerating ? (
               <>
-                <Loader2 className="animate-spin" size={20} />
+                <Loader2 className="animate-spin" size={18} />
                 <span>
                   {tAudio.generating.replace(
                     "{percent}",
@@ -478,17 +489,17 @@ export function VocabAudioBuilder() {
               </>
             ) : (
               <>
-                <Music size={20} />
+                <Music size={18} />
                 <span>{tAudio.generateButton}</span>
               </>
             )}
           </button>
 
           {isGenerating && (
-            <div className="space-y-1">
-              <div className="w-full h-2.5 bg-slate-100 rounded-lg overflow-hidden">
+            <div className="space-y-1.5">
+              <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-600 transition-all duration-300 rounded-lg"
+                  className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300 rounded-full"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -499,18 +510,21 @@ export function VocabAudioBuilder() {
           )}
         </div>
 
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white rounded-lg p-4 shadow-md border border-slate-100 min-h-[420px] flex flex-col justify-between">
+        {/* Right Column: Audio Player & Result */}
+        <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-[84px]">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-slate-200/80 min-h-[420px] flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
-                  <FileAudio className="text-blue-500" size={20} />
-                  <h2 className="font-extrabold text-slate-800 text-base">
+                  <span className="p-1.5 rounded-lg bg-teal-50 text-teal-600 border border-teal-100">
+                    <FileAudio size={18} />
+                  </span>
+                  <h2 className="font-black text-slate-800 text-sm sm:text-base">
                     {tAudio.resultTitle}
                   </h2>
                 </div>
                 {audioResult && (
-                  <span className="text-xs font-bold text-slate-400">
+                  <span className="text-xs font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
                     {formatTime(audioResult.totalDuration)}
                   </span>
                 )}
@@ -518,36 +532,36 @@ export function VocabAudioBuilder() {
 
               {!audioResult ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center space-y-3 text-slate-400">
-                  <div className="w-16 h-16 rounded-lg bg-blue-50 flex items-center justify-center text-blue-400">
+                  <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 border border-blue-100 shadow-2xs">
                     <Music size={32} />
                   </div>
                   <div>
-                    <p className="font-bold text-slate-600 text-sm">
+                    <p className="font-black text-slate-700 text-sm">
                       {tAudio.notGenerated}
                     </p>
-                    <p className="text-xs text-slate-400 max-w-xs mt-1">
+                    <p className="text-xs text-slate-400 max-w-xs mt-1 font-medium">
                       {tAudio.notGeneratedDesc}
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-5">
                   <audio ref={audioRef} src={audioResult.audioUrl} />
 
-                  <div className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-lg p-5 space-y-4 shadow-md">
+                  <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 space-y-4 shadow-md border border-slate-800">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-indigo-300 font-bold uppercase tracking-wider">
+                        <p className="text-[10px] text-indigo-300 font-black uppercase tracking-wider">
                           {tAudio.readyBadge}
                         </p>
-                        <p className="font-black text-lg text-white">
+                        <p className="font-black text-base text-white">
                           {tAudio.wordsCount.replace(
                             "{count}",
                             parsedWords.length.toString(),
                           )}
                         </p>
                       </div>
-                      <span className="text-xs px-2.5 py-1 bg-indigo-800/60 rounded-lg font-bold text-indigo-200 border border-indigo-700">
+                      <span className="text-[11px] px-2.5 py-1 bg-indigo-900/80 rounded-xl font-black text-indigo-200 border border-indigo-700/60 shadow-2xs">
                         {tAudio.configSummary
                           .replace("{rep}", repetitions.toString())
                           .replace("{gap}", gapDuration.toString())}
@@ -564,7 +578,7 @@ export function VocabAudioBuilder() {
                         onChange={handleSeek}
                         className="w-full accent-blue-400 cursor-pointer h-1.5 rounded-lg"
                       />
-                      <div className="flex justify-between text-[11px] font-mono text-indigo-300">
+                      <div className="flex justify-between text-[11px] font-mono text-indigo-300 font-bold">
                         <span>{formatTime(currentTime)}</span>
                         <span>{formatTime(audioResult.totalDuration)}</span>
                       </div>
@@ -573,19 +587,19 @@ export function VocabAudioBuilder() {
                     <div className="flex items-center justify-center gap-4 pt-1">
                       <button
                         onClick={togglePlayPause}
-                        className="w-14 h-14 rounded-lg bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center shadow-md transition-transform active:scale-95"
+                        className="w-13 h-13 rounded-2xl bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center shadow-md transition-all hover:scale-105 active:scale-95"
                       >
                         {isPlaying ? (
-                          <Pause size={24} />
+                          <Pause size={22} />
                         ) : (
-                          <Play size={24} className="ml-1" />
+                          <Play size={22} className="ml-1" />
                         )}
                       </button>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <p className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">
+                    <p className="text-xs font-black text-slate-500 uppercase tracking-wider">
                       {tAudio.progressTitle}
                     </p>
                     <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
@@ -595,26 +609,26 @@ export function VocabAudioBuilder() {
                           <div
                             key={idx}
                             onClick={() => jumpToWord(wt)}
-                            className={`flex items-center justify-between p-2.5 rounded-lg border transition-all cursor-pointer ${
+                            className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer ${
                               isActive
-                                ? "bg-blue-50 border-blue-400 text-blue-900 font-extrabold shadow-md"
-                                : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100"
+                                ? "bg-blue-50 border-blue-400 text-blue-900 font-black shadow-2xs"
+                                : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100 font-bold"
                             }`}
                           >
                             <div className="flex items-center gap-2">
                               <span className="w-5 h-5 rounded-lg bg-slate-200 text-slate-600 text-[10px] font-black flex items-center justify-center">
                                 {idx + 1}
                               </span>
-                              <span className="text-sm font-bold">
+                              <span className="text-xs font-black">
                                 {wt.word}
                               </span>
                               {isActive && (
-                                <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-lg font-extrabold animate-pulse">
+                                <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-md font-black animate-pulse">
                                   {tAudio.playing}
                                 </span>
                               )}
                             </div>
-                            <span className="text-xs font-mono text-slate-400">
+                            <span className="text-xs font-mono text-slate-400 font-bold">
                               {formatTime(wt.startTime)}
                             </span>
                           </div>
@@ -627,22 +641,22 @@ export function VocabAudioBuilder() {
             </div>
 
             {audioResult && (
-              <div className="pt-4 border-t border-slate-100 flex flex-col gap-2">
+              <div className="pt-4 border-t border-slate-100 flex flex-col gap-2 mt-4">
                 <a
                   href={audioResult.audioUrl}
                   download={`vocab-audio-${parsedWords
                     .slice(0, 3)
                     .join("-")}-${Date.now()}.wav`}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 active:scale-98"
+                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-xs shadow-xs transition-all flex items-center justify-center gap-2 active:scale-98"
                 >
-                  <Download size={18} />
+                  <Download size={16} />
                   <span>{tAudio.downloadButton}</span>
                 </a>
                 <button
                   onClick={() => setShowSaveModal(true)}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-black text-sm shadow-md shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-98"
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs shadow-xs transition-all flex items-center justify-center gap-2 active:scale-98"
                 >
-                  <Save size={18} />
+                  <Save size={16} />
                   <span>{tAudio.saveToLibrary}</span>
                 </button>
               </div>
@@ -651,59 +665,67 @@ export function VocabAudioBuilder() {
         </div>
       </div>
 
-      <div className="mt-12 bg-white rounded-lg p-6 shadow-md border border-slate-100">
-        <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
-          <Library className="text-purple-500" size={24} />
-          <h2 className="font-extrabold text-slate-800 text-lg">
-            {tAudio.libraryTitle}
-          </h2>
+      {/* Saved Audios Library Grid */}
+      <div className="mt-8 bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-slate-200/80">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
+              <Library size={18} />
+            </span>
+            <h2 className="font-black text-slate-800 text-base">
+              {tAudio.libraryTitle}
+            </h2>
+          </div>
+          <span className="text-xs font-black text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">
+            {savedAudios.length} {tAudio.libraryTitle.toLowerCase()}
+          </span>
         </div>
 
         {isLibraryLoading ? (
-          <div className="flex justify-center p-8">
+          <div className="flex justify-center p-12">
             <Loader2 className="animate-spin text-blue-500" size={32} />
           </div>
         ) : savedAudios.length === 0 ? (
-          <div className="text-center p-8 text-slate-400 font-medium">
+          <div className="text-center py-12 text-slate-400 font-bold bg-slate-50/50 rounded-xl border border-slate-100">
             {tAudio.emptyLibrary}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {savedAudios.map((audio) => (
               <div
                 key={audio.id}
-                className="bg-slate-50 rounded-lg p-4 border border-slate-100 flex flex-col gap-3 group relative overflow-hidden"
+                className="bg-slate-50/70 hover:bg-white rounded-2xl p-4 border border-slate-200/80 hover:border-blue-300 hover:shadow-md transition-all flex flex-col gap-3 group relative"
               >
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start gap-2">
                   <h3
-                    className="font-bold text-slate-800 line-clamp-1"
+                    className="font-black text-slate-800 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors"
                     title={audio.title}
                   >
                     {audio.title}
                   </h3>
                   <button
                     onClick={(e) => handleDeleteSavedAudio(audio, e)}
-                    className="text-rose-400 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg group-hover:opacity-100 transition-all"
+                    className="text-slate-400 hover:text-rose-600 bg-white hover:bg-rose-50 p-1.5 rounded-xl border border-slate-200/60 transition-all shrink-0"
                     title={tAudio.delete}
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={15} />
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-1.5 text-[10px] font-bold text-slate-500">
-                  <span className="bg-slate-200/50 px-2 py-0.5 rounded-lg">
-                    {audio.words_count} words
+                <div className="flex flex-wrap gap-1.5 text-[10px] font-black text-slate-600">
+                  <span className="bg-white border border-slate-200 px-2 py-0.5 rounded-md">
+                    📁 {audio.words_count} từ
                   </span>
-                  <span className="bg-slate-200/50 px-2 py-0.5 rounded-lg">
-                    {formatTime(audio.duration)}
+                  <span className="bg-white border border-slate-200 px-2 py-0.5 rounded-md">
+                    ⏱️ {formatTime(audio.duration)}
                   </span>
-                  <span className="bg-slate-200/50 px-2 py-0.5 rounded-lg">
-                    {audio.config_summary}
+                  <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-md">
+                    ⚙️ {audio.config_summary}
                   </span>
                 </div>
                 <audio
                   controls
                   src={audio.audio_url}
-                  className="w-full h-10 mt-2"
+                  className="w-full h-9 mt-1 rounded-xl"
                 />
               </div>
             ))}
@@ -711,14 +733,18 @@ export function VocabAudioBuilder() {
         )}
       </div>
 
+      {/* Save Modal */}
       {showSaveModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-md space-y-5 animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="font-black text-xl text-slate-800">
+        <div className="!m-0 fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overscroll-contain">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200 border border-slate-200">
+            <h3 className="font-black text-lg text-slate-800 flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+                <Save size={18} />
+              </span>
               {tAudio.saveTitle}
             </h3>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-600">
+              <label className="text-xs font-black text-slate-600 uppercase">
                 {tAudio.audioTitle}
               </label>
               <input
@@ -732,33 +758,34 @@ export function VocabAudioBuilder() {
                   }
                 }}
                 placeholder={tAudio.audioTitlePlaceholder}
-                className="w-full p-3 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-slate-700 font-semibold"
+                className="w-full p-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100/50 outline-none text-slate-800 font-bold text-sm bg-slate-50 focus:bg-white"
               />
             </div>
 
             {errorMsg && (
-              <div className="p-3 bg-rose-50 text-rose-600 text-sm font-bold rounded-lg border border-rose-100">
-                {errorMsg}
+              <div className="p-3 bg-rose-50 text-rose-600 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-2">
+                <AlertCircle size={14} className="shrink-0" />
+                <span>{errorMsg}</span>
               </div>
             )}
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-2.5 pt-2">
               <button
                 onClick={() => setShowSaveModal(false)}
                 disabled={isSaving}
-                className="flex-1 py-3 rounded-lg font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                className="flex-1 py-2.5 rounded-xl font-black text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
               >
                 {tAudio.close}
               </button>
               <button
                 onClick={handleSaveToLibrary}
                 disabled={isSaving || !audioTitle.trim()}
-                className="flex-1 py-3 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2.5 rounded-xl font-black text-xs text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
               >
                 {isSaving ? (
-                  <Loader2 className="animate-spin" size={18} />
+                  <Loader2 className="animate-spin" size={16} />
                 ) : (
-                  <Save size={18} />
+                  <Save size={16} />
                 )}
                 {isSaving ? tAudio.saving : tAudio.saveToLibrary}
               </button>
@@ -766,6 +793,8 @@ export function VocabAudioBuilder() {
           </div>
         </div>
       )}
+
+      {/* Delete Modal */}
       {audioToDelete && (
         <DeleteConfirmModal
           title={tAudio.confirmDelete}

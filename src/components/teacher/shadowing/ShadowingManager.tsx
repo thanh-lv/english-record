@@ -509,7 +509,7 @@ export function ShadowingManager() {
       </div>
 
       {showCreate && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="!m-0 fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] overscroll-contain">
           <div className="bg-white rounded-lg w-full max-w-md shadow-md p-6 space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">

@@ -19,7 +19,7 @@ export function StoryModal({
   useEscapeToClose(onClose);
   return (
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-[60] overflow-y-auto overscroll-contain items-start py-8"
+      className="!m-0 fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center p-4 z-[100] overflow-y-auto overscroll-contain items-start py-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby="story-modal-title"
