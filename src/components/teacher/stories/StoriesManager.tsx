@@ -10,8 +10,8 @@ import { StoryEditModal } from "./StoryEditModal";
 
 export function StoriesManager() {
   const { t } = useLanguage();
-  const tm = (t as any).teacherModal || {};
-  const tc = (t as any).common || {};
+  const tm = t.teacherModal;
+  const tc = t.common;
 
   const {
     loading,

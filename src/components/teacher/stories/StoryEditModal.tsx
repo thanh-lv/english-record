@@ -1,8 +1,10 @@
 import { AlertCircle, Loader2, Pencil, X } from "lucide-react";
 import { Story } from "../../../types";
 
+import { Translations } from "../../../i18n/LanguageContext";
+
 interface StoryEditModalProps {
-  t: any;
+  t: Translations;
   editingStory: Story;
   editTitle: string;
   editEmoji: string;
@@ -29,7 +31,7 @@ export function StoryEditModal({
   onSave,
   onClose,
 }: StoryEditModalProps) {
-  const tc = (t as any).common || {};
+  const tc = t.common;
 
   return (
     <div
@@ -110,7 +112,7 @@ export function StoryEditModal({
             className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-extrabold rounded-lg text-sm shadow-md transition-colors flex items-center gap-1.5"
           >
             {editSaving && <Loader2 size={16} className="animate-spin" />}
-            {tc.save || "Lưu thay đổi"}
+            {tc.saveChanges || "Lưu thay đổi"}
           </button>
         </div>
       </div>

@@ -8,7 +8,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { useLanguage } from "../../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
 import { AIQuestionParserModal } from "./AIQuestionParserModal";
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
@@ -18,8 +18,8 @@ import { QuestionModal } from "./QuestionModal";
 
 export function TopicsManager() {
   const { t } = useLanguage();
-  const tm = (t as any).teacherModal || {};
-  const tc = (t as any).common || {};
+  const tm = t.teacherModal;
+  const tc = t.common;
 
   const {
     topics,
@@ -174,7 +174,7 @@ export function TopicsManager() {
             </option>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
               <option key={g} value={g.toString()}>
-                Lớp {g}
+                {interpolate(tc.gradeLabel || "Lớp {grade}", { grade: g })}
               </option>
             ))}
             <option value="unassigned">
@@ -275,7 +275,7 @@ export function TopicsManager() {
                       : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
                   }`}
                 >
-                  Lớp {g}
+                  {interpolate(tc.gradeLabel || "Lớp {grade}", { grade: g })}
                 </button>
               );
             })}

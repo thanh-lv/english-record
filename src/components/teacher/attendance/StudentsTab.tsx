@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
-import { useLanguage } from "../../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import {
   Users,
   Plus,
@@ -13,7 +13,10 @@ import {
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
 import { formatClassName, useBodyScrollLock } from "../../../utils";
 
-export function StudentsTab({ tAtt }: { tAtt: any }) {
+export function StudentsTab() {
+  const { t } = useLanguage();
+  const tAtt = t.attendance;
+  const tc = t.common;
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -303,7 +306,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                 </div>
                 <div>
                   <label className="block text-sm font-black text-slate-700 mb-1.5">
-                    📚 Học liệu (đ)
+                    {tAtt.hocLieuLabelWithUnit || "📚 Học liệu (đ)"}
                   </label>
                   <input
                     type="text"
@@ -317,7 +320,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
 
               <div>
                 <label className="block text-sm font-black text-slate-700 mb-1.5">
-                  Số điện thoại Zalo Phụ huynh
+                  {tAtt.zaloPhoneLabel || "Số điện thoại Zalo Phụ huynh"}
                 </label>
                 <input
                   type="tel"
@@ -342,7 +345,7 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                   }}
                   className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                 >
-                  {(useLanguage as any)().t.common?.cancel || "Cancel"}
+                  {tc.cancel || "Hủy"}
                 </button>
                 <button
                   type="submit"
@@ -379,12 +382,12 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
           <Users size={36} className="mx-auto text-slate-300 mb-3" />
           <p className="text-slate-500 font-bold">{tAtt.noStudents}</p>
           <p className="text-slate-400 text-sm mt-1">
-            Nhấn "Thêm học sinh" để bắt đầu
+            {tAtt.clickAddStudentToStart || 'Nhấn "Thêm học sinh" để bắt đầu'}
           </p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-10 text-slate-400 font-bold">
-          Không tìm thấy học sinh nào
+          {tAtt.noStudentFound || "Không tìm thấy học sinh nào"}
         </div>
       ) : (
         <div className="space-y-4">
@@ -398,11 +401,17 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                 <div className="flex items-center gap-2">
                   <Users size={14} className="text-blue-200" />
                   <span className="font-black text-white text-sm">
-                    {formatClassName(cls, tAtt.unassignedClass)}
+                    {formatClassName(
+                      cls,
+                      tAtt.unassignedClass,
+                      tAtt.className ? tAtt.className + " " : "Lớp ",
+                    )}
                   </span>
                 </div>
                 <span className="text-blue-200 text-xs font-bold">
-                  {rows.length} học sinh
+                  {interpolate(tAtt.studentCount || "{count} học sinh", {
+                    count: rows.length,
+                  })}
                 </span>
               </div>
 
@@ -421,10 +430,10 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                         {tAtt.unitPrice}
                       </th>
                       <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
-                        SĐT Zalo Phụ Huynh
+                        {tAtt.zaloPhoneShort || "SĐT Zalo Phụ Huynh"}
                       </th>
                       <th className="px-4 py-2.5 text-center text-xs font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
-                        Thao tác
+                        {tAtt.action || "Thao tác"}
                       </th>
                     </tr>
                   </thead>
@@ -464,14 +473,14 @@ export function StudentsTab({ tAtt }: { tAtt: any }) {
                               className="flex items-center gap-1 px-3 py-1.5 text-xs font-black text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
                             >
                               <Pencil size={12} />
-                              Sửa
+                              {tAtt.edit || "Sửa"}
                             </button>
                             <button
                               onClick={() => setDeleteId(student.id)}
                               className="flex items-center gap-1 px-3 py-1.5 text-xs font-black text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors"
                             >
                               <Trash2 size={12} />
-                              Xóa
+                              {tAtt.delete || "Xóa"}
                             </button>
                           </div>
                         </td>

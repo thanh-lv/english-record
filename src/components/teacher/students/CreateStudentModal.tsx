@@ -262,9 +262,7 @@ export function CreateStudentModal({
             ) : (
               <Check size={16} />
             )}
-            {(t as any).common?.createStudentBtn ||
-              t.common?.save ||
-              "Tạo học sinh"}
+            {t.common.createStudent || t.common.save}
           </button>
         </div>
       </div>

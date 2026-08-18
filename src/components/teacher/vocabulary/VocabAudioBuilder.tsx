@@ -30,7 +30,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 export function VocabAudioBuilder() {
   const { t } = useLanguage();
-  const tAudio = (t as any).audioBuilder;
+  const tAudio = t.audioBuilder;
 
   const [inputText, setInputText] = useState<string>("");
   const [repetitions, setRepetitions] = useState<number>(3);

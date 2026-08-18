@@ -1,8 +1,9 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { Story } from "../../../types";
+import { Translations } from "../../../i18n/LanguageContext";
 
 interface StoryCardProps {
-  t: any;
+  t: Translations;
   story: Story;
   onEdit: (story: Story) => void;
   onDelete: (story: Story, e: React.MouseEvent) => void;
@@ -16,8 +17,8 @@ export function StoryCard({
   onDelete,
   onToggleActive,
 }: StoryCardProps) {
-  const tm = (t as any).teacherModal || {};
-  const tc = (t as any).common || {};
+  const tm = t.teacherModal;
+  const tc = t.common;
 
   return (
     <div className="bg-white rounded-lg border-2 border-slate-100 overflow-hidden shadow-md flex flex-col hover:border-purple-200 transition-all">

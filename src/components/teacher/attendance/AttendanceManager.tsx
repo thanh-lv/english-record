@@ -8,7 +8,7 @@ import { AttendanceLeaderboard } from "./AttendanceLeaderboard";
 
 export function AttendanceManager() {
   const { t } = useLanguage();
-  const tAtt = (t as any).attendance;
+  const tAtt = t.attendance;
   const [activeTab, setActiveTab] = useState<
     "students" | "checkin" | "summary" | "leaderboard"
   >("summary");
@@ -63,10 +63,10 @@ export function AttendanceManager() {
       </div>
 
       <div className="bg-white rounded-lg border border-slate-100 shadow-md p-3 min-h-[500px]">
-        {activeTab === "students" && <StudentsTab tAtt={tAtt} />}
-        {activeTab === "checkin" && <CheckinTab tAtt={tAtt} />}
-        {activeTab === "summary" && <SummaryTab tAtt={tAtt} />}
-        {activeTab === "leaderboard" && <AttendanceLeaderboard tAtt={tAtt} />}
+        {activeTab === "students" && <StudentsTab />}
+        {activeTab === "checkin" && <CheckinTab />}
+        {activeTab === "summary" && <SummaryTab />}
+        {activeTab === "leaderboard" && <AttendanceLeaderboard />}
       </div>
     </div>
   );

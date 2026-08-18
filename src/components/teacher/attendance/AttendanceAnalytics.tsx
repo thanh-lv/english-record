@@ -11,6 +11,7 @@ import {
   Star,
 } from "lucide-react";
 import { formatClassName } from "../../../utils";
+import { interpolate } from "../../../i18n/LanguageContext";
 
 interface AnalyticsProps {
   tAtt: any;
@@ -42,7 +43,10 @@ export function AttendanceAnalytics({
             m: d.getMonth() + 1,
             y: d.getFullYear(),
             label: `T${d.getMonth() + 1}`,
-            fullLabel: `Tháng ${d.getMonth() + 1}/${d.getFullYear()}`,
+            fullLabel: interpolate(tAtt?.monthYear || "Tháng {month}/{year}", {
+              month: d.getMonth() + 1,
+              year: d.getFullYear(),
+            }),
           });
         }
 
@@ -119,7 +123,11 @@ export function AttendanceAnalytics({
           > = {};
 
           studRes.data.forEach((s) => {
-            const cls = s.class_name || tAtt.unassignedClass || "Chưa phân lớp";
+            const cls = formatClassName(
+              s.class_name,
+              tAtt?.unassignedClass || "Chưa phân lớp",
+              tAtt?.className ? tAtt.className + " " : "Lớp ",
+            );
             if (!byClass[cls])
               byClass[cls] = { totalStudents: 0, totalSessions: 0 };
             byClass[cls].totalStudents += 1;
@@ -128,8 +136,11 @@ export function AttendanceAnalytics({
           recRes.data.forEach((r) => {
             const student = studRes.data!.find((s) => s.id === r.student_id);
             if (student) {
-              const cls =
-                student.class_name || tAtt.unassignedClass || "Chưa phân lớp";
+              const cls = formatClassName(
+                student.class_name,
+                tAtt?.unassignedClass || "Chưa phân lớp",
+                tAtt?.className ? tAtt.className + " " : "Lớp ",
+              );
               if (byClass[cls]) byClass[cls].totalSessions += 1;
             }
           });
@@ -207,7 +218,8 @@ export function AttendanceAnalytics({
             {tAtt.analyticsTitle || "Biểu Đồ Doanh Thu & Thống Kê"}
           </h3>
           <p className="text-xs text-slate-400 font-bold">
-            Phân tích xu hướng học phí 6 tháng gần đây
+            {tAtt?.analyticsSubtitle ||
+              "Phân tích xu hướng học phí 6 tháng gần đây"}
           </p>
         </div>
       </div>
@@ -223,43 +235,49 @@ export function AttendanceAnalytics({
             {/* Tổng cần thu 6 tháng */}
             <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-1">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                Cần thu (6T)
+                {tAtt?.projected6m || "Cần thu (6T)"}
               </p>
               <p className="text-lg font-black text-slate-800 leading-tight">
                 {fmt(totalProjected6m)}
               </p>
               <p className="text-[10px] text-slate-400 font-medium">
-                {totalProjected6m.toLocaleString()} đ
+                {interpolate(tAtt?.currencyVnd || "{amount} đ", {
+                  amount: totalProjected6m.toLocaleString(),
+                })}
               </p>
             </div>
             {/* Đã thu */}
             <div className="bg-white rounded-2xl border border-emerald-200 p-4 shadow-sm space-y-1">
               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-wider flex items-center gap-1">
-                <Wallet size={10} /> Đã thu (6T)
+                <Wallet size={10} /> {tAtt?.collected6m || "Đã thu (6T)"}
               </p>
               <p className="text-lg font-black text-emerald-700 leading-tight">
                 {fmt(totalCollected6m)}
               </p>
               <p className="text-[10px] text-slate-400 font-medium">
-                {collectionRate6m}% tỷ lệ thu
+                {interpolate(tAtt?.collectionRateLabel || "{rate}% tỷ lệ thu", {
+                  rate: collectionRate6m,
+                })}
               </p>
             </div>
             {/* Tồn đọng */}
             <div className="bg-white rounded-2xl border border-rose-200 p-4 shadow-sm space-y-1">
               <p className="text-[10px] font-black text-rose-500 uppercase tracking-wider flex items-center gap-1">
-                <AlertCircle size={10} /> Tồn đọng
+                <AlertCircle size={10} /> {tAtt?.outstanding || "Tồn đọng"}
               </p>
               <p className="text-lg font-black text-rose-600 leading-tight">
                 {fmt(totalOutstanding6m)}
               </p>
               <p className="text-[10px] text-slate-400 font-medium">
-                {100 - collectionRate6m}% chưa thu
+                {interpolate(tAtt?.uncollectedRateLabel || "{rate}% chưa thu", {
+                  rate: 100 - collectionRate6m,
+                })}
               </p>
             </div>
             {/* Tháng tốt nhất */}
             <div className="bg-white rounded-2xl border border-amber-200 p-4 shadow-sm space-y-1">
               <p className="text-[10px] font-black text-amber-600 uppercase tracking-wider flex items-center gap-1">
-                <Star size={10} /> Tháng tốt nhất
+                <Star size={10} /> {tAtt?.bestMonth || "Tháng tốt nhất"}
               </p>
               <p className="text-lg font-black text-amber-700 leading-tight">
                 {bestMonth ? bestMonth.fullLabel : "—"}
@@ -285,11 +303,11 @@ export function AttendanceAnalytics({
                   <div className="flex items-center gap-3 mt-2 text-[11px] font-bold">
                     <span className="flex items-center gap-1">
                       <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" />
-                      Đã thu
+                      {tAtt?.collectedLabel || "Đã thu"}
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="w-2.5 h-2.5 rounded-sm bg-purple-200 inline-block" />
-                      Chưa thu
+                      {tAtt?.uncollectedLabel || "Chưa thu"}
                     </span>
                   </div>
                 </div>
@@ -370,14 +388,27 @@ export function AttendanceAnalytics({
                           >
                             <p className="text-slate-300 mb-1">{t.fullLabel}</p>
                             <p className="text-emerald-400">
-                              ✓ Đã thu: {t.collected.toLocaleString()}đ
+                              {interpolate(
+                                tAtt?.collectedStatus || "✓ Đã thu: {amount} đ",
+                                { amount: t.collected.toLocaleString() },
+                              )}
                             </p>
                             <p className="text-rose-400">
-                              ✗ Chưa thu:{" "}
-                              {(t.projected - t.collected).toLocaleString()}đ
+                              {interpolate(
+                                tAtt?.uncollectedStatus ||
+                                  "✗ Chưa thu: {amount} đ",
+                                {
+                                  amount: (
+                                    t.projected - t.collected
+                                  ).toLocaleString(),
+                                },
+                              )}
                             </p>
                             <p className="text-white mt-1 border-t border-slate-600 pt-1">
-                              Tổng: {t.projected.toLocaleString()}đ
+                              {interpolate(
+                                tAtt?.totalStatus || "Tổng: {amount} đ",
+                                { amount: t.projected.toLocaleString() },
+                              )}
                             </p>
                           </div>
                         )}
@@ -435,8 +466,8 @@ export function AttendanceAnalytics({
               </div>
 
               <p className="text-[10px] text-slate-400 font-medium text-center mt-3">
-                Cột xếp chồng: 🟢 Đã thu + 🟣 Chưa thu = Tổng cần thu · Viền tím
-                = tháng đang xem
+                {tAtt?.chartLegendHelp ||
+                  "Cột xếp chồng: 🟢 Đã thu + 🟣 Chưa thu = Tổng cần thu · Viền tím = tháng đang xem"}
               </p>
             </div>
 
@@ -446,7 +477,7 @@ export function AttendanceAnalytics({
               <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col items-center h-full justify-between">
                 <h4 className="font-black text-slate-800 text-sm mb-3 self-start flex items-center gap-1.5">
                   <Wallet size={14} className="text-emerald-600" />
-                  Tỷ lệ thu học phí
+                  {tAtt?.collectionRateTitle || "Tỷ lệ thu học phí"}
                 </h4>
                 {/* SVG donut */}
                 <div className="relative w-28 h-28 my-auto">
@@ -489,7 +520,7 @@ export function AttendanceAnalytics({
                       {collectionRate6m}%
                     </span>
                     <span className="text-[9px] font-bold text-slate-400 leading-tight text-center">
-                      đã thu
+                      {tAtt?.collectedLabel?.toLowerCase() || "đã thu"}
                     </span>
                   </div>
                 </div>
@@ -511,11 +542,15 @@ export function AttendanceAnalytics({
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
             <h4 className="font-black text-slate-800 text-sm mb-4 flex items-center gap-1.5">
               <PieChart size={14} className="text-blue-600" />
-              Chuyên cần theo Lớp (T{month})
+              {interpolate(
+                tAtt?.attendanceRateTitleClass ||
+                  "Chuyên cần theo Lớp (T{month})",
+                { month },
+              )}
             </h4>
             {classRates.length === 0 ? (
               <p className="text-center text-slate-400 text-xs py-6 font-bold">
-                Chưa có dữ liệu tháng này
+                {tAtt?.noDataThisMonth || "Chưa có dữ liệu tháng này"}
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
@@ -530,13 +565,19 @@ export function AttendanceAnalytics({
                     >
                       <div className="flex justify-between text-[11px] font-bold">
                         <span className="text-slate-700 truncate max-w-[65%]">
-                          {formatClassName(c.cls, tAtt?.unassignedClass)}
+                          {formatClassName(
+                            c.cls,
+                            tAtt?.unassignedClass,
+                            tAtt?.className ? tAtt.className + " " : "Lớp ",
+                          )}
                           <span className="text-slate-400 font-medium ml-1">
                             ({c.totalStudents} HS)
                           </span>
                         </span>
                         <span className="text-slate-700 shrink-0">
-                          {c.totalSessions} buổi
+                          {interpolate(tAtt?.sessionCount || "{count} buổi", {
+                            count: c.totalSessions,
+                          })}
                         </span>
                       </div>
                       <div className="w-full h-2 bg-slate-200/70 rounded-full overflow-hidden">
@@ -546,7 +587,10 @@ export function AttendanceAnalytics({
                         />
                       </div>
                       <p className="text-[10px] text-slate-400 font-medium text-right">
-                        TB {c.avgSessions} buổi/HS
+                        {interpolate(
+                          tAtt?.averageSessionsPerStudent || "TB {avg} buổi/HS",
+                          { avg: c.avgSessions },
+                        )}
                       </p>
                     </div>
                   );

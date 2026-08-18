@@ -1,5 +1,5 @@
 import { CheckCircle, Star } from "lucide-react";
-import { useLanguage } from "../../../i18n/LanguageContext";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 
 const PRIZES = [
   "🎈",
@@ -54,7 +54,9 @@ export function ExercisesTab({
           </h3>
           {studentGrade && (
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-100">
-              Lớp {studentGrade}
+              {interpolate(t.common?.gradeLabel || "Lớp {grade}", {
+                grade: studentGrade,
+              })}
             </span>
           )}
         </div>

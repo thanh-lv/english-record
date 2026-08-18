@@ -1,7 +1,9 @@
 import { Loader2, X } from "lucide-react";
 
+import { Translations } from "../../../i18n/LanguageContext";
+
 interface StoryManualModalProps {
-  t: any;
+  t: Translations;
   manualTitle: string;
   manualContent: string;
   manualEmoji: string;
@@ -35,7 +37,7 @@ export function StoryManualModal({
   onSave,
   onClose,
 }: StoryManualModalProps) {
-  const tc = (t as any).common || {};
+  const tc = t.common;
 
   return (
     <div
@@ -72,7 +74,7 @@ export function StoryManualModal({
             </div>
             <div>
               <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                Emoji
+                {tc.storyEmoji || "Emoji"}
               </label>
               <input
                 value={manualEmoji}
@@ -85,7 +87,7 @@ export function StoryManualModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                Thể loại
+                {tc.storyGenre || "Thể loại"}
               </label>
               <input
                 value={manualType}
@@ -95,28 +97,33 @@ export function StoryManualModal({
             </div>
             <div>
               <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                Độ tuổi (Năm sinh)
+                {tc.storyYearBorn || "Độ tuổi (Năm sinh)"}
               </label>
               <select
                 value={manualYearBorn}
                 onChange={(e) => onYearBornChange(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-blue-400 focus:outline-none"
               >
-                <option value="2018">Mầm non (dưới 6 tuổi)</option>
-                <option value="2015">Tiểu học (trên 6 tuổi)</option>
+                <option value="2018">
+                  {t.teacherModal.ageKindergartenOption}
+                </option>
+                <option value="2015">{t.teacherModal.agePrimaryOption}</option>
               </select>
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-              Nội dung bài đọc (Tiếng Anh)
+              {tc.readingContentLabel || "Nội dung bài đọc (Tiếng Anh)"}
             </label>
             <textarea
               rows={5}
               value={manualContent}
               onChange={(e) => onContentChange(e.target.value)}
-              placeholder="Nhập nội dung truyện bằng tiếng Anh..."
+              placeholder={
+                tc.readingContentPlaceholder ||
+                "Nhập nội dung truyện bằng tiếng Anh..."
+              }
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:border-blue-400 focus:outline-none leading-relaxed"
             />
           </div>
@@ -143,7 +150,7 @@ export function StoryManualModal({
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1"
           >
             {manualSaving && <Loader2 size={14} className="animate-spin" />}
-            {tc.save || "Lưu truyện"}
+            {t.teacherModal?.saveStory || tc.save || "Lưu câu chuyện"}
           </button>
         </div>
       </div>

@@ -1,8 +1,9 @@
 import { ChevronDown, ChevronUp, Plus, Trash2, Loader2 } from "lucide-react";
 import { VocabSet, VocabCard } from "../../../types/vocabulary";
+import { Translations } from "../../../i18n/LanguageContext";
 
 interface VocabSetCardProps {
-  t: any;
+  t: Translations;
   set: VocabSet;
   isExpanded: boolean;
   cards: VocabCard[] | undefined;
@@ -24,8 +25,8 @@ export function VocabSetCard({
   onDeleteSet,
   onDeleteCard,
 }: VocabSetCardProps) {
-  const vm = (t as any).vocabManager || {};
-  const tc = (t as any).common || {};
+  const vm = t.vocabManager;
+  const tc = t.common;
 
   return (
     <div className="bg-white rounded-lg border-2 border-slate-100 shadow-sm overflow-hidden transition-all hover:border-blue-200">
@@ -49,10 +50,10 @@ export function VocabSetCard({
               <span className="text-slate-300">•</span>
               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-500">
                 {set.age_group === "kindergarten"
-                  ? vm.ageKindergarten || "Mầm non"
+                  ? t.teacherModal?.ageKindergarten || "Mầm non"
                   : set.age_group === "primary"
-                    ? vm.agePrimary || "Tiểu học"
-                    : vm.ageAll || "Tất cả độ tuổi"}
+                    ? t.teacherModal?.agePrimary || "Tiểu học"
+                    : t.teacherModal?.ageAll || "Tất cả"}
               </span>
             </div>
           </div>

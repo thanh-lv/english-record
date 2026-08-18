@@ -202,7 +202,7 @@ export function useRecording({
       setBongBeAudios({});
       setAudioBase64(null);
     } catch (error) {
-      console.error("Lỗi khi gửi bài:", error);
+      console.error("Error submitting recording:", error);
       setAppError(
         navigator.onLine ? t.common.submitError : t.common.offlineError,
       );

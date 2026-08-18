@@ -9,6 +9,9 @@ import {
   Phone,
 } from "lucide-react";
 import { formatClassName, useBodyScrollLock } from "../../../utils";
+import { interpolate } from "../../../i18n/LanguageContext";
+
+import { useLanguage } from "../../../i18n/LanguageContext";
 
 interface ZaloShareModalProps {
   student: any;
@@ -27,6 +30,9 @@ export function ZaloShareModal({
   note,
   onClose,
 }: ZaloShareModalProps) {
+  const { t } = useLanguage();
+  const tAtt = t.attendance;
+  const tc = t.common;
   useBodyScrollLock(true);
   const [phone, setPhone] = useState(student.phone || "");
   const [copied, setCopied] = useState(false);
@@ -48,19 +54,30 @@ export function ZaloShareModal({
   };
 
   const formattedFee = (student.total_fee || 0).toLocaleString();
-  const statusText = isPaid ? "🟢 Đã nộp" : "🔴 Chưa nộp";
+  const statusText = isPaid
+    ? tAtt.paid || "🟢 Đã nộp"
+    : tAtt.unpaid || "🔴 Chưa nộp";
   const classNameStr = student.class_name
-    ? ` (${formatClassName(student.class_name)})`
+    ? ` (${formatClassName(student.class_name, tAtt.unassignedClass, tAtt.className ? tAtt.className + " " : "Lớp ")})`
     : "";
 
-  const defaultMessage = `Kính gửi Phụ huynh em ${student.name}${classNameStr},
-
-Cô xin gửi thông báo học phí Tháng ${month}/${year}:
-- Số buổi đi học: ${student.total_sessions || 0} buổi
-- Tổng học phí: ${formattedFee} VNĐ
-- Trạng thái HP: ${statusText}
-${note ? `- Ghi chú: ${note}\n` : ""}
-Phụ huynh kiểm tra giúp cô ạ. Cô xin cảm ơn Phụ huynh!`;
+  const noteStr = note
+    ? interpolate(tAtt.zaloNotePrefix || "- Ghi chú: {note}\n", { note })
+    : "";
+  const defaultMessage = interpolate(
+    tAtt.zaloMessageTemplate ||
+      "Kính gửi Phụ huynh em {name}{className},\n\nCô xin gửi thông báo học phí Tháng {month}/{year}:\n- Số buổi đi học: {sessions} buổi\n- Tổng học phí: {fee} VNĐ\n- Trạng thái HP: {status}\n{note}\nPhụ huynh kiểm tra giúp cô ạ. Cô xin cảm ơn Phụ huynh!",
+    {
+      name: student.name,
+      className: classNameStr,
+      month,
+      year,
+      sessions: student.total_sessions || 0,
+      fee: formattedFee,
+      status: statusText,
+      note: noteStr,
+    },
+  );
 
   const [message, setMessage] = useState(defaultMessage);
 
@@ -98,10 +115,10 @@ Phụ huynh kiểm tra giúp cô ạ. Cô xin cảm ơn Phụ huynh!`;
           </div>
           <div>
             <h3 className="font-black text-slate-800 text-base sm:text-lg">
-              Gửi Thông Báo Zalo
+              {tAtt.sendZaloTitle || "Gửi Thông Báo Zalo"}
             </h3>
             <p className="text-xs text-slate-500 font-bold">
-              Phụ huynh em:{" "}
+              {tAtt.studentParentOf || "Phụ huynh em:"}{" "}
               <span className="text-[#0068FF]">{student.name}</span>
             </p>
           </div>
@@ -110,14 +127,16 @@ Phụ huynh kiểm tra giúp cô ạ. Cô xin cảm ơn Phụ huynh!`;
         {/* SĐT Phụ huynh Input */}
         <div className="space-y-1">
           <label className="block text-xs font-bold text-slate-600 flex items-center gap-1">
-            <Phone size={13} className="text-[#0068FF]" /> Số điện thoại Zalo
-            Phụ huynh:
+            <Phone size={13} className="text-[#0068FF]" />{" "}
+            {tAtt.zaloPhoneLabelModal || "Số điện thoại Zalo Phụ huynh:"}
           </label>
           <input
             type="tel"
             value={phone}
             onChange={(e) => handleSavePhone(e.target.value)}
-            placeholder="Nhập SĐT (VD: 0912345678)..."
+            placeholder={
+              tAtt.zaloPhonePlaceholder || "Nhập SĐT (VD: 0912345678)..."
+            }
             className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-[#0068FF]/30 focus:border-[#0068FF] outline-none"
           />
         </div>
@@ -126,14 +145,14 @@ Phụ huynh kiểm tra giúp cô ạ. Cô xin cảm ơn Phụ huynh!`;
         <div className="space-y-1">
           <div className="flex justify-between items-center">
             <label className="block text-xs font-bold text-slate-600">
-              Nội dung tin nhắn mẫu:
+              {tAtt.zaloMessagePreviewLabel || "Nội dung tin nhắn mẫu:"}
             </label>
             <button
               onClick={handleCopyMessage}
               className="text-xs font-black text-[#0068FF] hover:underline flex items-center gap-1"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
-              {copied ? "Đã sao chép!" : "Sao chép"}
+              {copied ? tc.copied || "Đã sao chép!" : tc.copy || "Sao chép"}
             </button>
           </div>
           <textarea
@@ -147,8 +166,9 @@ Phụ huynh kiểm tra giúp cô ạ. Cô xin cảm ơn Phụ huynh!`;
         {/* Toast note */}
         {copied && (
           <div className="bg-emerald-50 text-emerald-700 text-xs font-black p-2.5 rounded-xl border border-emerald-200 flex items-center gap-2 animate-bounce">
-            <Check size={16} /> Tin nhắn đã tự động sao chép! Bạn chỉ cần sang
-            Zalo bấm Dán (Paste) & Gửi.
+            <Check size={16} />{" "}
+            {tAtt.zaloCopiedHint ||
+              "Tin nhắn đã tự động sao chép! Bạn chỉ cần sang Zalo bấm Dán (Paste) & Gửi."}
           </div>
         )}
 
@@ -158,14 +178,14 @@ Phụ huynh kiểm tra giúp cô ạ. Cô xin cảm ơn Phụ huynh!`;
             onClick={onClose}
             className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-colors"
           >
-            Đóng
+            {tAtt.close || "Đóng"}
           </button>
           <button
             onClick={handleOpenZalo}
             className="flex-1 py-2.5 bg-[#0068FF] hover:bg-[#0052cc] text-white font-black rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
           >
             <ExternalLink size={16} />
-            Mở Zalo Nhắn Ngay
+            {tAtt.openZaloBtn || "Mở Zalo Nhắn Ngay"}
           </button>
         </div>
       </div>

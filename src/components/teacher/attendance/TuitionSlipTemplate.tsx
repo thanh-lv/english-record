@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 
 interface TuitionSlipProps {
-  tAtt: any;
   student: any;
   records: any[];
   month: number;
@@ -17,7 +17,6 @@ interface TuitionSlipProps {
 export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
   (
     {
-      tAtt,
       student,
       records,
       month,
@@ -31,6 +30,8 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
     },
     ref,
   ) => {
+    const { t } = useLanguage();
+    const tAtt = t.attendance;
     const dates = records.map((r) => {
       const dt = new Date(r.checkin_time);
       const day = String(dt.getDate()).padStart(2, "0");
@@ -179,7 +180,9 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
                 color: "#1e293b",
               }}
             >
-              {student.unit_price.toLocaleString()} đ
+              {interpolate(tAtt.currencyVnd || "{amount} đ", {
+                amount: student.unit_price.toLocaleString(),
+              })}
             </span>
           </div>
 
@@ -244,7 +247,9 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
                 <input
                   type="text"
                   value={displayLabel}
-                  placeholder="Tên học liệu..."
+                  placeholder={
+                    tAtt.materialNamePlaceholder || "Tên học liệu..."
+                  }
                   onChange={(e) => onHocLieuLabelChange(e.target.value)}
                   style={{
                     width: "160px",
@@ -308,11 +313,13 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
                   <span
                     style={{ fontSize: 16, fontWeight: 700, color: "#138e83" }}
                   >
-                    đ
+                    {tAtt.currencySymbol || "đ"}
                   </span>
                 </span>
               ) : (
-                `${displayValue.toLocaleString()} đ`
+                interpolate(tAtt.currencyVnd || "{amount} đ", {
+                  amount: displayValue.toLocaleString(),
+                })
               )}
             </span>
           </div>
@@ -355,7 +362,9 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
                 marginTop: 4,
               }}
             >
-              {grandTotal.toLocaleString()} đ
+              {interpolate(tAtt.currencyVnd || "{amount} đ", {
+                amount: grandTotal.toLocaleString(),
+              })}
             </p>
           </div>
         </div>

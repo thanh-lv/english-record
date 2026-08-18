@@ -34,8 +34,8 @@ export function StudentsManager({
   onSelectStudent: (name: string, avatar?: string) => void;
 }) {
   const { t } = useLanguage();
-  const tm = (t as any).teacherModal || {};
-  const tc = (t as any).common || {};
+  const tm = t.teacherModal;
+  const tc = t.common;
   const [students, setStudents] = useState<any[]>([]);
   const [recordings, setRecordings] = useState<any[]>([]);
   const [activeTopics, setActiveTopics] = useState<any[]>([]);

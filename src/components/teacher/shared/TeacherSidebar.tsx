@@ -35,7 +35,7 @@ export function TeacherSidebar() {
     [
       {
         id: "attendance",
-        label: (t as any).attendance?.title || "Điểm danh",
+        label: t.attendance.title,
         icon: <Calendar size={18} />,
       },
       {

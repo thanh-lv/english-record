@@ -11,6 +11,8 @@ import { supabase } from "../lib/supabase";
 
 export type Language = "vi" | "en";
 export type Translations = typeof vi;
+export type AttendanceTranslations = Translations["attendance"];
+export type CommonTranslations = Translations["common"];
 
 const STORAGE_KEY = "app-language";
 

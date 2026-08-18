@@ -21,8 +21,11 @@ import { ZaloShareModal } from "./ZaloShareModal";
 import { MessageCircle } from "lucide-react";
 import { Check, X } from "lucide-react";
 import { formatClassName, useBodyScrollLock } from "../../../utils";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 
-export function SummaryTab({ tAtt }: { tAtt: any }) {
+export function SummaryTab() {
+  const { t, lang } = useLanguage();
+  const tAtt = t.attendance;
   const [records, setRecords] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +74,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
     newValue?: number,
   ) => {
     const current = classHocLieuMap[className] || {
-      label: "📚 Học liệu",
+      label: tAtt.hocLieuSlip || "📚 Học liệu",
       value: 0,
     };
     const updatedLabel = newLabel !== undefined ? newLabel : current.label;
@@ -248,7 +251,10 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
         const matchingStudent = students.find((s) => s.id === item.student_id);
         const studentClass = item.class_name || tAtt.unassignedClass;
         const hlObj = classHocLieuMap[studentClass] || {
-          label: matchingStudent?.hoc_lieu_label || "📚 Học liệu",
+          label:
+            matchingStudent?.hoc_lieu_label ||
+            tAtt.hocLieuSlip ||
+            "📚 Học liệu",
           value: Number(
             matchingStudent?.hoc_lieu_value ?? matchingStudent?.hoc_lieu ?? 0,
           ),
@@ -274,7 +280,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           );
           const studentClass = student.class_name || tAtt.unassignedClass;
           const hlObj = classHocLieuMap[studentClass] || {
-            label: student.hoc_lieu_label || "📚 Học liệu",
+            label: student.hoc_lieu_label || tAtt.hocLieuSlip || "📚 Học liệu",
             value: Number(student.hoc_lieu_value ?? student.hoc_lieu ?? 0),
           };
           const baseFee = studentRecords.length * student.unit_price;
@@ -435,9 +441,13 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
     const rows = [
       [`${tAtt.tuitionSlip} — ${s.name}`],
       [
-        `Lớp: ${s.class_name || tAtt.unassignedClass}`,
+        formatClassName(
+          s.class_name,
+          tAtt.unassignedClass,
+          tAtt.className ? tAtt.className + ": " : "Lớp: ",
+        ),
         "",
-        `Tháng ${month}/${year}`,
+        interpolate(tAtt.monthYear || "Tháng {month}/{year}", { month, year }),
       ],
       [],
       [tAtt.no, tAtt.date, tAtt.time, tAtt.note],
@@ -445,8 +455,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
         const dt = new Date(r.checkin_time);
         return [
           i + 1,
-          dt.toLocaleDateString("vi-VN"),
-          dt.toLocaleTimeString("vi-VN", {
+          dt.toLocaleDateString(lang === "vi" ? "vi-VN" : "en-US"),
+          dt.toLocaleTimeString(lang === "vi" ? "vi-VN" : "en-US", {
             hour: "2-digit",
             minute: "2-digit",
           }),
@@ -560,7 +570,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
       }
     } catch (e) {
       console.error("Error adding makeup session:", e);
-      alert("Không thể thêm buổi học. Vui lòng thử lại.");
+      alert(
+        tAtt.addSessionError || "Không thể thêm buổi học. Vui lòng thử lại.",
+      );
     } finally {
       setRecActionLoading(false);
     }
@@ -586,14 +598,20 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
       setEditingRecId(null);
     } catch (e) {
       console.error("Error editing session date:", e);
-      alert("Không thể cập nhật ngày học.");
+      alert(tAtt.updateSessionError || "Không thể cập nhật ngày học.");
     } finally {
       setRecActionLoading(false);
     }
   };
 
   const handleDeleteSession = async (recId: string) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa buổi điểm danh này?")) return;
+    if (
+      !confirm(
+        tAtt.deleteCheckinConfirm ||
+          "Bạn có chắc chắn muốn xóa buổi điểm danh này?",
+      )
+    )
+      return;
     setRecActionLoading(true);
     try {
       const { error } = await supabase
@@ -604,7 +622,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
       setRecords((prev) => prev.filter((r) => r.id !== recId));
     } catch (e) {
       console.error("Error deleting session:", e);
-      alert("Không thể xóa buổi điểm danh.");
+      alert(tAtt.deleteCheckinError || "Không thể xóa buổi điểm danh.");
     } finally {
       setRecActionLoading(false);
     }
@@ -632,7 +650,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
           >
             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
               <option key={m} value={m}>
-                Tháng {m}
+                {interpolate(tAtt.monthName || "Tháng {m}", { m })}
               </option>
             ))}
           </select>
@@ -666,7 +684,11 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
               <option value="all">{tAtt.allClasses}</option>
               {availableClasses.map((c) => (
                 <option key={c} value={c}>
-                  {formatClassName(c, tAtt.unassignedClass)}
+                  {formatClassName(
+                    c,
+                    tAtt.unassignedClass,
+                    tAtt.className ? tAtt.className + " " : "Lớp ",
+                  )}
                 </option>
               ))}
             </select>
@@ -836,16 +858,20 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   <div className="bg-purple-50/90 px-4 py-2 border-b border-purple-100 flex flex-wrap items-center justify-between gap-2 print:hidden">
                     <div className="flex items-center gap-1.5 min-w-[200px] flex-1">
                       <span className="text-xs font-black text-purple-900 shrink-0">
-                        📚 Nhãn:
+                        {tAtt.labelField || "📚 Nhãn:"}
                       </span>
                       <input
                         type="text"
                         value={
                           classHocLieuMap[cls]?.label !== undefined
                             ? classHocLieuMap[cls].label
-                            : rows[0]?.hoc_lieu_label || "📚 Học liệu"
+                            : rows[0]?.hoc_lieu_label ||
+                              tAtt.hocLieuSlip ||
+                              "📚 Học liệu"
                         }
-                        placeholder="Mô tả (VD: Vở + Sách)..."
+                        placeholder={
+                          tAtt.materialPlaceholder || "Mô tả (VD: Vở + Sách)..."
+                        }
                         onChange={(e) =>
                           handleUpdateClassHocLieuMap(
                             cls,
@@ -858,7 +884,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-black text-purple-900 shrink-0">
-                        Số tiền:
+                        {tAtt.amountField || "Số tiền:"}
                       </span>
                       <input
                         type="text"
@@ -891,7 +917,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         className="w-24 px-2 py-1 text-xs font-black text-right text-purple-900 bg-white border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none shadow-sm"
                       />
                       <span className="text-xs font-bold text-purple-800">
-                        đ / HS
+                        {tAtt.vndPerStudent || "đ / HS"}
                       </span>
                     </div>
                   </div>
@@ -917,7 +943,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                             {s.total_sessions}
                           </span>
                           <span className="text-xs text-slate-400 font-medium shrink-0">
-                            buổi
+                            {tAtt.sessionUnit || "buổi"}
                           </span>
                           <span className="font-black text-purple-700 text-sm shrink-0">
                             {tAtt.currencyVnd.replace(
@@ -929,7 +955,10 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         {/* Row 2: Đơn giá + Controls */}
                         <div className="flex items-center gap-2 mt-2 flex-wrap pl-7">
                           <span className="text-xs text-slate-400 font-medium">
-                            {s.unit_price.toLocaleString()}đ/buổi
+                            {interpolate(
+                              tAtt.pricePerSession || "{price} đ/buổi",
+                              { price: s.unit_price.toLocaleString() },
+                            )}
                           </span>
                           <div className="flex-1" />
                           {/* Toggle trạng thái HP */}
@@ -952,7 +981,10 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                           <button
                             onClick={() => setZaloStudent(s)}
                             className="px-2.5 py-1 text-xs font-black text-[#0068FF] bg-[#0068FF]/10 hover:bg-[#0068FF]/20 rounded-lg transition-all flex items-center gap-1 print:hidden shadow-sm active:scale-95"
-                            title="Gửi thông báo Zalo cho Phụ huynh"
+                            title={
+                              tAtt.sendZaloTooltip ||
+                              "Gửi thông báo Zalo cho Phụ huynh"
+                            }
                           >
                             <MessageCircle size={12} /> Zalo
                           </button>
@@ -964,14 +996,17 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                             }}
                             className="flex items-center gap-1 px-2.5 py-1 text-xs font-black text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors print:hidden"
                           >
-                            <CalendarDays size={12} /> Xem
+                            <CalendarDays size={12} /> {tAtt.details || "Xem"}
                           </button>
                         </div>
                         {/* Row 3: Ghi chú riêng (Lưu CSDL Supabase) */}
                         <div className="mt-2 pl-7 print:hidden">
                           <input
                             type="text"
-                            placeholder="Nhập ghi chú riêng (Tự động lưu)..."
+                            placeholder={
+                              tAtt.individualNotePlaceholder ||
+                              "Nhập ghi chú riêng (Tự động lưu)..."
+                            }
                             value={
                               studentNotes[s.id] !== undefined
                                 ? studentNotes[s.id]
@@ -996,14 +1031,14 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   {/* Footer tổng lớp */}
                   <div className="bg-purple-50 border-t-2 border-purple-200 px-4 py-3 flex items-center justify-between">
                     <span className="font-black text-purple-800 text-sm">
-                      Cộng
+                      {tAtt.sum || "Cộng"}
                     </span>
                     <div className="flex items-center gap-3">
                       <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-200 text-purple-800 font-black text-xs">
                         {classSessions}
                       </span>
                       <span className="text-xs text-purple-600 font-bold">
-                        buổi
+                        {tAtt.sessionUnit || "buổi"}
                       </span>
                       <span className="font-black text-purple-700 text-base">
                         {tAtt.currencyVnd.replace(
@@ -1023,7 +1058,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
             <div className="flex justify-end">
               <div className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-lg px-6 py-4 shadow-md text-right">
                 <p className="text-xs font-bold opacity-70 uppercase tracking-wider">
-                  Tổng cộng tất cả
+                  {tAtt.grandTotal || "Tổng cộng tất cả"}
                 </p>
                 <p className="text-3xl font-black mt-0.5">
                   {tAtt.currencyVnd.replace(
@@ -1032,7 +1067,14 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                   )}
                 </p>
                 <p className="text-xs opacity-70 mt-0.5">
-                  {grandSessions} buổi · {summary.length} học sinh ·{" "}
+                  {interpolate(
+                    tAtt.summaryFooter ||
+                      "{sessions} buổi · {students} học sinh · ",
+                    {
+                      sessions: grandSessions,
+                      students: summary.length,
+                    },
+                  )}
                   {MONTH_LABEL}
                 </p>
               </div>
@@ -1116,7 +1158,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         : "text-slate-500 hover:text-slate-700"
                     }`}
                   >
-                    <CalendarDays size={14} /> Lịch điểm danh
+                    <CalendarDays size={14} />{" "}
+                    {tAtt.attendanceCalendar || "Lịch điểm danh"}
                   </button>
                   <button
                     onClick={() => setPreviewMode(true)}
@@ -1126,7 +1169,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         : "text-slate-500 hover:text-slate-700"
                     }`}
                   >
-                    <Eye size={14} /> Preview phiếu học phí
+                    <Eye size={14} />{" "}
+                    {tAtt.previewTuitionSlip || "Preview phiếu học phí"}
                   </button>
                 </div>
 
@@ -1139,10 +1183,15 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                       <div className="flex justify-between items-center bg-purple-50/70 border border-purple-100 rounded-xl p-3">
                         <div>
                           <p className="text-xs font-black text-purple-900">
-                            Danh sách điểm danh ({studentRecs.length} buổi)
+                            {interpolate(
+                              tAtt.attendanceHistoryTitle ||
+                                "Danh sách điểm danh ({count} buổi)",
+                              { count: studentRecs.length },
+                            )}
                           </p>
                           <p className="text-[11px] text-purple-600 font-medium">
-                            Thêm học bù hoặc điều chỉnh ngày học của học sinh
+                            {tAtt.attendanceHistorySubtitle ||
+                              "Thêm học bù hoặc điều chỉnh ngày học của học sinh"}
                           </p>
                         </div>
                         <button
@@ -1155,7 +1204,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                           }}
                           className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-black shadow-sm flex items-center gap-1 transition-all active:scale-95"
                         >
-                          <Plus size={14} /> Thêm buổi học bù
+                          <Plus size={14} />{" "}
+                          {tAtt.addMakeupSessionBtn || "Thêm buổi học bù"}
                         </button>
                       </div>
 
@@ -1167,7 +1217,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                               size={14}
                               className="text-purple-600"
                             />
-                            Thêm buổi điểm danh / học bù mới
+                            {tAtt.addCheckinModalTitle ||
+                              "Thêm buổi điểm danh / học bù mới"}
                           </p>
                           <div className="flex flex-wrap items-center gap-3">
                             <div className="flex-1 min-w-[140px]">
@@ -1220,11 +1271,12 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                       {studentRecs.length === 0 ? (
                         <div className="text-center py-10 border-2 border-dashed border-slate-200 rounded-xl">
                           <p className="text-slate-400 font-bold text-sm">
-                            Chưa có buổi điểm danh nào trong tháng này.
+                            {tAtt.noCheckinsThisMonth ||
+                              "Chưa có buổi điểm danh nào trong tháng này."}
                           </p>
                           <p className="text-slate-400 text-xs mt-1">
-                            Bấm nút &quot;Thêm buổi học bù&quot; ở trên để thêm
-                            điểm danh.
+                            {tAtt.noCheckinsHint ||
+                              'Bấm nút "Thêm buổi học bù" ở trên để thêm điểm danh.'}
                           </p>
                         </div>
                       ) : (
@@ -1302,7 +1354,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                                     </td>
                                     <td className="px-3 py-2.5 text-center">
                                       <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-black rounded-lg">
-                                        <CheckCircle2 size={11} /> Có mặt
+                                        <CheckCircle2 size={11} />{" "}
+                                        {tAtt.present || "Có mặt"}
                                       </span>
                                     </td>
                                     <td className="px-3 py-2.5 text-right">
@@ -1367,7 +1420,8 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                     /* ---- Preview phiếu học phí tab ---- */
                     <div className="flex flex-col items-center bg-slate-100 min-h-full py-4 px-4">
                       <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                        <Eye size={12} /> Xem trước phiếu học phí
+                        <Eye size={12} />{" "}
+                        {tAtt.previewTuitionSlip || "Xem trước phiếu học phí"}
                       </p>
                       {/* Preview: scale down to fit modal width (modal max-w-2xl = 672px, slip = 500px) */}
                       <div
@@ -1380,7 +1434,6 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         className="shadow-xl rounded-lg overflow-hidden"
                       >
                         <TuitionSlipTemplate
-                          tAtt={tAtt}
                           student={s}
                           records={studentRecs}
                           month={month}
@@ -1391,7 +1444,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                               ? classHocLieuMap[
                                   s.class_name || tAtt.unassignedClass
                                 ].label
-                              : s.hoc_lieu_label || "📚 Học liệu"
+                              : s.hoc_lieu_label ||
+                                tAtt.hocLieuSlip ||
+                                "📚 Học liệu"
                           }
                           hocLieuValue={
                             classHocLieuMap[
@@ -1432,7 +1487,7 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                     onClick={() => setSelectedStudent(null)}
                     className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition-colors"
                   >
-                    Đóng
+                    {tAtt.close || "Đóng"}
                   </button>
                   <div className="flex gap-2">
                     <button
@@ -1446,7 +1501,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                         setPreviewMode(true);
                       }}
                       className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg shadow-sm transition-colors"
-                      title="Xem trước phiếu học phí"
+                      title={
+                        tAtt.previewTuitionSlip || "Xem trước phiếu học phí"
+                      }
                     >
                       <Eye size={14} /> Preview
                     </button>
@@ -1482,7 +1539,6 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
         {exportStudent && (
           <TuitionSlipTemplate
             ref={slipRef}
-            tAtt={tAtt}
             student={exportStudent}
             records={records
               .filter((r) => r.student_id === exportStudent.id)
@@ -1498,7 +1554,9 @@ export function SummaryTab({ tAtt }: { tAtt: any }) {
                 ? classHocLieuMap[
                     exportStudent.class_name || tAtt.unassignedClass
                   ].label
-                : exportStudent.hoc_lieu_label || "📚 Học liệu"
+                : exportStudent.hoc_lieu_label ||
+                  tAtt.hocLieuSlip ||
+                  "📚 Học liệu"
             }
             hocLieuValue={
               classHocLieuMap[exportStudent.class_name || tAtt.unassignedClass]

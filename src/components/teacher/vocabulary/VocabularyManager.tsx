@@ -16,8 +16,8 @@ import { VocabSetCard } from "./VocabSetCard";
 
 export function VocabularyManager() {
   const { t } = useLanguage();
-  const vm = (t as any).vocabManager || {};
-  const tc = (t as any).common || {};
+  const vm = t.vocabManager;
+  const tc = t.common;
 
   const {
     loading,
@@ -123,9 +123,11 @@ export function VocabularyManager() {
         >
           <option value="all">{vm.filterAgeAll || "Tất cả độ tuổi"}</option>
           <option value="kindergarten">
-            {vm.ageKindergarten || "Mầm non"}
+            {t.teacherModal?.ageKindergarten || "Mầm non"}
           </option>
-          <option value="primary">{vm.agePrimary || "Tiểu học"}</option>
+          <option value="primary">
+            {t.teacherModal?.agePrimary || "Tiểu học"}
+          </option>
         </select>
       </div>
 
@@ -169,7 +171,7 @@ export function VocabularyManager() {
           <div className="bg-white rounded-lg w-full max-w-md shadow-md border-4 border-blue-100 p-6 space-y-4 my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-3">
               <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
-                📚 {vm.createSetModalTitle || "Tạo bộ từ vựng mới"}
+                📚 {vm.createSetTitle || "Tạo bộ từ vựng mới"}
               </h4>
               <button
                 type="button"
@@ -207,16 +209,22 @@ export function VocabularyManager() {
 
               <div>
                 <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                  Độ tuổi phù hợp
+                  {vm.ageGroupLabel || "Độ tuổi phù hợp"}
                 </label>
                 <select
                   value={newAgeGroup}
                   onChange={(e) => setNewAgeGroup(e.target.value as any)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-blue-400 focus:outline-none"
                 >
-                  <option value="all">Tất cả độ tuổi</option>
-                  <option value="kindergarten">Mầm non (dưới 6 tuổi)</option>
-                  <option value="primary">Tiểu học (trên 6 tuổi)</option>
+                  <option value="all">
+                    {vm.ageAllOption || "Tất cả độ tuổi"}
+                  </option>
+                  <option value="kindergarten">
+                    {vm.ageKindergartenOption || "Mầm non (dưới 6 tuổi)"}
+                  </option>
+                  <option value="primary">
+                    {vm.agePrimaryOption || "Tiểu học (trên 6 tuổi)"}
+                  </option>
                 </select>
               </div>
 
@@ -261,7 +269,7 @@ export function VocabularyManager() {
           <div className="bg-white rounded-lg w-full max-w-lg shadow-md border-4 border-blue-100 p-6 space-y-4 my-8">
             <div className="flex justify-between items-center border-b-2 border-slate-100 pb-3">
               <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
-                🎴 {vm.addCardModalTitle || "Thêm thẻ từ vựng"}
+                🎴 {vm.addCardTitle || "Thêm thẻ từ vựng"}
               </h4>
               <button
                 type="button"
@@ -275,13 +283,15 @@ export function VocabularyManager() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                  Từ Tiếng Anh (Mặt trước)
+                  {vm.frontLabel || "Từ Tiếng Anh (Mặt trước)"}
                 </label>
                 <div className="flex gap-2">
                   <input
                     value={cardFront}
                     onChange={(e) => setCardFront(e.target.value)}
-                    placeholder="VD: Elephant, Apple..."
+                    placeholder={
+                      vm.frontPlaceholder || "VD: Elephant, Apple..."
+                    }
                     className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:border-blue-400 focus:outline-none"
                   />
                   <button
@@ -289,14 +299,16 @@ export function VocabularyManager() {
                     onClick={autoGenIpa}
                     disabled={ipaLoading || !cardFront.trim()}
                     className="px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-600 font-extrabold text-xs rounded-lg transition-colors flex items-center gap-1 shrink-0"
-                    title="Tự động lấy phiên âm IPA bằng AI"
+                    title={
+                      vm.ipaAutoGenTitle || "Tự động lấy phiên âm IPA bằng AI"
+                    }
                   >
                     {ipaLoading ? (
                       <Loader2 size={13} className="animate-spin" />
                     ) : (
                       <Sparkles size={13} />
                     )}
-                    IPA AI
+                    {vm.ipaAutoGenShort || "AI"}
                   </button>
                 </div>
               </div>
@@ -304,23 +316,25 @@ export function VocabularyManager() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                    Phiên âm (IPA)
+                    {vm.ipaLabel || "Phiên âm (IPA)"}
                   </label>
                   <input
                     value={cardIpa}
                     onChange={(e) => setCardIpa(e.target.value)}
-                    placeholder="VD: ˈel.ɪ.fənt"
+                    placeholder={vm.ipaPlaceholder || "VD: ˈel.ɪ.fənt"}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:border-blue-400 focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                    Nghĩa Tiếng Việt (Mặt sau)
+                    {vm.backLabel || "Nghĩa Tiếng Việt (Mặt sau)"}
                   </label>
                   <input
                     value={cardBack}
                     onChange={(e) => setCardBack(e.target.value)}
-                    placeholder="VD: Con voi, Quả táo..."
+                    placeholder={
+                      vm.backPlaceholder || "VD: Con voi, Quả táo..."
+                    }
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:border-blue-400 focus:outline-none"
                   />
                 </div>
@@ -328,7 +342,7 @@ export function VocabularyManager() {
 
               <div>
                 <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                  Hình ảnh minh họa (Không bắt buộc)
+                  {vm.imageLabel || "Hình ảnh minh họa (Không bắt buộc)"}
                 </label>
                 <div className="flex items-center gap-3">
                   <button
@@ -414,7 +428,7 @@ export function VocabularyManager() {
       {/* Delete Set Confirmation Modal */}
       {deleteSetTarget && (
         <DeleteConfirmModal
-          title={vm.deleteSetConfirm || "Xác nhận xóa bộ từ vựng"}
+          title={vm.deleteSetTitle || "Xác nhận xóa bộ từ vựng"}
           description={deleteSetTarget.title}
           onConfirm={handleDeleteSet}
           onCancel={() => setDeleteSetTarget(null)}
@@ -424,7 +438,7 @@ export function VocabularyManager() {
       {/* Delete Card Confirmation Modal */}
       {deleteCardTarget && (
         <DeleteConfirmModal
-          title={vm.deleteCardConfirm || "Xác nhận xóa thẻ từ vựng"}
+          title={vm.deleteCardTitle || "Xác nhận xóa thẻ từ vựng"}
           description={deleteCardTarget.front}
           onConfirm={handleDeleteCard}
           onCancel={() => setDeleteCardTarget(null)}

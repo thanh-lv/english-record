@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 import { Trophy, Crown, Loader2, Calendar } from "lucide-react";
 import { formatClassName } from "../../../utils";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 
-interface LeaderboardProps {
-  tAtt: any;
-}
-
-export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
+export function AttendanceLeaderboard() {
+  const { t } = useLanguage();
+  const tAtt = t.attendance;
   const [timeframe, setTimeframe] = useState<"week" | "month" | "year">(
     "month",
   );
@@ -175,11 +174,17 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                   {top2.name}
                 </p>
                 <p className="text-[11px] text-slate-400 font-bold truncate w-full text-center">
-                  {formatClassName(top2.class_name, tAtt.unassignedClass)}
+                  {formatClassName(
+                    top2.class_name,
+                    tAtt.unassignedClass,
+                    tAtt.className ? tAtt.className + " " : "Lớp ",
+                  )}
                 </p>
                 <div className="mt-2 bg-gradient-to-t from-slate-200 to-slate-100 w-full py-4 rounded-t-lg border border-slate-300 text-center">
                   <span className="font-black text-slate-800 text-sm sm:text-base">
-                    {top2.total_sessions} buổi
+                    {interpolate(tAtt.sessionCount || "{count} buổi", {
+                      count: top2.total_sessions,
+                    })}
                   </span>
                 </div>
               </div>
@@ -206,11 +211,17 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                   {top1.name}
                 </p>
                 <p className="text-xs text-amber-700/70 font-bold truncate w-full text-center">
-                  {formatClassName(top1.class_name, tAtt.unassignedClass)}
+                  {formatClassName(
+                    top1.class_name,
+                    tAtt.unassignedClass,
+                    tAtt.className ? tAtt.className + " " : "Lớp ",
+                  )}
                 </p>
                 <div className="mt-2 bg-gradient-to-t from-amber-400 to-amber-200 w-full py-6 rounded-t-lg border border-amber-300 text-center shadow-md">
                   <span className="font-black text-amber-950 text-base sm:text-lg">
-                    {top1.total_sessions} buổi
+                    {interpolate(tAtt.sessionCount || "{count} buổi", {
+                      count: top1.total_sessions,
+                    })}
                   </span>
                 </div>
               </div>
@@ -231,11 +242,17 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                   {top3.name}
                 </p>
                 <p className="text-[11px] text-slate-400 font-bold truncate w-full text-center">
-                  {formatClassName(top3.class_name, tAtt.unassignedClass)}
+                  {formatClassName(
+                    top3.class_name,
+                    tAtt.unassignedClass,
+                    tAtt.className ? tAtt.className + " " : "Lớp ",
+                  )}
                 </p>
                 <div className="mt-2 bg-gradient-to-t from-orange-200 to-amber-100 w-full py-3 rounded-t-lg border border-orange-300 text-center">
                   <span className="font-black text-orange-900 text-sm sm:text-base">
-                    {top3.total_sessions} buổi
+                    {interpolate(tAtt.sessionCount || "{count} buổi", {
+                      count: top3.total_sessions,
+                    })}
                   </span>
                 </div>
               </div>
@@ -264,12 +281,15 @@ export function AttendanceLeaderboard({ tAtt }: LeaderboardProps) {
                         {formatClassName(
                           student.class_name,
                           tAtt.unassignedClass,
+                          tAtt.className ? tAtt.className + " " : "Lớp ",
                         )}
                       </p>
                     </div>
                   </div>
                   <span className="font-black text-emerald-600 text-sm bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
-                    {student.total_sessions} buổi
+                    {interpolate(tAtt.sessionCount || "{count} buổi", {
+                      count: student.total_sessions,
+                    })}
                   </span>
                 </div>
               ))}

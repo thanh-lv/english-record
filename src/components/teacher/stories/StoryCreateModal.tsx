@@ -1,7 +1,9 @@
 import { Loader2, Wand2, X } from "lucide-react";
 
+import { Translations } from "../../../i18n/LanguageContext";
+
 interface StoryCreateModalProps {
-  t: any;
+  t: Translations;
   title: string;
   yearBorn: string;
   prompt: string;
@@ -35,7 +37,7 @@ export function StoryCreateModal({
   onSave,
   onClose,
 }: StoryCreateModalProps) {
-  const tc = (t as any).common || {};
+  const tc = t.common;
 
   return (
     <div
@@ -61,7 +63,7 @@ export function StoryCreateModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                Tiêu đề
+                {tc.storyTitle || "Tiêu đề"}
               </label>
               <input
                 value={title}
@@ -72,7 +74,7 @@ export function StoryCreateModal({
             </div>
             <div>
               <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-                Năm sinh học sinh
+                {tc.storyYearBorn || "Năm sinh học sinh"}
               </label>
               <input
                 value={yearBorn}
@@ -84,7 +86,7 @@ export function StoryCreateModal({
 
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1 uppercase">
-              Ý tưởng / Gợi ý cho AI (Prompt)
+              {tc.storyPromptLabel || "Ý tưởng / Gợi ý cho AI (Prompt)"}
             </label>
             <div className="flex gap-2">
               <input
@@ -104,7 +106,7 @@ export function StoryCreateModal({
                 ) : (
                   <Wand2 size={14} />
                 )}
-                Tạo thử
+                {tc.tryGenerate || "Tạo thử"}
               </button>
             </div>
           </div>
@@ -149,7 +151,7 @@ export function StoryCreateModal({
             className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1"
           >
             {isSaving && <Loader2 size={14} className="animate-spin" />}
-            {tc.save || "Lưu câu chuyện"}
+            {t.teacherModal?.saveStory || tc.save || "Lưu câu chuyện"}
           </button>
         </div>
       </div>

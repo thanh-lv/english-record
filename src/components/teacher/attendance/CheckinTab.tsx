@@ -13,8 +13,12 @@ import {
   Users,
 } from "lucide-react";
 import { formatClassName, useBodyScrollLock } from "../../../utils";
+import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 
-export function CheckinTab({ tAtt }: { tAtt: any }) {
+export function CheckinTab() {
+  const { t, lang } = useLanguage();
+  const tAtt = t.attendance;
+  const tc = t.common;
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [monthRecords, setMonthRecords] = useState<any[]>([]);
@@ -71,7 +75,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
 
   // Calendar math
   const DAYS_OF_WEEK = tAtt.daysOfWeek;
-  const MONTH_NAMES = [
+  const MONTH_NAMES = tAtt.monthNames || [
     "Tháng 1",
     "Tháng 2",
     "Tháng 3",
@@ -221,7 +225,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
       setDeleteTargetStudent(null);
     } catch (err) {
       console.error("Error deleting checkin:", err);
-      alert("Lỗi khi hủy điểm danh.");
+      alert(tAtt.cancelCheckinError || "Lỗi khi hủy điểm danh.");
     } finally {
       setDeleting(false);
     }
@@ -253,7 +257,10 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
       setTimeout(() => setSuccess(false), 2500);
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi lưu. Có thể đã tồn tại record cho thời điểm này.");
+      alert(
+        tAtt.saveCheckinError ||
+          "Lỗi khi lưu. Có thể đã tồn tại record cho thời điểm này.",
+      );
     } finally {
       setSaving(false);
     }
@@ -276,13 +283,17 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
   // Group students by class for modal display
   const studentsByClass: Record<string, typeof filteredStudents> = {};
   filteredStudents.forEach((s) => {
-    const cls = s.class_name || tAtt.unassignedClass || "Chưa phân lớp";
+    const cls = formatClassName(
+      s.class_name,
+      tAtt.unassignedClass || "Chưa phân lớp",
+      tAtt.className ? tAtt.className + " " : "Lớp ",
+    );
     if (!studentsByClass[cls]) studentsByClass[cls] = [];
     studentsByClass[cls].push(s);
   });
 
   const modalDateLabel =
-    modalDate?.toLocaleDateString("vi-VN", {
+    modalDate?.toLocaleDateString(lang === "vi" ? "vi-VN" : "en-US", {
       weekday: "long",
       day: "2-digit",
       month: "2-digit",
@@ -313,8 +324,16 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
             </h2>
             {totalMonthRevenue > 0 && (
               <p className="text-xs font-black text-emerald-600 mt-0.5">
-                Tổng ngày: {monthRecords.length} buổi · Dự kiến:{" "}
-                {totalMonthRevenue.toLocaleString()}đ
+                {interpolate(
+                  tAtt.monthSummaryExpected ||
+                    "Tổng ngày: {sessions} buổi · Dự kiến: {amount}",
+                  {
+                    sessions: monthRecords.length,
+                    amount: interpolate(tAtt.currencyVnd || "{amount} đ", {
+                      amount: totalMonthRevenue.toLocaleString(),
+                    }),
+                  },
+                )}
               </p>
             )}
           </div>
@@ -393,7 +412,11 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                     `}
                     >
                       <CheckCircle2 size={9} />
-                      <span className="hidden sm:inline">{count} buổi</span>
+                      <span className="hidden sm:inline">
+                        {interpolate(tAtt.sessionCount || "{count} buổi", {
+                          count,
+                        })}
+                      </span>
                       <span className="sm:hidden">{count}b</span>
                     </span>
 
@@ -401,7 +424,9 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                     {revenue > 0 && (
                       <span className="text-[9px] sm:text-[11px] font-black px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200/80 leading-tight w-fit flex items-center gap-0.5">
                         <span className="hidden sm:inline">
-                          +{revenue.toLocaleString()}đ
+                          {interpolate(tAtt.currencyVnd || "{amount} đ", {
+                            amount: `+${revenue.toLocaleString()}`,
+                          })}
                         </span>
                         <span className="sm:hidden">
                           +
@@ -447,7 +472,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-4 rounded-t-lg flex items-start justify-between shrink-0">
               <div>
                 <p className="text-emerald-200 text-xs font-bold uppercase tracking-wider">
-                  Điểm danh
+                  {tAtt.attendance || "Điểm danh"}
                 </p>
                 <h2 className="font-black text-white text-lg capitalize mt-0.5">
                   {modalDateLabel}
@@ -505,7 +530,11 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                   <option value="all">{tAtt.allClasses}</option>
                   {availableClasses.map((c) => (
                     <option key={c} value={c}>
-                      {formatClassName(c, tAtt.unassignedClass)}
+                      {formatClassName(
+                        c,
+                        tAtt.unassignedClass,
+                        tAtt.className ? tAtt.className + " " : "Lớp ",
+                      )}
                     </option>
                   ))}
                 </select>
@@ -529,24 +558,40 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
               <div className="px-5 py-2.5 shrink-0 border-b border-slate-100">
                 <div className="flex justify-between text-xs font-bold text-slate-500 mb-1.5">
                   <span>
-                    {studentsWithCheckinCount} / {filteredStudents.length} học
-                    sinh đã có điểm danh ngày này
+                    {interpolate(
+                      tAtt.checkinStatus ||
+                        "{checked} / {total} học sinh đã có điểm danh ngày này",
+                      {
+                        checked: studentsWithCheckinCount,
+                        total: filteredStudents.length,
+                      },
+                    )}
                   </span>
                   {checkedCount > 0 && (
                     <span className="text-emerald-600 font-black">
-                      + Đang chọn thêm {checkedCount} buổi
+                      {interpolate(
+                        tAtt.selectingSessions ||
+                          "+ Đang chọn thêm {count} buổi",
+                        { count: checkedCount },
+                      )}
                     </span>
                   )}
                 </div>
                 <div className="flex gap-3 mt-1.5 text-xs font-bold">
                   {studentsWithCheckinCount > 0 && (
                     <span className="text-emerald-600">
-                      ✓ {studentsWithCheckinCount} học sinh đã điểm danh
+                      {interpolate(
+                        tAtt.checkedInCount || "✓ {count} đã điểm danh",
+                        { count: studentsWithCheckinCount },
+                      )}
                     </span>
                   )}
                   {checkedCount > 0 && (
                     <span className="text-blue-600">
-                      ● Đang chọn thêm {checkedCount} học sinh
+                      {interpolate(
+                        tAtt.selectingCount || "● {count} đang chọn",
+                        { count: checkedCount },
+                      )}
                     </span>
                   )}
                 </div>
@@ -573,7 +618,11 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                           <div className="flex items-center gap-2">
                             <Users size={14} className="text-purple-600" />
                             <span className="font-black text-slate-800 text-xs sm:text-sm">
-                              {formatClassName(clsName, tAtt.unassignedClass)}
+                              {formatClassName(
+                                clsName,
+                                tAtt.unassignedClass,
+                                tAtt.className ? tAtt.className + " " : "Lớp ",
+                              )}
                             </span>
                           </div>
                           <div className="flex items-center gap-3">
@@ -616,13 +665,20 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                                   {classStudents.every((s) =>
                                     checkedIds.has(s.id),
                                   )
-                                    ? "Đã chọn cả lớp"
-                                    : "Chọn cả lớp"}
+                                    ? tAtt.classSelectedAll || "Đã chọn cả lớp"
+                                    : tAtt.classSelectAll || "Chọn cả lớp"}
                                 </span>
                               </button>
                             )}
                             <span className="text-xs font-bold text-slate-500">
-                              {classDoneCount}/{classStudents.length} đã DD
+                              {interpolate(
+                                tAtt.classCheckedInRatio ||
+                                  "{checked}/{total} đã DD",
+                                {
+                                  checked: classDoneCount,
+                                  total: classStudents.length,
+                                },
+                              )}
                             </span>
                           </div>
                         </div>
@@ -656,7 +712,10 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                                       setDeleteTargetStudent(student);
                                     }}
                                     className="absolute -top-2 -right-2 p-1 bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-md transition-all z-10 active:scale-95"
-                                    title="Hủy điểm danh ngày này"
+                                    title={
+                                      tAtt.cancelCheckinTooltip ||
+                                      "Hủy điểm danh ngày này"
+                                    }
                                   >
                                     <Trash2 size={11} />
                                   </button>
@@ -693,13 +752,18 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                                   {/* Badges */}
                                   {existingCount > 0 && !isChecked && (
                                     <span className="text-[10px] font-black text-emerald-700 bg-emerald-200/80 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5">
-                                      <CheckCircle2 size={10} /> Đã DD (
-                                      {existingCount} buổi)
+                                      <CheckCircle2 size={10} />{" "}
+                                      {interpolate(
+                                        tAtt.alreadyCheckedInCount ||
+                                          "Đã DD ({count} buổi)",
+                                        { count: existingCount },
+                                      )}
                                     </span>
                                   )}
                                   {isChecked && (
                                     <span className="text-[10px] font-black text-white bg-emerald-600 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5 shadow-sm">
-                                      <CheckCircle2 size={10} /> + Thêm 1 buổi
+                                      <CheckCircle2 size={10} />{" "}
+                                      {tAtt.addOneSession || "+ Thêm 1 buổi"}
                                     </span>
                                   )}
                                 </button>
@@ -720,7 +784,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                 onClick={closeModal}
                 className="px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
               >
-                Đóng
+                {tAtt.close || "Đóng"}
               </button>
               <div className="flex-1" />
               {success && (
@@ -755,16 +819,17 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
             </div>
             <div>
               <h3 className="font-black text-slate-800 text-base sm:text-lg">
-                Xác nhận hủy điểm danh
+                {tAtt.cancelCheckinConfirmTitle || "Xác nhận hủy điểm danh"}
               </h3>
               <p className="text-xs text-slate-500 font-medium mt-1">
-                Bạn có chắc chắn muốn hủy điểm danh của học sinh{" "}
-                <strong className="text-slate-800">
-                  {deleteTargetStudent.name}
-                </strong>{" "}
-                vào{" "}
-                <strong className="text-emerald-700">{modalDateLabel}</strong>{" "}
-                không?
+                {interpolate(
+                  tAtt.cancelCheckinConfirmDesc ||
+                    "Bạn có chắc chắn muốn hủy điểm danh của học sinh {name} vào {date} không?",
+                  {
+                    name: deleteTargetStudent.name,
+                    date: modalDateLabel,
+                  },
+                )}
               </p>
             </div>
 
@@ -773,7 +838,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                 onClick={() => setDeleteTargetStudent(null)}
                 className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-colors"
               >
-                Hủy bỏ
+                {tc.cancel || "Hủy bỏ"}
               </button>
               <button
                 onClick={confirmDeleteCheckin}
@@ -785,7 +850,7 @@ export function CheckinTab({ tAtt }: { tAtt: any }) {
                 ) : (
                   <Trash2 size={16} />
                 )}
-                Hủy điểm danh
+                {tAtt.cancelCheckinBtn || "Hủy điểm danh"}
               </button>
             </div>
           </div>

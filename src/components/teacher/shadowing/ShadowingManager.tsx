@@ -590,7 +590,7 @@ export function ShadowingManager() {
           <div className="bg-white rounded-lg w-full max-w-sm shadow-md p-6 space-y-4 text-center">
             <Trash2 size={36} className="mx-auto text-rose-500" />
             <h4 className="font-extrabold text-slate-800 text-base">
-              {(t as any).common?.deleteVideoConfirm || "Xác nhận xóa video"}?
+              {t.common.deleteVideoConfirm}?
             </h4>
             <p className="text-xs font-bold text-slate-500 line-clamp-2">
               "{deleteTarget.title}"

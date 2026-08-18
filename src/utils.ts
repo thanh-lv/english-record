@@ -50,6 +50,7 @@ export function calculateStreak(records: any[]): number {
 export function formatClassName(
   className?: string | null,
   unassignedText: string = "Chưa phân lớp",
+  classPrefix: string = "Lớp ",
 ): string {
   if (!className || className.trim() === "") return unassignedText;
   const trimmed = className.trim();
@@ -61,10 +62,10 @@ export function formatClassName(
   ) {
     return trimmed;
   }
-  if (/^(lớp|khối)\s+/i.test(trimmed)) {
+  if (/^(lớp|khối|class|grade)\s+/i.test(trimmed)) {
     return trimmed;
   }
-  return `Lớp ${trimmed}`;
+  return `${classPrefix}${trimmed}`;
 }
 
 export function useBodyScrollLock(isLocked: boolean) {
