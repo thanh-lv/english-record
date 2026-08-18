@@ -164,15 +164,14 @@ export function AIQuestionParserModal({
   return (
     <div
       className="!m-0 fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] overflow-y-auto overscroll-contain"
-      style={{ marginTop: "0px !important" }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="ai-parser-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-2xl shadow-md border-4 border-violet-100 my-4 max-h-[90vh] flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between border-b-2 border-slate-100 px-6 pt-6 pb-3 shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="w-9 h-9 rounded-lg bg-violet-50 border-2 border-violet-200 text-violet-600 flex items-center justify-center">
+      <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl border border-slate-200 my-8 max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="p-2 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center">
               <Sparkles size={18} />
             </span>
             <div>
@@ -182,7 +181,7 @@ export function AIQuestionParserModal({
               >
                 {t.aiParser.title}
               </h4>
-              <p className="text-xs text-slate-400 font-medium">
+              <p className="text-xs text-slate-400 font-bold mt-0.5">
                 {t.aiParser.subtitle}
               </p>
             </div>
@@ -190,7 +189,7 @@ export function AIQuestionParserModal({
           <button
             onClick={onClose}
             aria-label={t.common.close}
-            className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
+            className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
           >
             <X size={18} />
           </button>
@@ -198,18 +197,18 @@ export function AIQuestionParserModal({
 
         <div className="space-y-4 px-6 py-4 pb-6 overflow-y-auto overscroll-contain">
           {/* Mode tabs */}
-          <div className="flex gap-2 bg-slate-100 p-1 rounded-lg w-fit">
+          <div className="flex gap-1.5 bg-slate-100/80 p-1 rounded-xl w-fit">
             <button
               type="button"
               onClick={() => setMode("text")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-colors ${mode === "text" ? "bg-white text-violet-700 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${mode === "text" ? "bg-white text-purple-700 shadow-2xs" : "text-slate-500 hover:text-slate-700"}`}
             >
               <Type size={14} /> {t.aiParser.tabText}
             </button>
             <button
               type="button"
               onClick={() => setMode("image")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-colors ${mode === "image" ? "bg-white text-violet-700 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${mode === "image" ? "bg-white text-purple-700 shadow-2xs" : "text-slate-500 hover:text-slate-700"}`}
             >
               <ImageIcon size={14} /> {t.aiParser.tabImage}
             </button>
@@ -226,7 +225,7 @@ export function AIQuestionParserModal({
                 onChange={(e) => setRawText(e.target.value)}
                 placeholder={t.aiParser.textPlaceholder}
                 rows={8}
-                className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 text-sm font-mono focus:outline-none focus:border-violet-400 resize-y"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-400 resize-y transition-all"
               />
             </div>
           ) : (
@@ -246,13 +245,13 @@ export function AIQuestionParserModal({
                   <img
                     src={imagePreview}
                     alt={t.aiParser.imageAlt}
-                    className="w-full max-h-64 object-contain rounded-lg border-2 border-slate-200 bg-slate-50"
+                    className="w-full max-h-64 object-contain rounded-xl border border-slate-200 bg-slate-50 shadow-2xs"
                   />
                   <button
                     type="button"
                     onClick={() => handleSelectImage(null)}
                     aria-label={t.common.delete}
-                    className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-lg shadow-md transition-colors"
+                    className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-xl shadow-xs transition-colors"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -261,10 +260,10 @@ export function AIQuestionParserModal({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-8 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 text-slate-400 hover:border-violet-400 hover:text-violet-500 transition-colors"
+                  className="w-full py-8 flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 text-slate-400 hover:border-purple-400 hover:text-purple-600 transition-all cursor-pointer"
                 >
                   <ImageIcon size={28} />
-                  <span className="text-sm font-bold">
+                  <span className="text-xs font-black">
                     {t.aiParser.imagePickPrompt}
                   </span>
                 </button>
@@ -278,18 +277,18 @@ export function AIQuestionParserModal({
             disabled={
               parsing || (mode === "text" ? !rawText.trim() : !imageFile)
             }
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-violet-900"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white font-black rounded-xl text-xs transition-all shadow-xs active:scale-95"
           >
             {parsing ? (
-              <Loader2 size={16} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin" />
             ) : (
-              <Sparkles size={16} />
+              <Sparkles size={14} />
             )}
             {parsing ? t.aiParser.parsing : t.aiParser.parseButton}
           </button>
 
           {error && (
-            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
               <AlertCircle size={14} className="shrink-0" /> {error}
             </div>
           )}
@@ -306,9 +305,9 @@ export function AIQuestionParserModal({
                 {questions.map((q, idx) => (
                   <div
                     key={idx}
-                    className="flex gap-2 items-start bg-slate-50 border-2 border-slate-100 rounded-lg p-3"
+                    className="flex gap-2 items-start bg-slate-50/80 border border-slate-200/80 rounded-xl p-3"
                   >
-                    <span className="w-6 h-6 mt-1 shrink-0 rounded-lg bg-violet-100 text-violet-700 text-xs font-black flex items-center justify-center">
+                    <span className="w-6 h-6 mt-1 shrink-0 rounded-lg bg-purple-100 text-purple-700 text-xs font-black flex items-center justify-center">
                       {idx + 1}
                     </span>
                     <div className="flex-1 space-y-1.5">
@@ -318,7 +317,7 @@ export function AIQuestionParserModal({
                           updateQuestion(idx, "text", e.target.value)
                         }
                         placeholder={t.aiParser.questionPlaceholder}
-                        className="w-full px-3 py-2 rounded-lg border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:border-purple-400 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all"
                       />
                       <input
                         value={q.sample_answer}
@@ -326,16 +325,16 @@ export function AIQuestionParserModal({
                           updateQuestion(idx, "sample_answer", e.target.value)
                         }
                         placeholder={t.aiParser.answerPlaceholder}
-                        className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 text-sm focus:outline-none"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:border-purple-400 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={() => removeQuestion(idx)}
                       aria-label={t.common.delete}
-                      className="p-2 mt-1 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                      className="p-1.5 mt-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors active:scale-95"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 ))}
@@ -345,11 +344,11 @@ export function AIQuestionParserModal({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 px-6 py-4 border-t-2 border-slate-100 shrink-0">
+        <div className="flex justify-end gap-2.5 px-6 py-4 border-t border-slate-100 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors border border-slate-200"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black rounded-xl text-xs transition-all"
           >
             {t.aiParser.cancel}
           </button>
@@ -359,12 +358,12 @@ export function AIQuestionParserModal({
             disabled={
               adding || questions.filter((q) => q.text.trim()).length === 0
             }
-            className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-emerald-900 flex items-center justify-center gap-2"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
           >
             {adding ? (
-              <Loader2 size={15} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin" />
             ) : (
-              <Check size={15} />
+              <Check size={14} />
             )}
             {t.aiParser.addAll}
           </button>

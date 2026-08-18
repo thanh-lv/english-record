@@ -129,33 +129,28 @@ export function CreateStudentModal({
       aria-modal="true"
       aria-labelledby="create-student-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-emerald-100 p-6 space-y-5 animate-in zoom-in-95 duration-200 my-8">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 border-2 border-emerald-200 text-emerald-700 flex items-center justify-center">
-            <UserPlus size={20} />
-          </div>
-          <div>
-            <h4
-              id="create-student-title"
-              className="font-extrabold text-slate-800 text-lg leading-tight"
-            >
-              {t.teacherModal.addStudentTitle}
-            </h4>
-            <p className="text-xs text-slate-400 font-medium">
-              {t.common.createStudentTitle}
-            </p>
-          </div>
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4 my-8 border border-slate-200 animate-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+          <h4
+            id="create-student-title"
+            className="font-black text-lg text-slate-800 flex items-center gap-2"
+          >
+            <span className="p-1.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+              <UserPlus size={18} />
+            </span>
+            {t.teacherModal.addStudentTitle || "Thêm học sinh mới"}
+          </h4>
           <button
             type="button"
             onClick={onClose}
             aria-label={t.common.close}
-            className="ml-auto p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+            className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3.5">
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
               {t.common.studentName}
@@ -169,44 +164,46 @@ export function CreateStudentModal({
               }}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
               placeholder={t.login.namePlaceholder}
-              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+              className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
             />
           </div>
-          <div>
-            <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
-              {t.common.yearBorn}
-            </label>
-            <input
-              type="number"
-              value={yearBorn}
-              onChange={(e) => {
-                setYearBorn(e.target.value);
-                setError("");
-              }}
-              onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-              placeholder={t.common.yearBornPlaceholder}
-              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
-              {t.common.grade}
-            </label>
-            <select
-              value={grade}
-              onChange={(e) => {
-                setGrade(e.target.value);
-                setError("");
-              }}
-              className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
-            >
-              <option value="">{t.common.selectGrade}</option>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
-                <option key={g} value={g}>
-                  {interpolate(t.common.gradeLabel, { grade: g })}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+                {t.common.yearBorn}
+              </label>
+              <input
+                type="number"
+                value={yearBorn}
+                onChange={(e) => {
+                  setYearBorn(e.target.value);
+                  setError("");
+                }}
+                onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+                placeholder={t.common.yearBornPlaceholder}
+                className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+                {t.common.grade}
+              </label>
+              <select
+                value={grade}
+                onChange={(e) => {
+                  setGrade(e.target.value);
+                  setError("");
+                }}
+                className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all cursor-pointer"
+              >
+                <option value="">{t.common.selectGrade}</option>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+                  <option key={g} value={g}>
+                    {interpolate(t.common.gradeLabel, { grade: g })}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
@@ -222,7 +219,7 @@ export function CreateStudentModal({
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleCreate()}
                 placeholder={t.login.passwordPlaceholder}
-                className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+                className="w-full px-3.5 py-2.5 pr-10 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
               />
               <button
                 type="button"
@@ -232,22 +229,22 @@ export function CreateStudentModal({
                 }
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
           </div>
           {error && (
-            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
               <AlertCircle size={14} className="shrink-0" /> {error}
             </div>
           )}
         </div>
 
-        <div className="flex gap-3 pt-1">
+        <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-sm transition-colors"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black rounded-xl text-xs transition-all"
           >
             {t.common.cancel}
           </button>
@@ -255,12 +252,12 @@ export function CreateStudentModal({
             type="button"
             onClick={handleCreate}
             disabled={saving}
-            className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-lg text-sm shadow-md transition-colors flex items-center justify-center gap-1.5"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black rounded-xl text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             {saving ? (
-              <Loader2 size={16} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin" />
             ) : (
-              <Check size={16} />
+              <Check size={14} />
             )}
             {t.common.createStudent || t.common.save}
           </button>

@@ -109,16 +109,16 @@ export function TopicsManager() {
   return (
     <div className="space-y-4">
       {/* Type tabs (Standard vs Bông Bé) */}
-      <div className="flex bg-white rounded-lg p-1.5 border border-slate-100 shadow-sm gap-2">
+      <div className="flex bg-white/95 backdrop-blur-sm rounded-2xl p-1.5 border border-slate-100 shadow-sm gap-2">
         <button
           type="button"
           onClick={() => {
             setActiveType("standard");
             setPage(0);
           }}
-          className={`flex-1 sm:flex-none px-4 py-2 text-xs sm:text-sm font-black rounded-lg transition-all ${
+          className={`flex-1 sm:flex-none px-5 py-2.5 text-xs sm:text-sm font-black rounded-xl transition-all ${
             activeType === "standard"
-              ? "bg-[#1E88E5] text-white shadow-md"
+              ? "bg-blue-600 text-white shadow-md"
               : "text-slate-500 hover:bg-slate-50"
           }`}
         >
@@ -131,7 +131,7 @@ export function TopicsManager() {
             setActiveType("bongbe");
             setPage(0);
           }}
-          className={`flex-1 sm:flex-none px-4 py-2 text-xs sm:text-sm font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 sm:flex-none px-5 py-2.5 text-xs sm:text-sm font-black rounded-xl transition-all flex items-center justify-center gap-1.5 ${
             activeType === "bongbe"
               ? "bg-purple-600 text-white shadow-md"
               : "text-slate-500 hover:bg-slate-50"
@@ -143,14 +143,14 @@ export function TopicsManager() {
         </button>
       </div>
 
-      {/* Header controls: Search, Filter, Add Topic */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[200px]">
+      {/* Unified Toolbar */}
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/80 shadow-sm p-3.5">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Search input */}
-          <div className="relative flex-1 min-w-[150px]">
+          <div className="relative flex-1 min-w-[160px]">
             <Search
               size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
             />
             <input
               value={filterText}
@@ -159,13 +159,13 @@ export function TopicsManager() {
                 setPage(0);
               }}
               placeholder={tm.searchTopics || tc.search || "Tìm kiếm chủ đề..."}
-              className="w-full pl-9 pr-3 py-2 bg-white rounded-lg border border-slate-200 text-xs font-bold focus:outline-none focus:border-blue-400"
+              className="w-full pl-9 pr-9 py-2 bg-slate-50/80 rounded-xl border border-slate-200 text-xs font-bold focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
             />
             {filterText && (
               <button
                 type="button"
                 onClick={() => setFilterText("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <X size={13} />
               </button>
@@ -179,7 +179,7 @@ export function TopicsManager() {
               setFilterStatus(e.target.value as any);
               setPage(0);
             }}
-            className="px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs font-bold text-slate-600 focus:outline-none"
+            className="px-3 py-2 bg-slate-50/80 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
           >
             <option value="all">
               {tm.filterTopicStatusAll || tm.filterStoryStatusAll || "Tất cả"}
@@ -201,7 +201,7 @@ export function TopicsManager() {
               setFilterGrade(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs font-bold text-slate-600 focus:outline-none"
+            className="px-3 py-2 bg-slate-50/80 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 focus:outline-none focus:border-blue-400 focus:bg-white transition-all"
           >
             <option value="all">
               {tm.allGradesOption || "Tất cả các khối"}
@@ -215,27 +215,30 @@ export function TopicsManager() {
               {tm.allGradesOption || "Tất cả các khối"} (Mặc định)
             </option>
           </select>
-        </div>
 
-        {/* Add topic button */}
-        {addingTopic !== activeType && (
-          <button
-            type="button"
-            onClick={() => {
-              setAddingTopic(activeType);
-              setNewTopicTitle("");
-              setNewTopicGrades([]);
-            }}
-            className="px-4 py-2 bg-[#1E88E5] hover:bg-blue-600 text-white font-extrabold text-xs rounded-lg shadow-sm transition-all flex items-center gap-1.5"
-          >
-            <Plus size={16} /> {tc.addTopic}
-          </button>
-        )}
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Add topic button */}
+          {addingTopic !== activeType && (
+            <button
+              type="button"
+              onClick={() => {
+                setAddingTopic(activeType);
+                setNewTopicTitle("");
+                setNewTopicGrades([]);
+              }}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+            >
+              <Plus size={15} /> {tc.addTopic}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Add new topic form */}
       {addingTopic === activeType && (
-        <div className="p-3 bg-blue-50 border-2 border-blue-200 rounded-lg animate-in fade-in duration-200 space-y-2">
+        <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl animate-in fade-in duration-200 space-y-3">
           <div className="flex items-center gap-2">
             <input
               autoFocus
@@ -247,13 +250,13 @@ export function TopicsManager() {
                 tc.newTopicPlaceholder ||
                 "Nhập tên chủ đề..."
               }
-              className="flex-1 px-3 py-2 rounded-lg border border-blue-300 text-sm font-bold focus:outline-none bg-white"
+              className="flex-1 px-3.5 py-2.5 rounded-xl border border-blue-300 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
             />
             <button
               type="button"
               onClick={addTopic}
               disabled={saving || newTopicTitle.trim().length < 2}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1 shrink-0"
+              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs shadow-sm flex items-center gap-1.5 shrink-0 transition-all active:scale-95"
             >
               {saving ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -268,21 +271,21 @@ export function TopicsManager() {
                 setAddingTopic(null);
                 setNewTopicGrades([]);
               }}
-              className="p-2 bg-white text-slate-500 rounded-lg hover:bg-slate-100 border border-slate-200 shrink-0"
+              className="p-2.5 bg-white text-slate-500 rounded-xl hover:bg-slate-100 border border-slate-200 shrink-0 transition-all active:scale-95"
             >
               <X size={14} />
             </button>
           </div>
 
           {/* Grade selection pills for new topic */}
-          <div className="flex flex-wrap gap-1 items-center">
+          <div className="flex flex-wrap gap-1.5 items-center">
             <span className="text-[11px] font-black text-slate-500 mr-1">
               {tm.targetGrades || "Khối / Lớp áp dụng"}:
             </span>
             <button
               type="button"
               onClick={() => setNewTopicGrades([])}
-              className={`px-2 py-0.5 rounded text-[10px] font-black border transition-all ${
+              className={`px-2.5 py-1 rounded-xl text-[10px] font-black border transition-all ${
                 newTopicGrades.length === 0
                   ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
                   : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
@@ -303,7 +306,7 @@ export function TopicsManager() {
                         : [...prev, g].sort((a, b) => a - b),
                     );
                   }}
-                  className={`px-2 py-0.5 rounded text-[10px] font-black border transition-all ${
+                  className={`px-2.5 py-1 rounded-xl text-[10px] font-black border transition-all ${
                     isSelected
                       ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
                       : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
@@ -319,19 +322,24 @@ export function TopicsManager() {
 
       {/* Topics List / Loading / Error */}
       {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 size={32} className="animate-spin text-blue-500" />
+        <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center">
+            <Loader2 size={22} className="animate-spin text-blue-500" />
+          </div>
+          <p className="text-xs font-bold text-slate-400">Đang tải chủ đề...</p>
         </div>
       ) : loadError ? (
-        <div className="p-6 bg-rose-50 border-2 border-rose-200 rounded-lg text-center space-y-3">
-          <AlertCircle size={32} className="text-rose-500 mx-auto" />
+        <div className="p-8 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center mx-auto">
+            <AlertCircle size={24} className="text-rose-500" />
+          </div>
           <p className="font-bold text-rose-700 text-sm">
             {tc.loadTopicsError || "Không thể tải danh sách chủ đề"}
           </p>
           <button
             type="button"
             onClick={fetchTopics}
-            className="px-4 py-2 bg-rose-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-rose-700"
+            className="px-5 py-2 bg-rose-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-rose-700 transition-all active:scale-95"
           >
             {tc.retry}
           </button>
@@ -385,16 +393,26 @@ export function TopicsManager() {
 
           {/* Empty state */}
           {pagedTopics.length === 0 && (
-            <div className="py-12 text-center text-slate-400 font-bold bg-white rounded-lg border-2 border-dashed border-slate-200">
-              {filterText || filterStatus !== "all"
-                ? tm.noTopicsFound || "Không tìm thấy chủ đề"
-                : tm.noTopicsYet || "Chưa có chủ đề nào"}
+            <div className="py-16 text-center bg-white rounded-2xl border-2 border-dashed border-slate-200 space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto">
+                <Search size={20} className="text-slate-400" />
+              </div>
+              <p className="font-bold text-slate-500 text-sm">
+                {filterText || filterStatus !== "all"
+                  ? tm.noTopicsFound || "Không tìm thấy chủ đề"
+                  : tm.noTopicsYet || "Chưa có chủ đề nào"}
+              </p>
+              <p className="text-xs text-slate-400">
+                {filterText || filterStatus !== "all"
+                  ? "Thử thay đổi bộ lọc tìm kiếm"
+                  : 'Nhấn "Thêm chủ đề" để bắt đầu'}
+              </p>
             </div>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 mt-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100 mt-2">
               <span className="text-xs font-bold text-slate-400">
                 {page * PAGE_SIZE + 1}–
                 {Math.min((page + 1) * PAGE_SIZE, topics.length)} /{" "}
@@ -405,7 +423,7 @@ export function TopicsManager() {
                   type="button"
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-2xs"
+                  className="px-3 py-1.5 text-xs font-black rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors"
                 >
                   {tm.paginationPrev || "Trước"}
                 </button>
@@ -427,9 +445,9 @@ export function TopicsManager() {
                       key={`page-${item}`}
                       type="button"
                       onClick={() => setPage(pageIndex)}
-                      className={`w-7 h-7 text-xs font-black rounded-lg transition-all ${
+                      className={`w-7 h-7 text-xs font-black rounded-xl transition-all ${
                         isCurrent
-                          ? "bg-[#1E88E5] text-white shadow-xs"
+                          ? "bg-blue-600 text-white shadow-sm"
                           : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                       }`}
                     >
@@ -443,7 +461,7 @@ export function TopicsManager() {
                     setPage((p) => Math.min(totalPages - 1, p + 1))
                   }
                   disabled={page >= totalPages - 1}
-                  className="px-3 py-1.5 text-xs font-black rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-2xs"
+                  className="px-3 py-1.5 text-xs font-black rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors"
                 >
                   {tm.paginationNext || "Sau"}
                 </button>

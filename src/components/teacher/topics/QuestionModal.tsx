@@ -87,8 +87,8 @@ export function QuestionModal({
       aria-modal="true"
       aria-labelledby="question-modal-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-lg shadow-md border-4 border-blue-100 p-6 space-y-4 my-4">
-        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+      <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-slate-200 p-6 space-y-4 my-8 animate-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <h4
             id="question-modal-title"
             className="font-black text-lg text-slate-800"
@@ -100,16 +100,16 @@ export function QuestionModal({
           <button
             onClick={onClose}
             aria-label={t.common.close}
-            className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
+            className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Form fields */}
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+            <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
               {t.common.questionLabel.replace(":", "")}
             </label>
             <input
@@ -117,58 +117,58 @@ export function QuestionModal({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={t.common.questionPlaceholder}
-              className="w-full px-3 py-2.5 rounded-lg border-2 border-blue-200 text-sm font-bold focus:outline-none focus:border-blue-400"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div>
-            <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+            <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
               {t.common.translationLabel.replace(":", "")}
             </label>
             <input
               value={translation}
               onChange={(e) => setTranslation(e.target.value)}
               placeholder={t.common.translationPlaceholder}
-              className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 text-sm focus:outline-none"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div>
-            <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+            <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
               {t.common.sampleAnswerLabel.replace(":", "")}
             </label>
             <input
               value={sampleAnswer}
               onChange={(e) => setSampleAnswer(e.target.value)}
               placeholder={t.common.sampleAnswerPlaceholder}
-              className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 text-sm focus:outline-none"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           {modalData.topicType === "bongbe" && (
             <div>
-              <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+              <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
                 {t.common.targetPlaceholder}
               </label>
               <input
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
                 placeholder={t.common.targetPlaceholder}
-                className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-200 text-sm focus:outline-none"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
           )}
 
           <div>
-            <label className="text-xs font-black text-slate-600 uppercase mb-1 block">
+            <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
               {t.common.imageOptional.replace(":", "")}
             </label>
             <div className="flex items-center gap-3">
-              <label className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg cursor-pointer border-2 border-slate-200 transition-colors">
+              <label className="flex items-center justify-center w-10 h-10 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl cursor-pointer border border-slate-200 transition-all active:scale-95 shadow-2xs">
                 {uploadingImage ? (
-                  <Loader2 size={18} className="animate-spin" />
+                  <Loader2 size={16} className="animate-spin" />
                 ) : (
-                  <ImagePlus size={18} />
+                  <ImagePlus size={16} />
                 )}
                 <input
                   type="file"
@@ -183,12 +183,12 @@ export function QuestionModal({
                   <img
                     src={imageUrl}
                     alt=""
-                    className="h-10 w-10 object-cover rounded-lg border border-slate-200"
+                    className="h-10 w-10 object-cover rounded-xl border border-slate-200 shadow-2xs"
                   />
                   <button
                     type="button"
                     onClick={() => setImageUrl("")}
-                    className="absolute -top-1 -right-1 bg-rose-500 text-white rounded-full p-0.5 shadow-md hover:bg-rose-600"
+                    className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white rounded-full p-0.5 shadow-md hover:bg-rose-600 transition-transform active:scale-90"
                   >
                     <X size={10} />
                   </button>
@@ -202,21 +202,21 @@ export function QuestionModal({
             )}
           </div>
 
-          <div className="flex gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-sm transition-colors"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black rounded-xl text-xs transition-all"
             >
               {t.common.cancel}
             </button>
             <button
               type="submit"
               disabled={text.trim().length < 2 || saving}
-              className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-lg text-sm shadow-md transition-colors flex items-center justify-center gap-1.5"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black rounded-xl text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95"
             >
               {saving ? (
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2 size={14} className="animate-spin" />
               ) : (
                 t.common.save
               )}

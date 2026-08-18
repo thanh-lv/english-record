@@ -1,4 +1,4 @@
-import { AlertCircle, Check, Eye, EyeOff, Key, Loader2 } from "lucide-react";
+import { AlertCircle, Check, Eye, EyeOff, Key, Loader2, X } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
@@ -51,23 +51,33 @@ export function ResetPasswordModal({
       aria-modal="true"
       aria-labelledby="reset-password-title"
     >
-      <div className="bg-white rounded-lg w-full max-w-sm shadow-md border-4 border-blue-100 p-6 space-y-5 animate-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-blue-50 border-2 border-blue-200 text-blue-600 flex items-center justify-center">
-            <Key size={20} />
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4 my-8 border border-slate-200 animate-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="p-1.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
+              <Key size={18} />
+            </span>
+            <div>
+              <h4
+                id="reset-password-title"
+                className="font-black text-lg text-slate-800 leading-tight"
+              >
+                {t.common.resetPasswordTitle}
+              </h4>
+              <p className="text-xs font-bold text-slate-400 mt-0.5">{student.name}</p>
+            </div>
           </div>
-          <div>
-            <h4
-              id="reset-password-title"
-              className="font-extrabold text-slate-800 text-lg leading-tight"
-            >
-              {t.common.resetPasswordTitle}
-            </h4>
-            <p className="text-sm font-bold text-slate-500">{student.name}</p>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t.common.close}
+            className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <X size={18} />
+          </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
               {t.common.newPassword}
@@ -82,7 +92,7 @@ export function ResetPasswordModal({
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleReset()}
                 placeholder={t.login.passwordPlaceholder}
-                className="w-full px-4 py-3 pr-11 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:border-[#90CAF9] transition-colors"
+                className="w-full px-3.5 py-2.5 pr-10 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               />
               <button
                 type="button"
@@ -92,22 +102,22 @@ export function ResetPasswordModal({
                 }
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
           </div>
           {error && (
-            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
               <AlertCircle size={14} className="shrink-0" /> {error}
             </div>
           )}
         </div>
 
-        <div className="flex gap-3 pt-1">
+        <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg text-sm transition-colors border border-slate-200"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black rounded-xl text-xs transition-all"
           >
             {t.common.cancel}
           </button>
@@ -115,14 +125,14 @@ export function ResetPasswordModal({
             type="button"
             onClick={handleReset}
             disabled={saving}
-            className={`flex-1 py-2.5 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md flex items-center justify-center gap-2 border-b-4 ${success ? "bg-emerald-500 hover:bg-emerald-600 border-emerald-700" : "bg-[#1E88E5] hover:bg-blue-600 border-blue-800"}`}
+            className={`px-4 py-2 disabled:opacity-50 text-white font-black rounded-xl text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95 ${success ? "bg-emerald-600 hover:bg-emerald-700" : "bg-[#1E88E5] hover:bg-[#1565C0]"}`}
           >
             {saving ? (
-              <Loader2 size={15} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin" />
             ) : success ? (
-              <Check size={15} />
+              <Check size={14} />
             ) : (
-              <Key size={15} />
+              <Key size={14} />
             )}
             {success ? t.common.success : t.common.changePassword}
           </button>
