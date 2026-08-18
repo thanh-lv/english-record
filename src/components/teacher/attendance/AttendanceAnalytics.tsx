@@ -3,7 +3,6 @@ import { supabase } from "../../../lib/supabase";
 import {
   TrendingUp,
   TrendingDown,
-  BarChart3,
   Loader2,
   PieChart,
   Wallet,
@@ -208,81 +207,66 @@ export function AttendanceAnalytics({
 
   return (
     <div className="space-y-5 print:hidden">
-      {/* Header */}
-      <div className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
-          <BarChart3 size={20} />
-        </div>
-        <div>
-          <h3 className="font-black text-slate-800 text-base">
-            {tAtt.analyticsTitle || "Biểu Đồ Doanh Thu & Thống Kê"}
-          </h3>
-          <p className="text-xs text-slate-400 font-bold">
-            {tAtt?.analyticsSubtitle ||
-              "Phân tích xu hướng học phí 6 tháng gần đây"}
-          </p>
-        </div>
-      </div>
-
       {loading ? (
-        <div className="flex justify-center py-12 bg-white rounded-2xl border border-slate-100">
+        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xs gap-3">
           <Loader2 className="animate-spin text-purple-600" size={32} />
+          <span className="text-xs font-bold text-slate-400">Đang tải số liệu thống kê...</span>
         </div>
       ) : (
         <div className="space-y-5">
           {/* ---- Summary cards 4 cols ---- */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Tổng cần thu 6 tháng */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-1">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs space-y-1">
+              <p className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-wider">
                 {tAtt?.projected6m || "Cần thu (6T)"}
               </p>
-              <p className="text-lg font-black text-slate-800 leading-tight">
+              <p className="text-lg sm:text-2xl font-black text-slate-800 leading-tight">
                 {fmt(totalProjected6m)}
               </p>
-              <p className="text-[10px] text-slate-400 font-medium">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                 {interpolate(tAtt?.currencyVnd || "{amount} đ", {
                   amount: totalProjected6m.toLocaleString(),
                 })}
               </p>
             </div>
             {/* Đã thu */}
-            <div className="bg-white rounded-2xl border border-emerald-200 p-4 shadow-sm space-y-1">
-              <p className="text-[10px] font-black text-emerald-600 uppercase tracking-wider flex items-center gap-1">
-                <Wallet size={10} /> {tAtt?.collected6m || "Đã thu (6T)"}
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-emerald-200/80 p-4 sm:p-5 shadow-2xs space-y-1">
+              <p className="text-[10px] sm:text-xs font-black text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+                <Wallet size={12} /> {tAtt?.collected6m || "Đã thu (6T)"}
               </p>
-              <p className="text-lg font-black text-emerald-700 leading-tight">
+              <p className="text-lg sm:text-2xl font-black text-emerald-700 leading-tight">
                 {fmt(totalCollected6m)}
               </p>
-              <p className="text-[10px] text-slate-400 font-medium">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium">
                 {interpolate(tAtt?.collectionRateLabel || "{rate}% tỷ lệ thu", {
                   rate: collectionRate6m,
                 })}
               </p>
             </div>
             {/* Tồn đọng */}
-            <div className="bg-white rounded-2xl border border-rose-200 p-4 shadow-sm space-y-1">
-              <p className="text-[10px] font-black text-rose-500 uppercase tracking-wider flex items-center gap-1">
-                <AlertCircle size={10} /> {tAtt?.outstanding || "Tồn đọng"}
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-rose-200/80 p-4 sm:p-5 shadow-2xs space-y-1">
+              <p className="text-[10px] sm:text-xs font-black text-rose-500 uppercase tracking-wider flex items-center gap-1">
+                <AlertCircle size={12} /> {tAtt?.outstanding || "Tồn đọng"}
               </p>
-              <p className="text-lg font-black text-rose-600 leading-tight">
+              <p className="text-lg sm:text-2xl font-black text-rose-600 leading-tight">
                 {fmt(totalOutstanding6m)}
               </p>
-              <p className="text-[10px] text-slate-400 font-medium">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium">
                 {interpolate(tAtt?.uncollectedRateLabel || "{rate}% chưa thu", {
                   rate: 100 - collectionRate6m,
                 })}
               </p>
             </div>
             {/* Tháng tốt nhất */}
-            <div className="bg-white rounded-2xl border border-amber-200 p-4 shadow-sm space-y-1">
-              <p className="text-[10px] font-black text-amber-600 uppercase tracking-wider flex items-center gap-1">
-                <Star size={10} /> {tAtt?.bestMonth || "Tháng tốt nhất"}
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-amber-200/80 p-4 sm:p-5 shadow-2xs space-y-1">
+              <p className="text-[10px] sm:text-xs font-black text-amber-600 uppercase tracking-wider flex items-center gap-1">
+                <Star size={12} /> {tAtt?.bestMonth || "Tháng tốt nhất"}
               </p>
-              <p className="text-lg font-black text-amber-700 leading-tight">
+              <p className="text-lg sm:text-2xl font-black text-amber-700 leading-tight">
                 {bestMonth ? bestMonth.fullLabel : "—"}
               </p>
-              <p className="text-[10px] text-slate-400 font-medium">
+              <p className="text-[10px] sm:text-xs text-slate-400 font-medium">
                 {bestMonth ? fmt(bestMonth.projected) : ""}
               </p>
             </div>
@@ -291,7 +275,7 @@ export function AttendanceAnalytics({
           {/* ---- Main charts row ---- */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
             {/* Revenue stacked bar chart (3/5) */}
-            <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <div className="lg:col-span-3 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-5 shadow-2xs">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <div className="flex items-center gap-2">

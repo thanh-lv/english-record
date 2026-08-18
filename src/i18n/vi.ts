@@ -611,7 +611,8 @@ export const vi = {
     studentsTab: "Quản lý Học sinh",
     checkinTab: "Điểm danh hàng ngày",
     summaryTab: "Tổng hợp tháng",
-
+    tuitionTab: "Học phí",
+    analyticsTab: "Biểu đồ thống kê",
     leaderboardTab: "Bảng Xếp Hạng",
     // Students Tab
     addStudent: "Thêm học sinh",

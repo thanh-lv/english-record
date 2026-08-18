@@ -612,7 +612,8 @@ export const en = {
     studentsTab: "Manage Students",
     checkinTab: "Daily Check-in",
     summaryTab: "Monthly Summary",
-
+    tuitionTab: "Tuition Fees",
+    analyticsTab: "Analytics & Charts",
     leaderboardTab: "Leaderboard",
     // Students Tab
     addStudent: "Add Student",

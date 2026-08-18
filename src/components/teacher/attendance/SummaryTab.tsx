@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { supabase } from "../../../lib/supabase";
 import {
   Download,
@@ -12,14 +13,16 @@ import {
   Pencil,
   Trash2,
   Save,
+  Wallet,
+  BookOpen,
+  MessageCircle,
+  Check,
+  X,
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import JSZip from "jszip";
 import { TuitionSlipTemplate } from "./TuitionSlipTemplate";
-import { AttendanceAnalytics } from "./AttendanceAnalytics";
 import { ZaloShareModal } from "./ZaloShareModal";
-import { MessageCircle } from "lucide-react";
-import { Check, X } from "lucide-react";
 import { formatClassName, useBodyScrollLock } from "../../../utils";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 
@@ -631,122 +634,135 @@ export function SummaryTab() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-10">
-        <Loader2 className="animate-spin text-purple-500" />
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <div className="w-10 h-10 border-3 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+        <span className="text-xs font-bold text-slate-400">Đang tải dữ liệu học phí...</span>
       </div>
     );
 
   return (
-    <div className="space-y-5" id="printable-summary">
+    <div className="space-y-5 animate-in fade-in duration-300" id="printable-summary">
       {/* ---- Controls bar ---- */}
-      <div className="flex flex-wrap items-end gap-3 bg-purple-50 border border-purple-100 rounded-lg p-4 print:hidden">
-        <div>
-          <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
-            {tAtt.month}
-          </label>
-          <select
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
-            className="px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white font-bold text-slate-700 text-sm"
-          >
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-              <option key={m} value={m}>
-                {interpolate(tAtt.monthName || "Tháng {m}", { m })}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
-            {tAtt.year}
-          </label>
-          <select
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            className="px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white font-bold text-slate-700 text-sm"
-          >
-            {[year - 1, year, year + 1].map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </div>
-        {availableClasses.length > 0 && (
-          <div>
-            <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
-              {tAtt.filterClass}
+      <div className="bg-slate-50/80 rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 shadow-2xs space-y-3 print:hidden">
+        <div className="flex flex-wrap items-end gap-3">
+          {/* Month */}
+          <div className="w-full min-[420px]:w-auto">
+            <label className="block text-[11px] font-black text-slate-600 uppercase tracking-wider mb-1">
+              {tAtt.month}
             </label>
             <select
-              value={filterClass}
-              onChange={(e) => setFilterClass(e.target.value)}
-              className="px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white font-bold text-slate-700 text-sm"
+              value={month}
+              onChange={(e) => setMonth(Number(e.target.value))}
+              className="w-full min-[420px]:w-36 px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-bold text-slate-800 text-xs sm:text-sm shadow-2xs cursor-pointer"
             >
-              <option value="all">{tAtt.allClasses}</option>
-              {availableClasses.map((c) => (
-                <option key={c} value={c}>
-                  {formatClassName(
-                    c,
-                    tAtt.unassignedClass,
-                    tAtt.className ? tAtt.className + " " : "Lớp ",
-                  )}
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <option key={m} value={m}>
+                  {interpolate(tAtt.monthName || "Tháng {m}", { m })}
                 </option>
               ))}
             </select>
           </div>
-        )}
 
-        <div>
-          <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
-            {tAtt.filterPayment || "Trạng thái HP"}
-          </label>
-          <select
-            value={filterPayment}
-            onChange={(e) => setFilterPayment(e.target.value as any)}
-            className="px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white font-bold text-slate-700 text-sm"
-          >
-            <option value="all">
-              {tAtt.filterAllPayments || "Tất cả trạng thái"}
-            </option>
-            <option value="paid">🟢 {tAtt.paid || "Đã nộp"}</option>
-            <option value="unpaid">🔴 {tAtt.unpaid || "Chưa nộp"}</option>
-          </select>
-        </div>
+          {/* Year */}
+          <div className="w-full min-[420px]:w-auto">
+            <label className="block text-[11px] font-black text-slate-600 uppercase tracking-wider mb-1">
+              {tAtt.year}
+            </label>
+            <select
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+              className="w-full min-[420px]:w-28 px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-bold text-slate-800 text-xs sm:text-sm shadow-2xs cursor-pointer"
+            >
+              {[year - 1, year, year + 1].map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="w-full sm:w-auto flex-1 min-w-[200px]">
-          <label className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">
-            {tAtt.noteLabel || "Ghi chú chung"}
-          </label>
-          <input
-            type="text"
-            placeholder={tAtt.notePlaceholder}
-            value={generalNote}
-            onChange={(e) => setGeneralNote(e.target.value)}
-            className="w-full px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white font-bold text-slate-700 text-sm"
-          />
-        </div>
+          {/* Class Filter */}
+          {availableClasses.length > 0 && (
+            <div className="w-full sm:w-auto">
+              <label className="block text-[11px] font-black text-slate-600 uppercase tracking-wider mb-1">
+                {tAtt.filterClass}
+              </label>
+              <select
+                value={filterClass}
+                onChange={(e) => setFilterClass(e.target.value)}
+                className="w-full sm:w-44 px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-bold text-slate-800 text-xs sm:text-sm shadow-2xs cursor-pointer"
+              >
+                <option value="all">{tAtt.allClasses}</option>
+                {availableClasses.map((c) => (
+                  <option key={c} value={c}>
+                    {formatClassName(
+                      c,
+                      tAtt.unassignedClass,
+                      tAtt.className ? tAtt.className + " " : "Lớp ",
+                    )}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
-        <div className="flex gap-2 ml-auto flex-wrap">
-          <button
-            onClick={handleExportAllImages}
-            disabled={exporting || summary.length === 0}
-            className="px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white rounded-lg font-bold shadow-md transition-all flex items-center gap-2 text-sm"
-          >
-            {exporting ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <ImageIcon size={16} />
-            )}
-            {exporting ? tAtt.exportingImage : tAtt.exportImageAll}
-          </button>
+          {/* Payment Status Filter */}
+          <div className="w-full sm:w-auto">
+            <label className="block text-[11px] font-black text-slate-600 uppercase tracking-wider mb-1">
+              {tAtt.filterPayment || "Trạng thái HP"}
+            </label>
+            <select
+              value={filterPayment}
+              onChange={(e) => setFilterPayment(e.target.value as any)}
+              className="w-full sm:w-44 px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-bold text-slate-800 text-xs sm:text-sm shadow-2xs cursor-pointer"
+            >
+              <option value="all">
+                {tAtt.filterAllPayments || "Tất cả trạng thái"}
+              </option>
+              <option value="paid">🟢 {tAtt.paid || "Đã nộp"}</option>
+              <option value="unpaid">🔴 {tAtt.unpaid || "Chưa nộp"}</option>
+            </select>
+          </div>
 
-          <button
-            onClick={exportExcel}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-md transition-all flex items-center gap-2 text-sm"
-          >
-            <Download size={15} />
-            Excel
-          </button>
+          {/* General Note */}
+          <div className="w-full sm:flex-1 min-w-[200px]">
+            <label className="block text-[11px] font-black text-slate-600 uppercase tracking-wider mb-1">
+              {tAtt.noteLabel || "Ghi chú chung"}
+            </label>
+            <input
+              type="text"
+              placeholder={tAtt.notePlaceholder}
+              value={generalNote}
+              onChange={(e) => setGeneralNote(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-bold text-slate-800 text-xs sm:text-sm shadow-2xs"
+            />
+          </div>
+
+          {/* Export Action Buttons */}
+          <div className="flex items-center gap-2 ml-auto w-full sm:w-auto pt-1 sm:pt-0">
+            <button
+              type="button"
+              onClick={handleExportAllImages}
+              disabled={exporting || summary.length === 0}
+              className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 disabled:opacity-50 text-white rounded-xl font-black shadow-md shadow-teal-500/20 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm active:scale-95 cursor-pointer"
+            >
+              {exporting ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <ImageIcon size={16} />
+              )}
+              <span>{exporting ? tAtt.exportingImage : tAtt.exportImageAll}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={exportExcel}
+              className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white rounded-xl font-black shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm active:scale-95 cursor-pointer"
+            >
+              <Download size={15} />
+              <span>Excel</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -762,39 +778,62 @@ export function SummaryTab() {
       </div>
 
       {summary.length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-lg">
+        <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 p-6">
           <CalendarDays size={40} className="mx-auto text-slate-300 mb-3" />
           <p className="text-slate-500 font-medium">{tAtt.summaryEmpty}</p>
         </div>
       ) : (
         <div className="space-y-6">
           {/* ---- Stat cards ---- */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 print:grid-cols-4">
-            <div className="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-lg p-4 shadow-md">
-              <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
-                {tAtt.studentsStat || "Học sinh"}
-              </p>
-              <p className="text-3xl font-black mt-1">{summary.length}</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 print:grid-cols-4">
+            <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] sm:text-xs font-black text-blue-200 uppercase tracking-wider">
+                  {tAtt.studentsStat || "Học sinh"}
+                </p>
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-white">
+                  <Users size={16} />
+                </div>
+              </div>
+              <p className="text-2xl sm:text-3xl font-black mt-2">{summary.length}</p>
             </div>
-            <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-lg p-4 shadow-md">
-              <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
-                {tAtt.totalSessionsStat || "Tổng buổi"}
-              </p>
-              <p className="text-3xl font-black mt-1">{grandSessions}</p>
+
+            <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 text-white rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] sm:text-xs font-black text-emerald-200 uppercase tracking-wider">
+                  {tAtt.totalSessionsStat || "Tổng buổi"}
+                </p>
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-white">
+                  <CheckCircle2 size={16} />
+                </div>
+              </div>
+              <p className="text-2xl sm:text-3xl font-black mt-2">{grandSessions}</p>
             </div>
-            <div className="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-lg p-4 shadow-md">
-              <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
-                {tAtt.totalClassesStat || "Số lớp"}
-              </p>
-              <p className="text-3xl font-black mt-1">
+
+            <div className="bg-gradient-to-br from-purple-600 via-violet-600 to-purple-800 text-white rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] sm:text-xs font-black text-purple-200 uppercase tracking-wider">
+                  {tAtt.totalClassesStat || "Số lớp"}
+                </p>
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-white">
+                  <BookOpen size={16} />
+                </div>
+              </div>
+              <p className="text-2xl sm:text-3xl font-black mt-2">
                 {Object.keys(byClass).length}
               </p>
             </div>
-            <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-lg p-4 shadow-md">
-              <p className="text-xs font-bold opacity-80 uppercase tracking-wide">
-                {tAtt.totalFeeStat || "Tổng học phí"}
-              </p>
-              <p className="text-xl font-black mt-1">
+
+            <div className="bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] sm:text-xs font-black text-amber-100 uppercase tracking-wider">
+                  {tAtt.totalFeeStat || "Tổng học phí"}
+                </p>
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-white">
+                  <Wallet size={16} />
+                </div>
+              </div>
+              <p className="text-lg sm:text-2xl font-black mt-2 leading-tight">
                 {tAtt.currencyVnd.replace(
                   "{amount}",
                   grandTotal.toLocaleString(),
@@ -802,14 +841,6 @@ export function SummaryTab() {
               </p>
             </div>
           </div>
-
-          {/* ---- Analytics Charts Widget ---- */}
-          <AttendanceAnalytics
-            tAtt={tAtt}
-            month={month}
-            year={year}
-            paymentsMap={paymentsMap}
-          />
 
           {/* ---- Tables grouped by class ---- */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
@@ -822,22 +853,20 @@ export function SummaryTab() {
               return (
                 <div
                   key={cls}
-                  className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-md print:break-inside-avoid"
+                  className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 overflow-hidden shadow-2xs print:break-inside-avoid"
                 >
                   {/* Class header */}
-                  <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-5 py-3 flex justify-between items-center">
+                  <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 px-5 py-3.5 flex justify-between items-center text-white">
                     <div className="flex items-center gap-2">
                       <Users size={16} className="text-purple-200" />
-                      <span className="font-black text-white">
+                      <span className="font-black text-white text-sm sm:text-base">
                         {formatClassName(cls, tAtt.unassignedClass)}
                       </span>
-                      <span className="text-purple-200 text-sm font-bold">
-                        (
+                      <span className="text-purple-200 text-xs font-bold bg-white/10 px-2 py-0.5 rounded-full">
                         {tAtt.studentCount.replace(
                           "{count}",
                           rows.length.toString(),
                         )}
-                        )
                       </span>
                     </div>
                     <div className="text-right">
@@ -847,7 +876,7 @@ export function SummaryTab() {
                           classSessions.toString(),
                         )}
                       </p>
-                      <p className="text-sm text-white font-black">
+                      <p className="text-sm font-black text-white">
                         {tAtt.currencyVnd.replace(
                           "{amount}",
                           classTotal.toLocaleString(),
@@ -855,9 +884,10 @@ export function SummaryTab() {
                       </p>
                     </div>
                   </div>
+
                   {/* Input Học liệu theo từng Lớp (Label + Value số đ) */}
-                  <div className="bg-purple-50/90 px-4 py-2 border-b border-purple-100 flex flex-wrap items-center justify-between gap-2 print:hidden">
-                    <div className="flex items-center gap-1.5 min-w-[200px] flex-1">
+                  <div className="bg-purple-50/70 px-4 py-2.5 border-b border-purple-100/80 flex flex-wrap items-center justify-between gap-2 print:hidden">
+                    <div className="flex items-center gap-1.5 min-w-[180px] flex-1">
                       <span className="text-xs font-black text-purple-900 shrink-0">
                         {tAtt.labelField || "📚 Nhãn:"}
                       </span>
@@ -880,7 +910,7 @@ export function SummaryTab() {
                             undefined,
                           )
                         }
-                        className="w-full max-w-[200px] px-2.5 py-1 text-xs font-bold text-slate-800 bg-white border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none shadow-sm"
+                        className="w-full max-w-[180px] px-2.5 py-1 text-xs font-bold text-slate-800 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none shadow-2xs"
                       />
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -915,7 +945,7 @@ export function SummaryTab() {
                             0;
                           handleUpdateClassHocLieuMap(cls, undefined, raw);
                         }}
-                        className="w-24 px-2 py-1 text-xs font-black text-right text-purple-900 bg-white border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none shadow-sm"
+                        className="w-24 px-2 py-1 text-xs font-black text-right text-purple-900 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none shadow-2xs"
                       />
                       <span className="text-xs font-bold text-purple-800">
                         {tAtt.vndPerStudent || "đ / HS"}
@@ -923,28 +953,23 @@ export function SummaryTab() {
                     </div>
                   </div>
 
-                  {/* Student card list – no horizontal scroll */}
+                  {/* Student card list */}
                   <div className="divide-y divide-slate-100">
                     {rows.map((s, i) => (
                       <div
                         key={s.id}
-                        className={`px-4 py-3 hover:bg-purple-50/60 transition-colors ${
-                          paymentsMap[s.id] ? "" : ""
-                        }`}
+                        className="p-3.5 sm:p-4 hover:bg-purple-50/40 transition-colors space-y-2"
                       >
                         {/* Row 1: STT + Tên + Buổi + Học phí */}
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs text-slate-400 font-bold w-5 shrink-0">
+                          <span className="w-5 h-5 rounded-md bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] font-black shrink-0">
                             {i + 1}
                           </span>
-                          <span className="font-black text-slate-800 flex-1 min-w-0 truncate">
+                          <span className="font-black text-slate-800 text-sm flex-1 min-w-0 truncate">
                             {s.name}
                           </span>
-                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 font-black text-xs shrink-0">
-                            {s.total_sessions}
-                          </span>
-                          <span className="text-xs text-slate-400 font-medium shrink-0">
-                            {tAtt.sessionUnit || "buổi"}
+                          <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 font-black text-xs shrink-0">
+                            {s.total_sessions} {tAtt.sessionUnit || "buổi"}
                           </span>
                           <span className="font-black text-purple-700 text-sm shrink-0">
                             {tAtt.currencyVnd.replace(
@@ -953,9 +978,10 @@ export function SummaryTab() {
                             )}
                           </span>
                         </div>
+
                         {/* Row 2: Đơn giá + Controls */}
-                        <div className="flex items-center gap-2 mt-2 flex-wrap pl-7">
-                          <span className="text-xs text-slate-400 font-medium">
+                        <div className="flex items-center gap-2 flex-wrap pl-7">
+                          <span className="text-xs text-slate-400 font-bold">
                             {interpolate(
                               tAtt.pricePerSession || "{price} đ/buổi",
                               { price: s.unit_price.toLocaleString() },
@@ -964,11 +990,12 @@ export function SummaryTab() {
                           <div className="flex-1" />
                           {/* Toggle trạng thái HP */}
                           <button
+                            type="button"
                             onClick={() => handleTogglePayment(s.id)}
-                            className={`px-2.5 py-1 text-xs font-black rounded-full border transition-all flex items-center gap-1 print:hidden ${
+                            className={`px-3 py-1 text-xs font-black rounded-full border transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer print:hidden ${
                               paymentsMap[s.id]
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
-                                : "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100 shadow-2xs"
+                                : "bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100 shadow-2xs"
                             }`}
                           >
                             <span
@@ -978,30 +1005,35 @@ export function SummaryTab() {
                               ? tAtt.paid || "Đã nộp"
                               : tAtt.unpaid || "Chưa nộp"}
                           </button>
+
                           {/* Gửi Zalo */}
                           <button
+                            type="button"
                             onClick={() => setZaloStudent(s)}
-                            className="px-2.5 py-1 text-xs font-black text-[#0068FF] bg-[#0068FF]/10 hover:bg-[#0068FF]/20 rounded-lg transition-all flex items-center gap-1 print:hidden shadow-sm active:scale-95"
+                            className="px-2.5 py-1 text-xs font-black text-[#0068FF] bg-[#0068FF]/10 hover:bg-[#0068FF]/20 rounded-xl transition-all flex items-center gap-1 print:hidden shadow-2xs active:scale-95 cursor-pointer"
                             title={
                               tAtt.sendZaloTooltip ||
                               "Gửi thông báo Zalo cho Phụ huynh"
                             }
                           >
-                            <MessageCircle size={12} /> Zalo
+                            <MessageCircle size={13} /> Zalo
                           </button>
+
                           {/* Xem chi tiết */}
                           <button
+                            type="button"
                             onClick={() => {
                               setSelectedStudent(s);
                               setPreviewMode(false);
                             }}
-                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-black text-purple-600 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors print:hidden"
+                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-black text-purple-700 hover:bg-purple-100 border border-purple-200 rounded-xl transition-all active:scale-95 cursor-pointer print:hidden shadow-2xs"
                           >
-                            <CalendarDays size={12} /> {tAtt.details || "Xem"}
+                            <CalendarDays size={13} /> {tAtt.details || "Xem"}
                           </button>
                         </div>
+
                         {/* Row 3: Ghi chú riêng (Lưu CSDL Supabase) */}
-                        <div className="mt-2 pl-7 print:hidden">
+                        <div className="pl-7 print:hidden">
                           <input
                             type="text"
                             placeholder={
@@ -1023,25 +1055,23 @@ export function SummaryTab() {
                             onBlur={(e) =>
                               handleUpdateStudentNote(s.id, e.target.value)
                             }
-                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-purple-400 bg-white placeholder:text-slate-300"
+                            className="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-slate-50/50 focus:bg-white placeholder:text-slate-400 shadow-2xs"
                           />
                         </div>
                       </div>
                     ))}
                   </div>
+
                   {/* Footer tổng lớp */}
-                  <div className="bg-purple-50 border-t-2 border-purple-200 px-4 py-3 flex items-center justify-between">
-                    <span className="font-black text-purple-800 text-sm">
-                      {tAtt.sum || "Cộng"}
+                  <div className="bg-purple-50/80 border-t border-purple-100 px-5 py-3 flex items-center justify-between">
+                    <span className="font-black text-purple-900 text-sm">
+                      {tAtt.sum || "Cộng lớp"}
                     </span>
                     <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-purple-200 text-purple-800 font-black text-xs">
-                        {classSessions}
+                      <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-xl bg-purple-200 text-purple-900 font-black text-xs">
+                        {classSessions} {tAtt.sessionUnit || "buổi"}
                       </span>
-                      <span className="text-xs text-purple-600 font-bold">
-                        {tAtt.sessionUnit || "buổi"}
-                      </span>
-                      <span className="font-black text-purple-700 text-base">
+                      <span className="font-black text-purple-800 text-sm sm:text-base">
                         {tAtt.currencyVnd.replace(
                           "{amount}",
                           classTotal.toLocaleString(),
@@ -1057,17 +1087,17 @@ export function SummaryTab() {
           {/* ---- Grand total footer ---- */}
           {filterClass === "all" && (
             <div className="flex justify-end">
-              <div className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-lg px-6 py-4 shadow-md text-right">
-                <p className="text-xs font-bold opacity-70 uppercase tracking-wider">
+              <div className="bg-gradient-to-r from-purple-700 via-indigo-800 to-purple-900 text-white rounded-2xl sm:rounded-3xl px-6 py-5 shadow-lg text-right min-w-[260px]">
+                <p className="text-xs font-bold opacity-80 uppercase tracking-wider">
                   {tAtt.grandTotal || "Tổng cộng tất cả"}
                 </p>
-                <p className="text-3xl font-black mt-0.5">
+                <p className="text-2xl sm:text-3xl font-black mt-1">
                   {tAtt.currencyVnd.replace(
                     "{amount}",
                     grandTotal.toLocaleString(),
                   )}
                 </p>
-                <p className="text-xs opacity-70 mt-0.5">
+                <p className="text-xs text-purple-200 mt-1">
                   {interpolate(
                     tAtt.summaryFooter ||
                       "{sessions} buổi · {students} học sinh · ",
@@ -1095,52 +1125,53 @@ export function SummaryTab() {
                 new Date(a.checkin_time).getTime() -
                 new Date(b.checkin_time).getTime(),
             );
-          return (
-            <div className="!m-0 fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] print:hidden overscroll-contain">
-              <div className="bg-white rounded-xl w-full max-w-2xl shadow-xl overflow-hidden flex flex-col max-h-[92vh]">
+          return createPortal(
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-[200] print:hidden overscroll-contain">
+              <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95">
                 {/* Modal header */}
-                <div className="bg-gradient-to-r from-purple-600 to-purple-800 px-6 py-4 flex items-start justify-between shrink-0">
+                <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-800 px-6 py-4 flex items-start justify-between shrink-0 text-white">
                   <div>
-                    <h2 className="font-black text-white text-xl">{s.name}</h2>
-                    <p className="text-purple-200 text-sm font-bold mt-0.5">
+                    <h2 className="font-black text-white text-lg sm:text-xl">{s.name}</h2>
+                    <p className="text-purple-200 text-xs sm:text-sm font-bold mt-0.5">
                       {formatClassName(s.class_name, tAtt.unassignedClass)} ·{" "}
                       {MONTH_LABEL}
                     </p>
                   </div>
                   <button
+                    type="button"
                     onClick={() => setSelectedStudent(null)}
-                    className="text-purple-300 hover:text-white text-2xl font-black leading-none ml-4"
+                    className="text-white/80 hover:text-white p-1 rounded-xl hover:bg-white/10 transition-colors ml-4 cursor-pointer"
                   >
-                    ✕
+                    <X size={20} />
                   </button>
                 </div>
 
                 {/* Summary strip */}
-                <div className="grid grid-cols-3 border-b border-slate-100 shrink-0">
-                  <div className="px-5 py-3 text-center border-r border-slate-100">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
+                <div className="grid grid-cols-3 border-b border-slate-100 shrink-0 bg-slate-50/50">
+                  <div className="px-4 py-3 text-center border-r border-slate-100">
+                    <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wide">
                       {tAtt.totalSessionsStat || "Số buổi"}
                     </p>
-                    <p className="text-2xl font-black text-emerald-600 mt-0.5">
+                    <p className="text-xl sm:text-2xl font-black text-emerald-600 mt-0.5">
                       {s.total_sessions}
                     </p>
                   </div>
-                  <div className="px-5 py-3 text-center border-r border-slate-100">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
+                  <div className="px-4 py-3 text-center border-r border-slate-100">
+                    <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wide">
                       {tAtt.unitPrice || "Đơn giá"}
                     </p>
-                    <p className="text-sm font-black text-slate-700 mt-0.5">
+                    <p className="text-xs sm:text-sm font-black text-slate-700 mt-0.5">
                       {tAtt.currencyVnd.replace(
                         "{amount}",
                         s.unit_price.toLocaleString(),
                       )}
                     </p>
                   </div>
-                  <div className="px-5 py-3 text-center">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">
+                  <div className="px-4 py-3 text-center">
+                    <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wide">
                       {tAtt.tuitionFeeLabel || "Học phí"}
                     </p>
-                    <p className="text-sm font-black text-purple-700 mt-0.5">
+                    <p className="text-xs sm:text-sm font-black text-purple-700 mt-0.5">
                       {tAtt.currencyVnd.replace(
                         "{amount}",
                         s.total_fee.toLocaleString(),
@@ -1150,12 +1181,13 @@ export function SummaryTab() {
                 </div>
 
                 {/* Tab switcher */}
-                <div className="flex border-b border-slate-200 shrink-0 bg-slate-50">
+                <div className="flex border-b border-slate-100 shrink-0 bg-slate-50/80 p-1.5 gap-1.5">
                   <button
+                    type="button"
                     onClick={() => setPreviewMode(false)}
-                    className={`flex-1 py-2.5 text-sm font-black flex items-center justify-center gap-1.5 transition-colors ${
+                    className={`flex-1 py-2 text-xs sm:text-sm font-black rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       !previewMode
-                        ? "text-purple-700 border-b-2 border-purple-600 bg-white"
+                        ? "bg-white text-purple-700 shadow-2xs"
                         : "text-slate-500 hover:text-slate-700"
                     }`}
                   >
@@ -1163,10 +1195,11 @@ export function SummaryTab() {
                     {tAtt.attendanceCalendar || "Lịch điểm danh"}
                   </button>
                   <button
+                    type="button"
                     onClick={() => setPreviewMode(true)}
-                    className={`flex-1 py-2.5 text-sm font-black flex items-center justify-center gap-1.5 transition-colors ${
+                    className={`flex-1 py-2 text-xs sm:text-sm font-black rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       previewMode
-                        ? "text-purple-700 border-b-2 border-purple-600 bg-white"
+                        ? "bg-white text-purple-700 shadow-2xs"
                         : "text-slate-500 hover:text-slate-700"
                     }`}
                   >
@@ -1181,7 +1214,7 @@ export function SummaryTab() {
                     /* ---- Attendance list tab ---- */
                     <div className="p-4 space-y-4">
                       {/* Top action bar: Add makeup session */}
-                      <div className="flex justify-between items-center bg-purple-50/70 border border-purple-100 rounded-xl p-3">
+                      <div className="flex justify-between items-center bg-purple-50/70 border border-purple-100 rounded-2xl p-3 sm:p-4">
                         <div>
                           <p className="text-xs font-black text-purple-900">
                             {interpolate(
@@ -1196,6 +1229,7 @@ export function SummaryTab() {
                           </p>
                         </div>
                         <button
+                          type="button"
                           onClick={() => {
                             setShowAddDateForm(!showAddDateForm);
                             if (!newDateVal) {
@@ -1203,16 +1237,16 @@ export function SummaryTab() {
                               setNewDateVal(defaultD);
                             }
                           }}
-                          className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-black shadow-sm flex items-center gap-1 transition-all active:scale-95"
+                          className="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-black shadow-md shadow-purple-500/20 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
                         >
                           <Plus size={14} />{" "}
-                          {tAtt.addMakeupSessionBtn || "Thêm buổi học bù"}
+                          {tAtt.addMakeupSessionBtn || "Thêm học bù"}
                         </button>
                       </div>
 
                       {/* Add makeup form */}
                       {showAddDateForm && (
-                        <div className="bg-white border-2 border-purple-200 rounded-xl p-3.5 shadow-sm space-y-3 animate-in fade-in duration-150">
+                        <div className="bg-white border-2 border-purple-200 rounded-2xl p-4 shadow-sm space-y-3 animate-in fade-in duration-150">
                           <p className="text-xs font-black text-slate-700 uppercase tracking-wide flex items-center gap-1.5">
                             <CalendarDays
                               size={14}
@@ -1230,7 +1264,7 @@ export function SummaryTab() {
                                 type="date"
                                 value={newDateVal}
                                 onChange={(e) => setNewDateVal(e.target.value)}
-                                className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 focus:ring-2 focus:ring-purple-400"
+                                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-purple-400"
                               />
                             </div>
                             <div className="w-28">
@@ -1241,14 +1275,15 @@ export function SummaryTab() {
                                 type="time"
                                 value={newTimeVal}
                                 onChange={(e) => setNewTimeVal(e.target.value)}
-                                className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 focus:ring-2 focus:ring-purple-400"
+                                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-purple-400"
                               />
                             </div>
                             <div className="flex items-end gap-2 pt-4">
                               <button
+                                type="button"
                                 onClick={() => handleAddMakeupSession(s.id)}
                                 disabled={recActionLoading || !newDateVal}
-                                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-black shadow transition-all flex items-center gap-1"
+                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl text-xs font-black shadow transition-all flex items-center gap-1 cursor-pointer"
                               >
                                 {recActionLoading ? (
                                   <Loader2 size={13} className="animate-spin" />
@@ -1258,8 +1293,9 @@ export function SummaryTab() {
                                 {tc.save || "Lưu"}
                               </button>
                               <button
+                                type="button"
                                 onClick={() => setShowAddDateForm(false)}
-                                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-bold transition-colors"
+                                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                               >
                                 {tc.cancel || "Hủy"}
                               </button>
@@ -1270,7 +1306,7 @@ export function SummaryTab() {
 
                       {/* Attendance records table */}
                       {studentRecs.length === 0 ? (
-                        <div className="text-center py-10 border-2 border-dashed border-slate-200 rounded-xl">
+                        <div className="text-center py-10 border-2 border-dashed border-slate-200 rounded-2xl">
                           <p className="text-slate-400 font-bold text-sm">
                             {tAtt.noCheckinsThisMonth ||
                               "Chưa có buổi điểm danh nào trong tháng này."}
@@ -1281,7 +1317,7 @@ export function SummaryTab() {
                           </p>
                         </div>
                       ) : (
-                        <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
                           <table className="w-full text-sm">
                             <thead className="bg-slate-50 border-b border-slate-200">
                               <tr>
@@ -1323,10 +1359,10 @@ export function SummaryTab() {
                                           onChange={(e) =>
                                             setEditDateVal(e.target.value)
                                           }
-                                          className="px-2 py-1 border border-purple-300 rounded text-xs font-bold text-slate-800"
+                                          className="px-2 py-1 border border-purple-300 rounded-lg text-xs font-bold text-slate-800"
                                         />
                                       ) : (
-                                        <p className="font-black text-slate-800">
+                                        <p className="font-black text-slate-800 text-xs sm:text-sm">
                                           {dt.toLocaleDateString("vi-VN", {
                                             weekday: "short",
                                             day: "2-digit",
@@ -1336,7 +1372,7 @@ export function SummaryTab() {
                                         </p>
                                       )}
                                     </td>
-                                    <td className="px-3 py-2.5 font-bold text-slate-500">
+                                    <td className="px-3 py-2.5 font-bold text-slate-500 text-xs sm:text-sm">
                                       {isEditing ? (
                                         <input
                                           type="time"
@@ -1344,7 +1380,7 @@ export function SummaryTab() {
                                           onChange={(e) =>
                                             setEditTimeVal(e.target.value)
                                           }
-                                          className="px-2 py-1 border border-purple-300 rounded text-xs font-bold text-slate-800"
+                                          className="px-2 py-1 border border-purple-300 rounded-lg text-xs font-bold text-slate-800"
                                         />
                                       ) : (
                                         dt.toLocaleTimeString("vi-VN", {
@@ -1354,7 +1390,7 @@ export function SummaryTab() {
                                       )}
                                     </td>
                                     <td className="px-3 py-2.5 text-center">
-                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-black rounded-lg">
+                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-black rounded-lg">
                                         <CheckCircle2 size={11} />{" "}
                                         {tAtt.present || "Có mặt"}
                                       </span>
@@ -1363,20 +1399,22 @@ export function SummaryTab() {
                                       {isEditing ? (
                                         <div className="flex items-center justify-end gap-1">
                                           <button
+                                            type="button"
                                             onClick={() =>
                                               handleSaveEditSession(r.id)
                                             }
                                             disabled={recActionLoading}
-                                            className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded transition-colors"
+                                            className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors cursor-pointer"
                                             title={tc.save || "Lưu"}
                                           >
                                             <Save size={13} />
                                           </button>
                                           <button
+                                            type="button"
                                             onClick={() =>
                                               setEditingRecId(null)
                                             }
-                                            className="p-1.5 bg-slate-200 text-slate-600 rounded transition-colors"
+                                            className="p-1.5 bg-slate-200 text-slate-600 rounded-lg transition-colors cursor-pointer"
                                             title={tc.cancel || "Hủy"}
                                           >
                                             <X size={13} />
@@ -1385,6 +1423,7 @@ export function SummaryTab() {
                                       ) : (
                                         <div className="flex items-center justify-end gap-1">
                                           <button
+                                            type="button"
                                             onClick={() => {
                                               setEditingRecId(r.id);
                                               const dStr = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
@@ -1392,7 +1431,7 @@ export function SummaryTab() {
                                               setEditDateVal(dStr);
                                               setEditTimeVal(tStr);
                                             }}
-                                            className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-100 rounded transition-colors"
+                                            className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-100 rounded-lg transition-colors cursor-pointer"
                                             title={
                                               tAtt.editDateTime ||
                                               "Sửa ngày/giờ"
@@ -1401,10 +1440,11 @@ export function SummaryTab() {
                                             <Pencil size={13} />
                                           </button>
                                           <button
+                                            type="button"
                                             onClick={() =>
                                               handleDeleteSession(r.id)
                                             }
-                                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-100 rounded transition-colors"
+                                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-100 rounded-lg transition-colors cursor-pointer"
                                             title={
                                               tAtt.deleteThisSession ||
                                               "Xóa buổi này"
@@ -1430,7 +1470,6 @@ export function SummaryTab() {
                         <Eye size={12} />{" "}
                         {tAtt.previewTuitionSlip || "Xem trước phiếu học phí"}
                       </p>
-                      {/* Preview: scale down to fit modal width (modal max-w-2xl = 672px, slip = 500px) */}
                       <div
                         style={{
                           width: "500px",
@@ -1438,7 +1477,7 @@ export function SummaryTab() {
                           transformOrigin: "top center",
                           marginBottom: "-110px",
                         }}
-                        className="shadow-xl rounded-lg overflow-hidden"
+                        className="shadow-xl rounded-2xl overflow-hidden"
                       >
                         <TuitionSlipTemplate
                           student={s}
@@ -1468,14 +1507,14 @@ export function SummaryTab() {
                             (studentNotes[s.id] && studentNotes[s.id].trim()) ||
                             generalNote
                           }
-                          onHocLieuLabelChange={(lbl) =>
+                          onHocLieuLabelChange={(lbl: string) =>
                             handleUpdateClassHocLieuMap(
                               s.class_name || tAtt.unassignedClass,
                               lbl,
                               undefined,
                             )
                           }
-                          onHocLieuValueChange={(val) =>
+                          onHocLieuValueChange={(val: number) =>
                             handleUpdateClassHocLieuMap(
                               s.class_name || tAtt.unassignedClass,
                               undefined,
@@ -1489,25 +1528,28 @@ export function SummaryTab() {
                 </div>
 
                 {/* Modal footer: export actions */}
-                <div className="border-t border-slate-100 px-5 py-3 flex justify-between items-center gap-2 bg-slate-50 shrink-0">
+                <div className="border-t border-slate-100 px-5 py-3.5 flex justify-between items-center gap-2 bg-slate-50/80 shrink-0">
                   <button
+                    type="button"
                     onClick={() => setSelectedStudent(null)}
-                    className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition-colors"
+                    className="px-4 py-2 text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
                   >
                     {tAtt.close || "Đóng"}
                   </button>
                   <div className="flex gap-2">
                     <button
+                      type="button"
                       onClick={() => exportStudentExcel(s)}
-                      className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow transition-colors"
+                      className="flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-black bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow transition-colors active:scale-95 cursor-pointer"
                     >
                       <Download size={14} /> Excel
                     </button>
                     <button
+                      type="button"
                       onClick={() => {
                         setPreviewMode(true);
                       }}
-                      className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg shadow-sm transition-colors"
+                      className="flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-black bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl shadow-2xs transition-colors active:scale-95 cursor-pointer"
                       title={
                         tAtt.previewTuitionSlip || "Xem trước phiếu học phí"
                       }
@@ -1515,9 +1557,10 @@ export function SummaryTab() {
                       <Eye size={14} /> Preview
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleExportSingle(selectedStudent)}
                       disabled={exporting}
-                      className="flex items-center gap-1.5 px-4 py-2 text-sm font-black bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg shadow transition-colors"
+                      className="flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-black bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white rounded-xl shadow-md shadow-purple-500/20 transition-all active:scale-95 cursor-pointer"
                     >
                       {exporting ? (
                         <Loader2 size={14} className="animate-spin" />
@@ -1529,7 +1572,8 @@ export function SummaryTab() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body,
           );
         })()}
 
