@@ -22,6 +22,53 @@ export type ActiveTab =
   | "flashcards"
   | "games";
 
+const TAB_THEMES: Record<
+  ActiveTab,
+  {
+    activeClass: string;
+    iconActiveClass: string;
+    iconBgClass: string;
+    dotClass: string;
+  }
+> = {
+  exercises: {
+    activeClass: "bg-blue-50 text-blue-700 border-blue-200/90 shadow-2xs",
+    iconActiveClass: "text-blue-600",
+    iconBgClass: "bg-blue-100/80 text-blue-600",
+    dotClass: "bg-blue-600 shadow-blue-200",
+  },
+  shadowing: {
+    activeClass: "bg-indigo-50 text-indigo-700 border-indigo-200/90 shadow-2xs",
+    iconActiveClass: "text-indigo-600",
+    iconBgClass: "bg-indigo-100/80 text-indigo-600",
+    dotClass: "bg-indigo-600 shadow-indigo-200",
+  },
+  stories: {
+    activeClass: "bg-purple-50 text-purple-700 border-purple-200/90 shadow-2xs",
+    iconActiveClass: "text-purple-600",
+    iconBgClass: "bg-purple-100/80 text-purple-600",
+    dotClass: "bg-purple-600 shadow-purple-200",
+  },
+  achievements: {
+    activeClass: "bg-amber-50 text-amber-800 border-amber-200/90 shadow-2xs",
+    iconActiveClass: "text-amber-600",
+    iconBgClass: "bg-amber-100/80 text-amber-600",
+    dotClass: "bg-amber-500 shadow-amber-200",
+  },
+  flashcards: {
+    activeClass: "bg-rose-50 text-rose-700 border-rose-200/90 shadow-2xs",
+    iconActiveClass: "text-rose-600",
+    iconBgClass: "bg-rose-100/80 text-rose-600",
+    dotClass: "bg-rose-600 shadow-rose-200",
+  },
+  games: {
+    activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200/90 shadow-2xs",
+    iconActiveClass: "text-emerald-600",
+    iconBgClass: "bg-emerald-100/80 text-emerald-600",
+    dotClass: "bg-emerald-600 shadow-emerald-200",
+  },
+};
+
 interface StudentSidebarProps {
   profile: any;
   currentAvatar: string;
@@ -47,54 +94,64 @@ export function StudentSidebar({
     {
       id: "exercises" as ActiveTab,
       label: t.sidebar.exercises,
-      icon: <BookOpen size={20} />,
+      icon: <BookOpen size={18} />,
     },
     {
       id: "shadowing" as ActiveTab,
       label: t.sidebar.shadowing,
-      icon: <Video size={20} />,
+      icon: <Video size={18} />,
     },
     {
       id: "stories" as ActiveTab,
       label: t.sidebar.stories,
-      icon: <Library size={20} />,
+      icon: <Library size={18} />,
     },
     {
       id: "achievements" as ActiveTab,
       label: t.sidebar.achievements,
-      icon: <Award size={20} />,
+      icon: <Award size={18} />,
     },
     {
       id: "flashcards" as ActiveTab,
       label: t.sidebar.flashcards,
-      icon: <BookMarked size={20} />,
+      icon: <BookMarked size={18} />,
     },
     {
       id: "games" as ActiveTab,
       label: t.sidebar.games,
-      icon: <Gamepad2 size={20} />,
+      icon: <Gamepad2 size={18} />,
     },
   ];
 
   const NavLink = ({ item }: { item: (typeof NAV_ITEMS)[0] }) => {
     const active = activeTab === item.id;
+    const theme = TAB_THEMES[item.id] || TAB_THEMES.exercises;
+
     return (
       <Link
         key={item.id}
         to={`/student/${item.id}`}
         onClick={() => setMobileOpen(false)}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-extrabold text-sm transition-all active:scale-95 ${
+        className={`group relative w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl font-black text-xs transition-all border ${
           active
-            ? "bg-blue-50 text-blue-600 shadow-2xs font-black"
-            : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+            ? theme.activeClass
+            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-bold border-transparent"
         }`}
       >
-        <span className={active ? "text-blue-600" : "text-slate-400"}>
+        <span
+          className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+            active
+              ? theme.iconBgClass
+              : "bg-slate-100 text-slate-400 group-hover:text-slate-600"
+          }`}
+        >
           {item.icon}
         </span>
-        {item.label}
+        <span className="truncate tracking-wide">{item.label}</span>
         {active && (
-          <span className="ml-auto w-2 h-2 rounded-full bg-blue-600" />
+          <span
+            className={`ml-auto w-2 h-2 rounded-full shadow-2xs shrink-0 ${theme.dotClass}`}
+          />
         )}
       </Link>
     );
@@ -149,27 +206,7 @@ export function StudentSidebar({
 
         <nav className="bg-white/85 backdrop-blur-md p-2.5 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col gap-1">
           {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.id}
-              to={`/student/${item.id}`}
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-extrabold text-sm transition-all active:scale-95 ${
-                activeTab === item.id
-                  ? "bg-blue-50 text-blue-600 shadow-2xs font-black"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-              }`}
-            >
-              <span
-                className={
-                  activeTab === item.id ? "text-blue-600" : "text-slate-400"
-                }
-              >
-                {item.icon}
-              </span>
-              {item.label}
-              {activeTab === item.id && (
-                <span className="ml-auto w-2 h-2 rounded-full bg-blue-600" />
-              )}
-            </Link>
+            <NavLink key={item.id} item={item} />
           ))}
         </nav>
       </aside>
@@ -177,7 +214,7 @@ export function StudentSidebar({
       {/* Mobile: hamburger button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 rounded-2xl bg-white shadow-md border border-slate-200/80 flex items-center justify-center text-slate-700 active:scale-95 transition-transform"
+        className="md:hidden fixed top-2 left-3 z-40 w-10 h-10 rounded-2xl bg-white shadow-md border border-slate-200/80 flex items-center justify-center text-slate-700 active:scale-95 transition-transform"
         aria-label={t.common.openMenu}
       >
         <Menu size={20} />

@@ -475,15 +475,15 @@ function QuestionPanel({
             {/* Recording state: Live pulse & stop button */}
             {isRecording && (
               <div className="flex flex-col items-center space-y-3 py-1">
-                <div className="relative flex items-center justify-center">
-                  <div className="absolute w-20 h-20 bg-rose-500/20 rounded-3xl animate-ping" />
+                <div className="relative flex items-center justify-center my-2">
+                  <div className="absolute w-24 h-24 bg-rose-500/25 rounded-3xl animate-ping pointer-events-none" />
                   <button
                     type="button"
                     onClick={onStop}
                     aria-label={t.topic.stopAudio}
-                    className="w-18 h-18 bg-rose-600 hover:bg-rose-700 text-white rounded-3xl flex items-center justify-center shadow-lg shadow-rose-600/30 z-10 hover:scale-105 active:scale-95 transition-all"
+                    className="w-20 h-20 bg-rose-600 hover:bg-rose-700 text-white rounded-3xl flex items-center justify-center shadow-xl shadow-rose-600/35 z-10 hover:scale-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    <Square size={22} className="fill-white" />
+                    <Square size={24} className="fill-white" />
                   </button>
                 </div>
                 <div className="flex items-center gap-2 text-rose-600 font-mono text-sm font-black bg-rose-50 px-3.5 py-1 rounded-xl border border-rose-200">
