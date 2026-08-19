@@ -5,11 +5,15 @@ import {
   yearBornSchema,
   studentGradeSchema,
   createStudentSchema,
+  editStudentSchema,
   topicTitleSchema,
   createTopicSchema,
+  updateTopicSchema,
   questionSchema,
+  parsedQuestionSchema,
   shadowingVideoSchema,
   storySchema,
+  aiStoryPromptSchema,
   vocabSetSchema,
   vocabCardSchema,
   vocabAudioBuilderSchema,
@@ -36,7 +40,7 @@ describe('Zod Schemas Validation', () => {
     });
   });
 
-  describe('createStudentSchema', () => {
+  describe('createStudentSchema & editStudentSchema', () => {
     it('validates complete student payload', () => {
       const currentYear = new Date().getFullYear();
       const payload = {
@@ -48,9 +52,18 @@ describe('Zod Schemas Validation', () => {
       const res = createStudentSchema.safeParse(payload);
       expect(res.success).toBe(true);
     });
+
+    it('validates edit student payload', () => {
+      const currentYear = new Date().getFullYear();
+      const res = editStudentSchema.safeParse({
+        year_born: currentYear - 10,
+        grade: 4,
+      });
+      expect(res.success).toBe(true);
+    });
   });
 
-  describe('topicTitleSchema & createTopicSchema', () => {
+  describe('topicTitleSchema, createTopicSchema & updateTopicSchema', () => {
     it('validates valid topic payload', () => {
       const payload = {
         title: 'Family and Friends',
@@ -69,17 +82,39 @@ describe('Zod Schemas Validation', () => {
       const res = createTopicSchema.safeParse(payload);
       expect(res.success).toBe(false);
     });
+
+    it('validates updateTopicSchema', () => {
+      const res = updateTopicSchema.safeParse({
+        title: 'New Topic Title',
+        grades: [4, 5],
+      });
+      expect(res.success).toBe(true);
+    });
   });
 
-  describe('questionSchema', () => {
-    it('validates question details', () => {
+  describe('questionSchema & parsedQuestionSchema', () => {
+    it('validates question details with target and optional image_url', () => {
       const payload = {
         text: 'What is your name?',
         translation: 'Tên bạn là gì?',
         sample_answer: 'My name is John.',
+        target: 'Vocabulary lesson 1',
+        image_url: 'https://example.com/photo.png',
       };
       const res = questionSchema.safeParse(payload);
       expect(res.success).toBe(true);
+    });
+
+    it('validates parsedQuestionSchema', () => {
+      const res = parsedQuestionSchema.safeParse({
+        text: 'Where do you live?',
+        sample_answer: 'I live in Hanoi.',
+      });
+      expect(res.success).toBe(true);
+    });
+
+    it('rejects parsed question with short text', () => {
+      expect(parsedQuestionSchema.safeParse({ text: 'A' }).success).toBe(false);
     });
   });
 
@@ -109,15 +144,29 @@ describe('Zod Schemas Validation', () => {
     });
   });
 
-  describe('storySchema', () => {
+  describe('storySchema & aiStoryPromptSchema', () => {
     it('validates story data', () => {
       const payload = {
         title: 'The Friendly Dragon',
         content: 'Once upon a time, there was a friendly dragon living in the green mountains.',
         emoji: '🐉',
+        type: 'Truyện tranh',
+        grades: [1, 2],
       };
       const res = storySchema.safeParse(payload);
       expect(res.success).toBe(true);
+    });
+
+    it('validates aiStoryPromptSchema', () => {
+      const res = aiStoryPromptSchema.safeParse({
+        prompt: 'A brave astronaut explores Mars.',
+        grades: [3, 4],
+      });
+      expect(res.success).toBe(true);
+    });
+
+    it('rejects short AI prompt', () => {
+      expect(aiStoryPromptSchema.safeParse({ prompt: 'ab' }).success).toBe(false);
     });
   });
 
@@ -138,23 +187,34 @@ describe('Zod Schemas Validation', () => {
   });
 
   describe('attendanceStudentSchema', () => {
-    it('validates attendance student with fee and phone', () => {
+    it('validates attendance student with fee, hoc_lieu, note, and phone', () => {
       const payload = {
         name: 'Hoang Van C',
         class_name: 'Lớp 3A',
         unit_price: 150000,
+        hoc_lieu: 50000,
         phone: '0912345678',
+        note: 'Học sinh mới chuyển lớp',
       };
       const res = attendanceStudentSchema.safeParse(payload);
       expect(res.success).toBe(true);
     });
 
-    it('rejects negative fee', () => {
-      const res = attendanceStudentSchema.safeParse({
-        name: 'Hoang Van C',
-        unit_price: -50000,
-      });
-      expect(res.success).toBe(false);
+    it('rejects negative fee or negative hoc_lieu', () => {
+      expect(
+        attendanceStudentSchema.safeParse({
+          name: 'Hoang Van C',
+          unit_price: -50000,
+        }).success
+      ).toBe(false);
+
+      expect(
+        attendanceStudentSchema.safeParse({
+          name: 'Hoang Van C',
+          unit_price: 100000,
+          hoc_lieu: -20000,
+        }).success
+      ).toBe(false);
     });
   });
 

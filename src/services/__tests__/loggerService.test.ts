@@ -38,12 +38,24 @@ describe('loggerService', () => {
     expect(e.data?.errorMessage).toBe('Something failed');
   });
 
-  it('records user context when set', () => {
+  it('records user context and user ID when set', () => {
+    loggerService.setUserId('user-123');
+    const log1 = loggerService.info('Auth', 'User logged in');
+    expect(log1.userId).toBe('user-123');
+
     loggerService.setUserContext({ id: 'user-456', name: 'Alice', role: 'student' });
-    const log = loggerService.info('Auth', 'User logged in');
-    expect(log.userId).toBe('user-456');
-    expect(log.userName).toBe('Alice');
-    expect(log.userRole).toBe('student');
+    const log2 = loggerService.info('Auth', 'User updated');
+    expect(log2.userId).toBe('user-456');
+    expect(log2.userName).toBe('Alice');
+    expect(log2.userRole).toBe('student');
+  });
+
+  it('handles error passed as plain object or string', () => {
+    const objLog = loggerService.error('API', 'Custom error object', { code: 500, detail: 'Failed' });
+    expect(objLog.data?.rawError).toEqual({ code: 500, detail: 'Failed' });
+
+    const strLog = loggerService.error('Simple', 'Simple string error', 'Raw error text');
+    expect(strLog.message).toBe('Simple string error');
   });
 
   it('sends ERROR and WARN logs to Supabase client_error_logs table and throttles duplicates', async () => {
@@ -80,16 +92,20 @@ describe('loggerService', () => {
     }).not.toThrow();
   });
 
-  it('fetches remote logs from Supabase with options', async () => {
+  it('fetches remote logs from Supabase with level and limit options', async () => {
     const mockLogs = [{ id: 'log-1', message: 'Test error', level: 'ERROR' }];
     const limitMock = vi.fn().mockResolvedValue({ data: mockLogs, error: null });
     const orderMock = vi.fn().mockReturnValue({ limit: limitMock });
-    const selectMock = vi.fn().mockReturnValue({ order: orderMock });
+    const eqMock = vi.fn().mockReturnValue({ order: orderMock });
+    const selectMock = vi.fn().mockReturnValue({ order: orderMock, eq: eqMock });
     (supabase.from as any).mockReturnValue({ select: selectMock });
 
-    const logs = await loggerService.fetchRemoteLogs({ limit: 10 });
-    expect(supabase.from).toHaveBeenCalledWith('client_error_logs');
-    expect(logs).toEqual(mockLogs);
+    const logsWithoutLevel = await loggerService.fetchRemoteLogs({ limit: 10 });
+    expect(logsWithoutLevel).toEqual(mockLogs);
+
+    const logsWithLevel = await loggerService.fetchRemoteLogs({ limit: 5, level: 'ERROR' });
+    expect(eqMock).toHaveBeenCalledWith('level', 'ERROR');
+    expect(logsWithLevel).toEqual(mockLogs);
   });
 
   it('deletes remote log by id', async () => {

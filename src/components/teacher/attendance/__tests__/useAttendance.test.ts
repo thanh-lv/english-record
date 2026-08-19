@@ -32,9 +32,16 @@ describe('Attendance Hooks', () => {
   });
 
   describe('useAttendanceStudents', () => {
-    it('fetches attendance students and handles modal creation', async () => {
-      const mockStudents = [{ id: 's1', name: 'Alice', unit_price: 100000 }];
+    it('fetches attendance students and handles modal creation and editing', async () => {
+      const mockStudents = [{ id: 's1', name: 'Alice', unit_price: 100000, class_name: '3A', is_active: true }];
       (attendanceService.fetchAttendanceStudents as any).mockResolvedValue(mockStudents);
+      (attendanceService.createAttendanceStudent as any).mockResolvedValue({
+        id: 's2',
+        name: 'Bob',
+        unit_price: 120000,
+        class_name: '3A',
+        is_active: true,
+      });
 
       const { result } = renderHook(() => useAttendanceStudents({}));
       await act(async () => {});
@@ -46,7 +53,38 @@ describe('Attendance Hooks', () => {
         result.current.openCreateModal();
       });
       expect(result.current.showForm).toBe(true);
-      expect(result.current.name).toBe('');
+
+      act(() => {
+        result.current.setName('Bob');
+        result.current.handlePriceChange({ target: { value: '120000' } } as any);
+      });
+
+      await act(async () => {
+        await result.current.handleSave({ preventDefault: vi.fn() } as any);
+      });
+
+      expect(attendanceService.createAttendanceStudent).toHaveBeenCalled();
+      expect(result.current.students).toHaveLength(2);
+    });
+
+    it('handles student deletion', async () => {
+      const mockStudents = [{ id: 's1', name: 'Alice', unit_price: 100000 }];
+      (attendanceService.fetchAttendanceStudents as any).mockResolvedValue(mockStudents);
+      (attendanceService.deleteAttendanceStudent as any).mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useAttendanceStudents({}));
+      await act(async () => {});
+
+      act(() => {
+        result.current.setDeleteId('s1');
+      });
+
+      await act(async () => {
+        await result.current.handleDelete();
+      });
+
+      expect(attendanceService.deleteAttendanceStudent).toHaveBeenCalledWith('s1');
+      expect(result.current.students).toHaveLength(0);
     });
   });
 
@@ -68,6 +106,42 @@ describe('Attendance Hooks', () => {
         result.current.nextMonth();
       });
       expect(attendanceService.fetchAttendanceRecords).toHaveBeenCalled();
+
+      await act(async () => {
+        result.current.prevMonth();
+      });
+      expect(attendanceService.fetchAttendanceRecords).toHaveBeenCalled();
+    });
+
+    it('handles checkin save and delete operations', async () => {
+      (attendanceService.fetchAttendanceStudents as any).mockResolvedValue([]);
+      (attendanceService.fetchAttendanceRecords as any).mockResolvedValue([]);
+      (attendanceService.saveAttendanceCheckin as any).mockResolvedValue({
+        id: 'r-new-1',
+        student_id: 's1',
+        checkin_time: '2026-08-05T08:00:00Z',
+      });
+      (attendanceService.deleteAttendanceRecord as any).mockResolvedValue(undefined);
+
+      const { result } = renderHook(() => useAttendanceCheckin());
+      await act(async () => {});
+
+      act(() => {
+        result.current.openCheckinForDate(15);
+        result.current.setCheckedIds(new Set(['s1']));
+      });
+
+      await act(async () => {
+        await result.current.handleSaveCheckin();
+      });
+
+      expect(attendanceService.saveAttendanceCheckin).toHaveBeenCalled();
+
+      await act(async () => {
+        await result.current.handleDeleteCheckin('r-new-1');
+      });
+
+      expect(attendanceService.deleteAttendanceRecord).toHaveBeenCalledWith('r-new-1');
     });
   });
 

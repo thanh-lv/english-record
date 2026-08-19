@@ -233,17 +233,16 @@ class LoggerService {
 
   public async fetchRemoteLogs(options?: { limit?: number; level?: LogLevel }): Promise<RemoteLogRecord[]> {
     const { limit = 50, level } = options || {};
-    let query = supabase
-      .from('client_error_logs')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit);
+    let query = supabase.from('client_error_logs').select('*');
 
     if (level) {
       query = query.eq('level', level);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await query
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
     if (error) throw error;
     return (data || []) as RemoteLogRecord[];
   }
