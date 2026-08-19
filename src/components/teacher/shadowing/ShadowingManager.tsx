@@ -51,7 +51,8 @@ export function ShadowingManager() {
   }, []);
 
   const formatTime = (seconds: number | null | undefined): string => {
-    if (seconds === null || seconds === undefined || isNaN(Number(seconds))) return "";
+    if (seconds === null || seconds === undefined || isNaN(Number(seconds)))
+      return "";
     const m = Math.floor(Number(seconds) / 60);
     const s = Math.floor(Number(seconds) % 60);
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
@@ -136,7 +137,8 @@ export function ShadowingManager() {
         record_end: parsedRecordEnd,
       },
       {
-        titleRequired: t.teacherModal.videoTitleRequired || t.common.videoTitleMin,
+        titleRequired:
+          t.teacherModal.videoTitleRequired || t.common.videoTitleMin,
         titleMax: t.common.videoTitleMax,
         urlInvalid: t.teacherModal.videoUrlRequired,
         previewRangeInvalid: t.common.previewRangeInvalid,

@@ -12,7 +12,7 @@ import {
   fetchRecordingPage,
   fetchStudentRecordings,
 } from "../hooks/useRecordings";
-import { RecordingItem } from "../recordings/RecordingsPanel";
+import { RecordingItem } from "../recordings/RecordingsManager";
 
 const PAGE_SIZE = 10;
 

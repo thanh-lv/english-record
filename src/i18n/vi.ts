@@ -466,12 +466,15 @@ export const vi = {
     translationMax: "Bản dịch không được vượt quá 500 ký tự.",
     sampleAnswerMax: "Câu trả lời mẫu không được vượt quá 1000 ký tự.",
     targetMax: "Mục tiêu không được vượt quá 200 ký tự.",
-    imageTypeInvalid: "Định dạng ảnh không hợp lệ. Chỉ chấp nhận JPG, PNG, WEBP hoặc GIF.",
+    imageTypeInvalid:
+      "Định dạng ảnh không hợp lệ. Chỉ chấp nhận JPG, PNG, WEBP hoặc GIF.",
     imageSizeLimit: "Dung lượng ảnh vượt quá 5MB. Vui lòng chọn ảnh nhỏ hơn.",
     videoTitleMin: "Tiêu đề video phải có ít nhất 2 ký tự.",
     videoTitleMax: "Tiêu đề video không được vượt quá 150 ký tự.",
-    previewRangeInvalid: "Thời gian kết thúc xem thử phải lớn hơn thời gian bắt đầu.",
-    recordRangeInvalid: "Thời gian kết thúc ghi âm phải lớn hơn thời gian bắt đầu.",
+    previewRangeInvalid:
+      "Thời gian kết thúc xem thử phải lớn hơn thời gian bắt đầu.",
+    recordRangeInvalid:
+      "Thời gian kết thúc ghi âm phải lớn hơn thời gian bắt đầu.",
     timeNegative: "Thời gian không được là số âm.",
     storyTitleMin: "Tiêu đề truyện phải có ít nhất 2 ký tự.",
     storyTitleMax: "Tiêu đề truyện không được vượt quá 150 ký tự.",

@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { vocabService } from "../../../services/vocabService";
-import { uploadService } from "../../../services/uploadService";
+import { vocabularyService, uploadService } from "../../../services";
 import { VocabSet, VocabCard } from "../../../types/vocabulary";
 import {
   validateVocabSet,
@@ -61,7 +60,7 @@ export function useVocabulary(t: any) {
   const fetchSets = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await vocabService.fetchSets();
+      const data = await vocabularyService.fetchSets();
       setSets(data);
     } catch (err: any) {
       console.error("Fetch sets error:", err);
@@ -78,7 +77,7 @@ export function useVocabulary(t: any) {
     if (cardsBySet[setId]) return;
     setCardsLoading((prev) => ({ ...prev, [setId]: true }));
     try {
-      const data = await vocabService.fetchCards(setId);
+      const data = await vocabularyService.fetchCards(setId);
       setCardsBySet((prev) => ({ ...prev, [setId]: data }));
     } catch (err: any) {
       console.error("Fetch cards error:", err);
@@ -121,8 +120,11 @@ export function useVocabulary(t: any) {
     const setVal = validateVocabSet(
       { title: cleanTitle, emoji: cleanEmoji },
       {
-        titleRequired: t.common?.vocabSetTitleMin || "Tên bộ từ phải có ít nhất 2 ký tự.",
-        titleMax: t.common?.vocabSetTitleMax || "Tên bộ từ không được vượt quá 100 ký tự.",
+        titleRequired:
+          t.common?.vocabSetTitleMin || "Tên bộ từ phải có ít nhất 2 ký tự.",
+        titleMax:
+          t.common?.vocabSetTitleMax ||
+          "Tên bộ từ không được vượt quá 100 ký tự.",
       },
     );
     if (!setVal.isValid) {
@@ -139,7 +141,7 @@ export function useVocabulary(t: any) {
     setCreateSetSaving(true);
     setCreateSetError("");
     try {
-      const newSet = await vocabService.createSet(
+      const newSet = await vocabularyService.createSet(
         cleanTitle,
         cleanEmoji,
         selectedGrades,
@@ -172,8 +174,11 @@ export function useVocabulary(t: any) {
     const setVal = validateVocabSet(
       { title: cleanTitle, emoji: cleanEmoji },
       {
-        titleRequired: t.common?.vocabSetTitleMin || "Tên bộ từ phải có ít nhất 2 ký tự.",
-        titleMax: t.common?.vocabSetTitleMax || "Tên bộ từ không được vượt quá 100 ký tự.",
+        titleRequired:
+          t.common?.vocabSetTitleMin || "Tên bộ từ phải có ít nhất 2 ký tự.",
+        titleMax:
+          t.common?.vocabSetTitleMax ||
+          "Tên bộ từ không được vượt quá 100 ký tự.",
       },
     );
     if (!setVal.isValid) {
@@ -190,7 +195,7 @@ export function useVocabulary(t: any) {
     setEditSaving(true);
     setEditError("");
     try {
-      const updated = await vocabService.updateSet(editingSet.id, {
+      const updated = await vocabularyService.updateSet(editingSet.id, {
         title: cleanTitle,
         emoji: cleanEmoji,
         grades: editGrades,
@@ -211,7 +216,7 @@ export function useVocabulary(t: any) {
     setDeleteSetSaving(true);
     setDeleteSetError("");
     try {
-      await vocabService.deleteSet(deleteSetTarget.id);
+      await vocabularyService.deleteSet(deleteSetTarget.id);
       setSets(sets.filter((s) => s.id !== deleteSetTarget.id));
       if (expandedSetId === deleteSetTarget.id) setExpandedSetId(null);
       setDeleteSetTarget(null);
@@ -227,7 +232,7 @@ export function useVocabulary(t: any) {
     if (!word) return;
     setIpaLoading(true);
     try {
-      const ipa = await vocabService.generateIpa(word);
+      const ipa = await vocabularyService.generateIpa(word);
       if (ipa) setCardIpa(ipa);
     } finally {
       setIpaLoading(false);
@@ -252,7 +257,9 @@ export function useVocabulary(t: any) {
     } catch (err: any) {
       console.error("Upload error:", err);
       setCardImageError(
-        err.message || t.vocabManager?.uploadCardImageError || "Lỗi tải ảnh lên",
+        err.message ||
+          t.vocabManager?.uploadCardImageError ||
+          "Lỗi tải ảnh lên",
       );
     } finally {
       setCardImageUploading(false);
@@ -268,11 +275,17 @@ export function useVocabulary(t: any) {
     const cardVal = validateVocabCard(
       { front: cleanFront, back: cleanBack, ipa: cleanIpa },
       {
-        frontRequired: t.common?.vocabFrontRequired || "Vui lòng nhập từ tiếng Anh.",
-        frontMax: t.common?.vocabFrontMax || "Từ vựng không được vượt quá 200 ký tự.",
-        backRequired: t.common?.vocabBackRequired || "Vui lòng nhập nghĩa tiếng Việt.",
-        backMax: t.common?.vocabBackMax || "Nghĩa không được vượt quá 500 ký tự.",
-        ipaMax: t.common?.vocabIpaMax || "Phiên âm IPA không được vượt quá 100 ký tự.",
+        frontRequired:
+          t.common?.vocabFrontRequired || "Vui lòng nhập từ tiếng Anh.",
+        frontMax:
+          t.common?.vocabFrontMax || "Từ vựng không được vượt quá 200 ký tự.",
+        backRequired:
+          t.common?.vocabBackRequired || "Vui lòng nhập nghĩa tiếng Việt.",
+        backMax:
+          t.common?.vocabBackMax || "Nghĩa không được vượt quá 500 ký tự.",
+        ipaMax:
+          t.common?.vocabIpaMax ||
+          "Phiên âm IPA không được vượt quá 100 ký tự.",
       },
     );
 
@@ -286,7 +299,7 @@ export function useVocabulary(t: any) {
     try {
       const currentCards = cardsBySet[addCardSetId] || [];
       const orderIndex = currentCards.length;
-      const data = await vocabService.createCard({
+      const data = await vocabularyService.createCard({
         set_id: addCardSetId,
         front: cleanFront,
         back: cleanBack,
@@ -323,7 +336,7 @@ export function useVocabulary(t: any) {
     setDeleteCardSaving(true);
     setDeleteCardError("");
     try {
-      await vocabService.deleteCard(deleteCardTarget.id);
+      await vocabularyService.deleteCard(deleteCardTarget.id);
       const setId = deleteCardTarget.set_id;
       setCardsBySet((prev) => ({
         ...prev,

@@ -19,11 +19,11 @@ import { AudioPlayer } from "../../common/AudioPlayer";
 import { StudentSummary } from "../hooks/useRecordings";
 import YouTubePlayer from "../../common/YouTubePlayer";
 
-export function RecordingsPanel({
+export function RecordingsManager({
   summaries,
   loading,
   formatDate,
-  onDeleteRequest,
+  onDeleteRequest: _onDeleteRequest,
   onSelectStudent,
 }: {
   summaries: StudentSummary[];
@@ -352,6 +352,8 @@ export function RecordingsPanel({
     </div>
   );
 }
+
+export const RecordingsPanel = RecordingsManager;
 
 export function RecordingItem({
   rec,

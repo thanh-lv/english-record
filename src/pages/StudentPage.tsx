@@ -1,26 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import { AchievementsTab } from "./components/student/achievements/AchievementsTab";
-import { AvatarSelectModal } from "./components/student/shared/AvatarSelectModal";
-import { CompletionCelebration } from "./components/student/achievements/CompletionCelebration";
-import { ExercisesTab } from "./components/student/exercises/ExercisesTab";
-import { FlashcardsTab } from "./components/student/flashcards/FlashcardsTab";
-import { GamesTab } from "./components/student/games/GamesTab";
-import { StoriesTab } from "./components/student/stories/StoriesTab";
-import { StoryModal } from "./components/student/stories/StoryModal";
-import { ShadowingTab } from "./components/student/shadowing/ShadowingTab";
-import { ShadowingDetail } from "./components/student/shadowing/ShadowingDetail";
-import { StudentSidebar } from "./components/student/shared/StudentSidebar";
-import { OfflineBanner } from "./components/common/OfflineBanner";
-import { TopicModal } from "./components/student/exercises/TopicModal";
-import { useAvatar } from "./components/student/hooks/useAvatar";
-import { useRecording } from "./components/student/hooks/useRecording";
-import { useStudentData } from "./components/student/hooks/useStudentData";
-import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { useStoryPlayer } from "./components/student/hooks/useStoryPlayer";
-import { getCompletedTopicNumbers } from "./utils/topicCompletion";
+import { AchievementsTab } from "../components/student/achievements/AchievementsTab";
+import { AvatarSelectModal } from "../components/student/shared/AvatarSelectModal";
+import { CompletionCelebration } from "../components/student/achievements/CompletionCelebration";
+import { ExercisesTab } from "../components/student/exercises/ExercisesTab";
+import { FlashcardsTab } from "../components/student/flashcards/FlashcardsTab";
+import { GamesTab } from "../components/student/games/GamesTab";
+import { StoriesTab } from "../components/student/stories/StoriesTab";
+import { StoryModal } from "../components/student/stories/StoryModal";
+import { ShadowingTab } from "../components/student/shadowing/ShadowingTab";
+import { ShadowingDetail } from "../components/student/shadowing/ShadowingDetail";
+import { StudentSidebar } from "../components/student/shared/StudentSidebar";
+import { OfflineBanner } from "../components/common/OfflineBanner";
+import { TopicModal } from "../components/student/exercises/TopicModal";
+import { useAvatar } from "../components/student/hooks/useAvatar";
+import { useRecording } from "../components/student/hooks/useRecording";
+import { useStudentData } from "../components/student/hooks/useStudentData";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { useStoryPlayer } from "../components/student/hooks/useStoryPlayer";
+import { getCompletedTopicNumbers } from "../utils/topicCompletion";
 
-export default function StudentView({
+export default function StudentPage({
   user,
   profile,
 }: {
@@ -430,3 +430,5 @@ export default function StudentView({
     </div>
   );
 }
+
+export const StudentView = StudentPage;

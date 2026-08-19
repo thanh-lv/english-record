@@ -467,7 +467,8 @@ export const en = {
     translationMax: "Translation cannot exceed 500 characters.",
     sampleAnswerMax: "Sample answer cannot exceed 1000 characters.",
     targetMax: "Target cannot exceed 200 characters.",
-    imageTypeInvalid: "Invalid image format. Only JPG, PNG, WEBP, or GIF are allowed.",
+    imageTypeInvalid:
+      "Invalid image format. Only JPG, PNG, WEBP, or GIF are allowed.",
     imageSizeLimit: "Image size exceeds 5MB. Please choose a smaller image.",
     videoTitleMin: "Video title must be at least 2 characters.",
     videoTitleMax: "Video title cannot exceed 150 characters.",

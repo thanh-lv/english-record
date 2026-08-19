@@ -128,10 +128,17 @@ export function useStories(t: any) {
         emoji: cleanEmoji,
       },
       {
-        titleRequired: t.common?.storyTitleMin || "Tiêu đề truyện phải có ít nhất 2 ký tự.",
-        titleMax: t.common?.storyTitleMax || "Tiêu đề truyện không được vượt quá 150 ký tự.",
-        contentRequired: t.common?.storyContentMin || "Nội dung truyện phải có ít nhất 10 ký tự.",
-        contentMax: t.common?.storyContentMax || "Nội dung truyện không được vượt quá 10,000 ký tự.",
+        titleRequired:
+          t.common?.storyTitleMin || "Tiêu đề truyện phải có ít nhất 2 ký tự.",
+        titleMax:
+          t.common?.storyTitleMax ||
+          "Tiêu đề truyện không được vượt quá 150 ký tự.",
+        contentRequired:
+          t.common?.storyContentMin ||
+          "Nội dung truyện phải có ít nhất 10 ký tự.",
+        contentMax:
+          t.common?.storyContentMax ||
+          "Nội dung truyện không được vượt quá 10,000 ký tự.",
       },
     );
 
@@ -205,10 +212,17 @@ export function useStories(t: any) {
         type: cleanType,
       },
       {
-        titleRequired: t.common?.storyTitleMin || "Tiêu đề truyện phải có ít nhất 2 ký tự.",
-        titleMax: t.common?.storyTitleMax || "Tiêu đề truyện không được vượt quá 150 ký tự.",
-        contentRequired: t.common?.storyContentMin || "Nội dung truyện phải có ít nhất 10 ký tự.",
-        contentMax: t.common?.storyContentMax || "Nội dung truyện không được vượt quá 10,000 ký tự.",
+        titleRequired:
+          t.common?.storyTitleMin || "Tiêu đề truyện phải có ít nhất 2 ký tự.",
+        titleMax:
+          t.common?.storyTitleMax ||
+          "Tiêu đề truyện không được vượt quá 150 ký tự.",
+        contentRequired:
+          t.common?.storyContentMin ||
+          "Nội dung truyện phải có ít nhất 10 ký tự.",
+        contentMax:
+          t.common?.storyContentMax ||
+          "Nội dung truyện không được vượt quá 10,000 ký tự.",
       },
     );
 
@@ -251,10 +265,14 @@ export function useStories(t: any) {
   const handleGenerateAiStory = async () => {
     const cleanPrompt = sanitizeText(prompt);
     if (!cleanPrompt || cleanPrompt.length < 3) {
-      return setAiError(t.common?.promptMin || "Gợi ý AI phải có ít nhất 3 ký tự.");
+      return setAiError(
+        t.common?.promptMin || "Gợi ý AI phải có ít nhất 3 ký tự.",
+      );
     }
     if (cleanPrompt.length > 500) {
-      return setAiError(t.common?.promptMax || "Gợi ý AI không được vượt quá 500 ký tự.");
+      return setAiError(
+        t.common?.promptMax || "Gợi ý AI không được vượt quá 500 ký tự.",
+      );
     }
 
     const gradesVal = validateGrades(aiGrades);
@@ -269,7 +287,10 @@ export function useStories(t: any) {
     setGeneratedImageUrl("");
 
     try {
-      const storyText = await storyService.generateAiText(cleanPrompt, aiGrades);
+      const storyText = await storyService.generateAiText(
+        cleanPrompt,
+        aiGrades,
+      );
       setGeneratedStory(storyText);
 
       const imgBlob = await storyService.generateAiImage(cleanPrompt);
@@ -289,13 +310,21 @@ export function useStories(t: any) {
     const cleanType = sanitizeText(type) || "Truyện tranh";
 
     if (!cleanTitle || cleanTitle.length < 2) {
-      return setAiError(t.common?.storyTitleMin || "Tiêu đề truyện phải có ít nhất 2 ký tự.");
+      return setAiError(
+        t.common?.storyTitleMin || "Tiêu đề truyện phải có ít nhất 2 ký tự.",
+      );
     }
     if (cleanTitle.length > 150) {
-      return setAiError(t.common?.storyTitleMax || "Tiêu đề truyện không được vượt quá 150 ký tự.");
+      return setAiError(
+        t.common?.storyTitleMax ||
+          "Tiêu đề truyện không được vượt quá 150 ký tự.",
+      );
     }
     if (!cleanStory || cleanStory.length < 10) {
-      return setAiError(t.common?.storyContentMin || "Nội dung truyện phải có ít nhất 10 ký tự.");
+      return setAiError(
+        t.common?.storyContentMin ||
+          "Nội dung truyện phải có ít nhất 10 ký tự.",
+      );
     }
     if (!generatedImageBlob) {
       return setAiError("Thiếu hình ảnh minh họa cho truyện.");

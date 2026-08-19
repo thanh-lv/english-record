@@ -70,8 +70,7 @@ export function validatePassword(
   if (clean.length < minLen) {
     return {
       isValid: false,
-      error:
-        errorMsgs?.min || `Mật khẩu phải có ít nhất ${minLen} ký tự.`,
+      error: errorMsgs?.min || `Mật khẩu phải có ít nhất ${minLen} ký tự.`,
     };
   }
   if (clean.length > 100) {
@@ -141,7 +140,10 @@ export function validateGrades(
   errorMsg?: string,
 ): ValidationResult {
   if (!Array.isArray(grades)) {
-    return { isValid: false, error: errorMsg || "Danh sách khối lớp không hợp lệ." };
+    return {
+      isValid: false,
+      error: errorMsg || "Danh sách khối lớp không hợp lệ.",
+    };
   }
   const invalid = grades.some(
     (g) => !Number.isInteger(g) || typeof g !== "number" || g < 1 || g > 12,
@@ -224,7 +226,8 @@ export function validateQuestion(
   if (data.translation && data.translation.trim().length > 500) {
     return {
       isValid: false,
-      error: errorMsgs?.translationMax || "Bản dịch không được vượt quá 500 ký tự.",
+      error:
+        errorMsgs?.translationMax || "Bản dịch không được vượt quá 500 ký tự.",
     };
   }
   if (data.sample_answer && data.sample_answer.trim().length > 1000) {
@@ -238,7 +241,9 @@ export function validateQuestion(
   if (data.target && data.target.trim().length > 200) {
     return {
       isValid: false,
-      error: errorMsgs?.targetMax || "Mục tiêu (target) không được vượt quá 200 ký tự.",
+      error:
+        errorMsgs?.targetMax ||
+        "Mục tiêu (target) không được vượt quá 200 ký tự.",
     };
   }
   return { isValid: true };
@@ -250,8 +255,7 @@ export function validateQuestion(
 export function extractYoutubeId(url: string): string | null {
   if (!url) return null;
   const clean = url.trim();
-  const regExp =
-    /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = clean.match(regExp);
   return match && match[2].length === 11 ? match[2] : null;
 }
@@ -304,7 +308,9 @@ export function validateShadowingVideo(
   const { preview_start, preview_end, record_start, record_end } = data;
 
   if (
-    (preview_start !== undefined && preview_start !== null && preview_start < 0) ||
+    (preview_start !== undefined &&
+      preview_start !== null &&
+      preview_start < 0) ||
     (preview_end !== undefined && preview_end !== null && preview_end < 0) ||
     (record_start !== undefined && record_start !== null && record_start < 0) ||
     (record_end !== undefined && record_end !== null && record_end < 0)
@@ -457,7 +463,8 @@ export function validateVocabCard(
   if (!front) {
     return {
       isValid: false,
-      error: errorMsgs?.frontRequired || "Vui lòng nhập từ tiếng Anh (mặt trước).",
+      error:
+        errorMsgs?.frontRequired || "Vui lòng nhập từ tiếng Anh (mặt trước).",
     };
   }
   if (front.length > 200) {

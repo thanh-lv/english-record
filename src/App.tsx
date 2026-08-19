@@ -1,9 +1,15 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import { Navigate, Route, Routes, useNavigate, useLocation } from "react-router-dom";
-import LoginScreen from "./LoginScreen";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
 
-const TeacherView = lazy(() => import("./TeacherView"));
-const StudentView = lazy(() => import("./StudentView"));
+const TeacherPage = lazy(() => import("./pages/TeacherPage"));
+const StudentPage = lazy(() => import("./pages/StudentPage"));
 import { Mic, LogOut, Loader2 } from "lucide-react";
 import { NotificationBell } from "./components/teacher/shared/NotificationBell";
 import { useNotifications } from "./components/teacher/hooks/useNotifications";
@@ -183,7 +189,9 @@ export default function App() {
             {userProfile && (
               <>
                 <div className="h-9 flex items-center gap-2 px-3 py-1 bg-amber-50/90 border border-amber-200/80 rounded-xl shadow-xs max-w-[160px] sm:max-w-none">
-                  <span className="text-base shrink-0">{userProfile.avatar || (isTeacher ? '👩‍🏫' : '👦')}</span>
+                  <span className="text-base shrink-0">
+                    {userProfile.avatar || (isTeacher ? "👩‍🏫" : "👦")}
+                  </span>
                   <span className="text-xs font-extrabold text-slate-700 truncate">
                     {userProfile.name}
                     <span className="text-slate-400 font-bold ml-1 hidden sm:inline">
@@ -229,9 +237,15 @@ export default function App() {
               path="/login"
               element={
                 userProfile ? (
-                  <Navigate to={location.state?.from || (isTeacher ? "/teacher" : "/student")} replace />
+                  <Navigate
+                    to={
+                      location.state?.from ||
+                      (isTeacher ? "/teacher" : "/student")
+                    }
+                    replace
+                  />
                 ) : (
-                  <LoginScreen setProfile={setUserProfile} user={user} />
+                  <LoginPage setProfile={setUserProfile} user={user} />
                 )
               }
             />
@@ -239,9 +253,13 @@ export default function App() {
               path="/student/*"
               element={
                 userProfile?.role === "student" ? (
-                  <StudentView user={user} profile={userProfile} />
+                  <StudentPage user={user} profile={userProfile} />
                 ) : (
-                  <Navigate to={userProfile ? "/teacher" : "/login"} state={{ from: location.pathname }} replace />
+                  <Navigate
+                    to={userProfile ? "/teacher" : "/login"}
+                    state={{ from: location.pathname }}
+                    replace
+                  />
                 )
               }
             />
@@ -249,9 +267,13 @@ export default function App() {
               path="/teacher/*"
               element={
                 isTeacher ? (
-                  <TeacherView user={user} addNotification={addNotification} />
+                  <TeacherPage user={user} addNotification={addNotification} />
                 ) : (
-                  <Navigate to={userProfile ? "/student" : "/login"} state={{ from: location.pathname }} replace />
+                  <Navigate
+                    to={userProfile ? "/student" : "/login"}
+                    state={{ from: location.pathname }}
+                    replace
+                  />
                 )
               }
             />

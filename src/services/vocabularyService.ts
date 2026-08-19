@@ -4,7 +4,7 @@ import { VocabSet, VocabCard } from "../types";
 const WORKER_URL =
   "https://free-image-generation-api.levanthanh29111999.workers.dev/";
 
-export const vocabService = {
+export const vocabularyService = {
   async fetchSets(): Promise<VocabSet[]> {
     const { data, error } = await supabase
       .from("vocabulary_sets")
@@ -114,3 +114,5 @@ export const vocabService = {
     }
   },
 };
+
+export const vocabService = vocabularyService;

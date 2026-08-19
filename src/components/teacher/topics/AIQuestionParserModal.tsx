@@ -11,10 +11,7 @@ import {
 import { useRef, useState } from "react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import {
-  validateImageFile,
-  sanitizeText,
-} from "../../../utils/validators";
+import { validateImageFile, sanitizeText } from "../../../utils/validators";
 
 const WORKER_URL =
   "https://free-image-generation-api.levanthanh29111999.workers.dev/";
@@ -78,7 +75,11 @@ export function AIQuestionParserModal({
     });
 
   const applyParsedQuestions = (data: any) => {
-    if (!data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
+    if (
+      !data.questions ||
+      !Array.isArray(data.questions) ||
+      data.questions.length === 0
+    ) {
       console.warn("AI parse raw response:", data.raw, data.error);
       setError(t.aiParser.errorNoQuestions);
       return;
@@ -192,7 +193,9 @@ export function AIQuestionParserModal({
       .filter((q) => q.text.length >= 2);
 
     if (valid.length === 0) {
-      setError("Không có câu hỏi hợp lệ để thêm (câu hỏi cần có ít nhất 2 ký tự)");
+      setError(
+        "Không có câu hỏi hợp lệ để thêm (câu hỏi cần có ít nhất 2 ký tự)",
+      );
       return;
     }
     setAdding(true);

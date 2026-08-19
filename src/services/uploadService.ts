@@ -39,7 +39,9 @@ export const uploadService = {
 
     const maxBytes = maxSizeMb * 1024 * 1024;
     if (file.size > maxBytes) {
-      throw new Error(`Dung lượng tệp vượt quá giới hạn cho phép (${maxSizeMb}MB).`);
+      throw new Error(
+        `Dung lượng tệp vượt quá giới hạn cho phép (${maxSizeMb}MB).`,
+      );
     }
 
     const rawExt = file.type ? file.type.split("/")[1] : "bin";

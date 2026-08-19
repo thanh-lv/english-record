@@ -100,7 +100,12 @@ export function StudentsTab() {
     const rawPrice = parseInt(unitPrice.replace(/\D/g, ""), 10) || 0;
     const rawHlPrice = parseInt(hocLieuFee.replace(/\D/g, ""), 10) || 0;
 
-    if (rawPrice < 0 || rawPrice > 100000000 || rawHlPrice < 0 || rawHlPrice > 100000000) {
+    if (
+      rawPrice < 0 ||
+      rawPrice > 100000000 ||
+      rawHlPrice < 0 ||
+      rawHlPrice > 100000000
+    ) {
       setError(tc.amountInvalid || "Số tiền không hợp lệ");
       return;
     }
