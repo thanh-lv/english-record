@@ -636,12 +636,17 @@ export function SummaryTab() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <div className="w-10 h-10 border-3 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
-        <span className="text-xs font-bold text-slate-400">Đang tải dữ liệu học phí...</span>
+        <span className="text-xs font-bold text-slate-400">
+          Đang tải dữ liệu học phí...
+        </span>
       </div>
     );
 
   return (
-    <div className="space-y-5 animate-in fade-in duration-300" id="printable-summary">
+    <div
+      className="space-y-5 animate-in fade-in duration-300"
+      id="printable-summary"
+    >
       {/* ---- Controls bar ---- */}
       <div className="bg-slate-50/80 rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 shadow-2xs space-y-3 print:hidden">
         <div className="flex flex-wrap items-end gap-3">
@@ -751,7 +756,9 @@ export function SummaryTab() {
               ) : (
                 <ImageIcon size={16} />
               )}
-              <span>{exporting ? tAtt.exportingImage : tAtt.exportImageAll}</span>
+              <span>
+                {exporting ? tAtt.exportingImage : tAtt.exportImageAll}
+              </span>
             </button>
 
             <button
@@ -795,7 +802,9 @@ export function SummaryTab() {
                   <Users size={16} />
                 </div>
               </div>
-              <p className="text-2xl sm:text-3xl font-black mt-2">{summary.length}</p>
+              <p className="text-2xl sm:text-3xl font-black mt-2">
+                {summary.length}
+              </p>
             </div>
 
             <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 text-white rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden">
@@ -807,7 +816,9 @@ export function SummaryTab() {
                   <CheckCircle2 size={16} />
                 </div>
               </div>
-              <p className="text-2xl sm:text-3xl font-black mt-2">{grandSessions}</p>
+              <p className="text-2xl sm:text-3xl font-black mt-2">
+                {grandSessions}
+              </p>
             </div>
 
             <div className="bg-gradient-to-br from-purple-600 via-violet-600 to-purple-800 text-white rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden">
@@ -1131,7 +1142,9 @@ export function SummaryTab() {
                 {/* Modal header */}
                 <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-800 px-6 py-4 flex items-start justify-between shrink-0 text-white">
                   <div>
-                    <h2 className="font-black text-white text-lg sm:text-xl">{s.name}</h2>
+                    <h2 className="font-black text-white text-lg sm:text-xl">
+                      {s.name}
+                    </h2>
                     <p className="text-purple-200 text-xs sm:text-sm font-bold mt-0.5">
                       {formatClassName(s.class_name, tAtt.unassignedClass)} ·{" "}
                       {MONTH_LABEL}

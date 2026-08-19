@@ -102,7 +102,10 @@ export function useStudentData(
               return [...prev, payload.new];
             });
             if (payload.new.topic_number != null) {
-              setCompletedNumbers((prev) => [...prev, payload.new.topic_number]);
+              setCompletedNumbers((prev) => [
+                ...prev,
+                payload.new.topic_number,
+              ]);
             }
           } else if (payload.eventType === "UPDATE") {
             setMyRecordings((prev) =>

@@ -23,7 +23,8 @@ export function AnalyticsTab() {
               {tAtt.analyticsTab || "Biểu Đồ Thống Kê & Doanh Thu"}
             </h3>
             <p className="text-xs text-slate-400 font-bold">
-              {tAtt?.analyticsSubtitle || "Phân tích xu hướng học phí & chuyên cần 6 tháng"}
+              {tAtt?.analyticsSubtitle ||
+                "Phân tích xu hướng học phí & chuyên cần 6 tháng"}
             </p>
           </div>
         </div>
@@ -62,11 +63,7 @@ export function AnalyticsTab() {
       </div>
 
       {/* Analytics Main Widget */}
-      <AttendanceAnalytics
-        tAtt={tAtt}
-        month={month}
-        year={year}
-      />
+      <AttendanceAnalytics tAtt={tAtt} month={month} year={year} />
     </div>
   );
 }

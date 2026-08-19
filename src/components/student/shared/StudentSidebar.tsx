@@ -62,7 +62,8 @@ const TAB_THEMES: Record<
     dotClass: "bg-rose-600 shadow-rose-200",
   },
   games: {
-    activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200/90 shadow-2xs",
+    activeClass:
+      "bg-emerald-50 text-emerald-700 border-emerald-200/90 shadow-2xs",
     iconActiveClass: "text-emerald-600",
     iconBgClass: "bg-emerald-100/80 text-emerald-600",
     dotClass: "bg-emerald-600 shadow-emerald-200",

@@ -77,7 +77,7 @@ export function TeacherFeedback({
           <span className="text-[11px] font-black text-amber-800 ml-1">
             {hasRating
               ? `${rating}/5`
-              : (t.feedback.waitingRating || "Chờ chấm điểm")}
+              : t.feedback.waitingRating || "Chờ chấm điểm"}
           </span>
         </div>
       </div>

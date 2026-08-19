@@ -1,11 +1,4 @@
-import {
-  BookOpen,
-  Loader2,
-  Plus,
-  Search,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { BookOpen, Loader2, Plus, Search, Sparkles, X } from "lucide-react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";

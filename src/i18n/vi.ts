@@ -192,8 +192,7 @@ export const vi = {
     hearting: "Đang gửi...",
     reactionError: "Không thể gửi lượt thả tim. Vui lòng thử lại.",
     waitingRating: "Chờ chấm điểm",
-    waitingFeedback:
-      "Cô giáo đang xem bài và sẽ sớm nhận xét cho con nhé! 🌟",
+    waitingFeedback: "Cô giáo đang xem bài và sẽ sớm nhận xét cho con nhé! 🌟",
   },
 
   // Vocabulary Manager (teacher)

@@ -210,7 +210,9 @@ export function AttendanceAnalytics({
       {loading ? (
         <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xs gap-3">
           <Loader2 className="animate-spin text-purple-600" size={32} />
-          <span className="text-xs font-bold text-slate-400">Đang tải số liệu thống kê...</span>
+          <span className="text-xs font-bold text-slate-400">
+            Đang tải số liệu thống kê...
+          </span>
         </div>
       ) : (
         <div className="space-y-5">

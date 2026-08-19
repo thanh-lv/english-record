@@ -283,7 +283,9 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
           {loading ? (
             <div className="h-[360px] flex flex-col items-center justify-center gap-2">
               <div className="w-10 h-10 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-              <span className="text-xs font-bold text-slate-400">Đang tải thẻ từ vựng...</span>
+              <span className="text-xs font-bold text-slate-400">
+                Đang tải thẻ từ vựng...
+              </span>
             </div>
           ) : total === 0 ? (
             <div className="h-[360px] flex flex-col items-center justify-center gap-3 text-slate-400">
@@ -418,7 +420,9 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
         <div className="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center">
           <div className="w-6 h-6 border-3 border-rose-200 border-t-rose-600 rounded-full animate-spin" />
         </div>
-        <p className="text-xs font-bold text-slate-400">Đang tải danh sách thẻ từ vựng...</p>
+        <p className="text-xs font-bold text-slate-400">
+          Đang tải danh sách thẻ từ vựng...
+        </p>
       </div>
     );
   }
@@ -457,8 +461,12 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
               🗂️
             </div>
             <div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng bộ thẻ</p>
-              <p className="text-sm font-black text-slate-800">{filteredSets.length} chủ đề</p>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                Tổng bộ thẻ
+              </p>
+              <p className="text-sm font-black text-slate-800">
+                {filteredSets.length} chủ đề
+              </p>
             </div>
           </div>
         </div>
@@ -536,7 +544,8 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
               {/* Card Count Pill */}
               <div className="pt-2 border-t border-slate-100 w-full flex items-center justify-center">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-rose-50 text-rose-700 text-[10px] sm:text-[11px] font-black rounded-full border border-rose-200/60">
-                  <Sparkles size={11} className="text-rose-500" /> {set.card_count} thẻ
+                  <Sparkles size={11} className="text-rose-500" />{" "}
+                  {set.card_count} thẻ
                 </span>
               </div>
             </button>
@@ -551,4 +560,3 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
     </div>
   );
 }
-

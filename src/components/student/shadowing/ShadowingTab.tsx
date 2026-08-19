@@ -95,7 +95,9 @@ export function ShadowingTab({
         <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
           <div className="w-6 h-6 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
         </div>
-        <p className="text-xs font-bold text-slate-400">Đang tải danh sách video...</p>
+        <p className="text-xs font-bold text-slate-400">
+          Đang tải danh sách video...
+        </p>
       </div>
     );
   }
@@ -134,8 +136,12 @@ export function ShadowingTab({
               🎬
             </div>
             <div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng số video</p>
-              <p className="text-sm font-black text-slate-800">{filteredVideos.length} bài luyện</p>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                Tổng số video
+              </p>
+              <p className="text-sm font-black text-slate-800">
+                {filteredVideos.length} bài luyện
+              </p>
             </div>
           </div>
         </div>
@@ -154,7 +160,14 @@ export function ShadowingTab({
                     : "text-slate-500 hover:text-slate-700"
                 }`}
               >
-                <Sparkles size={13} className={filterMode === "myGrade" ? "text-indigo-600" : "text-slate-400"} />
+                <Sparkles
+                  size={13}
+                  className={
+                    filterMode === "myGrade"
+                      ? "text-indigo-600"
+                      : "text-slate-400"
+                  }
+                />
                 {interpolate(t.shadowing.myGradeOnly, {
                   grade: parsedStudentGrade,
                 })}
@@ -209,7 +222,8 @@ export function ShadowingTab({
             {t.shadowing.empty}
           </p>
           <p className="text-xs text-slate-400 max-w-sm mx-auto font-medium">
-            Hãy thử đổi từ khóa tìm kiếm hoặc chọn bộ lọc &quot;Tất cả bài học&quot; nhé!
+            Hãy thử đổi từ khóa tìm kiếm hoặc chọn bộ lọc &quot;Tất cả bài
+            học&quot; nhé!
           </p>
           {(filterText || filterMode !== "all") && (
             <button
@@ -265,7 +279,8 @@ export function ShadowingTab({
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between gap-1 flex-wrap">
-                      {Array.isArray(video.grades) && video.grades.length > 0 ? (
+                      {Array.isArray(video.grades) &&
+                      video.grades.length > 0 ? (
                         <span className="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-lg border border-indigo-200/60">
                           {interpolate(t.shadowing.forGrades, {
                             grades: video.grades
@@ -284,7 +299,10 @@ export function ShadowingTab({
                         (rec: any) => rec.shadowing_video_id === video.id,
                       ) && (
                         <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-lg border border-emerald-200/60 shadow-2xs">
-                          <CheckCircle2 size={11} className="text-emerald-600" />
+                          <CheckCircle2
+                            size={11}
+                            className="text-emerald-600"
+                          />
                           {t.shadowing.completedBadge || "Đã thu âm"}
                         </span>
                       )}
@@ -304,7 +322,10 @@ export function ShadowingTab({
                         ? "Xem lại & Luyện tập"
                         : "Luyện tập ngay"}
                     </span>
-                    <ArrowRight size={13} className="transform group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight
+                      size={13}
+                      className="transform group-hover:translate-x-1 transition-transform"
+                    />
                   </div>
                 </div>
               </button>
@@ -315,4 +336,3 @@ export function ShadowingTab({
     </div>
   );
 }
-

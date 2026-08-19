@@ -249,7 +249,9 @@ export function ShadowingDetail({
         <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
           <div className="w-6 h-6 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
         </div>
-        <p className="text-xs font-bold text-slate-400">Đang tải video bài học...</p>
+        <p className="text-xs font-bold text-slate-400">
+          Đang tải video bài học...
+        </p>
       </div>
     );
   }
@@ -260,7 +262,9 @@ export function ShadowingDetail({
         <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mx-auto text-2xl">
           <AlertCircle size={28} />
         </div>
-        <p className="text-slate-700 font-black text-base">{fetchError || t.shadowing.videoNotFound}</p>
+        <p className="text-slate-700 font-black text-base">
+          {fetchError || t.shadowing.videoNotFound}
+        </p>
         <button
           type="button"
           onClick={() => navigate("/student/shadowing")}
@@ -293,7 +297,8 @@ export function ShadowingDetail({
             {videoRecordings.length > 0 && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200/70 shrink-0">
                 <CheckCircle2 size={12} className="text-emerald-600" />
-                {t.shadowing.completedBadge || "Đã thu âm"} ({videoRecordings.length})
+                {t.shadowing.completedBadge || "Đã thu âm"} (
+                {videoRecordings.length})
               </span>
             )}
           </div>
@@ -314,18 +319,12 @@ export function ShadowingDetail({
         <div className="relative flex justify-between items-start max-w-lg mx-auto">
           {/* Connector Line - precisely positioned at vertical center of circles (top-5 = 20px) */}
           <div className="absolute top-5 left-[16%] right-[16%] h-1 bg-slate-200 -z-0 rounded-full" />
-          <div
-            className="absolute top-5 left-[16%] right-[16%] h-1 -z-0 rounded-full overflow-hidden"
-          >
+          <div className="absolute top-5 left-[16%] right-[16%] h-1 -z-0 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500 rounded-full"
               style={{
                 width:
-                  currentStep === 1
-                    ? "0%"
-                    : currentStep === 2
-                      ? "50%"
-                      : "100%",
+                  currentStep === 1 ? "0%" : currentStep === 2 ? "50%" : "100%",
               }}
             />
           </div>
@@ -438,7 +437,10 @@ export function ShadowingDetail({
           {/* Error Alert */}
           {shadowingRecording.appError && (
             <div className="bg-rose-50 border border-rose-200 p-3.5 rounded-2xl flex items-start gap-2.5 relative text-xs font-bold text-rose-700 shadow-2xs animate-in fade-in">
-              <AlertCircle size={16} className="text-rose-500 shrink-0 mt-0.5" />
+              <AlertCircle
+                size={16}
+                className="text-rose-500 shrink-0 mt-0.5"
+              />
               <p className="pr-5">{shadowingRecording.appError}</p>
               <button
                 type="button"
@@ -474,7 +476,8 @@ export function ShadowingDetail({
                   }}
                   className="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-95 text-white font-black rounded-2xl shadow-md shadow-emerald-500/20 transition-all text-sm flex items-center justify-center gap-2"
                 >
-                  <Play size={18} fill="currentColor" /> {t.shadowing.practiceListen}
+                  <Play size={18} fill="currentColor" />{" "}
+                  {t.shadowing.practiceListen}
                 </button>
 
                 <button
@@ -503,7 +506,9 @@ export function ShadowingDetail({
               {shadowingRecording.isRecording ? (
                 <div className="flex flex-col items-center gap-4 py-2">
                   <div className="text-3xl sm:text-4xl font-black text-rose-600 font-mono tracking-wider tabular-nums bg-rose-50 px-5 py-2 rounded-2xl border border-rose-200 shadow-2xs">
-                    {shadowingRecording.formatTime(shadowingRecording.recordingTime)}
+                    {shadowingRecording.formatTime(
+                      shadowingRecording.recordingTime,
+                    )}
                   </div>
                   <div className="relative flex items-center justify-center my-2">
                     <div className="absolute w-24 h-24 bg-rose-500/25 rounded-3xl animate-ping pointer-events-none" />
@@ -748,4 +753,3 @@ export function ShadowingDetail({
     </div>
   );
 }
-
