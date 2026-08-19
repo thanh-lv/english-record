@@ -1,9 +1,8 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { S3_BUCKET, s3Client } from '../lib/s3';
+import { S3_BUCKET, getS3Client } from '../lib/s3';
 import { createFileSchema, ALLOWED_IMAGE_MIME_TYPES, ALLOWED_MEDIA_MIME_TYPES } from '../schemas';
 
 /**
- * Service handling file uploads to S3 / Cloudflare R2 with Zod validation
+ * Service handling file uploads to S3 / Cloudflare R2 with lazy loaded S3 SDK and Zod validation
  */
 export const uploadService = {
   async uploadFile(
@@ -35,6 +34,10 @@ export const uploadService = {
 
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
+
+    // Lazy load PutObjectCommand and S3Client only when upload is requested
+    const { PutObjectCommand } = await import('@aws-sdk/client-s3');
+    const s3Client = await getS3Client();
 
     const command = new PutObjectCommand({
       Bucket: S3_BUCKET,

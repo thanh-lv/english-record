@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useRecording } from '../useRecording';
 import { supabase } from '../../../../lib/supabase';
-import { s3Client } from '../../../../lib/s3';
+const sendMock = vi.fn().mockResolvedValue({});
 
 vi.mock('../../../../lib/supabase', () => ({
   supabase: {
@@ -12,9 +12,9 @@ vi.mock('../../../../lib/supabase', () => ({
 
 vi.mock('../../../../lib/s3', () => ({
   S3_BUCKET: 'test-bucket',
-  s3Client: {
-    send: vi.fn().mockResolvedValue({}),
-  },
+  getS3Client: vi.fn().mockResolvedValue({
+    send: (...args: any[]) => sendMock(...args),
+  }),
 }));
 
 describe('useRecording hook', () => {
@@ -109,7 +109,7 @@ describe('useRecording hook', () => {
       await result.current.saveRecording(mockEvent);
     });
 
-    expect(s3Client.send).toHaveBeenCalled();
+    expect(sendMock).toHaveBeenCalled();
     expect(supabase.from).toHaveBeenCalledWith('recordings');
     expect(insertMock).toHaveBeenCalled();
     expect(onSaveSuccess).toHaveBeenCalledWith([savedRecord], 1);
@@ -149,6 +149,6 @@ describe('useRecording hook', () => {
     });
 
     expect(result.current.appError.length).toBeGreaterThan(0);
-    expect(s3Client.send).not.toHaveBeenCalled();
+    expect(sendMock).not.toHaveBeenCalled();
   });
 });

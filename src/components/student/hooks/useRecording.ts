@@ -131,10 +131,11 @@ export function useRecording({
     const savedRecordings: any[] = [];
 
     try {
-      const [{ PutObjectCommand }, { s3Client, S3_BUCKET }] = await Promise.all([
+      const [{ PutObjectCommand }, { getS3Client, S3_BUCKET }] = await Promise.all([
         import('@aws-sdk/client-s3'),
         import('../../../lib/s3'),
       ]);
+      const s3Client = await getS3Client();
 
       for (const { questionIndex, blob } of audiosToSave) {
         const fileExt = blob.type.includes('mp4') ? 'mp4' : 'webm';

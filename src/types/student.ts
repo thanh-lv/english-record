@@ -20,6 +20,7 @@ export interface StudentStats {
   streak: number;
   completedTopics: number;
   totalRecordings: number;
+  totalTopics?: number;
 }
 
 export interface StudentRecordingsResponse {

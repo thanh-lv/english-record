@@ -1,7 +1,11 @@
 /**
- * Utility for fetching TTS audio buffers, stitching vocabulary words with
- * configurable repetitions, word slot durations, gap timing, and encoding
- * into downloadable WAV/MP3 blobs.
+ * @file audioEncoder.ts
+ * @description
+ * Utility module for fetching TTS audio buffers, stitching vocabulary words with
+ * configurable repetitions, calculating precision word slot timestamps, gap intervals,
+ * and encoding AudioBuffers into standard 16-bit Mono WAV PCM Blobs using Web Audio API.
+ *
+ * @module utils/audioEncoder
  */
 
 import { AudioBuilderConfig, WordTimestamp, RenderedAudioResult } from '../types';
@@ -9,7 +13,23 @@ import { AudioBuilderConfig, WordTimestamp, RenderedAudioResult } from '../types
 export type { AudioBuilderConfig, WordTimestamp, RenderedAudioResult };
 
 /**
- * Fetches TTS AudioBuffer for a word using Google TTS endpoint or synthetic fallback.
+ * Fetches or synthesizes an AudioBuffer for a single vocabulary word using a 4-tier fallback strategy:
+ * 1. **Free Dictionary API**: High-quality native human pronunciations with US/UK accent selection.
+ * 2. **Lingva Google Proxy**: Reliable CORS-friendly TTS proxy endpoint.
+ * 3. **Google Translate TTS**: Direct text-to-speech endpoint.
+ * 4. **Synthetic Pulse Generator**: Offline soft tone oscillator as safety fallback.
+ *
+ * @param {string} word - The vocabulary word or phrase to fetch audio for.
+ * @param {AudioContext | OfflineAudioContext} audioCtx - The Web Audio context used to decode/create the buffer.
+ * @param {string} [lang='en-US'] - The BCP-47 language tag (e.g. 'en-US', 'en-GB').
+ * @returns {Promise<AudioBuffer>} A Promise resolving to the decoded single-channel/multi-channel AudioBuffer.
+ *
+ * @example
+ * ```ts
+ * const ctx = new AudioContext();
+ * const buffer = await fetchWordAudioBuffer('elephant', ctx, 'en-US');
+ * console.log(`Decoded duration: ${buffer.duration}s`);
+ * ```
  */
 export async function fetchWordAudioBuffer(
   word: string,
@@ -101,7 +121,12 @@ export async function fetchWordAudioBuffer(
 }
 
 /**
- * Generates a clean audio buffer representation for a word if offline
+ * Synthesizes a pleasant offline harmonic sine pulse for a word when network TTS services are unavailable.
+ * Uses a dynamic base frequency derived from the word's initial character and applies a half-sine envelope.
+ *
+ * @param {string} word - The word string used to derive the tone pitch.
+ * @param {AudioContext | OfflineAudioContext} audioCtx - The Web Audio context.
+ * @returns {AudioBuffer} A 600ms mono AudioBuffer containing the synthesized waveform.
  */
 function createFallbackSpeechBuffer(
   word: string,
@@ -125,7 +150,28 @@ function createFallbackSpeechBuffer(
 }
 
 /**
- * Stitches an array of vocabulary words into a single continuous AudioBuffer using OfflineAudioContext.
+ * Stitches an array of vocabulary words into a single continuous track with configurable repetitions,
+ * word slot timings, gap intervals, and exact word timestamps using `OfflineAudioContext`.
+ *
+ * @param {string[]} words - List of vocabulary words to stitch together.
+ * @param {AudioBuilderConfig} config - Timing and repetition configuration parameters.
+ * @param {number} [config.repetitionsPerWord=3] - Number of times each word repeats within its time slot.
+ * @param {number} [config.wordDurationSlot=3.0] - Time slot (in seconds) allocated for each word.
+ * @param {number} [config.gapBetweenWords=4.0] - Silence interval (in seconds) between different words.
+ * @param {string} [config.voiceLang='en-US'] - TTS voice locale.
+ * @param {(percent: number, currentWord: string) => void} [onProgress] - Optional progress callback function.
+ * @returns {Promise<RenderedAudioResult>} The rendered Audio WAV Blob, object URL, total duration, and word timestamps.
+ * @throws {Error} If no valid words are provided.
+ *
+ * @example
+ * ```ts
+ * const result = await generateVocabularyAudio(
+ *   ['apple', 'banana', 'cherry'],
+ *   { repetitionsPerWord: 3, wordDurationSlot: 3.0, gapBetweenWords: 2.0 },
+ *   (pct, word) => console.log(`Progress: ${pct}% - Processing: ${word}`)
+ * );
+ * console.log(`Generated WAV url: ${result.audioUrl}`);
+ * ```
  */
 export async function generateVocabularyAudio(
   words: string[],
@@ -216,7 +262,21 @@ export async function generateVocabularyAudio(
 }
 
 /**
- * Encodes an AudioBuffer into a 16-bit Mono WAV PCM Blob
+ * Encodes an AudioBuffer into a standard 16-bit Mono WAV PCM binary Blob.
+ *
+ * Constructs the canonical 44-byte RIFF/WAVE header:
+ * - `RIFF` chunk descriptor + total chunk size.
+ * - `WAVE` format descriptor + `fmt ` sub-chunk with audio format = 1 (Linear PCM), channels = 1, bit depth = 16.
+ * - `data` sub-chunk + sample payload converted from Float32 (-1.0 to 1.0) into Signed 16-bit Integers (-32768 to 32767).
+ *
+ * @param {AudioBuffer} buffer - The input AudioBuffer to encode.
+ * @returns {Blob} A standard Blob with MIME type `audio/wav`.
+ *
+ * @example
+ * ```ts
+ * const wavBlob = audioBufferToWavBlob(renderedBuffer);
+ * const downloadUrl = URL.createObjectURL(wavBlob);
+ * ```
  */
 export function audioBufferToWavBlob(buffer: AudioBuffer): Blob {
   const numChannels = 1;
@@ -274,7 +334,14 @@ export function audioBufferToWavBlob(buffer: AudioBuffer): Blob {
   return new Blob([arrayBuffer], { type: 'audio/wav' });
 }
 
-function writeString(view: DataView, offset: number, string: string) {
+/**
+ * Writes an ASCII string into a DataView at a specified byte offset.
+ *
+ * @param {DataView} view - Target DataView.
+ * @param {number} offset - Byte offset to start writing.
+ * @param {string} string - ASCII string (e.g. 'RIFF', 'WAVE', 'fmt ', 'data').
+ */
+function writeString(view: DataView, offset: number, string: string): void {
   for (let i = 0; i < string.length; i++) {
     view.setUint8(offset + i, string.charCodeAt(i));
   }

@@ -25,9 +25,8 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
-import { s3Client, S3_BUCKET } from '../../../lib/s3';
+import { uploadService } from '../../../services/uploadService';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { sanitizeText } from '../../../utils/validators';
 
 export function VocabAudioBuilder() {
@@ -132,26 +131,7 @@ export function VocabAudioBuilder() {
     setIsSaving(true);
     setErrorMsg(null);
     try {
-      const fileKey = `vocab-audio/${Date.now()}-${cleanTitle.replace(/[^a-zA-Z0-9_-]/g, '')}.wav`;
-      const arrayBuffer = await audioResult.blob.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const uploadParams = {
-        Bucket: S3_BUCKET,
-        Key: fileKey,
-        Body: uint8Array,
-        ContentType: 'audio/wav',
-      };
-      await s3Client.send(new PutObjectCommand(uploadParams));
-      const publicBaseUrl = import.meta.env.VITE_R2_PUBLIC_URL;
-      let fileUrl = '';
-      if (publicBaseUrl) {
-        fileUrl = `${publicBaseUrl.replace(/\/$/, '')}/${fileKey}`;
-      } else {
-        const endpoint = import.meta.env.VITE_S3_ENDPOINT || '';
-        fileUrl = endpoint.includes(S3_BUCKET)
-          ? `${endpoint}/${fileKey}`
-          : `${endpoint}/${S3_BUCKET}/${fileKey}`;
-      }
+      const fileUrl = await uploadService.uploadFile(audioResult.blob, 'vocab-audio');
 
       const configSummary = `${repetitions}x rep • ${gapDuration}s gap`;
       const { error } = await supabase.from('vocab_audios').insert({

@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { uploadService } from '../uploadService';
-import { s3Client } from '../../lib/s3';
+import { getS3Client } from '../../lib/s3';
+
+const sendMock = vi.fn().mockResolvedValue({});
 
 vi.mock('../../lib/s3', () => ({
   S3_BUCKET: 'test-bucket',
-  s3Client: {
-    send: vi.fn().mockResolvedValue({}),
-  },
+  getS3Client: vi.fn().mockResolvedValue({
+    send: (...args: any[]) => sendMock(...args),
+  }),
 }));
 
 describe('uploadService', () => {
@@ -37,11 +39,12 @@ describe('uploadService', () => {
     );
   });
 
-  it('uploads valid image file and sends PutObjectCommand to s3Client', async () => {
+  it('uploads valid image file and sends PutObjectCommand to lazy s3Client', async () => {
     const file = new File(['audio-binary'], 'recording.wav', { type: 'audio/wav' });
     const url = await uploadService.uploadFile(file, 'uploads', 10);
 
-    expect(s3Client.send).toHaveBeenCalledTimes(1);
+    expect(getS3Client).toHaveBeenCalled();
+    expect(sendMock).toHaveBeenCalledTimes(1);
     expect(url).toContain('uploads/');
     expect(url).toContain('.wav');
   });
