@@ -12,7 +12,9 @@ export const uploadService = {
     folder: string = 'uploads',
     maxSizeMb: number = 10
   ): Promise<string> {
-    const isImageOnlyFolder = ['question_images', 'vocab_images', 'stories', 'avatars'].includes(folder);
+    const isImageOnlyFolder = ['question_images', 'vocab_images', 'stories', 'avatars'].includes(
+      folder
+    );
 
     const allowedTypes = isImageOnlyFolder ? ALLOWED_IMAGE_MIME_TYPES : ALLOWED_MEDIA_MIME_TYPES;
 

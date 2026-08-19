@@ -99,12 +99,9 @@ describe('useRecording hook', () => {
   it('handles microphone start and stop recording cycle', async () => {
     const mockTracks = [{ stop: vi.fn() }];
     const mockStream = { getTracks: () => mockTracks };
-    let capturedOnDataAvailable: any = null;
-    let capturedOnStop: any = null;
-
-    let mockMediaRecorderInstance: any = null;
 
     class MockMediaRecorder {
+      static current: MockMediaRecorder | null = null;
       state = 'recording';
       mimeType = 'audio/webm';
       ondataavailable: any = null;
@@ -114,7 +111,7 @@ describe('useRecording hook', () => {
         if (this.onstop) this.onstop();
       });
       constructor() {
-        mockMediaRecorderInstance = this;
+        MockMediaRecorder.current = this;
       }
     }
 
@@ -146,12 +143,12 @@ describe('useRecording hook', () => {
     });
 
     expect(result.current.isRecording).toBe(true);
-    expect(mockMediaRecorderInstance.start).toHaveBeenCalled();
+    expect(MockMediaRecorder.current?.start).toHaveBeenCalled();
 
     // Trigger data available
     act(() => {
-      if (mockMediaRecorderInstance?.ondataavailable) {
-        mockMediaRecorderInstance.ondataavailable({
+      if (MockMediaRecorder.current?.ondataavailable) {
+        MockMediaRecorder.current.ondataavailable({
           data: new Blob(['voice-blob'], { type: 'audio/webm' }),
         });
       }
@@ -162,7 +159,7 @@ describe('useRecording hook', () => {
       result.current.stopRecording(mockEvent);
     });
 
-    expect(mockMediaRecorderInstance.stop).toHaveBeenCalled();
+    expect(MockMediaRecorder.current?.stop).toHaveBeenCalled();
     expect(result.current.isRecording).toBe(false);
     expect(mockTracks[0].stop).toHaveBeenCalled();
   });

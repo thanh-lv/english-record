@@ -21,7 +21,6 @@ describe('imageOptimizer utility', () => {
   });
 
   it('processes raster image and downscales when dimensions exceed maxWidth/maxHeight', async () => {
-    let toBlobCallback: any = null;
     const drawImageMock = vi.fn();
 
     const mockCanvas = {
@@ -33,7 +32,6 @@ describe('imageOptimizer utility', () => {
         drawImage: drawImageMock,
       }),
       toBlob: vi.fn().mockImplementation((cb: any) => {
-        toBlobCallback = cb;
         // Simulate output smaller compressed WebP blob (100 bytes)
         cb(new Blob(['compressed-webp'], { type: 'image/webp' }));
       }),

@@ -40,11 +40,7 @@ export async function optimizeImageFile(
   const fileType = file.type || '';
 
   // Skip optimization for non-image media, SVG, or animated GIF
-  if (
-    !fileType.startsWith('image/') ||
-    fileType === 'image/svg+xml' ||
-    fileType === 'image/gif'
-  ) {
+  if (!fileType.startsWith('image/') || fileType === 'image/svg+xml' || fileType === 'image/gif') {
     return file;
   }
 
@@ -117,7 +113,8 @@ export async function optimizeImageFile(
     if (blob.size < file.size) {
       if (file instanceof File) {
         const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
-        const ext = outputFormat === 'image/webp' ? '.webp' : outputFormat === 'image/jpeg' ? '.jpg' : '.png';
+        const ext =
+          outputFormat === 'image/webp' ? '.webp' : outputFormat === 'image/jpeg' ? '.jpg' : '.png';
         return new File([blob], `${nameWithoutExt}${ext}`, { type: outputFormat });
       }
       return blob;

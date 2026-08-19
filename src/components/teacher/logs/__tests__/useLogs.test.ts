@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useLogs } from '../hooks/useLogs';
 import { loggerService } from '../../../../services/loggerService';
-import { supabase } from '../../../../lib/supabase';
 
 vi.mock('../../../../services/loggerService', () => ({
   loggerService: {

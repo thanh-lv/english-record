@@ -1,11 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import {
-  useStudentData,
-  useStudentTopics,
-  useStudentRecordings,
-  useStudentStories,
-} from '../useStudentData';
+import { useStudentData, useStudentTopics, useStudentStories } from '../useStudentData';
 import { supabase } from '../../../../lib/supabase';
 
 vi.mock('../../../../lib/supabase', () => ({

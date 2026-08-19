@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { loggerService } from '../../../../services/loggerService';
 import { supabase } from '../../../../lib/supabase';
-import { LogEntry, LogLevel, RemoteLogRecord } from '../../../../types';
+import { LogEntry, RemoteLogRecord } from '../../../../types';
 
 export function useLogs() {
   const [source, setSource] = useState<'remote' | 'local'>('remote');
