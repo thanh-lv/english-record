@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { withServiceHandling } from './serviceHandler';
 import { ShadowingVideo, ShadowingVideoPayload } from '../types';
 
 export type { ShadowingVideo, ShadowingVideoPayload };
@@ -35,104 +36,116 @@ export const shadowingService = {
   parseTimeToSeconds,
 
   async fetchShadowingVideos(activeOnly = false): Promise<ShadowingVideo[]> {
-    let query = supabase
-      .from('shadowing_videos')
-      .select('*')
-      .order('created_at', { ascending: false });
+    return withServiceHandling('shadowingService', 'fetchShadowingVideos', async () => {
+      let query = supabase
+        .from('shadowing_videos')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (activeOnly) {
-      query = query.eq('is_active', true);
-    }
+      if (activeOnly) {
+        query = query.eq('is_active', true);
+      }
 
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data || []) as ShadowingVideo[];
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data || []) as ShadowingVideo[];
+    });
   },
 
   async fetchShadowingVideoById(id: string): Promise<ShadowingVideo | null> {
-    const { data, error } = await supabase
-      .from('shadowing_videos')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
+    return withServiceHandling('shadowingService', 'fetchShadowingVideoById', async () => {
+      const { data, error } = await supabase
+        .from('shadowing_videos')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
 
-    if (error) throw error;
-    return (data || null) as ShadowingVideo | null;
+      if (error) throw error;
+      return (data || null) as ShadowingVideo | null;
+    });
   },
 
   async createShadowingVideo(payload: ShadowingVideoPayload): Promise<ShadowingVideo> {
-    const insertPayload: any = {
-      title: payload.title.trim(),
-      youtube_url: payload.youtube_url.trim(),
-      preview_start: payload.preview_start ?? null,
-      preview_end: payload.preview_end ?? null,
-      record_start: payload.record_start ?? null,
-      record_end: payload.record_end ?? null,
-      grades: payload.grades || [],
-      is_active: payload.is_active ?? true,
-    };
+    return withServiceHandling('shadowingService', 'createShadowingVideo', async () => {
+      const insertPayload: any = {
+        title: payload.title.trim(),
+        youtube_url: payload.youtube_url.trim(),
+        preview_start: payload.preview_start ?? null,
+        preview_end: payload.preview_end ?? null,
+        record_start: payload.record_start ?? null,
+        record_end: payload.record_end ?? null,
+        grades: payload.grades || [],
+        is_active: payload.is_active ?? true,
+      };
 
-    let { data, error } = await supabase
-      .from('shadowing_videos')
-      .insert(insertPayload)
-      .select()
-      .single();
-
-    if (error && error.message?.includes('grades')) {
-      delete insertPayload.grades;
-      const fallback = await supabase
+      let { data, error } = await supabase
         .from('shadowing_videos')
         .insert(insertPayload)
         .select()
         .single();
-      data = fallback.data;
-      error = fallback.error;
-    }
 
-    if (error) throw error;
-    return data as ShadowingVideo;
+      if (error && error.message?.includes('grades')) {
+        delete insertPayload.grades;
+        const fallback = await supabase
+          .from('shadowing_videos')
+          .insert(insertPayload)
+          .select()
+          .single();
+        data = fallback.data;
+        error = fallback.error;
+      }
+
+      if (error) throw error;
+      return data as ShadowingVideo;
+    });
   },
 
   async updateShadowingVideo(
     id: string,
     payload: Partial<ShadowingVideoPayload>
   ): Promise<ShadowingVideo> {
-    const updatePayload: any = { ...payload };
+    return withServiceHandling('shadowingService', 'updateShadowingVideo', async () => {
+      const updatePayload: any = { ...payload };
 
-    let { data, error } = await supabase
-      .from('shadowing_videos')
-      .update(updatePayload)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error && error.message?.includes('grades')) {
-      delete updatePayload.grades;
-      const fallback = await supabase
+      let { data, error } = await supabase
         .from('shadowing_videos')
         .update(updatePayload)
         .eq('id', id)
         .select()
         .single();
-      data = fallback.data;
-      error = fallback.error;
-    }
 
-    if (error) throw error;
-    return data as ShadowingVideo;
+      if (error && error.message?.includes('grades')) {
+        delete updatePayload.grades;
+        const fallback = await supabase
+          .from('shadowing_videos')
+          .update(updatePayload)
+          .eq('id', id)
+          .select()
+          .single();
+        data = fallback.data;
+        error = fallback.error;
+      }
+
+      if (error) throw error;
+      return data as ShadowingVideo;
+    });
   },
 
   async toggleShadowingVideoActive(id: string, currentValue: boolean): Promise<void> {
-    const { error } = await supabase
-      .from('shadowing_videos')
-      .update({ is_active: !currentValue })
-      .eq('id', id);
+    return withServiceHandling('shadowingService', 'toggleShadowingVideoActive', async () => {
+      const { error } = await supabase
+        .from('shadowing_videos')
+        .update({ is_active: !currentValue })
+        .eq('id', id);
 
-    if (error) throw error;
+      if (error) throw error;
+    });
   },
 
   async deleteShadowingVideo(id: string): Promise<void> {
-    const { error } = await supabase.from('shadowing_videos').delete().eq('id', id);
-    if (error) throw error;
+    return withServiceHandling('shadowingService', 'deleteShadowingVideo', async () => {
+      const { error } = await supabase.from('shadowing_videos').delete().eq('id', id);
+      if (error) throw error;
+    });
   },
 };

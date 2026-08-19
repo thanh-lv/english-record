@@ -7,3 +7,4 @@ export * from './studentService';
 export * from './attendanceService';
 export * from './shadowingService';
 export * from './loggerService';
+export * from './serviceHandler';
