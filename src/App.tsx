@@ -1,16 +1,14 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { Navigate, Route, Routes, useNavigate, useLocation } from "react-router-dom";
-import LoginScreen from "./src/LoginScreen";
+import LoginScreen from "./LoginScreen";
 
-const TeacherView = lazy(() => import("./src/TeacherView"));
-const StudentView = lazy(() => import("./src/StudentView"));
-import { Mic, User, LogOut, Loader2 } from "lucide-react";
-import { NotificationBell } from "./src/components/teacher/shared/NotificationBell";
-import { useNotifications } from "./src/components/teacher/hooks/useNotifications";
-import { useLanguage, interpolate } from "./src/i18n/LanguageContext";
-import { supabase } from "./src/lib/supabase";
-
-
+const TeacherView = lazy(() => import("./TeacherView"));
+const StudentView = lazy(() => import("./StudentView"));
+import { Mic, LogOut, Loader2 } from "lucide-react";
+import { NotificationBell } from "./components/teacher/shared/NotificationBell";
+import { useNotifications } from "./components/teacher/hooks/useNotifications";
+import { useLanguage, interpolate } from "./i18n/LanguageContext";
+import { supabase } from "./lib/supabase";
 
 export default function App() {
   const [user, setUser] = useState<any>(null);
@@ -122,7 +120,7 @@ export default function App() {
       clearTimeout(safetyTimeout);
       subscription.unsubscribe();
     };
-  }, []);
+  }, [setLang]);
 
   const handleLogout = async (e: React.MouseEvent) => {
     if (e) e.preventDefault();

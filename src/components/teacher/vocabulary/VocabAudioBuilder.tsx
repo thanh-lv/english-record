@@ -587,7 +587,7 @@ export function VocabAudioBuilder() {
                     <div className="flex items-center justify-center gap-4 pt-1">
                       <button
                         onClick={togglePlayPause}
-                        className="w-13 h-13 rounded-2xl bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center shadow-md transition-all hover:scale-105 active:scale-95"
+                        className="w-16 h-16 rounded-2xl bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center shadow-md transition-all hover:scale-105 active:scale-95"
                       >
                         {isPlaying ? (
                           <Pause size={22} />
