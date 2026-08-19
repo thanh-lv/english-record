@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { attendanceService } from '../../../services/attendanceService';
+import { loggerService } from '../../../services/loggerService';
 import {
   AlertTriangle,
   Trash2,
@@ -49,20 +50,20 @@ export function CheckinTab() {
     });
   }, []);
 
-  const loadMonthRecords = async (year: number, month: number) => {
+  const loadMonthRecords = useCallback(async (year: number, month: number) => {
     const start = new Date(year, month, 1).toISOString();
     const end = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
     try {
       const data = await attendanceService.fetchAttendanceRecords(start, end);
       setMonthRecords(data);
     } catch (err) {
-      console.error('Error fetching month records:', err);
+      loggerService.error('CheckinTab', 'Error fetching month records', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadMonthRecords(calYear, calMonth);
-  }, [calYear, calMonth]);
+  }, [calYear, calMonth, loadMonthRecords]);
 
   // Calendar math
   const DAYS_OF_WEEK = tAtt.daysOfWeek;
@@ -82,11 +83,14 @@ export function CheckinTab() {
   ];
   const firstDayOfMonth = new Date(calYear, calMonth, 1).getDay();
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  const calendarCells: (number | null)[] = [
-    ...Array(firstDayOfMonth).fill(null),
-    ...Array.from({ length: daysInMonth }, (_: any, i: number) => i + 1),
-  ];
-  while (calendarCells.length % 7 !== 0) calendarCells.push(null);
+  const calendarCells: (number | null)[] = useMemo(() => {
+    const cells: (number | null)[] = [
+      ...Array(firstDayOfMonth).fill(null),
+      ...Array.from({ length: daysInMonth }, (_, i: number) => i + 1),
+    ];
+    while (cells.length % 7 !== 0) cells.push(null);
+    return cells;
+  }, [firstDayOfMonth, daysInMonth]);
 
   const prevMonth = () => {
     if (calMonth === 0) {
@@ -109,18 +113,22 @@ export function CheckinTab() {
     return map;
   }, [students]);
 
-  // Records count and revenue per day number
-  const recordsCountByDay: Record<number, number> = {};
-  const revenueByDay: Record<number, number> = {};
-  let totalMonthRevenue = 0;
+  // Records count and revenue per day number memoized in O(N)
+  const { recordsCountByDay, revenueByDay, totalMonthRevenue } = useMemo(() => {
+    const countMap: Record<number, number> = {};
+    const revMap: Record<number, number> = {};
+    let total = 0;
 
-  monthRecords.forEach(r => {
-    const d = new Date(r.checkin_time).getDate();
-    recordsCountByDay[d] = (recordsCountByDay[d] || 0) + 1;
-    const price = Number(studentMap[r.student_id]?.unit_price || 0);
-    revenueByDay[d] = (revenueByDay[d] || 0) + price;
-    totalMonthRevenue += price;
-  });
+    monthRecords.forEach(r => {
+      const d = new Date(r.checkin_time).getDate();
+      countMap[d] = (countMap[d] || 0) + 1;
+      const price = Number(studentMap[r.student_id]?.unit_price || 0);
+      revMap[d] = (revMap[d] || 0) + price;
+      total += price;
+    });
+
+    return { recordsCountByDay: countMap, revenueByDay: revMap, totalMonthRevenue: total };
+  }, [monthRecords, studentMap]);
 
   const isToday = (day: number) =>
     today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day;
@@ -144,27 +152,40 @@ export function CheckinTab() {
     setSuccess(false);
   };
 
-  // Get existing records on modalDate for a student
-  const getStudentDayRecords = (studentId: string) => {
-    if (!modalDate) return [];
-    return monthRecords.filter(r => {
-      const d = new Date(r.checkin_time);
-      return (
-        d.getFullYear() === modalDate.getFullYear() &&
-        d.getMonth() === modalDate.getMonth() &&
-        d.getDate() === modalDate.getDate() &&
-        r.student_id === studentId
-      );
-    });
-  };
+  // Pre-indexed map for O(1) modal student lookup
+  const dayRecordsByStudentId = useMemo(() => {
+    const map = new Map<string, any[]>();
+    if (!modalDate) return map;
 
-  const availableClasses = Array.from(
-    new Set(students.map(s => s.class_name || tAtt.unassignedClass))
-  ).sort();
-  const filteredStudents =
-    filterClass === 'all'
-      ? students
-      : students.filter(s => (s.class_name || tAtt.unassignedClass) === filterClass);
+    const y = modalDate.getFullYear();
+    const m = modalDate.getMonth();
+    const d = modalDate.getDate();
+
+    monthRecords.forEach(r => {
+      const rd = new Date(r.checkin_time);
+      if (rd.getFullYear() === y && rd.getMonth() === m && rd.getDate() === d) {
+        const existing = map.get(r.student_id) || [];
+        existing.push(r);
+        map.set(r.student_id, existing);
+      }
+    });
+
+    return map;
+  }, [monthRecords, modalDate]);
+
+  // Get existing records on modalDate for a student (O(1) lookup)
+  const getStudentDayRecords = (studentId: string) => dayRecordsByStudentId.get(studentId) || [];
+
+  const availableClasses = useMemo(() => {
+    return Array.from(
+      new Set(students.map(s => s.class_name || tAtt.unassignedClass))
+    ).sort();
+  }, [students, tAtt.unassignedClass]);
+
+  const filteredStudents = useMemo(() => {
+    if (filterClass === 'all') return students;
+    return students.filter(s => (s.class_name || tAtt.unassignedClass) === filterClass);
+  }, [students, filterClass, tAtt.unassignedClass]);
 
   const handleToggle = (id: string) => {
     const next = new Set(checkedIds);
@@ -195,7 +216,7 @@ export function CheckinTab() {
       await loadMonthRecords(calYear, calMonth);
       setDeleteTargetStudent(null);
     } catch (err) {
-      console.error('Error deleting checkin:', err);
+      loggerService.error('CheckinTab', 'Error deleting checkin', err);
       alert(tAtt.cancelCheckinError || 'Lỗi khi hủy điểm danh.');
     } finally {
       setDeleting(false);
@@ -225,7 +246,7 @@ export function CheckinTab() {
       await loadMonthRecords(calYear, calMonth);
       setTimeout(() => setSuccess(false), 2500);
     } catch (err) {
-      console.error(err);
+      loggerService.error('CheckinTab', 'Error saving checkin', err);
       alert(tAtt.saveCheckinError || 'Lỗi khi lưu. Có thể đã tồn tại record cho thời điểm này.');
     } finally {
       setSaving(false);
@@ -246,16 +267,19 @@ export function CheckinTab() {
     : 0;
 
   // Group students by class for modal display
-  const studentsByClass: Record<string, typeof filteredStudents> = {};
-  filteredStudents.forEach(s => {
-    const cls = formatClassName(
-      s.class_name,
-      tAtt.unassignedClass || 'Chưa phân lớp',
-      tAtt.className ? tAtt.className + ' ' : 'Lớp '
-    );
-    if (!studentsByClass[cls]) studentsByClass[cls] = [];
-    studentsByClass[cls].push(s);
-  });
+  const studentsByClass = useMemo(() => {
+    const grouped: Record<string, typeof filteredStudents> = {};
+    filteredStudents.forEach(s => {
+      const cls = formatClassName(
+        s.class_name,
+        tAtt.unassignedClass || 'Chưa phân lớp',
+        tAtt.className ? tAtt.className + ' ' : 'Lớp '
+      );
+      if (!grouped[cls]) grouped[cls] = [];
+      grouped[cls].push(s);
+    });
+    return grouped;
+  }, [filteredStudents, tAtt.unassignedClass, tAtt.className]);
 
   const modalDateLabel =
     modalDate?.toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {

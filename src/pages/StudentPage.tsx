@@ -174,12 +174,13 @@ export default function StudentPage({ user, profile }: { user: any; profile: any
   const canRetry =
     !isBongBe &&
     !!matchedRecording &&
+    matchedRecording.teacher_rating != null &&
     matchedRecording.teacher_rating > 0 &&
     matchedRecording.teacher_rating <= 3;
 
   retryRecordingRef.current =
-    canRetry && matchedRecording
-      ? { id: matchedRecording.id, topic_number: matchedRecording.topic_number }
+    canRetry && matchedRecording && matchedRecording.topic_number != null
+      ? { id: matchedRecording.id, topic_number: Number(matchedRecording.topic_number) }
       : null;
 
   const matchedQuestionRecording =
