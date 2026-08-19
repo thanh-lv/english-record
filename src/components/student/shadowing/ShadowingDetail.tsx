@@ -129,7 +129,7 @@ export function ShadowingDetail({
 
     try {
       if (!player.getIframe()) return;
-    } catch (e) {
+    } catch {
       return;
     }
 
@@ -147,7 +147,9 @@ export function ShadowingDetail({
             player.pauseVideo();
             if (playIntervalRef.current) clearInterval(playIntervalRef.current);
           }
-        } catch (err) {}
+        } catch {
+          // ignore playback check error
+        }
       }, 500);
     } catch (error) {
       console.warn("YouTube player action failed", error);
@@ -164,7 +166,7 @@ export function ShadowingDetail({
 
     try {
       if (!player.getIframe()) return;
-    } catch (e) {
+    } catch {
       return;
     }
 
@@ -209,7 +211,7 @@ export function ShadowingDetail({
 
     try {
       if (!player.getIframe()) return;
-    } catch (e) {
+    } catch {
       return;
     }
 
@@ -236,7 +238,9 @@ export function ShadowingDetail({
       event.target.setOption("captions", "track", {});
       event.target.unloadModule("captions");
       event.target.unloadModule("cc");
-    } catch (e) {}
+    } catch {
+      // ignore caption module unload error
+    }
   };
 
   if (loading) {

@@ -374,11 +374,9 @@ export default function StudentView({
           isPlayingTopicAudio={isPlayingTopicAudio}
           isRecording={recording.isRecording}
           recordingTime={recording.recordingTime}
-          audioBase64={recording.audioBase64}
           bongBeAudios={recording.bongBeAudios}
           isSaving={recording.isSaving}
           appError={recording.appError}
-          matchedRecording={matchedRecording}
           matchedQuestionRecording={matchedQuestionRecording}
           isTopicFullyRecorded={isTopicFullyRecorded}
           hasPendingAudios={recording.hasPendingAudios}
@@ -388,11 +386,6 @@ export default function StudentView({
           onStartRecording={recording.startRecording}
           onStopRecording={recording.stopRecording}
           onSaveRecording={recording.saveRecording}
-          onDeleteAudio={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            recording.setAudioBase64(null);
-          }}
           onDeleteBongBeAudio={(questionIndex, e) => {
             e.preventDefault();
             e.stopPropagation();

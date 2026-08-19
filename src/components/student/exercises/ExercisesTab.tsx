@@ -10,27 +10,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-
-const PRIZES = [
-  "🎈",
-  "🎁",
-  "🌟",
-  "🏅",
-  "👑",
-  "💎",
-  "🎀",
-  "🎯",
-  "🎨",
-  "🎭",
-  "🎪",
-  "🎡",
-  "🎢",
-  "🎠",
-];
-
-export function getPrizeForTopic(topicNum: number) {
-  return PRIZES[(topicNum - 1) % PRIZES.length];
-}
+import { getPrizeForTopic } from "../../../utils/prizes";
 
 interface ExercisesTabProps {
   activeTopics: any[];

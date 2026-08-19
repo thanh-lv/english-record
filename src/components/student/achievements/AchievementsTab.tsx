@@ -1,6 +1,6 @@
 import { Award } from "lucide-react";
 import { useLanguage } from "../../../i18n/LanguageContext";
-import { getPrizeForTopic } from "../exercises/ExercisesTab";
+import { getPrizeForTopic } from "../../../utils/prizes";
 
 interface AchievementsTabProps {
   totalNumbers: number[];

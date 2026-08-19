@@ -30,11 +30,9 @@ interface TopicModalProps {
   isPlayingTopicAudio: boolean;
   isRecording: boolean;
   recordingTime: number;
-  audioBase64: Blob | null;
   bongBeAudios: Record<number, Blob>;
   isSaving: boolean;
   appError: string;
-  matchedRecording: any;
   matchedQuestionRecording: any;
   isTopicFullyRecorded: boolean;
   canRetry: boolean;
@@ -44,7 +42,6 @@ interface TopicModalProps {
   onStartRecording: (e: React.MouseEvent) => void;
   onStopRecording: (e?: React.MouseEvent) => void;
   onSaveRecording: (e: React.MouseEvent) => void;
-  onDeleteAudio: (e: React.MouseEvent) => void;
   onDeleteBongBeAudio: (questionIndex: number, e: React.MouseEvent) => void;
   onQuestionChange: (index: number) => void;
   onDismissError: (e: React.MouseEvent) => void;
@@ -63,11 +60,9 @@ export function TopicModal({
   isPlayingTopicAudio,
   isRecording,
   recordingTime,
-  audioBase64,
   bongBeAudios,
   isSaving,
   appError,
-  matchedRecording,
   matchedQuestionRecording,
   isTopicFullyRecorded,
   hasPendingAudios,
@@ -77,7 +72,6 @@ export function TopicModal({
   onStartRecording,
   onStopRecording,
   onSaveRecording,
-  onDeleteAudio,
   onDeleteBongBeAudio,
   onQuestionChange,
   onDismissError,

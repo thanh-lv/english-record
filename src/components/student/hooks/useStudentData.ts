@@ -6,7 +6,7 @@ export function useStudentData(
   user: any,
   profile: any,
   isBongBe: boolean,
-  studentAge: number,
+  _studentAge?: number,
 ) {
   const [activeTopics, setActiveTopics] = useState<any[]>([]);
   const [topicsLoading, setTopicsLoading] = useState(true);
