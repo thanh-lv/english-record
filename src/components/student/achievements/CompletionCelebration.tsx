@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 
@@ -43,12 +43,15 @@ export function CompletionCelebration({
   const [particles] = useState(() => generateParticles(30));
   const [visible, setVisible] = useState(false);
 
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!show) return;
     setVisible(true);
     const timer = setTimeout(() => {
       setVisible(false);
-      setTimeout(onClose, 400);
+      setTimeout(() => onCloseRef.current(), 400);
     }, 5000);
     return () => clearTimeout(timer);
   }, [show]);

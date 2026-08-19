@@ -63,7 +63,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = getSavedLanguage();
     if (!saved) localStorage.setItem(STORAGE_KEY, lang);
-  }, []);
+  }, [lang]);
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t: translations[lang] }}>
@@ -72,11 +72,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLanguage() {
   return useContext(LanguageContext);
 }
 
 /** Helper: thay {key} trong string với giá trị */
+// eslint-disable-next-line react-refresh/only-export-components
 export function interpolate(
   str: string,
   vars: Record<string, string | number>,

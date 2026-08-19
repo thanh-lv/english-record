@@ -15,23 +15,7 @@ import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "../../../lib/supabase";
-
-interface VocabSet {
-  id: string;
-  title: string;
-  emoji: string;
-  grades?: number[];
-  card_count?: number;
-}
-
-interface VocabCard {
-  id: string;
-  front: string;
-  back: string;
-  ipa: string | null;
-  image_url: string | null;
-  order_index: number;
-}
+import { VocabSet, VocabCard } from "../../../types";
 
 interface FlashcardsTabProps {
   studentGrade?: number | string | null;
@@ -191,7 +175,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
       try {
         const { data, error } = await supabase
           .from("vocabulary_cards")
-          .select("id, front, back, ipa, image_url, order_index")
+          .select("id, set_id, front, back, ipa, image_url, order_index")
           .eq("set_id", set.id)
           .order("order_index", { ascending: true });
         if (error) throw error;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "../../../lib/supabase";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
@@ -11,19 +11,7 @@ import {
   Gamepad2,
 } from "lucide-react";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-
-interface VocabCard {
-  id: string;
-  front: string;
-  back: string;
-  image_url: string | null;
-}
-
-interface VocabSet {
-  id: string;
-  title: string;
-  emoji: string;
-}
+import { VocabCard, VocabSet } from "../../../types";
 
 // ─── MATCHING GAME ───────────────────────────────────────────────
 interface MatchTile {
@@ -310,30 +298,18 @@ function QuizGame({
 
   const current = questions[index];
 
-  const buildChoices = (idx: number) => {
-    const correct = questions[idx];
-    const pool = cards
-      .filter((c) => c.id !== correct.id)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3);
-    return [...pool, correct].sort(() => Math.random() - 0.5);
-  };
-
-  useEffect(() => {
-    setChoices(buildChoices(index));
-    setSelected(null);
-    setTimeLeft(10);
-  }, [index]);
-
-  useEffect(() => {
-    if (selected || finished) return;
-    if (timeLeft <= 0) {
-      handleAnswer(null);
-      return;
-    }
-    const t = setTimeout(() => setTimeLeft((s) => s - 1), 1000);
-    return () => clearTimeout(t);
-  }, [timeLeft, selected, finished]);
+  const buildChoices = useCallback(
+    (idx: number) => {
+      const correct = questions[idx];
+      if (!correct) return [];
+      const pool = cards
+        .filter((c) => c.id !== correct.id)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      return [...pool, correct].sort(() => Math.random() - 0.5);
+    },
+    [cards, questions],
+  );
 
   const speak = (text: string) => {
     window.speechSynthesis.cancel();
@@ -343,25 +319,44 @@ function QuizGame({
     window.speechSynthesis.speak(u);
   };
 
+  const handleAnswer = useCallback(
+    (cardId: string | null) => {
+      if (selected || !current) return;
+      setSelected(cardId ?? "__timeout__");
+      const correct = cardId === current.id;
+      if (correct) {
+        setScore((s) => s + 1);
+        setStreak((s) => s + 1);
+      } else {
+        setStreak(0);
+      }
+      setTimeout(() => {
+        if (index + 1 >= TOTAL) setFinished(true);
+        else setIndex((i) => i + 1);
+      }, 1000);
+    },
+    [selected, current, index, TOTAL],
+  );
+
+  useEffect(() => {
+    setChoices(buildChoices(index));
+    setSelected(null);
+    setTimeLeft(10);
+  }, [index, buildChoices]);
+
+  useEffect(() => {
+    if (selected || finished) return;
+    if (timeLeft <= 0) {
+      handleAnswer(null);
+      return;
+    }
+    const t = setTimeout(() => setTimeLeft((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [timeLeft, selected, finished, handleAnswer]);
+
   useEffect(() => {
     if (current) speak(current.front);
-  }, [index]);
-
-  const handleAnswer = (cardId: string | null) => {
-    if (selected) return;
-    setSelected(cardId ?? "__timeout__");
-    const correct = cardId === current.id;
-    if (correct) {
-      setScore((s) => s + 1);
-      setStreak((s) => s + 1);
-    } else {
-      setStreak(0);
-    }
-    setTimeout(() => {
-      if (index + 1 >= TOTAL) setFinished(true);
-      else setIndex((i) => i + 1);
-    }, 1000);
-  };
+  }, [current]);
 
   const restart = () => {
     setIndex(0);
@@ -520,7 +515,6 @@ function QuizGame({
                 {choices.map((choice) => {
                   const isCorrect = choice.id === current.id;
                   const isSelected = selected === choice.id;
-                  const isTimeout = selected === "__timeout__";
                   let style =
                     "bg-white border-2 border-slate-200 text-slate-700 hover:border-blue-300 hover:bg-blue-50";
                   if (selected) {
@@ -605,7 +599,7 @@ function ScrambleGame({
     setScrambled(buildScramble(current.front));
     setAnswer([]);
     setResult(null);
-  }, [index]);
+  }, [current]);
 
   const speak = (text: string) => {
     window.speechSynthesis.cancel();
@@ -875,7 +869,7 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
     setCardsLoading(true);
     const { data } = await supabase
       .from("vocabulary_cards")
-      .select("id, front, back, image_url")
+      .select("id, set_id, front, back, ipa, image_url, order_index")
       .eq("set_id", set.id)
       .order("order_index");
     setCards(data || []);

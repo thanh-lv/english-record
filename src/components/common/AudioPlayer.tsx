@@ -25,7 +25,7 @@ export function AudioPlayer({
     if (audioRef.current) {
       audioRef.current.playbackRate = playbackRate;
     }
-  }, [src]);
+  }, [src, playbackRate]);
 
   const togglePlay = (e: React.MouseEvent) => {
     e.preventDefault();

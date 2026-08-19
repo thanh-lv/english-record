@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 export function calculateStreak(records: any[]): number {
   if (!records || records.length === 0) return 0;
 
@@ -8,7 +6,6 @@ export function calculateStreak(records: any[]): number {
   records.forEach((rec) => {
     if (rec.created_at) {
       const d = new Date(rec.created_at);
-      // We can use local date strings or UTC. Let's use local string to be intuitive.
       const dateStr = d.toLocaleDateString("en-CA"); // YYYY-MM-DD format
       datesSet.add(dateStr);
     }
@@ -45,36 +42,4 @@ export function calculateStreak(records: any[]): number {
   }
 
   return streak;
-}
-
-export function formatClassName(
-  className?: string | null,
-  unassignedText: string = "Chưa phân lớp",
-  classPrefix: string = "Lớp ",
-): string {
-  if (!className || className.trim() === "") return unassignedText;
-  const trimmed = className.trim();
-  if (
-    trimmed === unassignedText ||
-    trimmed.toLowerCase() === "all" ||
-    trimmed.toLowerCase() === "tất cả lớp" ||
-    trimmed.toLowerCase() === "tất cả các lớp"
-  ) {
-    return trimmed;
-  }
-  if (/^(lớp|khối|class|grade)\s+/i.test(trimmed)) {
-    return trimmed;
-  }
-  return `${classPrefix}${trimmed}`;
-}
-
-export function useBodyScrollLock(isLocked: boolean) {
-  useEffect(() => {
-    if (!isLocked) return;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isLocked]);
 }

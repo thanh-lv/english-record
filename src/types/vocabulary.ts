@@ -3,7 +3,7 @@ export interface VocabSet {
   title: string;
   emoji: string;
   grades?: number[];
-  created_at: string;
+  created_at?: string;
   card_count?: number;
 }
 
@@ -12,8 +12,8 @@ export interface VocabCard {
   set_id: string;
   front: string;
   back: string;
-  ipa: string | null;
-  image_url: string | null;
+  ipa?: string | null;
+  image_url?: string | null;
   order_index: number;
-  created_at: string;
+  created_at?: string;
 }

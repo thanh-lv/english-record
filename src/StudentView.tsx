@@ -35,7 +35,6 @@ export default function StudentView({
     topicsLoading,
     myRecordings,
     setMyRecordings,
-    completedNumbers,
     setCompletedNumbers,
     dbStories,
     streak,

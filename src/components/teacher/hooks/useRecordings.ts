@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useLanguage } from "../../../i18n/LanguageContext";
 
@@ -27,7 +27,7 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
   const onNewRecordingRef = useRef(options?.onNewRecording);
   onNewRecordingRef.current = options?.onNewRecording;
 
-  const fetchSummaries = async () => {
+  const fetchSummaries = useCallback(async () => {
     try {
       // Try querying Database View first for pre-aggregated stats
       const viewRes = await supabase
@@ -93,7 +93,7 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t.common.loadRecordingsError]);
 
   useEffect(() => {
     if (!user) return;
@@ -118,12 +118,12 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
           }
         },
       )
-      .subscribe((status) => {});
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, fetchSummaries]);
 
   const confirmDelete = async (e: React.MouseEvent) => {
     e.preventDefault();

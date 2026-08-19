@@ -35,7 +35,6 @@ export function VocabSetCard({
   onDeleteCard,
 }: VocabSetCardProps) {
   const vm = t.vocabManager;
-  const tc = t.common;
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden group hover:border-blue-300">
