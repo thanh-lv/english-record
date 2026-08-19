@@ -9,9 +9,9 @@ import {
   Sparkles,
   Eye,
   EyeOff,
-} from "lucide-react";
-import { Topic, Question } from "../../../types";
-import { Translations, interpolate } from "../../../i18n/LanguageContext";
+} from 'lucide-react';
+import { Topic, Question } from '../../../types';
+import { Translations, interpolate } from '../../../i18n/LanguageContext';
 
 interface TopicItemProps {
   t: Translations;
@@ -70,8 +70,8 @@ export function TopicItem({
               autoFocus
               value={editTopicTitle}
               maxLength={100}
-              onChange={(e) => onEditTopicTitleChange(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && onSaveEdit(topic.id)}
+              onChange={e => onEditTopicTitleChange(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && onSaveEdit(topic.id)}
               className="flex-1 px-3.5 py-2 rounded-xl border border-blue-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
             />
             <button
@@ -103,13 +103,13 @@ export function TopicItem({
               onClick={() => onEditTopicGradesChange([])}
               className={`px-2.5 py-1 rounded-xl text-[10px] font-black border transition-all ${
                 editTopicGrades.length === 0
-                  ? "bg-indigo-600 text-white border-indigo-700 shadow-2xs"
-                  : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
+                  ? 'bg-indigo-600 text-white border-indigo-700 shadow-2xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border-slate-200'
               }`}
             >
               {t.teacherModal.allGradesOption}
             </button>
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => {
+            {Array.from({ length: 12 }, (_, i) => i + 1).map(g => {
               const isSelected = editTopicGrades.includes(g);
               return (
                 <button
@@ -118,14 +118,14 @@ export function TopicItem({
                   onClick={() => {
                     onEditTopicGradesChange(
                       isSelected
-                        ? editTopicGrades.filter((x) => x !== g)
-                        : [...editTopicGrades, g].sort((a, b) => a - b),
+                        ? editTopicGrades.filter(x => x !== g)
+                        : [...editTopicGrades, g].sort((a, b) => a - b)
                     );
                   }}
                   className={`px-2.5 py-1 rounded-xl text-[10px] font-black border transition-all ${
                     isSelected
-                      ? "bg-indigo-600 text-white border-indigo-700 shadow-2xs"
-                      : "bg-white text-slate-600 hover:bg-slate-100 border-slate-200"
+                      ? 'bg-indigo-600 text-white border-indigo-700 shadow-2xs'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border-slate-200'
                   }`}
                 >
                   {interpolate(t.common.gradeLabel, { grade: g })}
@@ -148,16 +148,14 @@ export function TopicItem({
             {idx + 1}
           </span>
           <div className="flex-1 min-w-0 flex items-center gap-2 truncate">
-            <span className="font-black text-slate-800 text-sm truncate">
-              {topic.title}
-            </span>
+            <span className="font-black text-slate-800 text-sm truncate">{topic.title}</span>
             {Array.isArray(topic.grades) && topic.grades.length > 0 ? (
               <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200/70 shrink-0">
                 {interpolate(t.common.gradeLabel, {
                   grade: topic.grades
                     .slice()
                     .sort((a: number, b: number) => a - b)
-                    .join(", "),
+                    .join(', '),
                 })}
               </span>
             ) : (
@@ -169,31 +167,24 @@ export function TopicItem({
           <span className="text-xs text-slate-400 font-bold px-2 py-0.5 rounded-lg bg-slate-50 border border-slate-100 shrink-0">
             {topic.questions.length} {t.common.questionCount}
           </span>
-          <div
-            className="flex gap-1.5 shrink-0 items-center"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="flex gap-1.5 shrink-0 items-center" onClick={e => e.stopPropagation()}>
             <button
               type="button"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 onToggleActive(topic.id, topic.is_active ?? true);
               }}
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black border transition-all active:scale-95 ${
                 (topic.is_active ?? true)
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100"
-                  : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100'
+                  : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
               }`}
             >
-              {(topic.is_active ?? true) ? (
-                <Eye size={12} />
-              ) : (
-                <EyeOff size={12} />
-              )}
+              {(topic.is_active ?? true) ? <Eye size={12} /> : <EyeOff size={12} />}
               <span>
                 {(topic.is_active ?? true)
-                  ? t.teacherModal.topicStatusActive || "Đang hiện"
-                  : t.teacherModal.topicStatusHidden || "Đã ẩn"}
+                  ? t.teacherModal.topicStatusActive || 'Đang hiện'
+                  : t.teacherModal.topicStatusHidden || 'Đã ẩn'}
               </span>
             </button>
             <button
@@ -219,18 +210,13 @@ export function TopicItem({
       {/* Questions List */}
       {isExpanded && (
         <div className="border-t border-slate-100 bg-slate-50/30 p-2 space-y-2">
-          {topic.questions.map((q) => (
-            <div
-              key={q.id}
-              className="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs"
-            >
+          {topic.questions.map(q => (
+            <div key={q.id} className="p-3 bg-white rounded-xl border border-slate-100 shadow-2xs">
               <div className="flex items-start gap-2.5 group">
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-slate-800">{q.text}</p>
                   {q.translation && (
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      {q.translation}
-                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{q.translation}</p>
                   )}
                   {q.sample_answer && (
                     <p className="text-[11px] text-emerald-600 mt-0.5 italic font-medium">
@@ -238,9 +224,7 @@ export function TopicItem({
                     </p>
                   )}
                   {q.target && (
-                    <p className="text-[11px] text-purple-600 mt-0.5 font-bold">
-                      🎯 {q.target}
-                    </p>
+                    <p className="text-[11px] text-purple-600 mt-0.5 font-bold">🎯 {q.target}</p>
                   )}
                 </div>
                 {q.image_url && (

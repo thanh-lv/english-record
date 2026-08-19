@@ -28,7 +28,7 @@ describe('LanguageContext and interpolate', () => {
           greeting: 'Hi',
           name: 'Alice',
           count: 5,
-        }),
+        })
       ).toBe('Hi, Alice! You have 5 messages.');
     });
 

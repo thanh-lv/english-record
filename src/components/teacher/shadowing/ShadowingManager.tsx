@@ -12,16 +12,12 @@ import {
   Trash2,
   Youtube,
   X,
-} from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { supabase } from "../../../lib/supabase";
-import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
-import {
-  validateShadowingVideo,
-  validateGrades,
-  sanitizeText,
-} from "../../../utils/validators";
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { supabase } from '../../../lib/supabase';
+import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
+import { validateShadowingVideo, validateGrades, sanitizeText } from '../../../utils/validators';
 
 export function ShadowingManager() {
   const { t } = useLanguage();
@@ -30,41 +26,40 @@ export function ShadowingManager() {
   const [showCreate, setShowCreate] = useState(false);
   const [editingVideo, setEditingVideo] = useState<any>(null);
 
-  const [title, setTitle] = useState("");
-  const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [previewStart, setPreviewStart] = useState("");
-  const [previewEnd, setPreviewEnd] = useState("");
-  const [recordStart, setRecordStart] = useState("");
-  const [recordEnd, setRecordEnd] = useState("");
+  const [title, setTitle] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [previewStart, setPreviewStart] = useState('');
+  const [previewEnd, setPreviewEnd] = useState('');
+  const [recordStart, setRecordStart] = useState('');
+  const [recordEnd, setRecordEnd] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
-  const [deleteError, setDeleteError] = useState("");
+  const [deleteError, setDeleteError] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedGrades, setSelectedGrades] = useState<number[]>([]);
-  const [filterGrade, setFilterGrade] = useState<string>("all");
+  const [filterGrade, setFilterGrade] = useState<string>('all');
 
   useEffect(() => {
     fetchVideos();
   }, []);
 
   const formatTime = (seconds: number | null | undefined): string => {
-    if (seconds === null || seconds === undefined || isNaN(Number(seconds)))
-      return "";
+    if (seconds === null || seconds === undefined || isNaN(Number(seconds))) return '';
     const m = Math.floor(Number(seconds) / 60);
     const s = Math.floor(Number(seconds) % 60);
-    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   const parseTime = (timeStr: string): number | null => {
     if (!timeStr || !timeStr.trim()) return null;
-    if (!timeStr.includes(":")) {
+    if (!timeStr.includes(':')) {
       const val = Number(timeStr);
       return isNaN(val) ? null : val;
     }
-    const parts = timeStr.split(":");
+    const parts = timeStr.split(':');
     const m = parseInt(parts[0], 10) || 0;
     const s = parseInt(parts[1], 10) || 0;
     return m * 60 + s;
@@ -73,9 +68,9 @@ export function ShadowingManager() {
   const fetchVideos = async () => {
     try {
       const { data, error } = await supabase
-        .from("shadowing_videos")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .from('shadowing_videos')
+        .select('*')
+        .order('created_at', { ascending: false });
       if (error) throw error;
       setVideos(data || []);
     } catch (err: any) {
@@ -86,8 +81,7 @@ export function ShadowingManager() {
   };
 
   const extractYoutubeId = (url: string) => {
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return match && match[2].length === 11 ? match[2] : null;
   };
@@ -98,15 +92,15 @@ export function ShadowingManager() {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(url);
       } else {
-        const textArea = document.createElement("textarea");
+        const textArea = document.createElement('textarea');
         textArea.value = url;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-999999px";
-        textArea.style.top = "-999999px";
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        document.execCommand("copy");
+        document.execCommand('copy');
         textArea.remove();
       }
       setCopiedId(videoId);
@@ -114,7 +108,7 @@ export function ShadowingManager() {
         setCopiedId(null);
       }, 2000);
     } catch (err) {
-      console.error("Failed to copy link", err);
+      console.error('Failed to copy link', err);
     }
   };
 
@@ -137,14 +131,13 @@ export function ShadowingManager() {
         record_end: parsedRecordEnd,
       },
       {
-        titleRequired:
-          t.teacherModal.videoTitleRequired || t.common.videoTitleMin,
+        titleRequired: t.teacherModal.videoTitleRequired || t.common.videoTitleMin,
         titleMax: t.common.videoTitleMax,
         urlInvalid: t.teacherModal.videoUrlRequired,
         previewRangeInvalid: t.common.previewRangeInvalid,
         recordRangeInvalid: t.common.recordRangeInvalid,
         negativeTime: t.common.timeNegative,
-      },
+      }
     );
 
     if (!validation.isValid) {
@@ -154,12 +147,12 @@ export function ShadowingManager() {
 
     const gradesVal = validateGrades(selectedGrades);
     if (!gradesVal.isValid) {
-      setError(gradesVal.error || "Khối lớp không hợp lệ");
+      setError(gradesVal.error || 'Khối lớp không hợp lệ');
       return;
     }
 
     setIsSaving(true);
-    setError("");
+    setError('');
     try {
       const payload: any = {
         title: cleanTitle,
@@ -173,38 +166,30 @@ export function ShadowingManager() {
 
       if (editingVideo) {
         let res = await supabase
-          .from("shadowing_videos")
+          .from('shadowing_videos')
           .update(payload)
-          .eq("id", editingVideo.id)
+          .eq('id', editingVideo.id)
           .select()
           .single();
 
-        if (res.error && res.error.message?.includes("grades")) {
+        if (res.error && res.error.message?.includes('grades')) {
           delete payload.grades;
           res = await supabase
-            .from("shadowing_videos")
+            .from('shadowing_videos')
             .update(payload)
-            .eq("id", editingVideo.id)
+            .eq('id', editingVideo.id)
             .select()
             .single();
         }
 
         if (res.error) throw res.error;
-        setVideos(videos.map((v) => (v.id === editingVideo.id ? res.data : v)));
+        setVideos(videos.map(v => (v.id === editingVideo.id ? res.data : v)));
       } else {
-        let res = await supabase
-          .from("shadowing_videos")
-          .insert(payload)
-          .select()
-          .single();
+        let res = await supabase.from('shadowing_videos').insert(payload).select().single();
 
-        if (res.error && res.error.message?.includes("grades")) {
+        if (res.error && res.error.message?.includes('grades')) {
           delete payload.grades;
-          res = await supabase
-            .from("shadowing_videos")
-            .insert(payload)
-            .select()
-            .single();
+          res = await supabase.from('shadowing_videos').insert(payload).select().single();
         }
 
         if (res.error) throw res.error;
@@ -213,12 +198,12 @@ export function ShadowingManager() {
 
       setShowCreate(false);
       setEditingVideo(null);
-      setTitle("");
-      setYoutubeUrl("");
-      setPreviewStart("");
-      setPreviewEnd("");
-      setRecordStart("");
-      setRecordEnd("");
+      setTitle('');
+      setYoutubeUrl('');
+      setPreviewStart('');
+      setPreviewEnd('');
+      setRecordStart('');
+      setRecordEnd('');
       setSelectedGrades([]);
     } catch (err: any) {
       setError(err.message);
@@ -237,30 +222,22 @@ export function ShadowingManager() {
     setRecordEnd(formatTime(video.record_end));
     setSelectedGrades(Array.isArray(video.grades) ? video.grades : []);
     setShowCreate(true);
-    setError("");
+    setError('');
   };
 
   const toggleActive = async (id: string, currentValue: boolean) => {
-    await supabase
-      .from("shadowing_videos")
-      .update({ is_active: !currentValue })
-      .eq("id", id);
-    setVideos((prev) =>
-      prev.map((v) => (v.id === id ? { ...v, is_active: !currentValue } : v)),
-    );
+    await supabase.from('shadowing_videos').update({ is_active: !currentValue }).eq('id', id);
+    setVideos(prev => prev.map(v => (v.id === id ? { ...v, is_active: !currentValue } : v)));
   };
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     setDeleteSaving(true);
-    setDeleteError("");
+    setDeleteError('');
     try {
-      const { error } = await supabase
-        .from("shadowing_videos")
-        .delete()
-        .eq("id", deleteTarget.id);
+      const { error } = await supabase.from('shadowing_videos').delete().eq('id', deleteTarget.id);
       if (error) throw error;
-      setVideos(videos.filter((v) => v.id !== deleteTarget.id));
+      setVideos(videos.filter(v => v.id !== deleteTarget.id));
       setDeleteTarget(null);
     } catch (err: any) {
       setDeleteError(err.message);
@@ -269,10 +246,8 @@ export function ShadowingManager() {
     }
   };
 
-  const [searchText, setSearchText] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "hidden">(
-    "all",
-  );
+  const [searchText, setSearchText] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'hidden'>('all');
 
   if (loading)
     return (
@@ -281,10 +256,10 @@ export function ShadowingManager() {
       </div>
     );
 
-  const filteredVideos = videos.filter((v) => {
+  const filteredVideos = videos.filter(v => {
     // Grade filter
-    if (filterGrade !== "all") {
-      if (filterGrade === "unassigned") {
+    if (filterGrade !== 'all') {
+      if (filterGrade === 'unassigned') {
         if (v.grades && v.grades.length > 0) return false;
       } else {
         const gNum = Number(filterGrade);
@@ -294,8 +269,8 @@ export function ShadowingManager() {
 
     // Status filter
     const isActive = v.is_active ?? true;
-    if (filterStatus === "active" && !isActive) return false;
-    if (filterStatus === "hidden" && isActive) return false;
+    if (filterStatus === 'active' && !isActive) return false;
+    if (filterStatus === 'hidden' && isActive) return false;
 
     // Search filter
     if (searchText.trim()) {
@@ -325,23 +300,18 @@ export function ShadowingManager() {
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Search bar */}
           <div className="relative min-w-[180px] sm:min-w-[220px]">
-            <Search
-              size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder={
-                t.teacherModal.searchShadowingPlaceholder || "Tìm kiếm video..."
-              }
+              onChange={e => setSearchText(e.target.value)}
+              placeholder={t.teacherModal.searchShadowingPlaceholder || 'Tìm kiếm video...'}
               className="w-full pl-9 pr-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs"
             />
             {searchText && (
               <button
                 type="button"
-                onClick={() => setSearchText("")}
+                onClick={() => setSearchText('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 <X size={13} />
@@ -352,33 +322,31 @@ export function ShadowingManager() {
           {/* Grade filter */}
           <select
             value={filterGrade}
-            onChange={(e) => setFilterGrade(e.target.value)}
+            onChange={e => setFilterGrade(e.target.value)}
             className="px-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs cursor-pointer"
           >
             <option value="all">{t.teacherModal.allGradesOption}</option>
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+            {Array.from({ length: 12 }, (_, i) => i + 1).map(g => (
               <option key={g} value={g.toString()}>
                 {interpolate(t.common.gradeLabel, { grade: g })}
               </option>
             ))}
-            <option value="unassigned">
-              {t.teacherModal.allGradesOption} (Mặc định)
-            </option>
+            <option value="unassigned">{t.teacherModal.allGradesOption} (Mặc định)</option>
           </select>
 
           {/* Add video button */}
           <button
             onClick={() => {
               setEditingVideo(null);
-              setTitle("");
-              setYoutubeUrl("");
-              setPreviewStart("");
-              setPreviewEnd("");
-              setRecordStart("");
-              setRecordEnd("");
+              setTitle('');
+              setYoutubeUrl('');
+              setPreviewStart('');
+              setPreviewEnd('');
+              setRecordStart('');
+              setRecordEnd('');
               setSelectedGrades([]);
               setShowCreate(true);
-              setError("");
+              setError('');
             }}
             className="bg-[#1E88E5] hover:bg-[#1565C0] text-white px-4 py-2 rounded-xl font-black flex items-center gap-2 transition-all shadow-xs text-xs active:scale-95 shrink-0"
           >
@@ -389,11 +357,9 @@ export function ShadowingManager() {
 
       {/* Video Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-        {filteredVideos.map((video) => {
+        {filteredVideos.map(video => {
           const ytId = extractYoutubeId(video.youtube_url);
-          const thumb = ytId
-            ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
-            : "";
+          const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
           const isActive = video.is_active ?? true;
 
           return (
@@ -421,10 +387,7 @@ export function ShadowingManager() {
                 {/* Center Hover Play Icon */}
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition-colors flex items-center justify-center pointer-events-none z-0">
                   <div className="w-10 h-10 rounded-full bg-white/95 text-slate-800 shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200">
-                    <Play
-                      size={16}
-                      className="fill-slate-800 ml-0.5 text-slate-800"
-                    />
+                    <Play size={16} className="fill-slate-800 ml-0.5 text-slate-800" />
                   </div>
                 </div>
 
@@ -436,7 +399,7 @@ export function ShadowingManager() {
                         grade: video.grades
                           .slice()
                           .sort((a: number, b: number) => a - b)
-                          .join(", "),
+                          .join(', '),
                       })}
                     </span>
                   ) : (
@@ -450,16 +413,16 @@ export function ShadowingManager() {
                 <div className="absolute top-2.5 right-2.5 z-10">
                   <button
                     type="button"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       toggleActive(video.id, isActive);
                     }}
                     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black backdrop-blur-md border shadow-xs transition-all active:scale-95 ${
                       isActive
-                        ? "bg-emerald-500/90 text-white border-emerald-400/50 hover:bg-emerald-600"
-                        : "bg-slate-800/85 text-slate-200 border-slate-700/60 hover:bg-slate-900"
+                        ? 'bg-emerald-500/90 text-white border-emerald-400/50 hover:bg-emerald-600'
+                        : 'bg-slate-800/85 text-slate-200 border-slate-700/60 hover:bg-slate-900'
                     }`}
-                    title={isActive ? "Bấm để ẩn video" : "Bấm để hiện video"}
+                    title={isActive ? 'Bấm để ẩn video' : 'Bấm để hiện video'}
                   >
                     {isActive ? <Eye size={12} /> : <EyeOff size={12} />}
                     <span>
@@ -485,14 +448,14 @@ export function ShadowingManager() {
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400">👁️ Preview:</span>
                     <span className="text-slate-700 font-black">
-                      {formatTime(video.preview_start) || "00:00"} -{" "}
+                      {formatTime(video.preview_start) || '00:00'} -{' '}
                       {formatTime(video.preview_end) || t.common.end}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400">🎙️ Record:</span>
                     <span className="text-slate-700 font-black">
-                      {formatTime(video.record_start) || "00:00"} -{" "}
+                      {formatTime(video.record_start) || '00:00'} -{' '}
                       {formatTime(video.record_end) || t.common.end}
                     </span>
                   </div>
@@ -511,24 +474,20 @@ export function ShadowingManager() {
                     onClick={() => handleCopyLink(video.id)}
                     className={`px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 border shadow-2xs ${
                       copiedId === video.id
-                        ? "bg-emerald-100 text-emerald-700 border-emerald-300"
-                        : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-100"
+                        ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                        : 'bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-100'
                     }`}
                     title={t.common.copyLink}
                   >
                     {copiedId === video.id ? (
                       <>
                         <Check size={13} className="text-emerald-600" />
-                        <span className="hidden sm:inline">
-                          {t.common.linkCopied}
-                        </span>
+                        <span className="hidden sm:inline">{t.common.linkCopied}</span>
                       </>
                     ) : (
                       <>
                         <Copy size={13} />
-                        <span className="hidden sm:inline">
-                          {t.common.copyLink}
-                        </span>
+                        <span className="hidden sm:inline">{t.common.copyLink}</span>
                       </>
                     )}
                   </button>
@@ -559,10 +518,8 @@ export function ShadowingManager() {
           <div className="bg-white rounded-lg w-full max-w-md shadow-md p-6 space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h4 className="font-black text-xl text-slate-800 flex items-center gap-2">
-                <Youtube className="text-rose-600" />{" "}
-                {editingVideo
-                  ? t.teacherModal.editVideoTitle
-                  : t.teacherModal.addVideoTitle}
+                <Youtube className="text-rose-600" />{' '}
+                {editingVideo ? t.teacherModal.editVideoTitle : t.teacherModal.addVideoTitle}
               </h4>
               <button
                 onClick={() => setShowCreate(false)}
@@ -579,7 +536,7 @@ export function ShadowingManager() {
                 <input
                   value={title}
                   maxLength={150}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={e => setTitle(e.target.value)}
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                 />
               </div>
@@ -590,7 +547,7 @@ export function ShadowingManager() {
                 <input
                   value={youtubeUrl}
                   maxLength={300}
-                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  onChange={e => setYoutubeUrl(e.target.value)}
                   placeholder={t.teacherModal.videoUrlPlaceholder}
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                 />
@@ -605,7 +562,7 @@ export function ShadowingManager() {
                     type="text"
                     placeholder="00:00"
                     value={previewStart}
-                    onChange={(e) => setPreviewStart(e.target.value)}
+                    onChange={e => setPreviewStart(e.target.value)}
                     className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                   />
                 </div>
@@ -617,7 +574,7 @@ export function ShadowingManager() {
                     type="text"
                     placeholder="00:00"
                     value={previewEnd}
-                    onChange={(e) => setPreviewEnd(e.target.value)}
+                    onChange={e => setPreviewEnd(e.target.value)}
                     className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                   />
                 </div>
@@ -632,7 +589,7 @@ export function ShadowingManager() {
                     type="text"
                     placeholder="00:00"
                     value={recordStart}
-                    onChange={(e) => setRecordStart(e.target.value)}
+                    onChange={e => setRecordStart(e.target.value)}
                     className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                   />
                 </div>
@@ -644,7 +601,7 @@ export function ShadowingManager() {
                     type="text"
                     placeholder="00:00"
                     value={recordEnd}
-                    onChange={(e) => setRecordEnd(e.target.value)}
+                    onChange={e => setRecordEnd(e.target.value)}
                     className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                   />
                 </div>
@@ -660,29 +617,29 @@ export function ShadowingManager() {
                     onClick={() => setSelectedGrades([])}
                     className={`px-3 py-1 rounded-lg text-xs font-black border transition-all ${
                       selectedGrades.length === 0
-                        ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200"
+                        ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200'
                     }`}
                   >
                     {t.teacherModal.allGradesOption}
                   </button>
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => {
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map(g => {
                     const isSelected = selectedGrades.includes(g);
                     return (
                       <button
                         key={g}
                         type="button"
                         onClick={() => {
-                          setSelectedGrades((prev) =>
+                          setSelectedGrades(prev =>
                             isSelected
-                              ? prev.filter((x) => x !== g)
-                              : [...prev, g].sort((a, b) => a - b),
+                              ? prev.filter(x => x !== g)
+                              : [...prev, g].sort((a, b) => a - b)
                           );
                         }}
                         className={`px-2.5 py-1 rounded-lg text-xs font-black border transition-all ${
                           isSelected
-                            ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200"
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200'
                         }`}
                       >
                         {interpolate(t.common.gradeLabel, { grade: g })}
@@ -727,7 +684,7 @@ export function ShadowingManager() {
 
       {deleteTarget && (
         <DeleteConfirmModal
-          title={t.common.deleteVideoConfirm || "Xác nhận xóa video?"}
+          title={t.common.deleteVideoConfirm || 'Xác nhận xóa video?'}
           description={`"${deleteTarget.title}"`}
           saving={deleteSaving}
           error={deleteError}

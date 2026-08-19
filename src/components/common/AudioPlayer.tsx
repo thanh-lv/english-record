@@ -1,14 +1,8 @@
-import { AlertCircle, Pause, Play } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
+import { AlertCircle, Pause, Play } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
-export function AudioPlayer({
-  src,
-  compact,
-}: {
-  src: string;
-  compact?: boolean;
-}) {
+export function AudioPlayer({ src, compact }: { src: string; compact?: boolean }) {
   const { t } = useLanguage();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -34,12 +28,12 @@ export function AudioPlayer({
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      document.querySelectorAll("audio").forEach((el) => {
+      document.querySelectorAll('audio').forEach(el => {
         if (el !== audioRef.current) el.pause();
       });
       setPlayError(false);
-      audioRef.current.play().catch((err) => {
-        console.error("Lỗi phát âm thanh:", err);
+      audioRef.current.play().catch(err => {
+        console.error('Lỗi phát âm thanh:', err);
         setPlayError(true);
       });
     }
@@ -64,10 +58,10 @@ export function AudioPlayer({
   };
 
   const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00";
+    if (isNaN(time)) return '0:00';
     const m = Math.floor(time / 60);
     const s = Math.floor(time % 60);
-    return `${m}:${s < 10 ? "0" : ""}${s}`;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
   if (playError) {
@@ -77,7 +71,7 @@ export function AudioPlayer({
         <span className="flex-1">{t.common.audioPlayError}</span>
         <button
           type="button"
-          onClick={(e) => {
+          onClick={e => {
             e.preventDefault();
             e.stopPropagation();
             setPlayError(false);
@@ -99,9 +93,7 @@ export function AudioPlayer({
           src={src}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
-          onTimeUpdate={() =>
-            setCurrentTime(audioRef.current?.currentTime || 0)
-          }
+          onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
           onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
           onEnded={() => setIsPlaying(false)}
           onError={() => setPlayError(true)}
@@ -111,23 +103,15 @@ export function AudioPlayer({
           onClick={togglePlay}
           aria-label={isPlaying ? t.common.pause : t.common.play}
           className={`w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-white transition-all shadow-md active:scale-95 ${
-            isPlaying
-              ? "bg-amber-400 hover:bg-amber-500"
-              : "bg-[#1E88E5] hover:bg-blue-700"
+            isPlaying ? 'bg-amber-400 hover:bg-amber-500' : 'bg-[#1E88E5] hover:bg-blue-700'
           }`}
         >
-          {isPlaying ? (
-            <Pause size={12} />
-          ) : (
-            <Play size={12} className="ml-0.5" />
-          )}
+          {isPlaying ? <Pause size={12} /> : <Play size={12} className="ml-0.5" />}
         </button>
         <span className="text-[10px] font-bold text-slate-400 tabular-nums">
           {isPlaying ? formatTime(currentTime) : formatTime(duration)}
         </span>
-        {playError && (
-          <AlertCircle size={12} className="text-rose-500 shrink-0" />
-        )}
+        {playError && <AlertCircle size={12} className="text-rose-500 shrink-0" />}
       </div>
     );
   }
@@ -150,8 +134,8 @@ export function AudioPlayer({
         aria-label={isPlaying ? t.common.pause : t.common.play}
         className={`w-11 h-11 shrink-0 rounded-lg flex items-center justify-center text-white transition-all shadow-md active:scale-95 border-b-4 ${
           isPlaying
-            ? "bg-[#FFB74D] border-orange-800 hover:bg-[#FFA726]"
-            : "bg-[#1E88E5] border-blue-800 hover:bg-blue-700"
+            ? 'bg-[#FFB74D] border-orange-800 hover:bg-[#FFA726]'
+            : 'bg-[#1E88E5] border-blue-800 hover:bg-blue-700'
         }`}
       >
         {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-1" />}
@@ -176,12 +160,12 @@ export function AudioPlayer({
         onClick={changeSpeed}
         className={`shrink-0 font-black text-xs px-2.5 py-1.5 rounded-lg transition-all active:scale-95 border-b-2 min-w-[42px] text-center ${
           playbackRate === 1
-            ? "bg-slate-100 border-slate-300 text-slate-500 hover:bg-slate-200"
+            ? 'bg-slate-100 border-slate-300 text-slate-500 hover:bg-slate-200'
             : playbackRate === 1.25
-              ? "bg-blue-100 border-blue-300 text-blue-600"
+              ? 'bg-blue-100 border-blue-300 text-blue-600'
               : playbackRate === 1.5
-                ? "bg-amber-100 border-amber-300 text-amber-600"
-                : "bg-rose-100 border-rose-300 text-rose-600"
+                ? 'bg-amber-100 border-amber-300 text-amber-600'
+                : 'bg-rose-100 border-rose-300 text-rose-600'
         }`}
         title={t.common.changeSpeed}
         aria-label={`${t.common.changeSpeed}: ${playbackRate}x`}

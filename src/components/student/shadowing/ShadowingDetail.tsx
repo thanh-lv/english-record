@@ -11,15 +11,15 @@ import {
   RotateCcw,
   Check,
   Clock,
-} from "lucide-react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { useNavigate, useParams } from "react-router-dom";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { supabase } from "../../../lib/supabase";
-import { useRecording } from "../hooks/useRecording";
-import YouTubePlayer from "../../common/YouTubePlayer";
-import { TeacherFeedback } from "../../common/TeacherFeedback";
+} from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { supabase } from '../../../lib/supabase';
+import { useRecording } from '../hooks/useRecording';
+import YouTubePlayer from '../../common/YouTubePlayer';
+import { TeacherFeedback } from '../../common/TeacherFeedback';
 
 interface ShadowingDetailProps {
   user: any;
@@ -53,9 +53,9 @@ export function ShadowingDetail({
 
       try {
         const { data, error } = await supabase
-          .from("shadowing_videos")
-          .select("*")
-          .eq("id", videoId)
+          .from('shadowing_videos')
+          .select('*')
+          .eq('id', videoId)
           .maybeSingle();
 
         if (error) throw error;
@@ -87,7 +87,7 @@ export function ShadowingDetail({
     currentTopic: video ? { id: video.id, title: video.title } : null,
     activeQuestionIndex: 0,
     shadowingVideoId: video?.id ?? null,
-    onSaveSuccess: (saved) => {
+    onSaveSuccess: saved => {
       onSaveSuccess(saved);
       setShowSuccessModal(true);
     },
@@ -97,7 +97,7 @@ export function ShadowingDetail({
   const recordedBlob = shadowingRecording.bongBeAudios[0] ?? null;
   const audioUrl = useMemo(
     () => (recordedBlob ? URL.createObjectURL(recordedBlob) : null),
-    [recordedBlob],
+    [recordedBlob]
   );
 
   const videoRecordings = useMemo(() => {
@@ -105,8 +105,7 @@ export function ShadowingDetail({
     return myRecordings
       .filter((r: any) => r.shadowing_video_id === videoId)
       .sort(
-        (a: any, b: any) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
   }, [videoId, myRecordings]);
 
@@ -152,7 +151,7 @@ export function ShadowingDetail({
         }
       }, 500);
     } catch (error) {
-      console.warn("YouTube player action failed", error);
+      console.warn('YouTube player action failed', error);
     }
 
     return () => {
@@ -186,8 +185,7 @@ export function ShadowingDetail({
             const currentTime = await player.getCurrentTime();
             if (currentTime >= recEnd) {
               player.pauseVideo();
-              if (playIntervalRef.current)
-                clearInterval(playIntervalRef.current);
+              if (playIntervalRef.current) clearInterval(playIntervalRef.current);
               shadowingRecording.stopRecording();
             }
           } catch (err) {}
@@ -197,7 +195,7 @@ export function ShadowingDetail({
         player.pauseVideo();
       }
     } catch (error) {
-      console.warn("YouTube player action failed", error);
+      console.warn('YouTube player action failed', error);
     }
 
     return () => {
@@ -218,26 +216,26 @@ export function ShadowingDetail({
     try {
       player.pauseVideo();
     } catch (error) {
-      console.warn("YouTube player action failed", error);
+      console.warn('YouTube player action failed', error);
     }
   }, [currentStep, player]);
 
   const onPlayerReady = (event: any) => {
     setPlayer(event.target);
     try {
-      event.target.setOption("captions", "track", {});
-      event.target.unloadModule("captions");
-      event.target.unloadModule("cc");
+      event.target.setOption('captions', 'track', {});
+      event.target.unloadModule('captions');
+      event.target.unloadModule('cc');
     } catch (e) {
-      console.warn("Could not unload captions module", e);
+      console.warn('Could not unload captions module', e);
     }
   };
 
   const onPlayerStateChange = (event: any) => {
     try {
-      event.target.setOption("captions", "track", {});
-      event.target.unloadModule("captions");
-      event.target.unloadModule("cc");
+      event.target.setOption('captions', 'track', {});
+      event.target.unloadModule('captions');
+      event.target.unloadModule('cc');
     } catch {
       // ignore caption module unload error
     }
@@ -249,9 +247,7 @@ export function ShadowingDetail({
         <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
           <div className="w-6 h-6 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
         </div>
-        <p className="text-xs font-bold text-slate-400">
-          Đang tải video bài học...
-        </p>
+        <p className="text-xs font-bold text-slate-400">Đang tải video bài học...</p>
       </div>
     );
   }
@@ -267,7 +263,7 @@ export function ShadowingDetail({
         </p>
         <button
           type="button"
-          onClick={() => navigate("/student/shadowing")}
+          onClick={() => navigate('/student/shadowing')}
           className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black hover:bg-indigo-700 active:scale-95 transition-all shadow-sm"
         >
           {t.common.close}
@@ -283,7 +279,7 @@ export function ShadowingDetail({
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <button
             type="button"
-            onClick={() => navigate("/student/shadowing")}
+            onClick={() => navigate('/student/shadowing')}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100/80 hover:bg-slate-200 text-slate-700 text-xs font-black transition-all active:scale-95 border border-slate-200/60 shadow-2xs shrink-0 cursor-pointer"
           >
             <ArrowLeft size={16} />
@@ -297,8 +293,7 @@ export function ShadowingDetail({
             {videoRecordings.length > 0 && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200/70 shrink-0">
                 <CheckCircle2 size={12} className="text-emerald-600" />
-                {t.shadowing.completedBadge || "Đã thu âm"} (
-                {videoRecordings.length})
+                {t.shadowing.completedBadge || 'Đã thu âm'} ({videoRecordings.length})
               </span>
             )}
           </div>
@@ -323,8 +318,7 @@ export function ShadowingDetail({
             <div
               className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500 rounded-full"
               style={{
-                width:
-                  currentStep === 1 ? "0%" : currentStep === 2 ? "50%" : "100%",
+                width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%',
               }}
             />
           </div>
@@ -338,17 +332,17 @@ export function ShadowingDetail({
             <div
               className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs sm:text-sm transition-all duration-300 ${
                 currentStep === 1
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30 scale-110 ring-4 ring-indigo-100"
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30 scale-110 ring-4 ring-indigo-100'
                   : currentStep > 1
-                    ? "bg-emerald-500 text-white shadow-2xs"
-                    : "bg-white border border-slate-200 text-slate-400"
+                    ? 'bg-emerald-500 text-white shadow-2xs'
+                    : 'bg-white border border-slate-200 text-slate-400'
               }`}
             >
               {currentStep > 1 ? <Check size={16} /> : 1}
             </div>
             <span
               className={`text-xs font-black transition-colors ${
-                currentStep === 1 ? "text-indigo-600" : "text-slate-500"
+                currentStep === 1 ? 'text-indigo-600' : 'text-slate-500'
               }`}
             >
               {t.shadowing.step1Title}
@@ -364,17 +358,17 @@ export function ShadowingDetail({
             <div
               className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs sm:text-sm transition-all duration-300 ${
                 currentStep === 2
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30 scale-110 ring-4 ring-indigo-100"
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30 scale-110 ring-4 ring-indigo-100'
                   : currentStep > 2
-                    ? "bg-emerald-500 text-white shadow-2xs"
-                    : "bg-white border border-slate-200 text-slate-400"
+                    ? 'bg-emerald-500 text-white shadow-2xs'
+                    : 'bg-white border border-slate-200 text-slate-400'
               }`}
             >
               {currentStep > 2 ? <Check size={16} /> : 2}
             </div>
             <span
               className={`text-xs font-black transition-colors ${
-                currentStep === 2 ? "text-indigo-600" : "text-slate-500"
+                currentStep === 2 ? 'text-indigo-600' : 'text-slate-500'
               }`}
             >
               {t.shadowing.step2Title}
@@ -386,20 +380,20 @@ export function ShadowingDetail({
             type="button"
             onClick={() => recordedBlob && setCurrentStep(3)}
             disabled={!recordedBlob}
-            className={`relative z-10 flex flex-col items-center gap-2 focus:outline-none flex-1 ${recordedBlob ? "cursor-pointer group" : "cursor-not-allowed opacity-60"}`}
+            className={`relative z-10 flex flex-col items-center gap-2 focus:outline-none flex-1 ${recordedBlob ? 'cursor-pointer group' : 'cursor-not-allowed opacity-60'}`}
           >
             <div
               className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs sm:text-sm transition-all duration-300 ${
                 currentStep === 3
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30 scale-110 ring-4 ring-indigo-100"
-                  : "bg-white border border-slate-200 text-slate-400"
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30 scale-110 ring-4 ring-indigo-100'
+                  : 'bg-white border border-slate-200 text-slate-400'
               }`}
             >
               3
             </div>
             <span
               className={`text-xs font-black transition-colors ${
-                currentStep === 3 ? "text-indigo-600" : "text-slate-500"
+                currentStep === 3 ? 'text-indigo-600' : 'text-slate-500'
               }`}
             >
               {t.shadowing.step3Title}
@@ -437,14 +431,11 @@ export function ShadowingDetail({
           {/* Error Alert */}
           {shadowingRecording.appError && (
             <div className="bg-rose-50 border border-rose-200 p-3.5 rounded-2xl flex items-start gap-2.5 relative text-xs font-bold text-rose-700 shadow-2xs animate-in fade-in">
-              <AlertCircle
-                size={16}
-                className="text-rose-500 shrink-0 mt-0.5"
-              />
+              <AlertCircle size={16} className="text-rose-500 shrink-0 mt-0.5" />
               <p className="pr-5">{shadowingRecording.appError}</p>
               <button
                 type="button"
-                onClick={() => shadowingRecording.setAppError("")}
+                onClick={() => shadowingRecording.setAppError('')}
                 className="absolute right-2.5 top-2.5 text-rose-400 hover:text-rose-600"
               >
                 <X size={14} />
@@ -476,8 +467,7 @@ export function ShadowingDetail({
                   }}
                   className="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-95 text-white font-black rounded-2xl shadow-md shadow-emerald-500/20 transition-all text-sm flex items-center justify-center gap-2"
                 >
-                  <Play size={18} fill="currentColor" />{" "}
-                  {t.shadowing.practiceListen}
+                  <Play size={18} fill="currentColor" /> {t.shadowing.practiceListen}
                 </button>
 
                 <button
@@ -506,9 +496,7 @@ export function ShadowingDetail({
               {shadowingRecording.isRecording ? (
                 <div className="flex flex-col items-center gap-4 py-2">
                   <div className="text-3xl sm:text-4xl font-black text-rose-600 font-mono tracking-wider tabular-nums bg-rose-50 px-5 py-2 rounded-2xl border border-rose-200 shadow-2xs">
-                    {shadowingRecording.formatTime(
-                      shadowingRecording.recordingTime,
-                    )}
+                    {shadowingRecording.formatTime(shadowingRecording.recordingTime)}
                   </div>
                   <div className="relative flex items-center justify-center my-2">
                     <div className="absolute w-24 h-24 bg-rose-500/25 rounded-3xl animate-ping pointer-events-none" />
@@ -569,12 +557,7 @@ export function ShadowingDetail({
 
               {/* Recorded Audio Player */}
               <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
-                <audio
-                  ref={audioRef}
-                  src={audioUrl || ""}
-                  controls
-                  className="w-full h-10"
-                />
+                <audio ref={audioRef} src={audioUrl || ''} controls className="w-full h-10" />
               </div>
 
               <div className="space-y-2.5 pt-2">
@@ -598,7 +581,7 @@ export function ShadowingDetail({
 
                 <button
                   type="button"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.preventDefault();
                     shadowingRecording.setBongBeAudios({});
                     setCurrentStep(2);
@@ -644,9 +627,7 @@ export function ShadowingDetail({
             <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto shadow-2xs">
               <Mic size={22} />
             </div>
-            <p className="text-sm font-black text-slate-700">
-              {t.shadowing.noPreviousRecordings}
-            </p>
+            <p className="text-sm font-black text-slate-700">{t.shadowing.noPreviousRecordings}</p>
             <p className="text-xs text-slate-400 font-medium max-w-md mx-auto">
               {t.shadowing.noPreviousRecordingsSub}
             </p>
@@ -656,14 +637,14 @@ export function ShadowingDetail({
             {videoRecordings.map((rec, index) => {
               const isLatest = index === 0;
               const formattedDate = new Date(rec.created_at).toLocaleString(
-                lang === "vi" ? "vi-VN" : "en-US",
+                lang === 'vi' ? 'vi-VN' : 'en-US',
                 {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                },
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                }
               );
 
               return (
@@ -671,17 +652,15 @@ export function ShadowingDetail({
                   key={rec.id || index}
                   className={`bg-white rounded-2xl p-4 sm:p-5 border transition-all space-y-3.5 shadow-2xs relative ${
                     isLatest
-                      ? "border-indigo-200/90 shadow-indigo-500/5 ring-1 ring-indigo-500/10"
-                      : "border-slate-200/80 hover:border-slate-300"
+                      ? 'border-indigo-200/90 shadow-indigo-500/5 ring-1 ring-indigo-500/10'
+                      : 'border-slate-200/80 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-2">
                       <span
                         className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg ${
-                          isLatest
-                            ? "bg-indigo-100 text-indigo-700"
-                            : "bg-slate-100 text-slate-600"
+                          isLatest ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
                         }`}
                       >
                         {isLatest
@@ -698,17 +677,13 @@ export function ShadowingDetail({
 
                     <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200/60">
                       <CheckCircle2 size={12} className="text-emerald-600" />
-                      {t.shadowing.completedBadge || "Đã thu âm"}
+                      {t.shadowing.completedBadge || 'Đã thu âm'}
                     </span>
                   </div>
 
                   {/* Audio player */}
                   <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-                    <audio
-                      controls
-                      src={rec.audio_url}
-                      className="w-full h-9"
-                    />
+                    <audio controls src={rec.audio_url} className="w-full h-9" />
                   </div>
 
                   {/* Teacher Feedback */}
@@ -729,9 +704,7 @@ export function ShadowingDetail({
                 🏆
               </div>
               <div className="space-y-1.5">
-                <h3 className="text-xl font-black text-slate-800">
-                  {t.shadowing.saved}
-                </h3>
+                <h3 className="text-xl font-black text-slate-800">{t.shadowing.saved}</h3>
                 <p className="text-xs font-semibold text-slate-500">
                   Con đã hoàn thành bài luyện Shadowing xuất sắc! 🎉
                 </p>
@@ -740,7 +713,7 @@ export function ShadowingDetail({
                 type="button"
                 onClick={() => {
                   setShowSuccessModal(false);
-                  navigate("/student/shadowing");
+                  navigate('/student/shadowing');
                 }}
                 className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black rounded-2xl shadow-md shadow-emerald-500/25 active:scale-95 transition-all text-sm cursor-pointer"
               >
@@ -748,7 +721,7 @@ export function ShadowingDetail({
               </button>
             </div>
           </div>,
-          document.body,
+          document.body
         )}
     </div>
   );

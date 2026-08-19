@@ -1,61 +1,54 @@
-import { AlertCircle } from "lucide-react";
-import {
-  Navigate,
-  Route,
-  Routes,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
-import { useLanguage } from "../i18n/LanguageContext";
-import { RecordingsManager } from "../components/teacher/recordings/RecordingsManager";
-import { StudentSubmissionsView } from "../components/teacher/students/StudentSubmissionsView";
-import { TeacherSidebar } from "../components/teacher/shared/TeacherSidebar";
-import { DeleteConfirmModal } from "../components/teacher/shared/DeleteConfirmModal";
-import { OfflineBanner } from "../components/common/OfflineBanner";
-import { useRecordings } from "../components/teacher/hooks/useRecordings";
-import { supabase } from "../lib/supabase";
-import { lazy, Suspense, useEffect } from "react";
+import { AlertCircle } from 'lucide-react';
+import { Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
+import { RecordingsManager } from '../components/teacher/recordings/RecordingsManager';
+import { StudentSubmissionsView } from '../components/teacher/students/StudentSubmissionsView';
+import { TeacherSidebar } from '../components/teacher/shared/TeacherSidebar';
+import { DeleteConfirmModal } from '../components/teacher/shared/DeleteConfirmModal';
+import { OfflineBanner } from '../components/common/OfflineBanner';
+import { useRecordings } from '../components/teacher/hooks/useRecordings';
+import { supabase } from '../lib/supabase';
+import { lazy, Suspense, useEffect } from 'react';
 
 const StoriesManager = lazy(() =>
-  import("../components/teacher/stories/StoriesManager").then((m) => ({
+  import('../components/teacher/stories/StoriesManager').then(m => ({
     default: m.StoriesManager,
-  })),
+  }))
 );
 const StudentsManager = lazy(() =>
-  import("../components/teacher/students/StudentsManager").then((m) => ({
+  import('../components/teacher/students/StudentsManager').then(m => ({
     default: m.StudentsManager,
-  })),
+  }))
 );
 const TopicsManager = lazy(() =>
-  import("../components/teacher/topics/TopicsManager").then((m) => ({
+  import('../components/teacher/topics/TopicsManager').then(m => ({
     default: m.TopicsManager,
-  })),
+  }))
 );
 const VocabularyManager = lazy(() =>
-  import("../components/teacher/vocabulary/VocabularyManager").then((m) => ({
+  import('../components/teacher/vocabulary/VocabularyManager').then(m => ({
     default: m.VocabularyManager,
-  })),
+  }))
 );
 const ShadowingManager = lazy(() =>
-  import("../components/teacher/shadowing/ShadowingManager").then((m) => ({
+  import('../components/teacher/shadowing/ShadowingManager').then(m => ({
     default: m.ShadowingManager,
-  })),
+  }))
 );
 const VocabAudioBuilder = lazy(() =>
-  import("../components/teacher/vocabulary/VocabAudioBuilder").then((m) => ({
+  import('../components/teacher/vocabulary/VocabAudioBuilder').then(m => ({
     default: m.VocabAudioBuilder,
-  })),
+  }))
 );
 const AttendanceManager = lazy(() =>
-  import("../components/teacher/attendance/AttendanceManager").then((m) => ({
+  import('../components/teacher/attendance/AttendanceManager').then(m => ({
     default: m.AttendanceManager,
-  })),
+  }))
 );
 
 const formatDate = (timestamp: string) => {
   const d = new Date(timestamp);
-  return `${d.getHours()}:${d.getMinutes().toString().padStart(2, "0")} - ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+  return `${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')} - ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
 };
 
 function RecordingsListRoute({
@@ -83,9 +76,7 @@ function RecordingsListRoute({
         loading={loading}
         formatDate={formatDate}
         onDeleteRequest={onDeleteRequest}
-        onSelectStudent={(name) =>
-          navigate(`/teacher/recordings/${encodeURIComponent(name)}`)
-        }
+        onSelectStudent={name => navigate(`/teacher/recordings/${encodeURIComponent(name)}`)}
       />
     </>
   );
@@ -116,7 +107,7 @@ function StudentDetailRoute({
       studentName={decodeURIComponent(studentName)}
       formatDate={formatDate}
       onDeleteRequest={onDeleteRequest}
-      onBack={() => navigate("/teacher/recordings")}
+      onBack={() => navigate('/teacher/recordings')}
       highlightRecordId={highlightRecordId}
     />
   );
@@ -132,22 +123,16 @@ export default function TeacherPage({
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const highlightRecordId = searchParams.get("highlight");
+  const highlightRecordId = searchParams.get('highlight');
 
-  const {
-    summaries,
-    loading,
-    appError,
-    deleteTargetId,
-    setDeleteTargetId,
-    confirmDelete,
-  } = useRecordings(user, {
-    onNewRecording: addNotification,
-  });
+  const { summaries, loading, appError, deleteTargetId, setDeleteTargetId, confirmDelete } =
+    useRecordings(user, {
+      onNewRecording: addNotification,
+    });
 
   const clearHighlight = () => {
     const next = new URLSearchParams(searchParams);
-    next.delete("highlight");
+    next.delete('highlight');
     setSearchParams(next, { replace: true });
   };
 
@@ -156,15 +141,15 @@ export default function TeacherPage({
     if (!highlightRecordId) return;
     let cancelled = false;
     supabase
-      .from("recordings")
-      .select("student_name")
-      .eq("id", highlightRecordId)
+      .from('recordings')
+      .select('student_name')
+      .eq('id', highlightRecordId)
       .maybeSingle()
       .then(({ data }) => {
         if (cancelled || !data?.student_name) return;
         navigate(
           `/teacher/recordings/${encodeURIComponent(data.student_name)}?highlight=${highlightRecordId}`,
-          { replace: true },
+          { replace: true }
         );
       });
     return () => {
@@ -196,7 +181,7 @@ export default function TeacherPage({
                     summaries={summaries}
                     loading={loading}
                     appError={appError}
-                    onDeleteRequest={(id) => setDeleteTargetId(id)}
+                    onDeleteRequest={id => setDeleteTargetId(id)}
                   />
                 }
               />
@@ -206,7 +191,7 @@ export default function TeacherPage({
                   <StudentDetailRoute
                     highlightRecordId={highlightRecordId}
                     onClearHighlight={clearHighlight}
-                    onDeleteRequest={(id) => setDeleteTargetId(id)}
+                    onDeleteRequest={id => setDeleteTargetId(id)}
                   />
                 }
               />
@@ -217,7 +202,7 @@ export default function TeacherPage({
                   <StudentsManager
                     onSelectStudent={(name, avatar) =>
                       navigate(
-                        `/teacher/submissions/${encodeURIComponent(name)}${avatar ? `?avatar=${encodeURIComponent(avatar)}` : ""}`,
+                        `/teacher/submissions/${encodeURIComponent(name)}${avatar ? `?avatar=${encodeURIComponent(avatar)}` : ''}`
                       )
                     }
                   />
@@ -228,10 +213,7 @@ export default function TeacherPage({
               <Route path="vocabulary" element={<VocabularyManager />} />
               <Route path="shadowing" element={<ShadowingManager />} />
               <Route path="audio-builder" element={<VocabAudioBuilder />} />
-              <Route
-                path="*"
-                element={<Navigate to="/teacher/recordings" replace />}
-              />
+              <Route path="*" element={<Navigate to="/teacher/recordings" replace />} />
             </Routes>
           </Suspense>
         </div>

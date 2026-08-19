@@ -1,5 +1,5 @@
-import { Loader2, Wand2, X } from "lucide-react";
-import { Translations, interpolate } from "../../../i18n/LanguageContext";
+import { Loader2, Wand2, X } from 'lucide-react';
+import { Translations, interpolate } from '../../../i18n/LanguageContext';
 
 interface StoryCreateModalProps {
   t: Translations;
@@ -47,7 +47,7 @@ export function StoryCreateModal({
       <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl p-6 space-y-4 my-8 border border-slate-200 animate-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center border-b border-slate-100 pb-3">
           <h4 className="font-black text-lg text-purple-800 flex items-center gap-2">
-            ✨ {tc.createAiStory || "Tạo truyện bằng AI"}
+            ✨ {tc.createAiStory || 'Tạo truyện bằng AI'}
           </h4>
           <button
             type="button"
@@ -61,12 +61,12 @@ export function StoryCreateModal({
         <div className="space-y-3.5">
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-              {tc.storyTitle || "Tiêu đề"}
+              {tc.storyTitle || 'Tiêu đề'}
             </label>
             <input
               value={title}
               maxLength={150}
-              onChange={(e) => onTitleChange(e.target.value)}
+              onChange={e => onTitleChange(e.target.value)}
               placeholder="VD: The Magic Dragon"
               className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-purple-400 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all"
             />
@@ -74,7 +74,7 @@ export function StoryCreateModal({
 
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-              {t.teacherModal?.targetGrades || "Khối / Lớp áp dụng"}
+              {t.teacherModal?.targetGrades || 'Khối / Lớp áp dụng'}
             </label>
             <div className="flex flex-wrap gap-1.5 mb-1.5">
               <button
@@ -82,13 +82,13 @@ export function StoryCreateModal({
                 onClick={() => onAiGradesChange([])}
                 className={`px-3 py-1 rounded-xl text-xs font-black border transition-all ${
                   aiGrades.length === 0
-                    ? "bg-purple-600 text-white border-purple-700 shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200"
+                    ? 'bg-purple-600 text-white border-purple-700 shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200'
                 }`}
               >
-                {t.teacherModal?.allGradesOption || "Tất cả các khối"}
+                {t.teacherModal?.allGradesOption || 'Tất cả các khối'}
               </button>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => {
+              {Array.from({ length: 12 }, (_, i) => i + 1).map(g => {
                 const isSelected = aiGrades.includes(g);
                 return (
                   <button
@@ -97,14 +97,14 @@ export function StoryCreateModal({
                     onClick={() => {
                       onAiGradesChange(
                         isSelected
-                          ? aiGrades.filter((x) => x !== g)
-                          : [...aiGrades, g].sort((a, b) => a - b),
+                          ? aiGrades.filter(x => x !== g)
+                          : [...aiGrades, g].sort((a, b) => a - b)
                       );
                     }}
                     className={`px-2.5 py-1 rounded-xl text-xs font-black border transition-all ${
                       isSelected
-                        ? "bg-purple-600 text-white border-purple-700 shadow-xs"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200"
+                        ? 'bg-purple-600 text-white border-purple-700 shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200'
                     }`}
                   >
                     {interpolate(t.common.gradeLabel, { grade: g })}
@@ -112,20 +112,18 @@ export function StoryCreateModal({
                 );
               })}
             </div>
-            <p className="text-[11px] text-slate-400 font-medium">
-              {t.teacherModal?.gradesHint}
-            </p>
+            <p className="text-[11px] text-slate-400 font-medium">{t.teacherModal?.gradesHint}</p>
           </div>
 
           <div>
             <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase">
-              {tc.storyPromptLabel || "Ý tưởng / Gợi ý cho AI (Prompt)"}
+              {tc.storyPromptLabel || 'Ý tưởng / Gợi ý cho AI (Prompt)'}
             </label>
             <div className="flex gap-2">
               <input
                 value={prompt}
                 maxLength={500}
-                onChange={(e) => onPromptChange(e.target.value)}
+                onChange={e => onPromptChange(e.target.value)}
                 placeholder="VD: A friendly dragon who loves eating apples..."
                 className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:border-purple-400 focus:outline-none"
               />
@@ -140,7 +138,7 @@ export function StoryCreateModal({
                 ) : (
                   <Wand2 size={14} />
                 )}
-                {tc.tryGenerate || "Tạo thử"}
+                {tc.tryGenerate || 'Tạo thử'}
               </button>
             </div>
           </div>
@@ -176,7 +174,7 @@ export function StoryCreateModal({
             onClick={onClose}
             className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs"
           >
-            {tc.cancel || "Hủy"}
+            {tc.cancel || 'Hủy'}
           </button>
           <button
             type="button"
@@ -185,7 +183,7 @@ export function StoryCreateModal({
             className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold rounded-lg text-xs shadow-sm flex items-center gap-1"
           >
             {isSaving && <Loader2 size={14} className="animate-spin" />}
-            {t.teacherModal?.saveStory || tc.save || "Lưu câu chuyện"}
+            {t.teacherModal?.saveStory || tc.save || 'Lưu câu chuyện'}
           </button>
         </div>
       </div>

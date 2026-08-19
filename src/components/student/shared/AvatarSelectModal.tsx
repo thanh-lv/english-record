@@ -1,7 +1,7 @@
-import { useLanguage } from "../../../i18n/LanguageContext";
-import { X } from "lucide-react";
-import { AVATARS } from "../hooks/useAvatar";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { useLanguage } from '../../../i18n/LanguageContext';
+import { X } from 'lucide-react';
+import { AVATARS } from '../hooks/useAvatar';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
 
 interface AvatarSelectModalProps {
   currentAvatar: string;
@@ -9,11 +9,7 @@ interface AvatarSelectModalProps {
   onClose: () => void;
 }
 
-export function AvatarSelectModal({
-  currentAvatar,
-  onSelect,
-  onClose,
-}: AvatarSelectModalProps) {
+export function AvatarSelectModal({ currentAvatar, onSelect, onClose }: AvatarSelectModalProps) {
   const { t } = useLanguage();
   useEscapeToClose(onClose);
   return (
@@ -32,10 +28,7 @@ export function AvatarSelectModal({
         >
           <X size={20} />
         </button>
-        <h3
-          id="avatar-select-title"
-          className="text-xl font-black text-slate-800 text-center mb-6"
-        >
+        <h3 id="avatar-select-title" className="text-xl font-black text-slate-800 text-center mb-6">
           {t.common.selectAvatar}
         </h3>
         <div
@@ -43,7 +36,7 @@ export function AvatarSelectModal({
           role="radiogroup"
           aria-label={t.common.selectAvatar}
         >
-          {AVATARS.map((emoji) => (
+          {AVATARS.map(emoji => (
             <button
               key={emoji}
               type="button"
@@ -53,8 +46,8 @@ export function AvatarSelectModal({
               aria-label={emoji}
               className={`aspect-square rounded-lg text-4xl flex items-center justify-center transition-all ${
                 currentAvatar === emoji
-                  ? "bg-amber-100 border-4 border-amber-400 scale-110 shadow-md"
-                  : "bg-slate-50 border-2 border-slate-100 hover:bg-amber-50 hover:border-amber-200 hover:scale-105"
+                  ? 'bg-amber-100 border-4 border-amber-400 scale-110 shadow-md'
+                  : 'bg-slate-50 border-2 border-slate-100 hover:bg-amber-50 hover:border-amber-200 hover:scale-105'
               }`}
             >
               {emoji}

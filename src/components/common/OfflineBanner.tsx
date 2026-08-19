@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from "react";
-import { WifiOff, Wifi } from "lucide-react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { useOnlineStatus } from "../../hooks/useOnlineStatus";
+import { useEffect, useState, useRef } from 'react';
+import { WifiOff, Wifi } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 
 export function OfflineBanner() {
   const { t } = useLanguage();

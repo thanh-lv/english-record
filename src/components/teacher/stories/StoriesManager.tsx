@@ -1,12 +1,12 @@
-import { BookOpen, Loader2, Plus, Search, Sparkles, X } from "lucide-react";
-import { useLanguage } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
-import { useStories } from "./useStories";
-import { StoryCard } from "./StoryCard";
-import { StoryCreateModal } from "./StoryCreateModal";
-import { StoryManualModal } from "./StoryManualModal";
-import { StoryEditModal } from "./StoryEditModal";
+import { BookOpen, Loader2, Plus, Search, Sparkles, X } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
+import { useStories } from './useStories';
+import { StoryCard } from './StoryCard';
+import { StoryCreateModal } from './StoryCreateModal';
+import { StoryManualModal } from './StoryManualModal';
+import { StoryEditModal } from './StoryEditModal';
 
 export function StoriesManager() {
   const { t } = useLanguage();
@@ -86,7 +86,7 @@ export function StoriesManager() {
             <span className="p-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
               <BookOpen size={22} />
             </span>
-            {tc.storyManagerTitle || "Quản Lý Truyện Tiếng Anh"}
+            {tc.storyManagerTitle || 'Quản Lý Truyện Tiếng Anh'}
           </h3>
           <p className="text-xs text-slate-400 font-bold mt-1">
             {filteredStories.length} câu chuyện tiếng Anh
@@ -97,20 +97,17 @@ export function StoriesManager() {
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Search bar */}
           <div className="relative min-w-[180px] sm:min-w-[220px]">
-            <Search
-              size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
-              placeholder={tm.searchStories || "Tìm truyện theo tiêu đề..."}
+              onChange={e => setFilterText(e.target.value)}
+              placeholder={tm.searchStories || 'Tìm truyện theo tiêu đề...'}
               className="w-full pl-9 pr-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-purple-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs"
             />
             {filterText && (
               <button
                 type="button"
-                onClick={() => setFilterText("")}
+                onClick={() => setFilterText('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 <X size={13} />
@@ -121,39 +118,31 @@ export function StoriesManager() {
           {/* Grade filter */}
           <select
             value={filterGrade}
-            onChange={(e) => setFilterGrade(e.target.value)}
+            onChange={e => setFilterGrade(e.target.value)}
             className="px-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-purple-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs cursor-pointer"
           >
-            <option value="all">
-              {t.teacherModal?.allGradesOption || "Tất cả các khối"}
-            </option>
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+            <option value="all">{t.teacherModal?.allGradesOption || 'Tất cả các khối'}</option>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map(g => (
               <option key={g} value={g.toString()}>
                 {t.common?.gradeLabel
-                  ? t.common.gradeLabel.replace("{grade}", g.toString())
+                  ? t.common.gradeLabel.replace('{grade}', g.toString())
                   : `Khối ${g}`}
               </option>
             ))}
             <option value="unassigned">
-              {t.teacherModal?.allGradesOption || "Tất cả các khối"} (Mặc định)
+              {t.teacherModal?.allGradesOption || 'Tất cả các khối'} (Mặc định)
             </option>
           </select>
 
           {/* Status filter */}
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as any)}
+            onChange={e => setFilterStatus(e.target.value as any)}
             className="px-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-purple-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs cursor-pointer"
           >
-            <option value="all">
-              {tm.filterStoryStatusAll || "Tất cả trạng thái"}
-            </option>
-            <option value="active">
-              {tm.filterStoryStatusActive || "Đang hiện"}
-            </option>
-            <option value="hidden">
-              {tm.filterStoryStatusHidden || "Đã ẩn"}
-            </option>
+            <option value="all">{tm.filterStoryStatusAll || 'Tất cả trạng thái'}</option>
+            <option value="active">{tm.filterStoryStatusActive || 'Đang hiện'}</option>
+            <option value="hidden">{tm.filterStoryStatusHidden || 'Đã ẩn'}</option>
           </select>
 
           {/* Manual Create Button */}
@@ -163,9 +152,7 @@ export function StoriesManager() {
             className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs rounded-xl transition-all flex items-center gap-1.5 border border-slate-200/80 shadow-2xs active:scale-95 shrink-0"
           >
             <Plus size={15} />
-            <span className="hidden sm:inline">
-              {tc.createManualStory || "Viết truyện tay"}
-            </span>
+            <span className="hidden sm:inline">{tc.createManualStory || 'Viết truyện tay'}</span>
           </button>
 
           {/* AI Create Button */}
@@ -175,7 +162,7 @@ export function StoriesManager() {
             className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-95 shrink-0"
           >
             <Sparkles size={15} />
-            <span>{tc.createAiStory || "Tạo bằng AI"}</span>
+            <span>{tc.createAiStory || 'Tạo bằng AI'}</span>
           </button>
         </div>
       </div>
@@ -187,7 +174,7 @@ export function StoriesManager() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
-          {filteredStories.map((story) => (
+          {filteredStories.map(story => (
             <StoryCard
               key={story.id}
               t={t}
@@ -203,7 +190,7 @@ export function StoriesManager() {
 
           {filteredStories.length === 0 && (
             <div className="col-span-full py-16 text-center text-slate-400 font-bold bg-white rounded-2xl border border-slate-200/80">
-              {tm.noStoriesFound || "Không tìm thấy truyện nào"}
+              {tm.noStoriesFound || 'Không tìm thấy truyện nào'}
             </div>
           )}
         </div>
@@ -274,7 +261,7 @@ export function StoriesManager() {
       {/* Delete Confirmation Modal */}
       {deleteStoryTarget && (
         <DeleteConfirmModal
-          title={tc.deleteStoryConfirm || "Xác nhận xóa câu chuyện"}
+          title={tc.deleteStoryConfirm || 'Xác nhận xóa câu chuyện'}
           description={deleteStoryTarget.title}
           onConfirm={confirmDeleteStory}
           onCancel={() => setDeleteStoryTarget(null)}

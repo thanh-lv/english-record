@@ -1,39 +1,28 @@
-import {
-  AlertCircle,
-  Check,
-  Eye,
-  EyeOff,
-  Loader2,
-  UserPlus,
-  X,
-} from "lucide-react";
-import { useState } from "react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import { supabase } from "../../../lib/supabase";
+import { AlertCircle, Check, Eye, EyeOff, Loader2, UserPlus, X } from 'lucide-react';
+import { useState } from 'react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { supabase } from '../../../lib/supabase';
 import {
   validateStudentName,
   validatePassword,
   validateYearBorn,
   validateGrade,
   sanitizeText,
-} from "../../../utils/validators";
+} from '../../../utils/validators';
 
 interface CreateStudentModalProps {
   onCreated: (student: any) => void;
   onClose: () => void;
 }
 
-export function CreateStudentModal({
-  onCreated,
-  onClose,
-}: CreateStudentModalProps) {
-  const [name, setName] = useState("");
-  const [yearBorn, setYearBorn] = useState("2015");
-  const [grade, setGrade] = useState("");
-  const [password, setPassword] = useState("");
+export function CreateStudentModal({ onCreated, onClose }: CreateStudentModalProps) {
+  const [name, setName] = useState('');
+  const [yearBorn, setYearBorn] = useState('2015');
+  const [grade, setGrade] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const { t } = useLanguage();
   useEscapeToClose(onClose);
@@ -69,10 +58,10 @@ export function CreateStudentModal({
       yearBorn,
       minYear,
       maxYear,
-      interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear }),
+      interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear })
     );
     if (!yearValidation.isValid) {
-      setError(yearValidation.error || "");
+      setError(yearValidation.error || '');
       return;
     }
     const parsedYear = parseInt(yearBorn.trim(), 10);
@@ -85,12 +74,12 @@ export function CreateStudentModal({
     const parsedGrade = grade.trim() ? parseInt(grade.trim(), 10) : null;
 
     setSaving(true);
-    setError("");
+    setError('');
     try {
       const { data: existing } = await supabase
-        .from("profiles")
-        .select("id")
-        .ilike("name", cleanName)
+        .from('profiles')
+        .select('id')
+        .ilike('name', cleanName)
         .maybeSingle();
       if (existing) {
         setError(t.common.nameDuplicate);
@@ -99,27 +88,19 @@ export function CreateStudentModal({
 
       const insertPayload: any = {
         name: cleanName,
-        role: "student",
+        role: 'student',
         password: cleanPass,
         year_born: parsedYear,
         grade: parsedGrade,
       };
 
       let inserted: any = null;
-      const res = await supabase
-        .from("profiles")
-        .insert(insertPayload)
-        .select()
-        .single();
+      const res = await supabase.from('profiles').insert(insertPayload).select().single();
 
       if (res.error) {
-        if (res.error.message?.includes("grade")) {
+        if (res.error.message?.includes('grade')) {
           delete insertPayload.grade;
-          const retryRes = await supabase
-            .from("profiles")
-            .insert(insertPayload)
-            .select()
-            .single();
+          const retryRes = await supabase.from('profiles').insert(insertPayload).select().single();
           if (retryRes.error) throw retryRes.error;
           inserted = retryRes.data;
         } else {
@@ -154,7 +135,7 @@ export function CreateStudentModal({
             <span className="p-1.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
               <UserPlus size={18} />
             </span>
-            {t.teacherModal.addStudentTitle || "Thêm học sinh mới"}
+            {t.teacherModal.addStudentTitle || 'Thêm học sinh mới'}
           </h4>
           <button
             type="button"
@@ -175,11 +156,11 @@ export function CreateStudentModal({
               autoFocus
               value={name}
               maxLength={50}
-              onChange={(e) => {
+              onChange={e => {
                 setName(e.target.value);
-                setError("");
+                setError('');
               }}
-              onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+              onKeyDown={e => e.key === 'Enter' && handleCreate()}
               placeholder={t.login.namePlaceholder}
               className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
             />
@@ -192,11 +173,11 @@ export function CreateStudentModal({
               <input
                 type="number"
                 value={yearBorn}
-                onChange={(e) => {
+                onChange={e => {
                   setYearBorn(e.target.value);
-                  setError("");
+                  setError('');
                 }}
-                onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+                onKeyDown={e => e.key === 'Enter' && handleCreate()}
                 placeholder={t.common.yearBornPlaceholder}
                 className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
               />
@@ -207,14 +188,14 @@ export function CreateStudentModal({
               </label>
               <select
                 value={grade}
-                onChange={(e) => {
+                onChange={e => {
                   setGrade(e.target.value);
-                  setError("");
+                  setError('');
                 }}
                 className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all cursor-pointer"
               >
                 <option value="">{t.common.selectGrade}</option>
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+                {Array.from({ length: 12 }, (_, i) => i + 1).map(g => (
                   <option key={g} value={g}>
                     {interpolate(t.common.gradeLabel, { grade: g })}
                   </option>
@@ -228,23 +209,21 @@ export function CreateStudentModal({
             </label>
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 maxLength={100}
-                onChange={(e) => {
+                onChange={e => {
                   setPassword(e.target.value);
-                  setError("");
+                  setError('');
                 }}
-                onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+                onKeyDown={e => e.key === 'Enter' && handleCreate()}
                 placeholder={t.login.passwordPlaceholder}
                 className="w-full px-3.5 py-2.5 pr-10 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
               />
               <button
                 type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={
-                  showPassword ? t.common.hidePassword : t.common.showPassword
-                }
+                onClick={() => setShowPassword(v => !v)}
+                aria-label={showPassword ? t.common.hidePassword : t.common.showPassword}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -272,11 +251,7 @@ export function CreateStudentModal({
             disabled={saving}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black rounded-xl text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
-            {saving ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Check size={14} />
-            )}
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
             {t.common.createStudent || t.common.save}
           </button>
         </div>

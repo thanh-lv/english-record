@@ -1,17 +1,13 @@
-import React, { useState } from "react";
-import { X, ImagePlus, Loader2, AlertCircle } from "lucide-react";
-import { uploadToStorage } from "../../../services/uploadService";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import {
-  validateQuestion,
-  validateImageFile,
-  sanitizeText,
-} from "../../../utils/validators";
+import React, { useState } from 'react';
+import { X, ImagePlus, Loader2, AlertCircle } from 'lucide-react';
+import { uploadToStorage } from '../../../services/uploadService';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { validateQuestion, validateImageFile, sanitizeText } from '../../../utils/validators';
 
 interface QuestionModalProps {
   t: any;
   modalData: {
-    mode: "add" | "edit";
+    mode: 'add' | 'edit';
     topicId: string;
     topicType: string;
     question?: any;
@@ -26,28 +22,19 @@ interface QuestionModalProps {
   }) => Promise<void>;
 }
 
-export function QuestionModal({
-  t,
-  modalData,
-  onClose,
-  onSave,
-}: QuestionModalProps) {
+export function QuestionModal({ t, modalData, onClose, onSave }: QuestionModalProps) {
   useEscapeToClose(onClose, true);
 
   const initialQuestion = modalData.question || {};
-  const [text, setText] = useState(initialQuestion.text || "");
-  const [translation, setTranslation] = useState(
-    initialQuestion.translation || "",
-  );
-  const [sampleAnswer, setSampleAnswer] = useState(
-    initialQuestion.sample_answer || "",
-  );
-  const [target, setTarget] = useState(initialQuestion.target || "");
-  const [imageUrl, setImageUrl] = useState(initialQuestion.image_url || "");
+  const [text, setText] = useState(initialQuestion.text || '');
+  const [translation, setTranslation] = useState(initialQuestion.translation || '');
+  const [sampleAnswer, setSampleAnswer] = useState(initialQuestion.sample_answer || '');
+  const [target, setTarget] = useState(initialQuestion.target || '');
+  const [imageUrl, setImageUrl] = useState(initialQuestion.image_url || '');
 
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [imageUploadError, setImageUploadError] = useState("");
-  const [error, setError] = useState("");
+  const [imageUploadError, setImageUploadError] = useState('');
+  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,21 +47,21 @@ export function QuestionModal({
     });
     if (!fileVal.isValid) {
       setImageUploadError(fileVal.error || t.common.uploadImageError);
-      e.target.value = "";
+      e.target.value = '';
       return;
     }
 
     setUploadingImage(true);
-    setImageUploadError("");
+    setImageUploadError('');
     try {
-      const url = await uploadToStorage(file, "question_images");
+      const url = await uploadToStorage(file, 'question_images');
       setImageUrl(url);
     } catch (err: any) {
-      console.error("Lỗi upload ảnh:", err);
+      console.error('Lỗi upload ảnh:', err);
       setImageUploadError(err.message || t.common.uploadImageError);
     } finally {
       setUploadingImage(false);
-      e.target.value = "";
+      e.target.value = '';
     }
   };
 
@@ -99,7 +86,7 @@ export function QuestionModal({
         translationMax: t.common.translationMax,
         sampleAnswerMax: t.common.sampleAnswerMax,
         targetMax: t.common.targetMax,
-      },
+      }
     );
 
     if (!qVal.isValid) {
@@ -108,7 +95,7 @@ export function QuestionModal({
     }
 
     setSaving(true);
-    setError("");
+    setError('');
     try {
       await onSave({
         text: cleanText,
@@ -119,7 +106,7 @@ export function QuestionModal({
       });
       onClose();
     } catch (err: any) {
-      setError(err.message || "Lỗi lưu câu hỏi");
+      setError(err.message || 'Lỗi lưu câu hỏi');
     } finally {
       setSaving(false);
     }
@@ -134,13 +121,10 @@ export function QuestionModal({
     >
       <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-slate-200 p-6 space-y-4 my-8 animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h4
-            id="question-modal-title"
-            className="font-black text-lg text-slate-800"
-          >
-            {modalData.mode === "add"
+          <h4 id="question-modal-title" className="font-black text-lg text-slate-800">
+            {modalData.mode === 'add'
               ? t.common.addQuestion
-              : t.common.edit + " " + t.common.questionLabel.replace(":", "")}
+              : t.common.edit + ' ' + t.common.questionLabel.replace(':', '')}
           </h4>
           <button
             onClick={onClose}
@@ -155,15 +139,15 @@ export function QuestionModal({
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
             <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
-              {t.common.questionLabel.replace(":", "")}
+              {t.common.questionLabel.replace(':', '')}
             </label>
             <input
               autoFocus
               value={text}
               maxLength={500}
-              onChange={(e) => {
+              onChange={e => {
                 setText(e.target.value);
-                setError("");
+                setError('');
               }}
               placeholder={t.common.questionPlaceholder}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
@@ -172,14 +156,14 @@ export function QuestionModal({
 
           <div>
             <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
-              {t.common.translationLabel.replace(":", "")}
+              {t.common.translationLabel.replace(':', '')}
             </label>
             <input
               value={translation}
               maxLength={500}
-              onChange={(e) => {
+              onChange={e => {
                 setTranslation(e.target.value);
-                setError("");
+                setError('');
               }}
               placeholder={t.common.translationPlaceholder}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
@@ -188,21 +172,21 @@ export function QuestionModal({
 
           <div>
             <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
-              {t.common.sampleAnswerLabel.replace(":", "")}
+              {t.common.sampleAnswerLabel.replace(':', '')}
             </label>
             <input
               value={sampleAnswer}
               maxLength={1000}
-              onChange={(e) => {
+              onChange={e => {
                 setSampleAnswer(e.target.value);
-                setError("");
+                setError('');
               }}
               placeholder={t.common.sampleAnswerPlaceholder}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
-          {modalData.topicType === "bongbe" && (
+          {modalData.topicType === 'bongbe' && (
             <div>
               <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
                 {t.common.targetPlaceholder}
@@ -210,9 +194,9 @@ export function QuestionModal({
               <input
                 value={target}
                 maxLength={200}
-                onChange={(e) => {
+                onChange={e => {
                   setTarget(e.target.value);
-                  setError("");
+                  setError('');
                 }}
                 placeholder={t.common.targetPlaceholder}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
@@ -222,7 +206,7 @@ export function QuestionModal({
 
           <div>
             <label className="text-xs font-black text-slate-600 uppercase mb-1.5 block">
-              {t.common.imageOptional.replace(":", "")}
+              {t.common.imageOptional.replace(':', '')}
             </label>
             <div className="flex items-center gap-3">
               <label className="flex items-center justify-center w-10 h-10 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl cursor-pointer border border-slate-200 transition-all active:scale-95 shadow-2xs">
@@ -248,7 +232,7 @@ export function QuestionModal({
                   />
                   <button
                     type="button"
-                    onClick={() => setImageUrl("")}
+                    onClick={() => setImageUrl('')}
                     className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white rounded-full p-0.5 shadow-md hover:bg-rose-600 transition-transform active:scale-90"
                   >
                     <X size={10} />
@@ -257,9 +241,7 @@ export function QuestionModal({
               )}
             </div>
             {imageUploadError && (
-              <p className="text-xs font-bold text-rose-500 mt-1">
-                {imageUploadError}
-              </p>
+              <p className="text-xs font-bold text-rose-500 mt-1">{imageUploadError}</p>
             )}
           </div>
 
@@ -282,11 +264,7 @@ export function QuestionModal({
               disabled={text.trim().length < 2 || saving}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black rounded-xl text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95"
             >
-              {saving ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                t.common.save
-              )}
+              {saving ? <Loader2 size={14} className="animate-spin" /> : t.common.save}
             </button>
           </div>
         </form>

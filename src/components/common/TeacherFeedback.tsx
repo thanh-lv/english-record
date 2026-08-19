@@ -1,7 +1,7 @@
-import { AlertCircle, Heart, MessageSquare, Star } from "lucide-react";
-import React, { useState, useEffect } from "react";
-import { useLanguage } from "../../i18n/LanguageContext";
-import { supabase } from "../../lib/supabase";
+import { AlertCircle, Heart, MessageSquare, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { supabase } from '../../lib/supabase';
 
 export function TeacherFeedback({
   recording,
@@ -14,7 +14,7 @@ export function TeacherFeedback({
   const [reacting, setReacting] = useState(false);
   const [reacted, setReacted] = useState(!!recording?.student_reaction);
   const [showEffect, setShowEffect] = useState(false);
-  const [reactionError, setReactionError] = useState("");
+  const [reactionError, setReactionError] = useState('');
 
   useEffect(() => {
     setReacted(!!recording?.student_reaction);
@@ -23,26 +23,25 @@ export function TeacherFeedback({
   if (!recording) return null;
   const rating = Number(recording.teacher_rating || 0);
   const hasRating = rating > 0;
-  const hasText =
-    recording.teacher_feedback && recording.teacher_feedback.trim().length > 0;
+  const hasText = recording.teacher_feedback && recording.teacher_feedback.trim().length > 0;
 
   if (!hasRating && !hasText && !showAlways) return null;
 
   const handleReact = async () => {
     if (reacted || reacting) return;
     setReacting(true);
-    setReactionError("");
+    setReactionError('');
     try {
       const { error } = await supabase
-        .from("recordings")
-        .update({ student_reaction: "heart" })
-        .eq("id", recording.id);
+        .from('recordings')
+        .update({ student_reaction: 'heart' })
+        .eq('id', recording.id);
       if (error) throw error;
       setReacted(true);
       setShowEffect(true);
       setTimeout(() => setShowEffect(false), 2000);
     } catch (err) {
-      console.error("Error reacting to feedback", err);
+      console.error('Error reacting to feedback', err);
       setReactionError(t.feedback.reactionError);
     } finally {
       setReacting(false);
@@ -63,21 +62,19 @@ export function TeacherFeedback({
 
         {/* 5-Star Rating Badge */}
         <div className="flex items-center gap-1 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-xl border border-amber-200 shadow-2xs">
-          {[1, 2, 3, 4, 5].map((star) => (
+          {[1, 2, 3, 4, 5].map(star => (
             <Star
               key={star}
               size={16}
               className={
                 star <= rating
-                  ? "text-amber-400 fill-amber-400 drop-shadow-xs scale-105"
-                  : "text-slate-200 fill-slate-100"
+                  ? 'text-amber-400 fill-amber-400 drop-shadow-xs scale-105'
+                  : 'text-slate-200 fill-slate-100'
               }
             />
           ))}
           <span className="text-[11px] font-black text-amber-800 ml-1">
-            {hasRating
-              ? `${rating}/5`
-              : t.feedback.waitingRating || "Chờ chấm điểm"}
+            {hasRating ? `${rating}/5` : t.feedback.waitingRating || 'Chờ chấm điểm'}
           </span>
         </div>
       </div>
@@ -94,7 +91,7 @@ export function TeacherFeedback({
           <div className="bg-white/70 p-3 rounded-xl border border-amber-200/60">
             <p className="text-slate-500 font-semibold text-xs italic">
               {t.feedback.waitingFeedback ||
-                "Cô giáo đang xem bài và sẽ sớm nhận xét cho con nhé! 🌟"}
+                'Cô giáo đang xem bài và sẽ sớm nhận xét cho con nhé! 🌟'}
             </p>
           </div>
         )}
@@ -117,9 +114,9 @@ export function TeacherFeedback({
                     {
                       animation: `floatUpHeart 1.5s ease-out forwards`,
                       animationDelay: `${i * 150}ms`,
-                      "--tx": `${(Math.random() - 0.5) * 120}px`,
-                      "--ty": `-${Math.random() * 50 + 80}px`,
-                      "--rot": `${(Math.random() - 0.5) * 60}deg`,
+                      '--tx': `${(Math.random() - 0.5) * 120}px`,
+                      '--ty': `-${Math.random() * 50 + 80}px`,
+                      '--rot': `${(Math.random() - 0.5) * 60}deg`,
                     } as React.CSSProperties
                   }
                 >
@@ -142,22 +139,16 @@ export function TeacherFeedback({
             onClick={handleReact}
             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all shadow-2xs active:scale-95 ${
               reacted
-                ? "bg-rose-100 text-rose-600 border border-rose-200 shadow-rose-500/10 cursor-default"
-                : "bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-amber-200 hover:border-rose-200 cursor-pointer"
+                ? 'bg-rose-100 text-rose-600 border border-rose-200 shadow-rose-500/10 cursor-default'
+                : 'bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-amber-200 hover:border-rose-200 cursor-pointer'
             }`}
           >
             <Heart
               size={14}
-              className={
-                reacted ? "fill-rose-500 text-rose-500 animate-pulse" : ""
-              }
+              className={reacted ? 'fill-rose-500 text-rose-500 animate-pulse' : ''}
             />
             <span>
-              {reacting
-                ? t.feedback.hearting
-                : reacted
-                  ? t.feedback.hearted
-                  : t.feedback.heart}
+              {reacting ? t.feedback.hearting : reacted ? t.feedback.hearted : t.feedback.heart}
             </span>
           </button>
         </div>

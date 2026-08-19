@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export function useStoryPlayer() {
   const [selectedStory, setSelectedStory] = useState<any>(null);
@@ -14,7 +14,7 @@ export function useStoryPlayer() {
       setIsPlayingStoryAudio(false);
     } else {
       const utterance = new SpeechSynthesisUtterance(selectedStory.content);
-      utterance.lang = "en-US";
+      utterance.lang = 'en-US';
       utterance.rate = 0.85;
       utterance.onend = () => setIsPlayingStoryAudio(false);
       utterance.onerror = () => setIsPlayingStoryAudio(false);

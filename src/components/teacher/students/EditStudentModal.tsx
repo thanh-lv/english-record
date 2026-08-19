@@ -1,9 +1,9 @@
-import { AlertCircle, Loader2, Pencil, Save, X } from "lucide-react";
-import { useState } from "react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import { supabase } from "../../../lib/supabase";
-import { validateYearBorn, validateGrade } from "../../../utils/validators";
+import { AlertCircle, Loader2, Pencil, Save, X } from 'lucide-react';
+import { useState } from 'react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { supabase } from '../../../lib/supabase';
+import { validateYearBorn, validateGrade } from '../../../utils/validators';
 
 interface EditStudentModalProps {
   student: any;
@@ -11,16 +11,10 @@ interface EditStudentModalProps {
   onClose: () => void;
 }
 
-export function EditStudentModal({
-  student,
-  onUpdated,
-  onClose,
-}: EditStudentModalProps) {
-  const [yearBorn, setYearBorn] = useState(
-    student.year_born?.toString() || "2015",
-  );
-  const [grade, setGrade] = useState(student.grade?.toString() || "");
-  const [error, setError] = useState("");
+export function EditStudentModal({ student, onUpdated, onClose }: EditStudentModalProps) {
+  const [yearBorn, setYearBorn] = useState(student.year_born?.toString() || '2015');
+  const [grade, setGrade] = useState(student.grade?.toString() || '');
+  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const { t } = useLanguage();
   useEscapeToClose(onClose);
@@ -34,10 +28,10 @@ export function EditStudentModal({
       yearBorn,
       minYear,
       maxYear,
-      interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear }),
+      interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear })
     );
     if (!yearValidation.isValid) {
-      setError(yearValidation.error || "");
+      setError(yearValidation.error || '');
       return;
     }
     const parsedYear = parseInt(yearBorn.trim(), 10);
@@ -50,7 +44,7 @@ export function EditStudentModal({
     const parsedGrade = grade.trim() ? parseInt(grade.trim(), 10) : null;
 
     setSaving(true);
-    setError("");
+    setError('');
     try {
       const updatePayload: any = {
         year_born: parsedYear,
@@ -58,19 +52,19 @@ export function EditStudentModal({
       };
       let data: any = null;
       const res = await supabase
-        .from("profiles")
+        .from('profiles')
         .update(updatePayload)
-        .eq("id", student.id)
+        .eq('id', student.id)
         .select()
         .single();
 
       if (res.error) {
-        if (res.error.message?.includes("grade")) {
+        if (res.error.message?.includes('grade')) {
           delete updatePayload.grade;
           const retryRes = await supabase
-            .from("profiles")
+            .from('profiles')
             .update(updatePayload)
-            .eq("id", student.id)
+            .eq('id', student.id)
             .select()
             .single();
           if (retryRes.error) throw retryRes.error;
@@ -107,7 +101,7 @@ export function EditStudentModal({
             <span className="p-1.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
               <Pencil size={18} />
             </span>
-            {t.common.editStudentTitle || "Chỉnh sửa học sinh"}
+            {t.common.editStudentTitle || 'Chỉnh sửa học sinh'}
           </h4>
           <button
             type="button"
@@ -128,11 +122,11 @@ export function EditStudentModal({
               <input
                 type="number"
                 value={yearBorn}
-                onChange={(e) => {
+                onChange={e => {
                   setYearBorn(e.target.value);
-                  setError("");
+                  setError('');
                 }}
-                onKeyDown={(e) => e.key === "Enter" && handleSave()}
+                onKeyDown={e => e.key === 'Enter' && handleSave()}
                 className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
               />
             </div>
@@ -142,14 +136,14 @@ export function EditStudentModal({
               </label>
               <select
                 value={grade}
-                onChange={(e) => {
+                onChange={e => {
                   setGrade(e.target.value);
-                  setError("");
+                  setError('');
                 }}
                 className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all cursor-pointer"
               >
                 <option value="">{t.common.selectGrade}</option>
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+                {Array.from({ length: 12 }, (_, i) => i + 1).map(g => (
                   <option key={g} value={g}>
                     {interpolate(t.common.gradeLabel, { grade: g })}
                   </option>
@@ -178,11 +172,7 @@ export function EditStudentModal({
             onClick={handleSave}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black rounded-xl text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
-            {saving ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Save size={14} />
-            )}
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             {saving ? t.common.saving : t.common.saveChanges}
           </button>
         </div>

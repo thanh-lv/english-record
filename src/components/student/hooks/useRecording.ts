@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
-import { supabase } from "../../../lib/supabase";
-import { useLanguage } from "../../../i18n/LanguageContext";
+import { useRef, useState } from 'react';
+import { supabase } from '../../../lib/supabase';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 interface UseRecordingOptions {
   user: any;
@@ -29,7 +29,7 @@ export function useRecording({
   const [audioBase64, setAudioBase64] = useState<Blob | null>(null);
   const [bongBeAudios, setBongBeAudios] = useState<Record<number, Blob>>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [appError, setAppError] = useState("");
+  const [appError, setAppError] = useState('');
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -40,7 +40,7 @@ export function useRecording({
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    return `${m}:${s < 10 ? "0" : ""}${s}`;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
   const stopRecording = (e?: React.MouseEvent) => {
@@ -48,10 +48,7 @@ export function useRecording({
       e.preventDefault();
       e.stopPropagation();
     }
-    if (
-      mediaRecorderRef.current &&
-      mediaRecorderRef.current.state !== "inactive"
-    ) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       clearInterval(timerRef.current);
@@ -62,7 +59,7 @@ export function useRecording({
     e.preventDefault();
     e.stopPropagation();
     if (isRecording || isSaving) return;
-    setAppError("");
+    setAppError('');
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setAppError(t.common.micNotSupported);
@@ -75,20 +72,20 @@ export function useRecording({
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
-      mediaRecorder.ondataavailable = (event) => {
+      mediaRecorder.ondataavailable = event => {
         if (event.data.size > 0) audioChunksRef.current.push(event.data);
       };
 
       const capturedQuestionIndex = activeQuestionIndex;
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: mediaRecorder.mimeType || "audio/webm",
+          type: mediaRecorder.mimeType || 'audio/webm',
         });
-        setBongBeAudios((prev) => ({
+        setBongBeAudios(prev => ({
           ...prev,
           [capturedQuestionIndex]: audioBlob,
         }));
-        stream.getTracks().forEach((track) => track.stop());
+        stream.getTracks().forEach(track => track.stop());
       };
 
       mediaRecorder.start();
@@ -96,7 +93,7 @@ export function useRecording({
       setRecordingTime(0);
 
       timerRef.current = setInterval(() => {
-        setRecordingTime((prev) => {
+        setRecordingTime(prev => {
           if (prev >= MAX_RECORDING_SECONDS - 1) {
             stopRecording();
             return MAX_RECORDING_SECONDS;
@@ -105,7 +102,7 @@ export function useRecording({
         });
       }, 1000);
     } catch (err) {
-      console.error("Microphone access error:", err);
+      console.error('Microphone access error:', err);
       setAppError(t.common.micError);
     }
   };
@@ -115,11 +112,12 @@ export function useRecording({
     e.stopPropagation();
     if (!user || isSaving) return;
 
-    const audiosToSave: { questionIndex: number; blob: Blob }[] =
-      Object.entries(bongBeAudios).map(([idx, blob]) => ({
+    const audiosToSave: { questionIndex: number; blob: Blob }[] = Object.entries(bongBeAudios).map(
+      ([idx, blob]) => ({
         questionIndex: parseInt(idx),
         blob,
-      }));
+      })
+    );
 
     if (audiosToSave.length === 0) return;
 
@@ -129,18 +127,18 @@ export function useRecording({
     }
 
     setIsSaving(true);
-    setAppError("");
+    setAppError('');
     const savedRecordings: any[] = [];
 
     try {
-      const [{ PutObjectCommand }, { s3Client, S3_BUCKET }] = await Promise.all(
-        [import("@aws-sdk/client-s3"), import("../../../lib/s3")],
-      );
+      const [{ PutObjectCommand }, { s3Client, S3_BUCKET }] = await Promise.all([
+        import('@aws-sdk/client-s3'),
+        import('../../../lib/s3'),
+      ]);
 
       for (const { questionIndex, blob } of audiosToSave) {
-        const fileExt = blob.type.includes("mp4") ? "mp4" : "webm";
-        const prefix =
-          selectedNumber != null ? `topic_${selectedNumber}` : `shadowing`;
+        const fileExt = blob.type.includes('mp4') ? 'mp4' : 'webm';
+        const prefix = selectedNumber != null ? `topic_${selectedNumber}` : `shadowing`;
         const fileName = `${user.id}/${Date.now()}_${prefix}_q${questionIndex}.${fileExt}`;
 
         const s3Command = new PutObjectCommand({
@@ -152,11 +150,11 @@ export function useRecording({
         await s3Client.send(s3Command);
 
         const publicBaseUrl = import.meta.env.VITE_R2_PUBLIC_URL;
-        let audioUrl = "";
+        let audioUrl = '';
         if (publicBaseUrl) {
-          audioUrl = `${publicBaseUrl.replace(/\/$/, "")}/${fileName}`;
+          audioUrl = `${publicBaseUrl.replace(/\/$/, '')}/${fileName}`;
         } else {
-          const endpoint = import.meta.env.VITE_S3_ENDPOINT || "";
+          const endpoint = import.meta.env.VITE_S3_ENDPOINT || '';
           audioUrl = endpoint.includes(S3_BUCKET)
             ? `${endpoint}/${fileName}`
             : `${endpoint}/${S3_BUCKET}/${fileName}`;
@@ -164,9 +162,7 @@ export function useRecording({
 
         const questionText = currentTopic?.questions?.[questionIndex]?.text;
         const questionId =
-          selectedNumber != null
-            ? currentTopic?.questions?.[questionIndex]?.id
-            : null;
+          selectedNumber != null ? currentTopic?.questions?.[questionIndex]?.id : null;
         const topicId = selectedNumber != null ? currentTopic?.id : null;
 
         const newRecording = {
@@ -183,16 +179,10 @@ export function useRecording({
         };
 
         if (existingRecordingId) {
-          await supabase
-            .from("recordings")
-            .delete()
-            .eq("id", existingRecordingId);
+          await supabase.from('recordings').delete().eq('id', existingRecordingId);
         }
 
-        const { data, error } = await supabase
-          .from("recordings")
-          .insert([newRecording])
-          .select();
+        const { data, error } = await supabase.from('recordings').insert([newRecording]).select();
         if (error) throw error;
 
         if (data && data.length > 0) {
@@ -204,10 +194,8 @@ export function useRecording({
       setBongBeAudios({});
       setAudioBase64(null);
     } catch (error) {
-      console.error("Error submitting recording:", error);
-      setAppError(
-        navigator.onLine ? t.common.submitError : t.common.offlineError,
-      );
+      console.error('Error submitting recording:', error);
+      setAppError(navigator.onLine ? t.common.submitError : t.common.offlineError);
     } finally {
       setIsSaving(false);
     }

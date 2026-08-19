@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { useEffect, useRef, useState } from 'react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
 
-const EMOJIS = ["🎉", "⭐", "🌟", "🎈", "🏆", "💫", "🎊", "✨", "🥳", "🎀"];
+const EMOJIS = ['🎉', '⭐', '🌟', '🎈', '🏆', '💫', '🎊', '✨', '🥳', '🎀'];
 
 interface Particle {
   id: number;
@@ -68,18 +68,15 @@ export function CompletionCelebration({
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-400 overscroll-contain ${
-        visible ? "opacity-100" : "opacity-0"
+        visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
       {/* backdrop */}
-      <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-        onClick={handleClose}
-      />
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={handleClose} />
 
       {/* falling particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {particles.map((p) => (
+        {particles.map(p => (
           <span
             key={p.id}
             className="absolute top-0 animate-fall"
@@ -88,7 +85,7 @@ export function CompletionCelebration({
               fontSize: `${p.size}rem`,
               animationDuration: `${p.duration}s`,
               animationDelay: `${p.delay}s`,
-              animationFillMode: "both",
+              animationFillMode: 'both',
               transform: `rotate(${p.rotate}deg)`,
             }}
           >
@@ -106,20 +103,18 @@ export function CompletionCelebration({
         aria-live="polite"
       >
         <div className="text-7xl animate-bounce" aria-hidden="true">
-          {completedCount === totalTopics ? "🏆" : "🎉"}
+          {completedCount === totalTopics ? '🏆' : '🎉'}
         </div>
         <h2
           id="celebration-title"
           className="text-3xl font-black text-slate-800 text-center leading-tight"
         >
-          {completedCount === totalTopics
-            ? t.celebration.excellent
-            : t.celebration.goodJob}
+          {completedCount === totalTopics ? t.celebration.excellent : t.celebration.goodJob}
         </h2>
         <p className="text-slate-500 font-bold text-center text-sm leading-relaxed">
           {completedCount === totalTopics ? (
             <>
-              {t.celebration.allDone}{" "}
+              {t.celebration.allDone}{' '}
               <span className="text-emerald-600 font-black">
                 {interpolate(t.celebration.allLessons, { total: totalTopics })}
               </span>
@@ -127,7 +122,7 @@ export function CompletionCelebration({
             </>
           ) : (
             <>
-              {t.celebration.progress}{" "}
+              {t.celebration.progress}{' '}
               <span className="text-emerald-600 font-black">
                 {completedCount}/{totalTopics} {t.celebration.lessons}
               </span>

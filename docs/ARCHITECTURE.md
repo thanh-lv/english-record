@@ -302,6 +302,52 @@ english-record/
 
 ## 8. Chiến lược Xử lý Ngoại lệ & Bảo mật (Security & Resilience)
 
-1. **Input Validation**: Mọi dữ liệu đầu vào (tên học sinh, số điện thoại, tiêu đề chủ đề, nội dung câu hỏi) đều được kiểm tra chặt chẽ thông qua [validators.ts](file:///Users/thanhlv/Documents/Projects/english-record/src/utils/validators.ts).
+1. **Input Validation**: Mọi dữ liệu đầu vào (tên học sinh, số điện thoại, tiêu đề chủ đề, nội dung câu hỏi) đều được kiểm tra chặt chẽ thông qua [validators.ts](file:///Users/thanhlv/Documents/Projects/english-record/src/utils/validators.ts) và Zod Schemas.
 2. **Offline Detection**: Hệ thống sử dụng hook `useOnlineStatus` kết hợp component `OfflineBanner` để cảnh báo kịp thời cho học sinh khi mất kết nối mạng.
 3. **Graceful Auth Timeout**: Trường hợp kết nối tới Supabase Auth bị trễ, `App.tsx` có cơ chế timeout 5 giây ngăn chặn việc ứng dụng bị treo ở màn hình loading vô hạn.
+
+---
+
+## 9. Quy Trình CI & Triển Khai (CI Pipeline & Render Deployment)
+
+Hệ thống tích hợp quy trình **Continuous Integration (CI)** tự động thông qua GitHub Actions kết hợp cùng **Auto-Deploy trên Render**:
+
+```mermaid
+flowchart TD
+    subgraph GitEvents ["Sự Kiện Git"]
+        PR["Pull Request -> develop / main"]
+        Merge["Push / Merge -> main"]
+    end
+
+    subgraph GitHubActions ["GitHub Actions CI Pipeline (.github/workflows/ci.yml)"]
+        PR --> CI_Start[Kích hoạt CI Workflow]
+        Merge --> CI_Start
+        
+        CI_Start --> Job1["1. Lint & Format Check<br/>(ESLint + Prettier)"]
+        CI_Start --> Job2["2. TypeScript Type Check<br/>(tsc --noEmit)"]
+        CI_Start --> Job3["3. Automated Tests & Coverage<br/>(170+ Vitest Tests)"]
+        CI_Start --> Job4["4. Security Vulnerability Scan<br/>(npm audit)"]
+        
+        Job1 & Job2 & Job3 & Job4 --> Job5["5. Production Build Verification<br/>(Vite Build Artifacts)"]
+    end
+
+    subgraph RenderDeployment ["Triển Khai Render (render.yaml / Auto Deploy)"]
+        Merge -->|Webhook Trigger| Render_Build["Render Static Site Builder<br/>(npm run build)"]
+        Render_Build --> Render_Deploy["Phát hành bản build lên CDN Render"]
+        Render_Deploy --> Client_Users["Người dùng truy cập ứng dụng (SPA Routing & Caching)"]
+    end
+```
+
+### Chi tiết các tầng kiểm thử trong CI:
+- **Lint & Format**: Kiểm tra quy chuẩn cú pháp JavaScript/TypeScript và định dạng Prettier (`format:check`).
+- **Type Check**: Chạy `tsc --noEmit` xác thực toàn bộ kiểu dữ liệu mà không cần tạo file build.
+- **Unit Tests & Coverage**: Chạy toàn diện bộ test cases với Vitest, đo lường độ bao phủ mã nguồn (>90%) và lưu trữ artifact 14 ngày.
+- **Security Audit**: Quét các lỗ hổng bảo mật cấp cao và nghiêm trọng từ dependencies.
+- **Production Build**: Biên dịch bundle thực tế, kiểm tra kích thước chunk và tính hợp lệ của mã đóng gói.
+
+### Cơ chế Deploy trên Render:
+- Ứng dụng được cấu hình qua file `render.yaml` theo dạng **Static Site**.
+- **SPA Routing Rewrite**: Mọi request tới URL nhánh con được điều hướng tự động về `index.html` (`/* -> /index.html`).
+- **Asset Caching**: Các file trong `/assets/` được áp dụng header `Cache-Control: public, max-age=31536000, immutable`.
+- **Biến môi trường**: Được quản lý an toàn qua Render Dashboard Environment Variables.
+

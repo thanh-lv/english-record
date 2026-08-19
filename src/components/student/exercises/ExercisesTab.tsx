@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo } from 'react';
 import {
   CheckCircle2,
   Star,
@@ -8,9 +8,9 @@ import {
   X,
   ArrowRight,
   RotateCcw,
-} from "lucide-react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { getPrizeForTopic } from "../../../utils/prizes";
+} from 'lucide-react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { getPrizeForTopic } from '../../../utils/prizes';
 
 interface ExercisesTabProps {
   activeTopics: any[];
@@ -30,27 +30,24 @@ export function ExercisesTab({
   studentGrade,
 }: ExercisesTabProps) {
   const { t } = useLanguage();
-  const [filterText, setFilterText] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | "completed" | "todo"
-  >("all");
+  const [filterText, setFilterText] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'todo'>('all');
 
   const totalNumbers = useMemo(
     () => Array.from({ length: activeTopics.length }, (_, i) => i + 1),
-    [activeTopics.length],
+    [activeTopics.length]
   );
 
   // Compute status for all topics
   const topicsData = useMemo(() => {
-    return totalNumbers.map((num) => {
+    return totalNumbers.map(num => {
       const topic = activeTopics[num - 1];
       let isCompleted = completedNumbers.includes(num);
       let isPartiallyCompleted = false;
       let progressText = t.exercises.done;
 
       const hasGlobalRecording = myRecordings.some(
-        (r: any) =>
-          r.topic_number === num && !r.question_id && !r.question_text,
+        (r: any) => r.topic_number === num && !r.question_id && !r.question_text
       );
 
       let totalQs = 1;
@@ -66,10 +63,9 @@ export function ExercisesTab({
         totalQs = topic.questions.length;
         answeredQs = topic.questions.filter((q: any) =>
           myRecordings.some(
-            (rec) =>
-              rec.topic_number === num &&
-              (rec.question_id === q.id || rec.question_text === q.text),
-          ),
+            rec =>
+              rec.topic_number === num && (rec.question_id === q.id || rec.question_text === q.text)
+          )
         ).length;
 
         isCompleted = answeredQs === totalQs;
@@ -85,12 +81,10 @@ export function ExercisesTab({
         answeredQs = isCompleted ? 1 : 0;
       }
 
-      const progressPct =
-        totalQs > 0 ? Math.round((answeredQs / totalQs) * 100) : 0;
+      const progressPct = totalQs > 0 ? Math.round((answeredQs / totalQs) * 100) : 0;
 
       const topicRating = !isBongBe
-        ? (myRecordings.find((rec) => rec.topic_number === num)
-            ?.teacher_rating ?? 0)
+        ? (myRecordings.find(rec => rec.topic_number === num)?.teacher_rating ?? 0)
         : 0;
       const needsRetry = isCompleted && topicRating > 0 && topicRating <= 3;
 
@@ -107,37 +101,27 @@ export function ExercisesTab({
         needsRetry,
       };
     });
-  }, [
-    activeTopics,
-    totalNumbers,
-    completedNumbers,
-    myRecordings,
-    isBongBe,
-    t.exercises.done,
-  ]);
+  }, [activeTopics, totalNumbers, completedNumbers, myRecordings, isBongBe, t.exercises.done]);
 
   // Overall Statistics
   const completedCount = useMemo(
-    () => topicsData.filter((item) => item.isCompleted).length,
-    [topicsData],
+    () => topicsData.filter(item => item.isCompleted).length,
+    [topicsData]
   );
   const totalTopics = topicsData.length;
-  const overallProgressPct =
-    totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+  const overallProgressPct = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
 
   // Filtered topics
   const filteredTopics = useMemo(() => {
-    return topicsData.filter((item) => {
+    return topicsData.filter(item => {
       // Status filter
-      if (statusFilter === "completed" && !item.isCompleted) return false;
-      if (statusFilter === "todo" && item.isCompleted) return false;
+      if (statusFilter === 'completed' && !item.isCompleted) return false;
+      if (statusFilter === 'todo' && item.isCompleted) return false;
 
       // Text search
       if (!filterText.trim()) return true;
       const q = filterText.toLowerCase().trim();
-      const numMatch =
-        String(item.num).includes(q) ||
-        (isBongBe && `test ${item.num}`.includes(q));
+      const numMatch = String(item.num).includes(q) || (isBongBe && `test ${item.num}`.includes(q));
       const titleMatch = item.topic?.title?.toLowerCase().includes(q);
       return numMatch || titleMatch;
     });
@@ -162,16 +146,14 @@ export function ExercisesTab({
               </h2>
               {studentGrade && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-200/70 shadow-2xs">
-                  {interpolate(t.common?.gradeLabel || "Lớp {grade}", {
+                  {interpolate(t.common?.gradeLabel || 'Lớp {grade}', {
                     grade: studentGrade,
                   })}
                 </span>
               )}
             </div>
             <p className="text-slate-500 font-semibold text-xs sm:text-sm max-w-xl">
-              {isBongBe
-                ? t.exercises.subtitleBongBe
-                : t.exercises.subtitleNormal}
+              {isBongBe ? t.exercises.subtitleBongBe : t.exercises.subtitleNormal}
             </p>
           </div>
 
@@ -207,33 +189,33 @@ export function ExercisesTab({
           <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60">
             <button
               type="button"
-              onClick={() => setStatusFilter("all")}
+              onClick={() => setStatusFilter('all')}
               className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                statusFilter === "all"
-                  ? "bg-white text-slate-800 shadow-2xs"
-                  : "text-slate-500 hover:text-slate-700"
+                statusFilter === 'all'
+                  ? 'bg-white text-slate-800 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Tất cả ({totalTopics})
             </button>
             <button
               type="button"
-              onClick={() => setStatusFilter("todo")}
+              onClick={() => setStatusFilter('todo')}
               className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                statusFilter === "todo"
-                  ? "bg-white text-blue-600 shadow-2xs"
-                  : "text-slate-500 hover:text-slate-700"
+                statusFilter === 'todo'
+                  ? 'bg-white text-blue-600 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Cần làm ({totalTopics - completedCount})
             </button>
             <button
               type="button"
-              onClick={() => setStatusFilter("completed")}
+              onClick={() => setStatusFilter('completed')}
               className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                statusFilter === "completed"
-                  ? "bg-white text-emerald-600 shadow-2xs"
-                  : "text-slate-500 hover:text-slate-700"
+                statusFilter === 'completed'
+                  ? 'bg-white text-emerald-600 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Đã xong ({completedCount})
@@ -249,14 +231,14 @@ export function ExercisesTab({
             <input
               type="text"
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              onChange={e => setFilterText(e.target.value)}
               placeholder="Tìm bài học..."
               className="w-full sm:w-56 pl-9 pr-8 py-2 bg-white rounded-xl border border-slate-200/80 text-xs font-bold text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-500 transition-all shadow-2xs"
             />
             {filterText && (
               <button
                 type="button"
-                onClick={() => setFilterText("")}
+                onClick={() => setFilterText('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <X size={14} />
@@ -272,19 +254,16 @@ export function ExercisesTab({
           <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-2xl">
             🔍
           </div>
-          <p className="font-black text-slate-700 text-base">
-            Không tìm thấy bài học nào phù hợp
-          </p>
+          <p className="font-black text-slate-700 text-base">Không tìm thấy bài học nào phù hợp</p>
           <p className="text-xs text-slate-400 max-w-sm mx-auto font-medium">
-            Hãy thử thay đổi từ khoá tìm kiếm hoặc chọn bộ lọc &quot;Tất
-            cả&quot; nhé!
+            Hãy thử thay đổi từ khoá tìm kiếm hoặc chọn bộ lọc &quot;Tất cả&quot; nhé!
           </p>
-          {(filterText || statusFilter !== "all") && (
+          {(filterText || statusFilter !== 'all') && (
             <button
               type="button"
               onClick={() => {
-                setFilterText("");
-                setStatusFilter("all");
+                setFilterText('');
+                setStatusFilter('all');
               }}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 shadow-sm"
             >
@@ -311,15 +290,15 @@ export function ExercisesTab({
                 <button
                   key={num}
                   type="button"
-                  onClick={(e) => onTopicClick(num, e)}
+                  onClick={e => onTopicClick(num, e)}
                   className={`group relative text-left rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between transition-all duration-300 active:scale-95 cursor-pointer overflow-hidden border ${
                     needsRetry
-                      ? "bg-gradient-to-b from-amber-50/90 via-white to-amber-50/50 border-amber-200/90 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/10 hover:-translate-y-1.5"
+                      ? 'bg-gradient-to-b from-amber-50/90 via-white to-amber-50/50 border-amber-200/90 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/10 hover:-translate-y-1.5'
                       : isCompleted
-                        ? "bg-gradient-to-b from-emerald-50/90 via-white to-emerald-50/40 border-emerald-200/80 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-1.5"
+                        ? 'bg-gradient-to-b from-emerald-50/90 via-white to-emerald-50/40 border-emerald-200/80 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-1.5'
                         : isPartiallyCompleted
-                          ? "bg-gradient-to-b from-orange-50/90 via-white to-orange-50/40 border-orange-200/80 hover:border-orange-400 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-1.5"
-                          : "bg-white border-slate-200/80 hover:border-blue-300 hover:bg-blue-50/20 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1.5"
+                          ? 'bg-gradient-to-b from-orange-50/90 via-white to-orange-50/40 border-orange-200/80 hover:border-orange-400 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-1.5'
+                          : 'bg-white border-slate-200/80 hover:border-blue-300 hover:bg-blue-50/20 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1.5'
                   }`}
                 >
                   {/* Top card row: Badge & Prize / Star */}
@@ -328,12 +307,12 @@ export function ExercisesTab({
                     <div
                       className={`inline-flex items-center justify-center px-2.5 py-1 rounded-xl text-xs font-black transition-all ${
                         needsRetry
-                          ? "bg-amber-100 text-amber-800 border border-amber-200"
+                          ? 'bg-amber-100 text-amber-800 border border-amber-200'
                           : isCompleted
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                             : isPartiallyCompleted
-                              ? "bg-orange-100 text-orange-800 border border-orange-200"
-                              : "bg-slate-100 text-slate-700 group-hover:bg-blue-100 group-hover:text-blue-700"
+                              ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                              : 'bg-slate-100 text-slate-700 group-hover:bg-blue-100 group-hover:text-blue-700'
                       }`}
                     >
                       {isBongBe ? `Test ${num}` : `Bài ${num}`}
@@ -355,8 +334,8 @@ export function ExercisesTab({
                             size={10}
                             className={
                               i < topicRating
-                                ? "fill-amber-400 text-amber-400"
-                                : "text-amber-200 fill-amber-200"
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'text-amber-200 fill-amber-200'
                             }
                           />
                         ))}
@@ -371,8 +350,7 @@ export function ExercisesTab({
                   {/* Topic Title */}
                   <div className="w-full my-1 min-h-[38px] flex items-center">
                     <h3 className="font-black text-slate-800 text-xs sm:text-sm leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      {topic?.title ||
-                        (isBongBe ? `Chủ đề Test ${num}` : `Chủ đề ${num}`)}
+                      {topic?.title || (isBongBe ? `Chủ đề Test ${num}` : `Chủ đề ${num}`)}
                     </h3>
                   </div>
 
@@ -385,19 +363,13 @@ export function ExercisesTab({
                         </span>
                       ) : isCompleted ? (
                         <span className="text-emerald-600 flex items-center gap-1">
-                          <CheckCircle2
-                            size={11}
-                            className="text-emerald-500"
-                          />{" "}
-                          Hoàn thành
+                          <CheckCircle2 size={11} className="text-emerald-500" /> Hoàn thành
                         </span>
                       ) : isPartiallyCompleted ? (
-                        <span className="text-orange-600">
-                          Đã làm {progressText}
-                        </span>
+                        <span className="text-orange-600">Đã làm {progressText}</span>
                       ) : (
                         <span className="text-slate-400 group-hover:text-blue-600 flex items-center gap-1 transition-colors">
-                          Bắt đầu làm{" "}
+                          Bắt đầu làm{' '}
                           <ArrowRight
                             size={10}
                             className="group-hover:translate-x-0.5 transition-transform"
@@ -417,12 +389,12 @@ export function ExercisesTab({
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           needsRetry
-                            ? "bg-amber-400"
+                            ? 'bg-amber-400'
                             : isCompleted
-                              ? "bg-emerald-500"
+                              ? 'bg-emerald-500'
                               : isPartiallyCompleted
-                                ? "bg-orange-400"
-                                : "bg-transparent"
+                                ? 'bg-orange-400'
+                                : 'bg-transparent'
                         }`}
                         style={{ width: `${progressPct}%` }}
                       />
@@ -430,7 +402,7 @@ export function ExercisesTab({
                   </div>
                 </button>
               );
-            },
+            }
           )}
         </div>
       )}

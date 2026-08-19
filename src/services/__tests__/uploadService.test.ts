@@ -18,7 +18,7 @@ describe('uploadService', () => {
   it('rejects unsupported file mime types in media folders', async () => {
     const file = new File(['content'], 'test.exe', { type: 'application/x-msdownload' });
     await expect(uploadService.uploadFile(file, 'uploads', 10)).rejects.toThrow(
-      'Định dạng tệp không được hỗ trợ',
+      'Định dạng tệp không được hỗ trợ'
     );
   });
 
@@ -26,7 +26,7 @@ describe('uploadService', () => {
     const largeContent = new Uint8Array(3 * 1024 * 1024);
     const file = new File([largeContent], 'photo.png', { type: 'image/png' });
     await expect(uploadService.uploadFile(file, 'uploads', 2)).rejects.toThrow(
-      'Dung lượng tệp vượt quá giới hạn cho phép (2MB).',
+      'Dung lượng tệp vượt quá giới hạn cho phép (2MB).'
     );
   });
 

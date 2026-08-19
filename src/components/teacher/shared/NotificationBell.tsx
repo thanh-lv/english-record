@@ -1,8 +1,8 @@
-import { Bell, Trash2, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { Notification } from "../hooks/useNotifications";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { Bell, Trash2, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Notification } from '../hooks/useNotifications';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
 
 interface NotificationBellProps {
   notifications: Notification[];
@@ -27,14 +27,10 @@ export function NotificationBell({
   const [open, setOpen] = useState(false);
 
   function timeAgo(isoString: string): string {
-    const diff = Math.floor(
-      (Date.now() - new Date(isoString).getTime()) / 1000,
-    );
+    const diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
     if (diff < 60) return t.notifications.justNow;
-    if (diff < 3600)
-      return `${Math.floor(diff / 60)} ${t.notifications.minutesAgo}`;
-    if (diff < 86400)
-      return `${Math.floor(diff / 3600)} ${t.notifications.hoursAgo}`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} ${t.notifications.minutesAgo}`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} ${t.notifications.hoursAgo}`;
     return `${Math.floor(diff / 86400)} ${t.notifications.daysAgo}`;
   }
   const ref = useRef<HTMLDivElement>(null);
@@ -46,12 +42,12 @@ export function NotificationBell({
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
 
   const handleOpen = () => {
-    setOpen((v) => !v);
+    setOpen(v => !v);
     if (!open && unreadCount > 0) onMarkAllRead();
   };
 
@@ -75,7 +71,7 @@ export function NotificationBell({
             aria-hidden="true"
             className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-lg flex items-center justify-center border-2 border-white shadow-md"
           >
-            {unreadCount > 9 ? "9+" : unreadCount}
+            {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
@@ -88,10 +84,7 @@ export function NotificationBell({
           className="fixed md:absolute left-2 right-2 md:left-auto md:right-0 top-16 md:top-12 md:w-80 bg-white rounded-lg shadow-md border border-slate-100 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <span
-              id="notification-bell-title"
-              className="font-extrabold text-slate-800 text-sm"
-            >
+            <span id="notification-bell-title" className="font-extrabold text-slate-800 text-sm">
               {t.notifications.title}
               {unreadCount > 0 && (
                 <span className="ml-2 px-1.5 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-black rounded-lg">
@@ -129,12 +122,10 @@ export function NotificationBell({
                 <p className="text-xs font-bold">{t.notifications.empty}</p>
               </div>
             ) : (
-              notifications.map((n) => {
+              notifications.map(n => {
                 const isRead = readIds.has(n.id);
                 const itemLabel = `${n.student_name} ${t.notifications.submitted}${
-                  n.topic_number !== undefined
-                    ? ` ${t.notifications.topic} ${n.topic_number}`
-                    : ""
+                  n.topic_number !== undefined ? ` ${t.notifications.topic} ${n.topic_number}` : ''
                 } — ${timeAgo(n.created_at)}`;
                 return (
                   <div
@@ -147,8 +138,8 @@ export function NotificationBell({
                       onNavigate(n.id, n.student_name);
                       setOpen(false);
                     }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         onMarkRead(n.id);
                         onNavigate(n.id, n.student_name);
@@ -156,21 +147,19 @@ export function NotificationBell({
                       }
                     }}
                     className={`px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 cursor-pointer flex items-start gap-3 transition-colors ${
-                      !isRead ? "bg-[#E3F2FD]/30" : ""
+                      !isRead ? 'bg-[#E3F2FD]/30' : ''
                     }`}
                   >
                     <span
                       aria-hidden="true"
                       className={`w-2 h-2 rounded-lg mt-1.5 shrink-0 ${
-                        !isRead ? "bg-[#1E88E5]" : "bg-transparent"
+                        !isRead ? 'bg-[#1E88E5]' : 'bg-transparent'
                       }`}
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-slate-700 leading-snug">
-                        <span className="font-extrabold text-slate-900">
-                          {n.student_name}
-                        </span>{" "}
-                        {t.notifications.submitted}{" "}
+                        <span className="font-extrabold text-slate-900">{n.student_name}</span>{' '}
+                        {t.notifications.submitted}{' '}
                         {n.topic_number !== undefined && (
                           <span className="text-[#1E88E5] font-black">
                             {t.notifications.topic} {n.topic_number}

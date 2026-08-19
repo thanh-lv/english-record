@@ -1,15 +1,15 @@
 export function formatClassName(
   className?: string | null,
-  unassignedText: string = "Chưa phân lớp",
-  classPrefix: string = "Lớp ",
+  unassignedText: string = 'Chưa phân lớp',
+  classPrefix: string = 'Lớp '
 ): string {
-  if (!className || className.trim() === "") return unassignedText;
+  if (!className || className.trim() === '') return unassignedText;
   const trimmed = className.trim();
   if (
     trimmed === unassignedText ||
-    trimmed.toLowerCase() === "all" ||
-    trimmed.toLowerCase() === "tất cả lớp" ||
-    trimmed.toLowerCase() === "tất cả các lớp"
+    trimmed.toLowerCase() === 'all' ||
+    trimmed.toLowerCase() === 'tất cả lớp' ||
+    trimmed.toLowerCase() === 'tất cả các lớp'
   ) {
     return trimmed;
   }

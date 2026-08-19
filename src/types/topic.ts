@@ -15,7 +15,7 @@ export interface Question {
 export interface Topic {
   id: string;
   title: string;
-  type: "standard" | "bongbe";
+  type: 'standard' | 'bongbe';
   is_active: boolean;
   order_index?: number;
   created_at?: string;

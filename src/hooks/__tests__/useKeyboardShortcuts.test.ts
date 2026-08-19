@@ -9,7 +9,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         isModalOpen: true,
         onPlayPause,
-      }),
+      })
     );
 
     const event = new KeyboardEvent('keydown', { code: 'Space' });
@@ -26,7 +26,7 @@ describe('useKeyboardShortcuts', () => {
         isRecording: false,
         onStartRecord,
         onStopRecord,
-      }),
+      })
     );
 
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR' }));
@@ -43,7 +43,7 @@ describe('useKeyboardShortcuts', () => {
         isRecording: true,
         onStartRecord,
         onStopRecord,
-      }),
+      })
     );
 
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyR' }));
@@ -57,7 +57,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         isModalOpen: true,
         onClose,
-      }),
+      })
     );
 
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape' }));
@@ -72,7 +72,7 @@ describe('useKeyboardShortcuts', () => {
         isModalOpen: true,
         onPlayPause,
         onStartRecord,
-      }),
+      })
     );
 
     const input = document.createElement('input');
@@ -91,7 +91,7 @@ describe('useKeyboardShortcuts', () => {
       useKeyboardShortcuts({
         isModalOpen: false,
         onPlayPause,
-      }),
+      })
     );
 
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space' }));

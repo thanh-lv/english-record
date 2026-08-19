@@ -1,22 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import { supabase } from "../../../lib/supabase";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import {
-  Volume2,
-  X,
-  CheckCircle2,
-  XCircle,
-  RefreshCw,
-  Gamepad2,
-} from "lucide-react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { VocabCard, VocabSet } from "../../../types";
+import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { supabase } from '../../../lib/supabase';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { Volume2, X, CheckCircle2, XCircle, RefreshCw, Gamepad2 } from 'lucide-react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { VocabCard, VocabSet } from '../../../types';
 
 // ─── MATCHING GAME ───────────────────────────────────────────────
 interface MatchTile {
   id: string;
-  type: "word" | "meaning";
+  type: 'word' | 'meaning';
   text: string;
   image_url?: string | null;
   pairId: string;
@@ -24,13 +17,7 @@ interface MatchTile {
   flipped: boolean;
 }
 
-function MatchingGame({
-  cards,
-  onClose,
-}: {
-  cards: VocabCard[];
-  onClose: () => void;
-}) {
+function MatchingGame({ cards, onClose }: { cards: VocabCard[]; onClose: () => void }) {
   const { t } = useLanguage();
   const [tiles, setTiles] = useState<MatchTile[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -42,18 +29,18 @@ function MatchingGame({
 
   const buildTiles = (cards: VocabCard[]) => {
     const pool = cards.slice(0, 6);
-    const wordTiles: MatchTile[] = pool.map((c) => ({
+    const wordTiles: MatchTile[] = pool.map(c => ({
       id: `w-${c.id}`,
-      type: "word",
+      type: 'word',
       text: c.front,
       image_url: c.image_url,
       pairId: c.id,
       matched: false,
       flipped: false,
     }));
-    const meaningTiles: MatchTile[] = pool.map((c) => ({
+    const meaningTiles: MatchTile[] = pool.map(c => ({
       id: `m-${c.id}`,
-      type: "meaning",
+      type: 'meaning',
       text: c.back,
       pairId: c.id,
       matched: false,
@@ -68,65 +55,54 @@ function MatchingGame({
 
   useEffect(() => {
     if (finished) return;
-    const t = setInterval(
-      () => setElapsed(Math.floor((Date.now() - startTime) / 1000)),
-      500,
-    );
+    const t = setInterval(() => setElapsed(Math.floor((Date.now() - startTime) / 1000)), 500);
     return () => clearInterval(t);
   }, [finished, startTime]);
 
   const speak = (text: string) => {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
+    u.lang = 'en-US';
     u.rate = 0.85;
     window.speechSynthesis.speak(u);
   };
 
   const handleTileClick = (tileId: string) => {
-    const tile = tiles.find((t) => t.id === tileId);
+    const tile = tiles.find(t => t.id === tileId);
     if (!tile || tile.matched || tile.flipped) return;
     if (wrongPair) return;
 
-    if (tile.type === "word") speak(tile.text);
+    if (tile.type === 'word') speak(tile.text);
 
     if (!selected) {
       setSelected(tileId);
-      setTiles((prev) =>
-        prev.map((t) => (t.id === tileId ? { ...t, flipped: true } : t)),
-      );
+      setTiles(prev => prev.map(t => (t.id === tileId ? { ...t, flipped: true } : t)));
       return;
     }
 
-    const selTile = tiles.find((t) => t.id === selected)!;
-    setMoves((m) => m + 1);
+    const selTile = tiles.find(t => t.id === selected)!;
+    setMoves(m => m + 1);
 
     if (selTile.pairId === tile.pairId && selTile.type !== tile.type) {
       // Match!
-      setTiles((prev) =>
-        prev.map((t) =>
-          t.pairId === tile.pairId ? { ...t, matched: true, flipped: true } : t,
-        ),
+      setTiles(prev =>
+        prev.map(t => (t.pairId === tile.pairId ? { ...t, matched: true, flipped: true } : t))
       );
       setSelected(null);
       setTimeout(() => {
-        setTiles((prev) => {
-          const allDone = prev.every((t) => t.matched);
+        setTiles(prev => {
+          const allDone = prev.every(t => t.matched);
           if (allDone) setFinished(true);
           return prev;
         });
       }, 300);
     } else {
       // Wrong
-      setTiles((prev) =>
-        prev.map((t) => (t.id === tileId ? { ...t, flipped: true } : t)),
-      );
+      setTiles(prev => prev.map(t => (t.id === tileId ? { ...t, flipped: true } : t)));
       setWrongPair([selected, tileId]);
       setTimeout(() => {
-        setTiles((prev) =>
-          prev.map((t) =>
-            t.id === selected || t.id === tileId ? { ...t, flipped: false } : t,
-          ),
+        setTiles(prev =>
+          prev.map(t => (t.id === selected || t.id === tileId ? { ...t, flipped: false } : t))
         );
         setSelected(null);
         setWrongPair(null);
@@ -142,8 +118,7 @@ function MatchingGame({
     setFinished(false);
   };
 
-  const fmt = (s: number) =>
-    `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   useEscapeToClose(onClose);
 
@@ -158,10 +133,7 @@ function MatchingGame({
         {/* Header */}
         <div className="flex items-center justify-between px-7 pt-6 pb-4">
           <div>
-            <h3
-              id="matching-game-title"
-              className="font-black text-slate-800 text-2xl"
-            >
+            <h3 id="matching-game-title" className="font-black text-slate-800 text-2xl">
               {t.games.matchingTitle}
             </h3>
             <p className="text-sm font-bold text-slate-400 mt-0.5">
@@ -194,9 +166,7 @@ function MatchingGame({
           {finished ? (
             <div className="py-12 flex flex-col items-center gap-4">
               <div className="text-8xl animate-bounce">🏆</div>
-              <p className="font-black text-3xl text-amber-600">
-                {t.games.wellDone}
-              </p>
+              <p className="font-black text-3xl text-amber-600">{t.games.wellDone}</p>
               <p className="text-slate-500 font-bold">
                 {interpolate(t.games.movesAndElapsed, {
                   moves,
@@ -220,7 +190,7 @@ function MatchingGame({
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-3">
-              {tiles.map((tile) => {
+              {tiles.map(tile => {
                 const isSelected = selected === tile.id;
                 const isWrong = wrongPair?.includes(tile.id);
                 return (
@@ -232,26 +202,24 @@ function MatchingGame({
                       h-28 rounded-lg font-extrabold text-sm transition-all duration-300 flex flex-col items-center justify-center gap-2 p-3 border-3 select-none
                       ${
                         tile.matched
-                          ? "bg-emerald-100 border-emerald-300 text-emerald-700 scale-95 opacity-60"
+                          ? 'bg-emerald-100 border-emerald-300 text-emerald-700 scale-95 opacity-60'
                           : tile.flipped
                             ? isWrong
-                              ? "bg-rose-100 border-rose-300 text-rose-700 scale-95"
+                              ? 'bg-rose-100 border-rose-300 text-rose-700 scale-95'
                               : isSelected
-                                ? "bg-blue-100 border-[#1E88E5] text-[#1E88E5] scale-105 shadow-md"
-                                : "bg-blue-50 border-blue-200 text-slate-700"
-                            : "bg-gradient-to-br from-[#1E88E5] to-[#42A5F5] border-blue-700 text-white hover:scale-105 hover:shadow-md active:scale-95"
+                                ? 'bg-blue-100 border-[#1E88E5] text-[#1E88E5] scale-105 shadow-md'
+                                : 'bg-blue-50 border-blue-200 text-slate-700'
+                            : 'bg-gradient-to-br from-[#1E88E5] to-[#42A5F5] border-blue-700 text-white hover:scale-105 hover:shadow-md active:scale-95'
                       }
                     `}
                   >
                     {tile.flipped || tile.matched ? (
                       <>
-                        {tile.type === "word" && tile.image_url && (
+                        {tile.type === 'word' && tile.image_url && (
                           <img
                             src={tile.image_url}
                             alt={
-                              tile.text ||
-                              t.vocabManager?.cardImageAlt ||
-                              "Hình minh họa từ vựng"
+                              tile.text || t.vocabManager?.cardImageAlt || 'Hình minh họa từ vựng'
                             }
                             className="w-12 h-12 object-cover rounded-lg"
                           />
@@ -271,23 +239,15 @@ function MatchingGame({
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 
 // ─── QUIZ GAME ───────────────────────────────────────────────────
-function QuizGame({
-  cards,
-  onClose,
-}: {
-  cards: VocabCard[];
-  onClose: () => void;
-}) {
+function QuizGame({ cards, onClose }: { cards: VocabCard[]; onClose: () => void }) {
   const { t } = useLanguage();
   const TOTAL = Math.min(10, cards.length);
-  const [questions] = useState(() =>
-    cards.sort(() => Math.random() - 0.5).slice(0, TOTAL),
-  );
+  const [questions] = useState(() => cards.sort(() => Math.random() - 0.5).slice(0, TOTAL));
   const [index, setIndex] = useState(0);
   const [choices, setChoices] = useState<VocabCard[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -303,18 +263,18 @@ function QuizGame({
       const correct = questions[idx];
       if (!correct) return [];
       const pool = cards
-        .filter((c) => c.id !== correct.id)
+        .filter(c => c.id !== correct.id)
         .sort(() => Math.random() - 0.5)
         .slice(0, 3);
       return [...pool, correct].sort(() => Math.random() - 0.5);
     },
-    [cards, questions],
+    [cards, questions]
   );
 
   const speak = (text: string) => {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
+    u.lang = 'en-US';
     u.rate = 0.85;
     window.speechSynthesis.speak(u);
   };
@@ -322,20 +282,20 @@ function QuizGame({
   const handleAnswer = useCallback(
     (cardId: string | null) => {
       if (selected || !current) return;
-      setSelected(cardId ?? "__timeout__");
+      setSelected(cardId ?? '__timeout__');
       const correct = cardId === current.id;
       if (correct) {
-        setScore((s) => s + 1);
-        setStreak((s) => s + 1);
+        setScore(s => s + 1);
+        setStreak(s => s + 1);
       } else {
         setStreak(0);
       }
       setTimeout(() => {
         if (index + 1 >= TOTAL) setFinished(true);
-        else setIndex((i) => i + 1);
+        else setIndex(i => i + 1);
       }, 1000);
     },
-    [selected, current, index, TOTAL],
+    [selected, current, index, TOTAL]
   );
 
   useEffect(() => {
@@ -350,7 +310,7 @@ function QuizGame({
       handleAnswer(null);
       return;
     }
-    const t = setTimeout(() => setTimeLeft((s) => s - 1), 1000);
+    const t = setTimeout(() => setTimeLeft(s => s - 1), 1000);
     return () => clearTimeout(t);
   }, [timeLeft, selected, finished, handleAnswer]);
 
@@ -383,10 +343,7 @@ function QuizGame({
         {/* Header */}
         <div className="flex items-center justify-between px-7 pt-6 pb-3">
           <div>
-            <h3
-              id="quiz-game-title"
-              className="font-black text-slate-800 text-2xl"
-            >
+            <h3 id="quiz-game-title" className="font-black text-slate-800 text-2xl">
               {t.games.quizTitle}
             </h3>
             {!finished && (
@@ -413,17 +370,11 @@ function QuizGame({
           {finished ? (
             <div className="py-10 flex flex-col items-center gap-4">
               <div className="text-8xl">
-                {stars === 3
-                  ? "🏆"
-                  : stars === 2
-                    ? "🥈"
-                    : stars === 1
-                      ? "🥉"
-                      : "😅"}
+                {stars === 3 ? '🏆' : stars === 2 ? '🥈' : stars === 1 ? '🥉' : '😅'}
               </div>
               <p className="font-black text-3xl text-slate-800">
-                {"⭐".repeat(stars)}
-                {"☆".repeat(3 - stars)}
+                {'⭐'.repeat(stars)}
+                {'☆'.repeat(3 - stars)}
               </p>
               <p className="font-black text-2xl text-[#1E88E5]">
                 {interpolate(t.games.correctCount, {
@@ -432,11 +383,7 @@ function QuizGame({
                 })}
               </p>
               <p className="text-slate-400 font-bold">
-                {pct >= 90
-                  ? t.games.amazing
-                  : pct >= 60
-                    ? t.games.goodJob
-                    : t.games.keepPractising}
+                {pct >= 90 ? t.games.amazing : pct >= 60 ? t.games.goodJob : t.games.keepPractising}
               </p>
               <div className="flex gap-3 mt-3">
                 <button
@@ -469,12 +416,12 @@ function QuizGame({
                   {Array.from({ length: TOTAL }).map((_, i) => (
                     <div
                       key={i}
-                      className={`w-2.5 h-2.5 rounded-lg ${i < index ? "bg-emerald-400" : i === index ? "bg-[#1E88E5]" : "bg-slate-200"}`}
+                      className={`w-2.5 h-2.5 rounded-lg ${i < index ? 'bg-emerald-400' : i === index ? 'bg-[#1E88E5]' : 'bg-slate-200'}`}
                     />
                   ))}
                 </div>
                 <div
-                  className={`px-4 py-1.5 rounded-lg font-black text-base ${timeLeft <= 3 ? "bg-rose-100 text-rose-600 animate-pulse" : "bg-slate-100 text-slate-600"}`}
+                  className={`px-4 py-1.5 rounded-lg font-black text-base ${timeLeft <= 3 ? 'bg-rose-100 text-rose-600 animate-pulse' : 'bg-slate-100 text-slate-600'}`}
                 >
                   ⏱ {timeLeft}s
                 </div>
@@ -485,47 +432,32 @@ function QuizGame({
                 {current.image_url && (
                   <img
                     src={current.image_url}
-                    alt={
-                      current.front ||
-                      t.games?.gameQuestionAlt ||
-                      "Hình minh họa câu hỏi game"
-                    }
+                    alt={current.front || t.games?.gameQuestionAlt || 'Hình minh họa câu hỏi game'}
                     className="w-28 h-28 object-cover rounded-lg shadow-md border-2 border-white"
                   />
                 )}
-                <p className="text-4xl font-black text-[#1E88E5] text-center">
-                  {current.front}
-                </p>
+                <p className="text-4xl font-black text-[#1E88E5] text-center">{current.front}</p>
                 <button
                   onClick={() => speak(current.front)}
                   className="flex items-center gap-2 px-4 py-2 bg-[#1E88E5]/10 hover:bg-[#1E88E5]/20 rounded-lg transition-colors"
                 >
                   <Volume2 size={18} className="text-[#1E88E5]" />
-                  <span className="text-sm font-bold text-[#1E88E5]">
-                    Listen
-                  </span>
+                  <span className="text-sm font-bold text-[#1E88E5]">Listen</span>
                 </button>
-                <p className="text-sm font-bold text-[#1E88E5]/60">
-                  What does this mean?
-                </p>
+                <p className="text-sm font-bold text-[#1E88E5]/60">What does this mean?</p>
               </div>
 
               {/* Choices */}
               <div className="grid grid-cols-2 gap-3">
-                {choices.map((choice) => {
+                {choices.map(choice => {
                   const isCorrect = choice.id === current.id;
                   const isSelected = selected === choice.id;
                   let style =
-                    "bg-white border-2 border-slate-200 text-slate-700 hover:border-blue-300 hover:bg-blue-50";
+                    'bg-white border-2 border-slate-200 text-slate-700 hover:border-blue-300 hover:bg-blue-50';
                   if (selected) {
-                    if (isCorrect)
-                      style =
-                        "bg-emerald-100 border-emerald-400 text-emerald-800";
-                    else if (isSelected)
-                      style = "bg-rose-100 border-rose-400 text-rose-700";
-                    else
-                      style =
-                        "bg-white border-slate-200 text-slate-400 opacity-50";
+                    if (isCorrect) style = 'bg-emerald-100 border-emerald-400 text-emerald-800';
+                    else if (isSelected) style = 'bg-rose-100 border-rose-400 text-rose-700';
+                    else style = 'bg-white border-slate-200 text-slate-400 opacity-50';
                   }
                   return (
                     <button
@@ -535,17 +467,12 @@ function QuizGame({
                       className={`h-20 rounded-lg font-extrabold text-base transition-all active:scale-95 border-3 flex items-center justify-center gap-2 px-4 ${style}`}
                     >
                       {selected && isCorrect && (
-                        <CheckCircle2
-                          size={20}
-                          className="text-emerald-600 shrink-0"
-                        />
+                        <CheckCircle2 size={20} className="text-emerald-600 shrink-0" />
                       )}
                       {selected && isSelected && !isCorrect && (
                         <XCircle size={20} className="text-rose-500 shrink-0" />
                       )}
-                      <span className="line-clamp-2 text-center">
-                        {choice.back}
-                      </span>
+                      <span className="line-clamp-2 text-center">{choice.back}</span>
                     </button>
                   );
                 })}
@@ -555,39 +482,31 @@ function QuizGame({
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 
 // ─── WORD SCRAMBLE ───────────────────────────────────────────────
-function ScrambleGame({
-  cards,
-  onClose,
-}: {
-  cards: VocabCard[];
-  onClose: () => void;
-}) {
+function ScrambleGame({ cards, onClose }: { cards: VocabCard[]; onClose: () => void }) {
   const { t } = useLanguage();
-  const pool = cards.filter((c) => c.front.length >= 3 && c.front.length <= 10);
+  const pool = cards.filter(c => c.front.length >= 3 && c.front.length <= 10);
   const [index, setIndex] = useState(0);
   const [scrambled, setScrambled] = useState<string[]>([]);
   const [answer, setAnswer] = useState<string[]>([]);
-  const [result, setResult] = useState<"correct" | "wrong" | null>(null);
+  const [result, setResult] = useState<'correct' | 'wrong' | null>(null);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const TOTAL = Math.min(8, pool.length);
-  const [questions] = useState(() =>
-    pool.sort(() => Math.random() - 0.5).slice(0, TOTAL),
-  );
+  const [questions] = useState(() => pool.sort(() => Math.random() - 0.5).slice(0, TOTAL));
 
   const current = questions[index];
 
   const buildScramble = (word: string) => {
-    const letters = word.toUpperCase().split("");
+    const letters = word.toUpperCase().split('');
     // ensure scramble differs from original
     let shuffled = [...letters].sort(() => Math.random() - 0.5);
     let tries = 0;
-    while (shuffled.join("") === letters.join("") && tries < 10) {
+    while (shuffled.join('') === letters.join('') && tries < 10) {
       shuffled = [...letters].sort(() => Math.random() - 0.5);
       tries++;
     }
@@ -604,7 +523,7 @@ function ScrambleGame({
   const speak = (text: string) => {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
+    u.lang = 'en-US';
     u.rate = 0.85;
     window.speechSynthesis.speak(u);
   };
@@ -612,27 +531,27 @@ function ScrambleGame({
   const handlePickLetter = (i: number) => {
     if (result) return;
     const letter = scrambled[i];
-    setAnswer((prev) => [...prev, letter]);
-    setScrambled((prev) => prev.filter((_, idx) => idx !== i));
+    setAnswer(prev => [...prev, letter]);
+    setScrambled(prev => prev.filter((_, idx) => idx !== i));
   };
 
   const handleRemoveLetter = (i: number) => {
     if (result) return;
     const letter = answer[i];
-    setAnswer((prev) => prev.filter((_, idx) => idx !== i));
-    setScrambled((prev) => [...prev, letter]);
+    setAnswer(prev => prev.filter((_, idx) => idx !== i));
+    setScrambled(prev => [...prev, letter]);
   };
 
   const checkAnswer = () => {
-    const correct = answer.join("") === current.front.toUpperCase();
-    setResult(correct ? "correct" : "wrong");
+    const correct = answer.join('') === current.front.toUpperCase();
+    setResult(correct ? 'correct' : 'wrong');
     if (correct) {
-      setScore((s) => s + 1);
+      setScore(s => s + 1);
       speak(current.front);
     }
     setTimeout(() => {
       if (index + 1 >= TOTAL) setFinished(true);
-      else setIndex((i) => i + 1);
+      else setIndex(i => i + 1);
     }, 1200);
   };
 
@@ -659,10 +578,7 @@ function ScrambleGame({
       <div className="bg-white w-full sm:max-w-2xl rounded-lg sm:rounded-lg shadow-md">
         <div className="flex items-center justify-between px-7 pt-6 pb-3">
           <div>
-            <h3
-              id="scramble-game-title"
-              className="font-black text-slate-800 text-2xl"
-            >
+            <h3 id="scramble-game-title" className="font-black text-slate-800 text-2xl">
               {t.games.scrambleTitle}
             </h3>
             {!finished && (
@@ -684,17 +600,11 @@ function ScrambleGame({
           {finished ? (
             <div className="py-10 flex flex-col items-center gap-4">
               <div className="text-8xl">
-                {stars === 3
-                  ? "🏆"
-                  : stars === 2
-                    ? "🥈"
-                    : stars === 1
-                      ? "🥉"
-                      : "😅"}
+                {stars === 3 ? '🏆' : stars === 2 ? '🥈' : stars === 1 ? '🥉' : '😅'}
               </div>
               <p className="font-black text-3xl text-slate-800">
-                {"⭐".repeat(stars)}
-                {"☆".repeat(3 - stars)}
+                {'⭐'.repeat(stars)}
+                {'☆'.repeat(3 - stars)}
               </p>
               <p className="font-black text-2xl text-[#1E88E5]">
                 {interpolate(t.games.correctCount, {
@@ -729,36 +639,26 @@ function ScrambleGame({
 
               {/* Hint: meaning + image */}
               <div
-                className={`border-4 rounded-lg p-5 flex flex-col items-center gap-3 min-h-[140px] justify-center transition-colors ${result === "correct" ? "bg-emerald-50 border-emerald-300" : result === "wrong" ? "bg-rose-50 border-rose-300" : "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200"}`}
+                className={`border-4 rounded-lg p-5 flex flex-col items-center gap-3 min-h-[140px] justify-center transition-colors ${result === 'correct' ? 'bg-emerald-50 border-emerald-300' : result === 'wrong' ? 'bg-rose-50 border-rose-300' : 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200'}`}
               >
                 {current.image_url && (
                   <img
                     src={current.image_url}
-                    alt={
-                      current.back ||
-                      t.games?.gameHintAlt ||
-                      "Gợi ý từ vựng game"
-                    }
+                    alt={current.back || t.games?.gameHintAlt || 'Gợi ý từ vựng game'}
                     className="w-24 h-24 object-cover rounded-lg shadow-md border-2 border-white"
                   />
                 )}
-                <p className="text-2xl font-black text-emerald-700 text-center">
-                  {current.back}
-                </p>
-                <p className="text-sm font-bold text-emerald-500/70">
-                  {t.games.scrambleHint}
-                </p>
-                {result === "correct" && (
+                <p className="text-2xl font-black text-emerald-700 text-center">{current.back}</p>
+                <p className="text-sm font-bold text-emerald-500/70">{t.games.scrambleHint}</p>
+                {result === 'correct' && (
                   <p className="text-emerald-600 font-black text-lg animate-bounce">
                     {t.games.scrambleCorrect}
                   </p>
                 )}
-                {result === "wrong" && (
+                {result === 'wrong' && (
                   <p className="text-rose-500 font-black text-lg">
-                    {t.games.scrambleAnswer}{" "}
-                    <span className="text-rose-700">
-                      {current.front.toUpperCase()}
-                    </span>
+                    {t.games.scrambleAnswer}{' '}
+                    <span className="text-rose-700">{current.front.toUpperCase()}</span>
                   </p>
                 )}
               </div>
@@ -823,7 +723,7 @@ function ScrambleGame({
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 // ─── GAMES TAB ───────────────────────────────────────────────────
@@ -834,18 +734,16 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
   const [selectedSet, setSelectedSet] = useState<VocabSet | null>(null);
   const [cards, setCards] = useState<VocabCard[]>([]);
   const [cardsLoading, setCardsLoading] = useState(false);
-  const [activeGame, setActiveGame] = useState<
-    "matching" | "quiz" | "scramble" | null
-  >(null);
+  const [activeGame, setActiveGame] = useState<'matching' | 'quiz' | 'scramble' | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
 
       const { data } = await supabase
-        .from("vocabulary_sets")
-        .select("id, title, emoji, grades, vocabulary_cards(id)")
-        .order("created_at", { ascending: false });
+        .from('vocabulary_sets')
+        .select('id, title, emoji, grades, vocabulary_cards(id)')
+        .order('created_at', { ascending: false });
 
       setSets(
         (data || [])
@@ -857,7 +755,7 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
             }
             return true;
           })
-          .map((s: any) => ({ id: s.id, title: s.title, emoji: s.emoji })),
+          .map((s: any) => ({ id: s.id, title: s.title, emoji: s.emoji }))
       );
       setLoading(false);
     };
@@ -868,40 +766,40 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
     setSelectedSet(set);
     setCardsLoading(true);
     const { data } = await supabase
-      .from("vocabulary_cards")
-      .select("id, set_id, front, back, ipa, image_url, order_index")
-      .eq("set_id", set.id)
-      .order("order_index");
+      .from('vocabulary_cards')
+      .select('id, set_id, front, back, ipa, image_url, order_index')
+      .eq('set_id', set.id)
+      .order('order_index');
     setCards(data || []);
     setCardsLoading(false);
   };
 
   const GAMES = [
     {
-      id: "matching" as const,
-      emoji: "🃏",
+      id: 'matching' as const,
+      emoji: '🃏',
       name: t.games.matchingName,
       desc: t.games.matchingDesc,
-      color: "from-violet-100 to-purple-100 border-violet-200",
-      btn: "bg-violet-500 hover:bg-violet-600 border-violet-800",
+      color: 'from-violet-100 to-purple-100 border-violet-200',
+      btn: 'bg-violet-500 hover:bg-violet-600 border-violet-800',
       min: 4,
     },
     {
-      id: "quiz" as const,
-      emoji: "⚡",
+      id: 'quiz' as const,
+      emoji: '⚡',
       name: t.games.quizName,
       desc: t.games.quizDesc,
-      color: "from-amber-100 to-orange-100 border-amber-200",
-      btn: "bg-amber-500 hover:bg-amber-600 border-amber-800",
+      color: 'from-amber-100 to-orange-100 border-amber-200',
+      btn: 'bg-amber-500 hover:bg-amber-600 border-amber-800',
       min: 4,
     },
     {
-      id: "scramble" as const,
-      emoji: "🔤",
+      id: 'scramble' as const,
+      emoji: '🔤',
       name: t.games.scrambleName,
       desc: t.games.scrambleDesc,
-      color: "from-emerald-100 to-teal-100 border-emerald-200",
-      btn: "bg-emerald-500 hover:bg-emerald-600 border-emerald-800",
+      color: 'from-emerald-100 to-teal-100 border-emerald-200',
+      btn: 'bg-emerald-500 hover:bg-emerald-600 border-emerald-800',
       min: 3,
     },
   ];
@@ -911,7 +809,7 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
       <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
         <div className="h-6 w-32 bg-slate-100 rounded-lg mb-4" />
         <div className="space-y-3">
-          {[0, 1].map((i) => (
+          {[0, 1].map(i => (
             <div key={i} className="h-28 bg-slate-100 rounded-lg" />
           ))}
         </div>
@@ -940,15 +838,15 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
               {t.games.selectSet}
             </p>
             <div className="flex flex-wrap gap-2">
-              {sets.map((set) => (
+              {sets.map(set => (
                 <button
                   key={set.id}
                   onClick={() => handleSelectSet(set)}
                   aria-pressed={selectedSet?.id === set.id}
                   className={`px-4 py-2 rounded-lg border-2 font-extrabold text-sm flex items-center gap-2 transition-all active:scale-95 ${
                     selectedSet?.id === set.id
-                      ? "bg-[#E3F2FD] border-[#1E88E5] text-[#1E88E5] shadow-md"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-blue-200"
+                      ? 'bg-[#E3F2FD] border-[#1E88E5] text-[#1E88E5] shadow-md'
+                      : 'bg-white border-slate-200 text-slate-600 hover:border-blue-200'
                   }`}
                 >
                   {set.emoji} {set.title}
@@ -967,7 +865,7 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
                   {t.games.needMoreCards}
                 </p>
               ) : (
-                GAMES.map((game) => (
+                GAMES.map(game => (
                   <div
                     key={game.id}
                     className={`bg-gradient-to-r ${game.color} border-2 rounded-lg p-4 flex items-center gap-4`}
@@ -975,9 +873,7 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
                     <span className="text-4xl">{game.emoji}</span>
                     <div className="flex-1">
                       <p className="font-black text-slate-800">{game.name}</p>
-                      <p className="text-xs font-bold text-slate-500 mt-0.5">
-                        {game.desc}
-                      </p>
+                      <p className="text-xs font-bold text-slate-500 mt-0.5">{game.desc}</p>
                     </div>
                     <button
                       onClick={() => setActiveGame(game.id)}
@@ -993,13 +889,13 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
         </>
       )}
 
-      {activeGame === "matching" && selectedSet && cards.length >= 4 && (
+      {activeGame === 'matching' && selectedSet && cards.length >= 4 && (
         <MatchingGame cards={cards} onClose={() => setActiveGame(null)} />
       )}
-      {activeGame === "quiz" && selectedSet && cards.length >= 4 && (
+      {activeGame === 'quiz' && selectedSet && cards.length >= 4 && (
         <QuizGame cards={cards} onClose={() => setActiveGame(null)} />
       )}
-      {activeGame === "scramble" && selectedSet && cards.length >= 3 && (
+      {activeGame === 'scramble' && selectedSet && cards.length >= 3 && (
         <ScrambleGame cards={cards} onClose={() => setActiveGame(null)} />
       )}
     </div>

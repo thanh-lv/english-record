@@ -1,13 +1,6 @@
-import {
-  ChevronDown,
-  ChevronUp,
-  Plus,
-  Trash2,
-  Loader2,
-  Pencil,
-} from "lucide-react";
-import { VocabSet, VocabCard } from "../../../types/vocabulary";
-import { Translations, interpolate } from "../../../i18n/LanguageContext";
+import { ChevronDown, ChevronUp, Plus, Trash2, Loader2, Pencil } from 'lucide-react';
+import { VocabSet, VocabCard } from '../../../types/vocabulary';
+import { Translations, interpolate } from '../../../i18n/LanguageContext';
 
 interface VocabSetCardProps {
   t: Translations;
@@ -53,7 +46,7 @@ export function VocabSetCard({
             </h4>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span className="inline-flex items-center text-xs font-black text-blue-700 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-lg shadow-2xs">
-                🏷️ {set.card_count ?? 0} {vm.cardCountUnit || "thẻ từ"}
+                🏷️ {set.card_count ?? 0} {vm.cardCountUnit || 'thẻ từ'}
               </span>
               {Array.isArray(set.grades) && set.grades.length > 0 ? (
                 <span className="inline-flex items-center text-[11px] font-black text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-2.5 py-0.5 rounded-lg shadow-2xs">
@@ -61,12 +54,12 @@ export function VocabSetCard({
                     grade: set.grades
                       .slice()
                       .sort((a: number, b: number) => a - b)
-                      .join(", "),
+                      .join(', '),
                   })}
                 </span>
               ) : (
                 <span className="inline-flex items-center text-[11px] font-black text-slate-600 bg-slate-100 border border-slate-200/60 px-2.5 py-0.5 rounded-lg">
-                  {t.teacherModal?.allGradesOption || "Tất cả các khối"}
+                  {t.teacherModal?.allGradesOption || 'Tất cả các khối'}
                 </span>
               )}
             </div>
@@ -76,18 +69,18 @@ export function VocabSetCard({
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               onOpenAddCard(set.id);
             }}
             className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-black rounded-xl border border-blue-100 shadow-2xs transition-all flex items-center gap-1.5 active:scale-95"
           >
             <Plus size={14} />
-            <span className="hidden sm:inline">{vm.addCard || "Thêm từ"}</span>
+            <span className="hidden sm:inline">{vm.addCard || 'Thêm từ'}</span>
           </button>
           <button
             type="button"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               onEditSet(set);
             }}
@@ -98,7 +91,7 @@ export function VocabSetCard({
           </button>
           <button
             type="button"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               onDeleteSet(set);
             }}
@@ -109,15 +102,9 @@ export function VocabSetCard({
           </button>
           <div className="p-1 text-slate-400">
             {isExpanded ? (
-              <ChevronUp
-                size={20}
-                className="transition-transform duration-200"
-              />
+              <ChevronUp size={20} className="transition-transform duration-200" />
             ) : (
-              <ChevronDown
-                size={20}
-                className="transition-transform duration-200"
-              />
+              <ChevronDown size={20} className="transition-transform duration-200" />
             )}
           </div>
         </div>
@@ -132,11 +119,11 @@ export function VocabSetCard({
             </div>
           ) : !cards || cards.length === 0 ? (
             <div className="text-center py-8 text-slate-400 text-xs font-bold bg-white rounded-2xl border border-dashed border-slate-200">
-              {vm.emptyCards || "Chưa có từ vựng nào trong bộ này"}
+              {vm.emptyCards || 'Chưa có từ vựng nào trong bộ này'}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
-              {cards.map((card) => (
+              {cards.map(card => (
                 <div
                   key={card.id}
                   className="bg-white p-3.5 rounded-2xl border border-slate-200/80 hover:border-blue-300 shadow-2xs hover:shadow-xs transition-all flex gap-3 items-center group/card relative"
@@ -161,9 +148,7 @@ export function VocabSetCard({
                         /{card.ipa}/
                       </p>
                     )}
-                    <p className="text-xs text-slate-500 font-bold truncate mt-0.5">
-                      {card.back}
-                    </p>
+                    <p className="text-xs text-slate-500 font-bold truncate mt-0.5">{card.back}</p>
                   </div>
                   <button
                     type="button"

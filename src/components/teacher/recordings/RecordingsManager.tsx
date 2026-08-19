@@ -11,13 +11,13 @@ import {
   Search,
   Star,
   Trash2,
-} from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { supabase } from "../../../lib/supabase";
-import { AudioPlayer } from "../../common/AudioPlayer";
-import { StudentSummary } from "../hooks/useRecordings";
-import YouTubePlayer from "../../common/YouTubePlayer";
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { supabase } from '../../../lib/supabase';
+import { AudioPlayer } from '../../common/AudioPlayer';
+import { StudentSummary } from '../hooks/useRecordings';
+import YouTubePlayer from '../../common/YouTubePlayer';
 
 export function RecordingsManager({
   summaries,
@@ -34,9 +34,9 @@ export function RecordingsManager({
 }) {
   const { t } = useLanguage();
 
-  const [filterName, setFilterName] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterGrade, setFilterGrade] = useState("all");
+  const [filterName, setFilterName] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterGrade, setFilterGrade] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const [studentInfo, setStudentInfo] = useState<
     Record<string, { avatar?: string; grade?: string | number }>
@@ -46,14 +46,11 @@ export function RecordingsManager({
     const fetchStudentProfiles = async () => {
       try {
         const { data } = await supabase
-          .from("profiles")
-          .select("name, avatar, grade")
-          .eq("role", "student");
+          .from('profiles')
+          .select('name, avatar, grade')
+          .eq('role', 'student');
         if (data) {
-          const map: Record<
-            string,
-            { avatar?: string; grade?: string | number }
-          > = {};
+          const map: Record<string, { avatar?: string; grade?: string | number }> = {};
           data.forEach((p: any) => {
             if (p.name) {
               map[p.name.trim().toLowerCase()] = {
@@ -65,26 +62,23 @@ export function RecordingsManager({
           setStudentInfo(map);
         }
       } catch (err) {
-        console.error("Error fetching student profiles", err);
+        console.error('Error fetching student profiles', err);
       }
     };
     fetchStudentProfiles();
   }, []);
 
   const filteredSummaries = React.useMemo(() => {
-    return summaries.filter((s) => {
-      if (
-        filterName &&
-        !s.studentName.toLowerCase().includes(filterName.toLowerCase())
-      ) {
+    return summaries.filter(s => {
+      if (filterName && !s.studentName.toLowerCase().includes(filterName.toLowerCase())) {
         return false;
       }
-      if (filterStatus === "graded" && s.hasUngraded) return false;
-      if (filterStatus === "ungraded" && !s.hasUngraded) return false;
+      if (filterStatus === 'graded' && s.hasUngraded) return false;
+      if (filterStatus === 'ungraded' && !s.hasUngraded) return false;
 
       const info = studentInfo[s.key];
-      const gStr = info?.grade ? String(info.grade) : "unassigned";
-      if (filterGrade !== "all" && gStr !== filterGrade) {
+      const gStr = info?.grade ? String(info.grade) : 'unassigned';
+      if (filterGrade !== 'all' && gStr !== filterGrade) {
         return false;
       }
 
@@ -96,30 +90,30 @@ export function RecordingsManager({
     const groups: Record<string, StudentSummary[]> = {};
     for (const s of filteredSummaries) {
       const info = studentInfo[s.key];
-      const gradeKey = info?.grade ? String(info.grade) : "other";
+      const gradeKey = info?.grade ? String(info.grade) : 'other';
       if (!groups[gradeKey]) {
         groups[gradeKey] = [];
       }
       groups[gradeKey].push(s);
     }
     const sortedKeys = Object.keys(groups).sort((a, b) => {
-      if (a === "other") return 1;
-      if (b === "other") return -1;
+      if (a === 'other') return 1;
+      if (b === 'other') return -1;
       return parseInt(a, 10) - parseInt(b, 10);
     });
-    return sortedKeys.map((key) => ({
+    return sortedKeys.map(key => ({
       gradeKey: key,
       items: groups[key],
     }));
   }, [filteredSummaries, studentInfo]);
 
   const avatarColors = [
-    "bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]",
-    "bg-[#F3E5F5] text-[#8E24AA] border-[#CE93D8]",
-    "bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]",
-    "bg-[#FFF3E0] text-[#E65100] border-[#FFCC80]",
-    "bg-[#FCE4EC] text-[#C62828] border-[#F48FB1]",
-    "bg-[#E0F7FA] text-[#00838F] border-[#80DEEA]",
+    'bg-[#E3F2FD] text-[#1E88E5] border-[#90CAF9]',
+    'bg-[#F3E5F5] text-[#8E24AA] border-[#CE93D8]',
+    'bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]',
+    'bg-[#FFF3E0] text-[#E65100] border-[#FFCC80]',
+    'bg-[#FCE4EC] text-[#C62828] border-[#F48FB1]',
+    'bg-[#E0F7FA] text-[#00838F] border-[#80DEEA]',
   ];
 
   const totalSubmissions = React.useMemo(() => {
@@ -127,7 +121,7 @@ export function RecordingsManager({
   }, [summaries]);
 
   const ungradedCount = React.useMemo(() => {
-    return summaries.filter((s) => s.hasUngraded).length;
+    return summaries.filter(s => s.hasUngraded).length;
   }, [summaries]);
 
   return (
@@ -139,9 +133,7 @@ export function RecordingsManager({
             <Clock size={20} />
           </div>
           <div>
-            <h3 className="font-black text-slate-800 text-base sm:text-lg">
-              {t.recordings.title}
-            </h3>
+            <h3 className="font-black text-slate-800 text-base sm:text-lg">{t.recordings.title}</h3>
             <p className="text-xs text-slate-400 font-bold mt-0.5 flex items-center gap-2 flex-wrap">
               <span>
                 {summaries.length} {t.recordings.students}
@@ -168,18 +160,13 @@ export function RecordingsManager({
             type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all border ${
-              showFilters ||
-              filterName ||
-              filterStatus !== "all" ||
-              filterGrade !== "all"
-                ? "bg-blue-50 text-blue-600 border-blue-200 shadow-xs"
-                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-800 shadow-xs"
+              showFilters || filterName || filterStatus !== 'all' || filterGrade !== 'all'
+                ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-xs'
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-800 shadow-xs'
             }`}
           >
             <Filter size={15} /> {t.recordings.filter}
-            {(filterName ||
-              filterStatus !== "all" ||
-              filterGrade !== "all") && (
+            {(filterName || filterStatus !== 'all' || filterGrade !== 'all') && (
               <span className="w-2 h-2 rounded-full bg-blue-600" />
             )}
           </button>
@@ -200,7 +187,7 @@ export function RecordingsManager({
               />
               <input
                 value={filterName}
-                onChange={(e) => setFilterName(e.target.value)}
+                onChange={e => setFilterName(e.target.value)}
                 placeholder={t.recordings.searchPlaceholder}
                 className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-xs"
               />
@@ -212,11 +199,11 @@ export function RecordingsManager({
             </label>
             <select
               value={filterGrade}
-              onChange={(e) => setFilterGrade(e.target.value)}
+              onChange={e => setFilterGrade(e.target.value)}
               className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-xs"
             >
               <option value="all">{t.recordings.filterAllGrades}</option>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+              {Array.from({ length: 12 }, (_, i) => i + 1).map(g => (
                 <option key={g} value={String(g)}>
                   {interpolate(t.common.gradeLabel, { grade: g })}
                 </option>
@@ -230,7 +217,7 @@ export function RecordingsManager({
             </label>
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={e => setFilterStatus(e.target.value)}
               className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-xs"
             >
               <option value="all">{t.recordings.filterAll}</option>
@@ -251,14 +238,12 @@ export function RecordingsManager({
           <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs">
             <Mic size={24} className="text-slate-400" />
           </div>
-          <p className="text-slate-500 font-extrabold text-sm">
-            {t.recordings.empty}
-          </p>
+          <p className="text-slate-500 font-extrabold text-sm">{t.recordings.empty}</p>
         </div>
       ) : (
         <div className="divide-y divide-slate-100/80">
-          {groupedSummaries.map((group) => {
-            const isOther = group.gradeKey === "other";
+          {groupedSummaries.map(group => {
+            const isOther = group.gradeKey === 'other';
             const groupTitle = isOther
               ? t.recordings.unassignedGrade
               : interpolate(t.common.gradeLabel, { grade: group.gradeKey });
@@ -284,9 +269,9 @@ export function RecordingsManager({
                     const grade = info?.grade;
                     const colorClass = avatarColors[idx % avatarColors.length];
                     const initials = s.studentName
-                      .split(" ")
+                      .split(' ')
                       .map((w: string) => w[0])
-                      .join("")
+                      .join('')
                       .toUpperCase()
                       .slice(0, 2);
                     const latestDate = formatDate(s.latestCreatedAt);
@@ -301,7 +286,7 @@ export function RecordingsManager({
                         <span
                           className={`w-11 h-11 rounded-xl border-2 font-black flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform ${
                             avatar
-                              ? "bg-amber-50 text-2xl shadow-xs border-amber-200"
+                              ? 'bg-amber-50 text-2xl shadow-xs border-amber-200'
                               : `text-sm ${colorClass}`
                           }`}
                         >
@@ -368,36 +353,36 @@ export function RecordingItem({
 }) {
   const { t } = useLanguage();
   const [rating, setRating] = useState<number>(rec.teacher_rating || 0);
-  const [feedback, setFeedback] = useState<string>(rec.teacher_feedback || "");
+  const [feedback, setFeedback] = useState<string>(rec.teacher_feedback || '');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [saveError, setSaveError] = useState("");
+  const [saveError, setSaveError] = useState('');
   const itemRef = useRef<HTMLDivElement>(null);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!isHighlighted) return;
     setTimeout(() => {
-      itemRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      itemRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 150);
   }, [isHighlighted]);
 
   const doSave = async (newRating: number, newFeedback: string) => {
     setSaving(true);
     setSaveSuccess(false);
-    setSaveError("");
+    setSaveError('');
     try {
       const { error } = await supabase
-        .from("recordings")
+        .from('recordings')
         .update({ teacher_rating: newRating, teacher_feedback: newFeedback })
-        .eq("id", rec.id);
+        .eq('id', rec.id);
       if (error) throw error;
       rec.teacher_rating = newRating;
       rec.teacher_feedback = newFeedback;
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 1500);
     } catch (err) {
-      console.error("Lỗi lưu nhận xét:", err);
+      console.error('Lỗi lưu nhận xét:', err);
       setSaveError(t.common.saveFeedbackError);
     } finally {
       setSaving(false);
@@ -427,8 +412,8 @@ export function RecordingItem({
       ref={itemRef}
       className={`bg-white rounded-xl border transition-all duration-200 p-3 sm:p-3.5 space-y-2 shadow-2xs hover:shadow-xs ${
         isHighlighted
-          ? "border-emerald-400 ring-2 ring-emerald-300/40 bg-emerald-50/20"
-          : "border-slate-200/80 hover:border-blue-300"
+          ? 'border-emerald-400 ring-2 ring-emerald-300/40 bg-emerald-50/20'
+          : 'border-slate-200/80 hover:border-blue-300'
       }`}
     >
       {/* Line 1: Meta + Question + Timestamp & Delete */}
@@ -438,11 +423,8 @@ export function RecordingItem({
             <span className="text-[11px] font-black text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-2 py-0.5 rounded-md shrink-0 flex items-center gap-1">
               🎬 Shadowing
             </span>
-            <p
-              className="text-xs font-black text-slate-800 truncate"
-              title={rec.topic}
-            >
-              {rec.topic || "Bài Shadowing"}
+            <p className="text-xs font-black text-slate-800 truncate" title={rec.topic}>
+              {rec.topic || 'Bài Shadowing'}
             </p>
           </div>
         ) : (
@@ -458,10 +440,7 @@ export function RecordingItem({
               </span>
             )}
             {rec.question_text && rec.question_text !== rec.topic && (
-              <p
-                className="text-xs font-black text-slate-800 truncate"
-                title={rec.question_text}
-              >
+              <p className="text-xs font-black text-slate-800 truncate" title={rec.question_text}>
                 Q: {rec.question_text}
               </p>
             )}
@@ -469,11 +448,8 @@ export function RecordingItem({
         )}
 
         <div className="flex items-center gap-2 shrink-0">
-          {rec.student_reaction === "heart" && (
-            <span
-              className="text-xs text-rose-500"
-              title={t.recordings.heartReaction}
-            >
+          {rec.student_reaction === 'heart' && (
+            <span className="text-xs text-rose-500" title={t.recordings.heartReaction}>
               ❤️
             </span>
           )}
@@ -482,7 +458,7 @@ export function RecordingItem({
           </span>
           <button
             type="button"
-            onClick={(e) => {
+            onClick={e => {
               e.preventDefault();
               e.stopPropagation();
               onDeleteRequest(rec.id);
@@ -506,16 +482,13 @@ export function RecordingItem({
               onClick={() => setShowVideo(!showVideo)}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-black transition-all shadow-2xs border ${
                 showVideo
-                  ? "bg-red-600 text-white border-red-600"
-                  : "bg-red-50 text-red-600 border-red-200/80 hover:bg-red-100"
+                  ? 'bg-red-600 text-white border-red-600'
+                  : 'bg-red-50 text-red-600 border-red-200/80 hover:bg-red-100'
               }`}
               title="Xem video YouTube mẫu"
             >
-              <Play
-                size={12}
-                className={showVideo ? "fill-white" : "fill-red-600"}
-              />
-              <span>{showVideo ? "Đóng video" : "Video mẫu"}</span>
+              <Play size={12} className={showVideo ? 'fill-white' : 'fill-red-600'} />
+              <span>{showVideo ? 'Đóng video' : 'Video mẫu'}</span>
             </button>
             <div className="shrink-0 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1 flex items-center">
               <AudioPlayer src={rec.audio_url} compact />
@@ -533,7 +506,7 @@ export function RecordingItem({
           role="radiogroup"
           aria-label={t.recordings.feedback}
         >
-          {[1, 2, 3, 4, 5].map((star) => (
+          {[1, 2, 3, 4, 5].map(star => (
             <button
               key={star}
               type="button"
@@ -546,9 +519,7 @@ export function RecordingItem({
               <Star
                 size={14}
                 className={
-                  star <= rating
-                    ? "text-amber-400 fill-amber-400"
-                    : "text-slate-200 fill-slate-200"
+                  star <= rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-slate-200'
                 }
               />
             </button>
@@ -560,7 +531,7 @@ export function RecordingItem({
           <input
             type="text"
             value={feedback}
-            onChange={(e) => handleFeedbackChange(e.target.value)}
+            onChange={e => handleFeedbackChange(e.target.value)}
             onBlur={handleFeedbackBlur}
             placeholder={t.recordings.feedbackPlaceholder}
             className="w-full h-8 px-3 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-200 transition-all shadow-2xs pr-16"

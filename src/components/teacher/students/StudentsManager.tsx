@@ -10,24 +10,24 @@ import {
   UserPlus,
   Users,
   X,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import { supabase } from "../../../lib/supabase";
-import { calculateStreak } from "../../../utils";
-import { CreateStudentModal } from "./CreateStudentModal";
-import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
-import { EditStudentModal } from "./EditStudentModal";
-import { ResetPasswordModal } from "./ResetPasswordModal";
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { supabase } from '../../../lib/supabase';
+import { calculateStreak } from '../../../utils';
+import { CreateStudentModal } from './CreateStudentModal';
+import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
+import { EditStudentModal } from './EditStudentModal';
+import { ResetPasswordModal } from './ResetPasswordModal';
 
 const avatarColors = [
-  "bg-blue-50 text-blue-600 border-blue-200",
-  "bg-purple-50 text-purple-600 border-purple-200",
-  "bg-emerald-50 text-emerald-600 border-emerald-200",
-  "bg-amber-50 text-amber-600 border-amber-200",
-  "bg-rose-50 text-rose-600 border-rose-200",
-  "bg-cyan-50 text-cyan-600 border-cyan-200",
+  'bg-blue-50 text-blue-600 border-blue-200',
+  'bg-purple-50 text-purple-600 border-purple-200',
+  'bg-emerald-50 text-emerald-600 border-emerald-200',
+  'bg-amber-50 text-amber-600 border-amber-200',
+  'bg-rose-50 text-rose-600 border-rose-200',
+  'bg-cyan-50 text-cyan-600 border-cyan-200',
 ];
 
 export function StudentsManager({
@@ -46,8 +46,8 @@ export function StudentsManager({
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [resetPassStudent, setResetPassStudent] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [gradeFilter, setGradeFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [gradeFilter, setGradeFilter] = useState('all');
   const [deleteSaving, setDeleteSaving] = useState(false);
 
   useEscapeToClose(() => setShowAddModal(false), showAddModal);
@@ -62,27 +62,21 @@ export function StudentsManager({
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [{ data: stData }, { data: recData }, { data: topData }] =
-        await Promise.all([
-          supabase
-            .from("profiles")
-            .select(
-              "id, name, updated_at, role, password, avatar, year_born, grade",
-            )
-            .eq("role", "student")
-            .order("name"),
-          supabase.from("recordings").select("*"),
-          supabase
-            .from("topics")
-            .select("id, questions(id)")
-            .eq("is_active", true),
-        ]);
+      const [{ data: stData }, { data: recData }, { data: topData }] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, name, updated_at, role, password, avatar, year_born, grade')
+          .eq('role', 'student')
+          .order('name'),
+        supabase.from('recordings').select('*'),
+        supabase.from('topics').select('id, questions(id)').eq('is_active', true),
+      ]);
 
       setStudents(stData || []);
       setRecordings(recData || []);
       setActiveTopics(topData || []);
     } catch (err) {
-      console.error("Error fetching students data:", err);
+      console.error('Error fetching students data:', err);
     } finally {
       setLoading(false);
     }
@@ -90,24 +84,22 @@ export function StudentsManager({
 
   const calculateStudentStats = (studentName: string) => {
     const studentRecs = recordings.filter(
-      (r) => r.student_name.toLowerCase() === studentName.toLowerCase(),
+      r => r.student_name.toLowerCase() === studentName.toLowerCase()
     );
 
     const dates = studentRecs
-      .map((r) => r.created_at)
+      .map(r => r.created_at)
       .filter(Boolean)
       .sort();
     const streak = calculateStreak(dates);
 
-    const completedTopicCount = activeTopics.filter((topic) => {
+    const completedTopicCount = activeTopics.filter(topic => {
       const topicQuestions = topic.questions || [];
       if (topicQuestions.length === 0) {
-        return studentRecs.some((r) => r.topic_id === topic.id);
+        return studentRecs.some(r => r.topic_id === topic.id);
       }
       return topicQuestions.every((q: any) =>
-        studentRecs.some(
-          (r) => r.topic_id === topic.id && r.question_id === q.id,
-        ),
+        studentRecs.some(r => r.topic_id === topic.id && r.question_id === q.id)
       );
     }).length;
 
@@ -121,32 +113,27 @@ export function StudentsManager({
     };
   };
 
-  const filteredStudents = students.filter((st) => {
-    const matchesSearch = st.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase().trim());
+  const filteredStudents = students.filter(st => {
+    const matchesSearch = st.name.toLowerCase().includes(searchQuery.toLowerCase().trim());
     const matchesGrade =
-      gradeFilter === "all" ||
-      (gradeFilter === "none" && !st.grade) ||
+      gradeFilter === 'all' ||
+      (gradeFilter === 'none' && !st.grade) ||
       st.grade?.toString() === gradeFilter;
     return matchesSearch && matchesGrade;
   });
 
-  const availableGrades = Array.from(
-    new Set(students.map((s) => s.grade).filter(Boolean)),
-  ).sort((a: any, b: any) => a - b);
+  const availableGrades = Array.from(new Set(students.map(s => s.grade).filter(Boolean))).sort(
+    (a: any, b: any) => a - b
+  );
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleteSaving(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", deleteTarget.id);
+      const { error } = await supabase.from('profiles').delete().eq('id', deleteTarget.id);
       if (error) throw error;
 
-      setStudents((prev) => prev.filter((s) => s.id !== deleteTarget.id));
+      setStudents(prev => prev.filter(s => s.id !== deleteTarget.id));
       setDeleteTarget(null);
     } catch (err) {
       console.error(err);
@@ -164,15 +151,12 @@ export function StudentsManager({
             <span className="p-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
               <Users size={22} />
             </span>
-            {tm.studentManagerTitle || "Quản Lý Danh Sách Học Sinh"}
+            {tm.studentManagerTitle || 'Quản Lý Danh Sách Học Sinh'}
           </h2>
           <p className="text-xs text-slate-400 font-bold mt-1">
-            {interpolate(
-              tm.studentManagerSubtitle || "Tổng số: {count} học sinh",
-              {
-                count: students.length,
-              },
-            )}
+            {interpolate(tm.studentManagerSubtitle || 'Tổng số: {count} học sinh', {
+              count: students.length,
+            })}
           </p>
         </div>
 
@@ -180,23 +164,18 @@ export function StudentsManager({
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Search bar */}
           <div className="relative min-w-[180px] sm:min-w-[220px]">
-            <Search
-              size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                tm.searchStudentPlaceholder || "Tìm học sinh theo tên..."
-              }
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder={tm.searchStudentPlaceholder || 'Tìm học sinh theo tên...'}
               className="w-full pl-9 pr-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery("")}
+                onClick={() => setSearchQuery('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 <X size={13} />
@@ -208,20 +187,16 @@ export function StudentsManager({
           {availableGrades.length > 0 && (
             <select
               value={gradeFilter}
-              onChange={(e) => setGradeFilter(e.target.value)}
+              onChange={e => setGradeFilter(e.target.value)}
               className="px-3 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all shadow-2xs cursor-pointer"
             >
-              <option value="all">
-                {tm.filterGradeAll || "Tất cả khối lớp"}
-              </option>
+              <option value="all">{tm.filterGradeAll || 'Tất cả khối lớp'}</option>
               {availableGrades.map((g: any) => (
                 <option key={g} value={g}>
-                  {interpolate(tc.gradeLabel || "Khối {grade}", { grade: g })}
+                  {interpolate(tc.gradeLabel || 'Khối {grade}', { grade: g })}
                 </option>
               ))}
-              <option value="none">
-                {tm.filterGradeNone || "Chưa có khối"}
-              </option>
+              <option value="none">{tm.filterGradeNone || 'Chưa có khối'}</option>
             </select>
           )}
 
@@ -232,7 +207,7 @@ export function StudentsManager({
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-black flex items-center gap-2 transition-all shadow-xs text-xs active:scale-95 shrink-0"
           >
             <UserPlus size={16} />
-            <span>{tm.addStudentBtn || "Thêm học sinh mới"}</span>
+            <span>{tm.addStudentBtn || 'Thêm học sinh mới'}</span>
           </button>
         </div>
       </div>
@@ -246,8 +221,8 @@ export function StudentsManager({
         <div className="py-16 text-center text-slate-400 font-bold bg-white rounded-2xl border border-slate-200/80">
           <p className="text-slate-400 font-black text-sm">
             {searchQuery
-              ? tm.noStudentFound || "Không tìm thấy học sinh nào"
-              : tm.noStudentsYet || "Chưa có học sinh nào"}
+              ? tm.noStudentFound || 'Không tìm thấy học sinh nào'
+              : tm.noStudentsYet || 'Chưa có học sinh nào'}
           </p>
         </div>
       ) : (
@@ -267,16 +242,14 @@ export function StudentsManager({
                   <div className="flex items-center gap-3.5 mb-3.5">
                     <span
                       className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 shadow-2xs text-lg font-black group-hover:scale-105 transition-transform ${
-                        st.avatar
-                          ? "bg-amber-50 border-amber-200 text-2xl"
-                          : colorClass
+                        st.avatar ? 'bg-amber-50 border-amber-200 text-2xl' : colorClass
                       }`}
                     >
                       {st.avatar ||
                         st.name
-                          .split(" ")
+                          .split(' ')
                           .map((w: string) => w[0])
-                          .join("")
+                          .join('')
                           .toUpperCase()
                           .slice(0, 2)}
                     </span>
@@ -287,13 +260,12 @@ export function StudentsManager({
                       <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                         {st.year_born && (
                           <span className="text-[11px] font-bold text-slate-400">
-                            {new Date().getFullYear() - st.year_born}{" "}
-                            {tc.yearsOld || "tuổi"}
+                            {new Date().getFullYear() - st.year_born} {tc.yearsOld || 'tuổi'}
                           </span>
                         )}
                         {st.grade && (
                           <span className="inline-flex items-center px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200/80 rounded-lg text-[10px] font-black shadow-2xs">
-                            {interpolate(tc.gradeLabel || "Lớp {grade}", {
+                            {interpolate(tc.gradeLabel || 'Lớp {grade}', {
                               grade: st.grade,
                             })}
                           </span>
@@ -310,7 +282,7 @@ export function StudentsManager({
                         <span>{stats.streak}</span>
                       </div>
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-tight mt-0.5">
-                        {tc.streak || "Chuỗi"}
+                        {tc.streak || 'Chuỗi'}
                       </span>
                     </div>
 
@@ -322,7 +294,7 @@ export function StudentsManager({
                         </span>
                       </div>
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-tight mt-0.5">
-                        {tc.completed || "Đã xong"}
+                        {tc.completed || 'Đã xong'}
                       </span>
                     </div>
 
@@ -332,7 +304,7 @@ export function StudentsManager({
                         <span>{stats.totalRecordings}</span>
                       </div>
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-tight mt-0.5">
-                        {tc.recordings || "Bài thu"}
+                        {tc.recordings || 'Bài thu'}
                       </span>
                     </div>
                   </div>
@@ -341,7 +313,7 @@ export function StudentsManager({
                 {/* Actions Footer */}
                 <div
                   className="flex items-center justify-between pt-3 border-t border-slate-100"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={e => e.stopPropagation()}
                 >
                   <button
                     type="button"
@@ -349,14 +321,14 @@ export function StudentsManager({
                     className="px-2.5 py-1.5 bg-blue-50/70 hover:bg-blue-100 text-blue-600 hover:text-blue-700 text-xs font-black rounded-xl border border-blue-100 shadow-2xs transition-all flex items-center gap-1.5 active:scale-95"
                   >
                     <Key size={13} />
-                    <span>{tc.resetPasswordBtn || "Đổi MK"}</span>
+                    <span>{tc.resetPasswordBtn || 'Đổi MK'}</span>
                   </button>
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => setEditingStudent(st)}
                       className="p-1.5 text-slate-400 hover:text-emerald-600 bg-slate-50 hover:bg-emerald-50 rounded-xl border border-slate-100 hover:border-emerald-200 shadow-2xs transition-all active:scale-95"
-                      title={tc.edit || "Sửa"}
+                      title={tc.edit || 'Sửa'}
                     >
                       <Pencil size={14} />
                     </button>
@@ -364,7 +336,7 @@ export function StudentsManager({
                       type="button"
                       onClick={() => setDeleteTarget(st)}
                       className="p-1.5 text-slate-400 hover:text-rose-600 bg-slate-50 hover:bg-rose-50 rounded-xl border border-slate-100 hover:border-rose-200 shadow-2xs transition-all active:scale-95"
-                      title={tc.delete || "Xóa"}
+                      title={tc.delete || 'Xóa'}
                     >
                       <Trash2 size={14} />
                     </button>
@@ -379,8 +351,8 @@ export function StudentsManager({
       {/* Modals */}
       {showAddModal && (
         <CreateStudentModal
-          onCreated={(newSt) => {
-            setStudents((prev) => [newSt, ...prev]);
+          onCreated={newSt => {
+            setStudents(prev => [newSt, ...prev]);
           }}
           onClose={() => setShowAddModal(false)}
         />
@@ -389,29 +361,20 @@ export function StudentsManager({
       {editingStudent && (
         <EditStudentModal
           student={editingStudent}
-          onUpdated={(updated) => {
-            setStudents((prev) =>
-              prev.map((s) => (s.id === updated.id ? updated : s)),
-            );
+          onUpdated={updated => {
+            setStudents(prev => prev.map(s => (s.id === updated.id ? updated : s)));
           }}
           onClose={() => setEditingStudent(null)}
         />
       )}
 
       {resetPassStudent && (
-        <ResetPasswordModal
-          student={resetPassStudent}
-          onClose={() => setResetPassStudent(null)}
-        />
+        <ResetPasswordModal student={resetPassStudent} onClose={() => setResetPassStudent(null)} />
       )}
 
       {deleteTarget && (
         <DeleteConfirmModal
-          title={
-            tm.deleteStudentTitle ||
-            tm.deleteStudentNote ||
-            "Xác nhận xóa học sinh"
-          }
+          title={tm.deleteStudentTitle || tm.deleteStudentNote || 'Xác nhận xóa học sinh'}
           description={deleteTarget.name}
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}

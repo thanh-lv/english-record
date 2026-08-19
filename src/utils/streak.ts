@@ -3,10 +3,10 @@ export function calculateStreak(records: any[]): number {
 
   // Extract unique dates in YYYY-MM-DD format based on local time
   const datesSet = new Set<string>();
-  records.forEach((rec) => {
+  records.forEach(rec => {
     if (rec.created_at) {
       const d = new Date(rec.created_at);
-      const dateStr = d.toLocaleDateString("en-CA"); // YYYY-MM-DD format
+      const dateStr = d.toLocaleDateString('en-CA'); // YYYY-MM-DD format
       datesSet.add(dateStr);
     }
   });
@@ -15,10 +15,10 @@ export function calculateStreak(records: any[]): number {
 
   if (sortedDates.length === 0) return 0;
 
-  const todayStr = new Date().toLocaleDateString("en-CA");
+  const todayStr = new Date().toLocaleDateString('en-CA');
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toLocaleDateString("en-CA");
+  const yesterdayStr = yesterday.toLocaleDateString('en-CA');
 
   // Streak is 0 if the latest record is older than yesterday
   if (sortedDates[0] !== todayStr && sortedDates[0] !== yesterdayStr) {
@@ -31,7 +31,7 @@ export function calculateStreak(records: any[]): number {
   // We walk through the sorted dates. If they are exactly 1 day apart, we increment streak.
   for (let i = 0; i < sortedDates.length; i++) {
     const dStr = sortedDates[i];
-    const expectedStr = currentDate.toLocaleDateString("en-CA");
+    const expectedStr = currentDate.toLocaleDateString('en-CA');
 
     if (dStr === expectedStr) {
       streak++;

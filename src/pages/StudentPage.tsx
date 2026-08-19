@@ -1,33 +1,27 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import { AchievementsTab } from "../components/student/achievements/AchievementsTab";
-import { AvatarSelectModal } from "../components/student/shared/AvatarSelectModal";
-import { CompletionCelebration } from "../components/student/achievements/CompletionCelebration";
-import { ExercisesTab } from "../components/student/exercises/ExercisesTab";
-import { FlashcardsTab } from "../components/student/flashcards/FlashcardsTab";
-import { GamesTab } from "../components/student/games/GamesTab";
-import { StoriesTab } from "../components/student/stories/StoriesTab";
-import { StoryModal } from "../components/student/stories/StoryModal";
-import { ShadowingTab } from "../components/student/shadowing/ShadowingTab";
-import { ShadowingDetail } from "../components/student/shadowing/ShadowingDetail";
-import { StudentSidebar } from "../components/student/shared/StudentSidebar";
-import { OfflineBanner } from "../components/common/OfflineBanner";
-import { TopicModal } from "../components/student/exercises/TopicModal";
-import { useAvatar } from "../components/student/hooks/useAvatar";
-import { useRecording } from "../components/student/hooks/useRecording";
-import { useStudentData } from "../components/student/hooks/useStudentData";
-import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
-import { useStoryPlayer } from "../components/student/hooks/useStoryPlayer";
-import { getCompletedTopicNumbers } from "../utils/topicCompletion";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { AchievementsTab } from '../components/student/achievements/AchievementsTab';
+import { AvatarSelectModal } from '../components/student/shared/AvatarSelectModal';
+import { CompletionCelebration } from '../components/student/achievements/CompletionCelebration';
+import { ExercisesTab } from '../components/student/exercises/ExercisesTab';
+import { FlashcardsTab } from '../components/student/flashcards/FlashcardsTab';
+import { GamesTab } from '../components/student/games/GamesTab';
+import { StoriesTab } from '../components/student/stories/StoriesTab';
+import { StoryModal } from '../components/student/stories/StoryModal';
+import { ShadowingTab } from '../components/student/shadowing/ShadowingTab';
+import { ShadowingDetail } from '../components/student/shadowing/ShadowingDetail';
+import { StudentSidebar } from '../components/student/shared/StudentSidebar';
+import { OfflineBanner } from '../components/common/OfflineBanner';
+import { TopicModal } from '../components/student/exercises/TopicModal';
+import { useAvatar } from '../components/student/hooks/useAvatar';
+import { useRecording } from '../components/student/hooks/useRecording';
+import { useStudentData } from '../components/student/hooks/useStudentData';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { useStoryPlayer } from '../components/student/hooks/useStoryPlayer';
+import { getCompletedTopicNumbers } from '../utils/topicCompletion';
 
-export default function StudentPage({
-  user,
-  profile,
-}: {
-  user: any;
-  profile: any;
-}) {
-  const isBongBe = profile.name.toLowerCase().trim() === "bông bé";
+export default function StudentPage({ user, profile }: { user: any; profile: any }) {
+  const isBongBe = profile.name.toLowerCase().trim() === 'bông bé';
   const studentAge = new Date().getFullYear() - (profile.year_born || 2015);
 
   const {
@@ -40,20 +34,14 @@ export default function StudentPage({
     streak,
   } = useStudentData(user, profile, isBongBe, studentAge);
 
-  const { currentAvatar, showAvatarSelect, setShowAvatarSelect, changeAvatar } =
-    useAvatar(profile);
+  const { currentAvatar, showAvatarSelect, setShowAvatarSelect, changeAvatar } = useAvatar(profile);
 
-  const {
-    selectedStory,
-    setSelectedStory,
-    isPlayingStoryAudio,
-    playStoryAudio,
-    closeStoryModal,
-  } = useStoryPlayer();
+  const { selectedStory, setSelectedStory, isPlayingStoryAudio, playStoryAudio, closeStoryModal } =
+    useStoryPlayer();
 
   const completedTopicNumbers = useMemo(
     () => getCompletedTopicNumbers(activeTopics, myRecordings),
-    [activeTopics, myRecordings],
+    [activeTopics, myRecordings]
   );
 
   const [showCelebration, setShowCelebration] = useState(false);
@@ -89,9 +77,7 @@ export default function StudentPage({
     prevCompletedCount.current = fullyCompletedCount;
   }, [completedTopicNumbers, topicsLoading, activeTopics.length]);
 
-  const retryRecordingRef = useRef<{ id: string; topic_number: number } | null>(
-    null,
-  );
+  const retryRecordingRef = useRef<{ id: string; topic_number: number } | null>(null);
 
   const recording = useRecording({
     user,
@@ -102,11 +88,11 @@ export default function StudentPage({
     existingRecordingId: retryRecordingRef.current?.id ?? null,
     onSaveSuccess: (saved, completedNumber) => {
       const oldId = retryRecordingRef.current?.id;
-      setMyRecordings((prev) => {
-        const withoutOld = oldId ? prev.filter((r) => r.id !== oldId) : prev;
+      setMyRecordings(prev => {
+        const withoutOld = oldId ? prev.filter(r => r.id !== oldId) : prev;
         return [...withoutOld, ...saved];
       });
-      setCompletedNumbers((prev) => {
+      setCompletedNumbers(prev => {
         if (completedNumber && !prev.includes(completedNumber)) {
           return [...prev, completedNumber];
         }
@@ -133,7 +119,7 @@ export default function StudentPage({
       setTopicImage(activeQuestion.image_url);
     }
 
-    setTopicAudio("browser_tts");
+    setTopicAudio('browser_tts');
   }, [selectedNumber, activeQuestionIndex]);
 
   const handleNumberClick = (num: number, e: React.MouseEvent) => {
@@ -145,7 +131,7 @@ export default function StudentPage({
     setCurrentTopic(topicData);
     setActiveQuestionIndex(0);
     recording.resetAudio();
-    recording.setAppError("");
+    recording.setAppError('');
   };
 
   const handleCloseTopicModal = () => {
@@ -169,7 +155,7 @@ export default function StudentPage({
       const questionsText = activeQuestion?.text || currentTopic.title;
 
       const utterance = new SpeechSynthesisUtterance(questionsText);
-      utterance.lang = "en-US";
+      utterance.lang = 'en-US';
       utterance.rate = 0.85;
       utterance.onend = () => setIsPlayingTopicAudio(false);
       utterance.onerror = () => setIsPlayingTopicAudio(false);
@@ -181,12 +167,9 @@ export default function StudentPage({
   };
 
   const currentQuestionId = currentTopic?.questions?.[activeQuestionIndex]?.id;
-  const currentQuestionText =
-    currentTopic?.questions?.[activeQuestionIndex]?.text;
+  const currentQuestionText = currentTopic?.questions?.[activeQuestionIndex]?.text;
 
-  const matchedRecording = myRecordings.find(
-    (rec) => rec.topic_number === selectedNumber,
-  );
+  const matchedRecording = myRecordings.find(rec => rec.topic_number === selectedNumber);
 
   const canRetry =
     !isBongBe &&
@@ -202,30 +185,24 @@ export default function StudentPage({
   const matchedQuestionRecording =
     currentTopic && currentQuestionId
       ? myRecordings.find(
-          (rec) =>
+          rec =>
             rec.topic_number === selectedNumber &&
-            (rec.question_id === currentQuestionId ||
-              rec.question_text === currentQuestionText),
+            (rec.question_id === currentQuestionId || rec.question_text === currentQuestionText)
         )
       : null;
 
   const isTopicFullyRecorded = currentTopic
     ? currentTopic.questions.every((q: any) =>
         myRecordings.some(
-          (rec) =>
+          rec =>
             rec.topic_number === selectedNumber &&
-            (rec.question_id === q.id || rec.question_text === q.text),
-        ),
+            (rec.question_id === q.id || rec.question_text === q.text)
+        )
       ) ||
-      (!!matchedRecording &&
-        !matchedRecording.question_id &&
-        !matchedRecording.question_text)
+      (!!matchedRecording && !matchedRecording.question_id && !matchedRecording.question_text)
     : false;
 
-  const totalNumbers = Array.from(
-    { length: activeTopics.length },
-    (_, i) => i + 1,
-  );
+  const totalNumbers = Array.from({ length: activeTopics.length }, (_, i) => i + 1);
 
   useKeyboardShortcuts({
     isModalOpen: !!selectedNumber,
@@ -322,21 +299,15 @@ export default function StudentPage({
               />
             }
           />
-          <Route
-            path="flashcards"
-            element={<FlashcardsTab studentGrade={profile?.grade} />}
-          />
-          <Route
-            path="games"
-            element={<GamesTab studentGrade={profile?.grade} />}
-          />
+          <Route path="flashcards" element={<FlashcardsTab studentGrade={profile?.grade} />} />
+          <Route path="games" element={<GamesTab studentGrade={profile?.grade} />} />
           <Route
             path="shadowing"
             element={
               <ShadowingTab
                 studentGrade={profile?.grade}
                 myRecordings={myRecordings}
-                onVideoClick={(v) => navigate(`/student/shadowing/${v.id}`)}
+                onVideoClick={v => navigate(`/student/shadowing/${v.id}`)}
               />
             }
           />
@@ -347,16 +318,11 @@ export default function StudentPage({
                 user={user}
                 profile={profile}
                 myRecordings={myRecordings}
-                onSaveSuccess={(saved) =>
-                  setMyRecordings((prev) => [...prev, ...saved])
-                }
+                onSaveSuccess={saved => setMyRecordings(prev => [...prev, ...saved])}
               />
             }
           />
-          <Route
-            path="*"
-            element={<Navigate to="/student/exercises" replace />}
-          />
+          <Route path="*" element={<Navigate to="/student/exercises" replace />} />
         </Routes>
       </div>
 
@@ -388,17 +354,17 @@ export default function StudentPage({
           onDeleteBongBeAudio={(questionIndex, e) => {
             e.preventDefault();
             e.stopPropagation();
-            recording.setBongBeAudios((prev) => {
+            recording.setBongBeAudios(prev => {
               const next = { ...prev };
               delete next[questionIndex];
               return next;
             });
           }}
           onQuestionChange={setActiveQuestionIndex}
-          onDismissError={(e) => {
+          onDismissError={e => {
             e.preventDefault();
             e.stopPropagation();
-            recording.setAppError("");
+            recording.setAppError('');
           }}
           formatTime={recording.formatTime}
         />

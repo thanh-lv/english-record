@@ -32,34 +32,28 @@ export interface RenderedAudioResult {
 export async function fetchWordAudioBuffer(
   word: string,
   audioCtx: AudioContext | OfflineAudioContext,
-  lang: string = "en-US",
+  lang: string = 'en-US'
 ): Promise<AudioBuffer> {
   const cleanWord = word.trim();
   if (!cleanWord) {
-    return audioCtx.createBuffer(
-      1,
-      audioCtx.sampleRate * 0.5,
-      audioCtx.sampleRate,
-    );
+    return audioCtx.createBuffer(1, audioCtx.sampleRate * 0.5, audioCtx.sampleRate);
   }
 
   // 1. Try Free Dictionary API (Excellent native pronunciations, CORS friendly)
-  if (lang.startsWith("en")) {
+  if (lang.startsWith('en')) {
     try {
       const dictUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(
-        cleanWord,
+        cleanWord
       )}`;
       const dictRes = await fetch(dictUrl);
       if (dictRes.ok) {
         const data = await dictRes.json();
         const phonetics = data[0]?.phonetics || [];
-        const validPhonetics = phonetics.filter(
-          (p: any) => p.audio && p.audio.length > 0,
-        );
+        const validPhonetics = phonetics.filter((p: any) => p.audio && p.audio.length > 0);
 
         if (validPhonetics.length > 0) {
-          const isUS = lang === "en-US";
-          const preferredCode = isUS ? "-us" : "-uk";
+          const isUS = lang === 'en-US';
+          const preferredCode = isUS ? '-us' : '-uk';
           let bestPhonetic = validPhonetics[0];
           let bestScore = -999;
 
@@ -67,8 +61,8 @@ export async function fetchWordAudioBuffer(
             let score = 0;
             const audioUrl = p.audio.toLowerCase();
             if (audioUrl.includes(preferredCode)) score += 10;
-            if (audioUrl.includes("-stressed")) score += 5;
-            if (audioUrl.includes("-unstressed")) score -= 5;
+            if (audioUrl.includes('-stressed')) score += 5;
+            if (audioUrl.includes('-unstressed')) score -= 5;
 
             if (score > bestScore) {
               bestScore = score;
@@ -84,15 +78,15 @@ export async function fetchWordAudioBuffer(
         }
       }
     } catch (err) {
-      console.warn("Dictionary API failed:", err);
+      console.warn('Dictionary API failed:', err);
     }
   }
 
   // 2. Try Lingva API (Google Translate proxy, CORS friendly)
   try {
-    const lingvaLang = lang.split("-")[0] || "en";
+    const lingvaLang = lang.split('-')[0] || 'en';
     const lingvaUrl = `https://lingva.ml/api/v1/audio/${lingvaLang}/${encodeURIComponent(
-      cleanWord,
+      cleanWord
     )}`;
     const lingvaRes = await fetch(lingvaUrl);
     if (lingvaRes.ok) {
@@ -103,13 +97,13 @@ export async function fetchWordAudioBuffer(
       }
     }
   } catch (err) {
-    console.warn("Lingva API failed:", err);
+    console.warn('Lingva API failed:', err);
   }
 
   // 3. Try Google TTS direct (May fail due to CORS)
   try {
     const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${encodeURIComponent(
-      lang,
+      lang
     )}&q=${encodeURIComponent(cleanWord)}`;
     const response = await fetch(ttsUrl);
     if (response.ok) {
@@ -117,7 +111,7 @@ export async function fetchWordAudioBuffer(
       return await audioCtx.decodeAudioData(arrayBuffer.slice(0));
     }
   } catch (err) {
-    console.warn("Google TTS fetch failed:", err);
+    console.warn('Google TTS fetch failed:', err);
   }
 
   // 4. Fallback: Synthesize speech audio buffer
@@ -129,7 +123,7 @@ export async function fetchWordAudioBuffer(
  */
 function createFallbackSpeechBuffer(
   word: string,
-  audioCtx: AudioContext | OfflineAudioContext,
+  audioCtx: AudioContext | OfflineAudioContext
 ): AudioBuffer {
   const sampleRate = audioCtx.sampleRate;
   const duration = 0.6; // 600ms
@@ -154,31 +148,25 @@ function createFallbackSpeechBuffer(
 export async function generateVocabularyAudio(
   words: string[],
   config: AudioBuilderConfig,
-  onProgress?: (percent: number, currentWord: string) => void,
+  onProgress?: (percent: number, currentWord: string) => void
 ): Promise<RenderedAudioResult> {
   const {
     repetitionsPerWord = 3,
     wordDurationSlot = 3.0,
     gapBetweenWords = 4.0,
-    voiceLang = "en-US",
+    voiceLang = 'en-US',
   } = config;
 
-  const validWords = words.map((w) => w.trim()).filter(Boolean);
+  const validWords = words.map(w => w.trim()).filter(Boolean);
   if (validWords.length === 0) {
-    throw new Error("No valid words provided");
+    throw new Error('No valid words provided');
   }
 
   const sampleRate = 44100;
   const totalDuration =
-    validWords.length * wordDurationSlot +
-    (validWords.length - 1) * gapBetweenWords +
-    1.0; // 1s tail buffer
+    validWords.length * wordDurationSlot + (validWords.length - 1) * gapBetweenWords + 1.0; // 1s tail buffer
 
-  const offlineCtx = new OfflineAudioContext(
-    1,
-    Math.ceil(sampleRate * totalDuration),
-    sampleRate,
-  );
+  const offlineCtx = new OfflineAudioContext(1, Math.ceil(sampleRate * totalDuration), sampleRate);
 
   const wordTimestamps: WordTimestamp[] = [];
   let currentTime = 0.0;
@@ -199,10 +187,7 @@ export async function generateVocabularyAudio(
     const slotDuration = Math.max(wordDurationSlot, wordBuffer.duration);
     const interval =
       repetitionsPerWord > 1
-        ? Math.min(
-            (slotDuration - 0.2) / repetitionsPerWord,
-            wordBuffer.duration + 0.1,
-          )
+        ? Math.min((slotDuration - 0.2) / repetitionsPerWord, wordBuffer.duration + 0.1)
         : slotDuration;
 
     for (let r = 0; r < repetitionsPerWord; r++) {
@@ -229,7 +214,7 @@ export async function generateVocabularyAudio(
   }
 
   if (onProgress) {
-    onProgress(90, "Rendering final audio track...");
+    onProgress(90, 'Rendering final audio track...');
   }
 
   const renderedBuffer = await offlineCtx.startRendering();
@@ -237,7 +222,7 @@ export async function generateVocabularyAudio(
   const audioUrl = URL.createObjectURL(wavBlob);
 
   if (onProgress) {
-    onProgress(100, "Done!");
+    onProgress(100, 'Done!');
   }
 
   return {
@@ -270,13 +255,13 @@ export function audioBufferToWavBlob(buffer: AudioBuffer): Blob {
   const view = new DataView(arrayBuffer);
 
   /* RIFF identifier */
-  writeString(view, 0, "RIFF");
+  writeString(view, 0, 'RIFF');
   /* RIFF chunk length */
   view.setUint32(4, 36 + dataSize, true);
   /* RIFF type */
-  writeString(view, 8, "WAVE");
+  writeString(view, 8, 'WAVE');
   /* format chunk identifier */
-  writeString(view, 12, "fmt ");
+  writeString(view, 12, 'fmt ');
   /* format chunk length */
   view.setUint32(16, 16, true);
   /* sample format (raw PCM) */
@@ -292,7 +277,7 @@ export function audioBufferToWavBlob(buffer: AudioBuffer): Blob {
   /* bits per sample */
   view.setUint16(34, bitDepth, true);
   /* data chunk identifier */
-  writeString(view, 36, "data");
+  writeString(view, 36, 'data');
   /* data chunk length */
   view.setUint32(40, dataSize, true);
 
@@ -304,7 +289,7 @@ export function audioBufferToWavBlob(buffer: AudioBuffer): Blob {
     offset += 2;
   }
 
-  return new Blob([arrayBuffer], { type: "audio/wav" });
+  return new Blob([arrayBuffer], { type: 'audio/wav' });
 }
 
 function writeString(view: DataView, offset: number, string: string) {

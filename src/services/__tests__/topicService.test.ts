@@ -175,10 +175,7 @@ describe('topicService', () => {
       const insertMock = vi.fn().mockResolvedValue({ error: null });
       (supabase.from as any).mockReturnValue({ insert: insertMock });
 
-      const parsed = [
-        { text: 'Q1', sample_answer: 'A1' },
-        { text: 'Q2' },
-      ];
+      const parsed = [{ text: 'Q1', sample_answer: 'A1' }, { text: 'Q2' }];
 
       await topicService.insertParsedQuestions('t1', parsed, 5);
 

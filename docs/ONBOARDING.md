@@ -50,13 +50,14 @@ Mở trình duyệt và truy cập `http://localhost:5173`. Ứng dụng sẽ t�
 | `npm run lint` | Chạy ESLint để quét lỗi cú pháp và quy chuẩn code |
 | `npm run lint:fix` | Tự động sửa các lỗi linter có thể sửa tự động |
 | `npm run format` | Định dạng toàn bộ mã nguồn theo chuẩn Prettier |
+| `npm run format:check` | Kiểm tra định dạng mã nguồn theo Prettier mà không sửa file (dùng trong CI) |
 | `npm run test` | Chạy bộ kiểm thử tự động với Vitest |
 | `npm run test:watch` | Chạy Vitest ở chế độ theo dõi file thay đổi liên tục |
 | `npm run test:coverage`| Xuất báo cáo độ bao phủ mã kiểm thử (Coverage Report) |
-| `npm run check-all` | **Lệnh tổng hợp quan trọng**: Chạy lần lượt `type-check`, `lint`, `test` và `build` |
+| `npm run check-all` | **Lệnh tổng hợp quan trọng**: Chạy lần lượt `format:check`, `type-check`, `lint`, `test` và `build` |
 
 > [!TIP]
-> Trước khi tạo Pull Request hoặc commit code mới, hãy luôn chạy `npm run check-all` để đảm bảo không có lỗi type, lint hay test nào bị bỏ sót!
+> Trước khi tạo Pull Request hoặc commit code mới, hãy luôn chạy `npm run check-all` để đảm bảo code vượt qua 100% các bước kiểm tra tự động của CI pipeline trên GitHub Actions!
 
 ---
 

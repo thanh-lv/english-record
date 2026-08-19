@@ -1,22 +1,19 @@
-import { AlertCircle, Check, Eye, EyeOff, Key, Loader2, X } from "lucide-react";
-import { useState } from "react";
-import { useLanguage } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import { supabase } from "../../../lib/supabase";
-import { validatePassword } from "../../../utils/validators";
+import { AlertCircle, Check, Eye, EyeOff, Key, Loader2, X } from 'lucide-react';
+import { useState } from 'react';
+import { useLanguage } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { supabase } from '../../../lib/supabase';
+import { validatePassword } from '../../../utils/validators';
 
 interface ResetPasswordModalProps {
   student: any;
   onClose: () => void;
 }
 
-export function ResetPasswordModal({
-  student,
-  onClose,
-}: ResetPasswordModalProps) {
-  const [password, setPassword] = useState("");
+export function ResetPasswordModal({ student, onClose }: ResetPasswordModalProps) {
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const { t } = useLanguage();
@@ -35,12 +32,12 @@ export function ResetPasswordModal({
     }
 
     setSaving(true);
-    setError("");
+    setError('');
     try {
       const { error: updateError } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({ password: cleanPass })
-        .eq("id", student.id);
+        .eq('id', student.id);
       if (updateError) throw updateError;
       setSuccess(true);
       setTimeout(() => onClose(), 1500);
@@ -71,9 +68,7 @@ export function ResetPasswordModal({
               >
                 {t.common.resetPasswordTitle}
               </h4>
-              <p className="text-xs font-bold text-slate-400 mt-0.5">
-                {student.name}
-              </p>
+              <p className="text-xs font-bold text-slate-400 mt-0.5">{student.name}</p>
             </div>
           </div>
           <button
@@ -93,23 +88,21 @@ export function ResetPasswordModal({
             </label>
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 maxLength={100}
-                onChange={(e) => {
+                onChange={e => {
                   setPassword(e.target.value);
-                  setError("");
+                  setError('');
                 }}
-                onKeyDown={(e) => e.key === "Enter" && handleReset()}
+                onKeyDown={e => e.key === 'Enter' && handleReset()}
                 placeholder={t.login.passwordPlaceholder}
                 className="w-full px-3.5 py-2.5 pr-10 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               />
               <button
                 type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={
-                  showPassword ? t.common.hidePassword : t.common.showPassword
-                }
+                onClick={() => setShowPassword(v => !v)}
+                aria-label={showPassword ? t.common.hidePassword : t.common.showPassword}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -135,7 +128,7 @@ export function ResetPasswordModal({
             type="button"
             onClick={handleReset}
             disabled={saving}
-            className={`px-4 py-2 disabled:opacity-50 text-white font-black rounded-xl text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95 ${success ? "bg-emerald-600 hover:bg-emerald-700" : "bg-[#1E88E5] hover:bg-[#1565C0]"}`}
+            className={`px-4 py-2 disabled:opacity-50 text-white font-black rounded-xl text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95 ${success ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-[#1E88E5] hover:bg-[#1565C0]'}`}
           >
             {saving ? (
               <Loader2 size={14} className="animate-spin" />

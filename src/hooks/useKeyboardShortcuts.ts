@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
 interface ShortcutHandlers {
   onPlayPause?: () => void; // Space
@@ -23,13 +23,13 @@ export function useKeyboardShortcuts({
     const handler = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName;
       // Don't fire when typing in input/textarea
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
-      if (e.code === "Space") {
+      if (e.code === 'Space') {
         e.preventDefault();
         onPlayPause?.();
       }
-      if (e.code === "KeyR" && !e.metaKey && !e.ctrlKey) {
+      if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         if (isRecording) {
           onStopRecord?.();
@@ -37,19 +37,12 @@ export function useKeyboardShortcuts({
           onStartRecord?.();
         }
       }
-      if (e.code === "Escape") {
+      if (e.code === 'Escape') {
         onClose?.();
       }
     };
 
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [
-    isModalOpen,
-    isRecording,
-    onPlayPause,
-    onStartRecord,
-    onStopRecord,
-    onClose,
-  ]);
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isModalOpen, isRecording, onPlayPause, onStartRecord, onStopRecord, onClose]);
 }

@@ -9,13 +9,13 @@ import {
   RotateCcw,
   Sparkles,
   CheckCircle2,
-} from "lucide-react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import { useEffect, useState, useMemo } from "react";
-import { createPortal } from "react-dom";
-import { supabase } from "../../../lib/supabase";
-import { VocabSet, VocabCard } from "../../../types";
+} from 'lucide-react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { useEffect, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
+import { supabase } from '../../../lib/supabase';
+import { VocabSet, VocabCard } from '../../../types';
 
 interface FlashcardsTabProps {
   studentGrade?: number | string | null;
@@ -33,7 +33,7 @@ function FlipCard({ card }: { card: VocabCard }) {
     e.stopPropagation();
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(card.front);
-    u.lang = "en-US";
+    u.lang = 'en-US';
     u.rate = 0.85;
     window.speechSynthesis.speak(u);
   };
@@ -41,36 +41,36 @@ function FlipCard({ card }: { card: VocabCard }) {
   return (
     <div
       className="cursor-pointer select-none w-full max-w-sm mx-auto"
-      style={{ perspective: "1200px" }}
-      onClick={() => setFlipped((f) => !f)}
+      style={{ perspective: '1200px' }}
+      onClick={() => setFlipped(f => !f)}
       role="button"
       tabIndex={0}
       aria-pressed={flipped}
       aria-label={`${card.front} – ${flipped ? card.back : t.teacherModal.flashcardsTapToFlip}`}
-      onKeyDown={(e) => {
-        if (e.code === "Enter" || e.code === "Space") {
+      onKeyDown={e => {
+        if (e.code === 'Enter' || e.code === 'Space') {
           e.preventDefault();
-          setFlipped((f) => !f);
+          setFlipped(f => !f);
         }
       }}
     >
       <div
         style={{
-          position: "relative",
-          width: "100%",
-          minHeight: "360px",
-          transformStyle: "preserve-3d",
-          transition: "transform 0.55s cubic-bezier(0.4,0.2,0.2,1)",
-          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          position: 'relative',
+          width: '100%',
+          minHeight: '360px',
+          transformStyle: 'preserve-3d',
+          transition: 'transform 0.55s cubic-bezier(0.4,0.2,0.2,1)',
+          transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
         }}
       >
         {/* Front Face */}
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             inset: 0,
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
           }}
           className="rounded-3xl bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/40 border-2 border-blue-200/80 shadow-md flex flex-col items-center justify-between p-6 gap-3"
         >
@@ -80,7 +80,7 @@ function FlipCard({ card }: { card: VocabCard }) {
               alt={
                 card.front ||
                 t.vocabManager?.flashcardImageAlt ||
-                "Hình minh họa thẻ từ vựng Flashcard"
+                'Hình minh họa thẻ từ vựng Flashcard'
               }
               className="w-36 h-36 sm:w-40 sm:h-40 object-cover rounded-2xl shadow-sm border-2 border-white"
             />
@@ -119,11 +119,11 @@ function FlipCard({ card }: { card: VocabCard }) {
         {/* Back Face */}
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             inset: 0,
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
           }}
           className="rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-700 border-2 border-blue-400 shadow-md flex flex-col items-center justify-between p-6 gap-3 text-white"
         >
@@ -138,9 +138,7 @@ function FlipCard({ card }: { card: VocabCard }) {
             <div className="px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-xl inline-block border border-white/20">
               <p className="text-sm font-black text-blue-100">{card.front}</p>
             </div>
-            {card.ipa && (
-              <p className="text-xs font-mono text-blue-200">{card.ipa}</p>
-            )}
+            {card.ipa && <p className="text-xs font-mono text-blue-200">{card.ipa}</p>}
           </div>
 
           <p className="text-[11px] font-bold text-blue-200/80">
@@ -160,13 +158,13 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
   const [shuffled, setShuffled] = useState(false);
 
   const toggleShuffle = () => {
-    setCards((prev) =>
+    setCards(prev =>
       shuffled
         ? [...prev].sort((a, b) => a.order_index - b.order_index)
-        : [...prev].sort(() => Math.random() - 0.5),
+        : [...prev].sort(() => Math.random() - 0.5)
     );
     setCurrentIndex(0);
-    setShuffled((s) => !s);
+    setShuffled(s => !s);
   };
 
   useEffect(() => {
@@ -174,10 +172,10 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
       setLoading(true);
       try {
         const { data, error } = await supabase
-          .from("vocabulary_cards")
-          .select("id, set_id, front, back, ipa, image_url, order_index")
-          .eq("set_id", set.id)
-          .order("order_index", { ascending: true });
+          .from('vocabulary_cards')
+          .select('id, set_id, front, back, ipa, image_url, order_index')
+          .eq('set_id', set.id)
+          .order('order_index', { ascending: true });
         if (error) throw error;
         setCards(data || []);
       } catch (err) {
@@ -192,8 +190,8 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
   const total = cards.length;
   const currentCard = cards[currentIndex];
 
-  const handlePrev = () => setCurrentIndex((i) => Math.max(0, i - 1));
-  const handleNext = () => setCurrentIndex((i) => Math.min(total - 1, i + 1));
+  const handlePrev = () => setCurrentIndex(i => Math.max(0, i - 1));
+  const handleNext = () => setCurrentIndex(i => Math.min(total - 1, i + 1));
 
   useEscapeToClose(onClose);
 
@@ -241,9 +239,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
               type="button"
               onClick={toggleShuffle}
               className={`p-2 rounded-xl transition-colors ${
-                shuffled
-                  ? "bg-blue-100 text-blue-600"
-                  : "hover:bg-slate-100 text-slate-400"
+                shuffled ? 'bg-blue-100 text-blue-600' : 'hover:bg-slate-100 text-slate-400'
               }`}
               title="Xáo trộn thẻ"
               aria-label="Shuffle"
@@ -267,16 +263,12 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
           {loading ? (
             <div className="h-[360px] flex flex-col items-center justify-center gap-2">
               <div className="w-10 h-10 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-              <span className="text-xs font-bold text-slate-400">
-                Đang tải thẻ từ vựng...
-              </span>
+              <span className="text-xs font-bold text-slate-400">Đang tải thẻ từ vựng...</span>
             </div>
           ) : total === 0 ? (
             <div className="h-[360px] flex flex-col items-center justify-center gap-3 text-slate-400">
               <span className="text-5xl opacity-40">📭</span>
-              <p className="font-bold text-sm">
-                {t.teacherModal.flashcardsNoCardsInSet}
-              </p>
+              <p className="font-bold text-sm">{t.teacherModal.flashcardsNoCardsInSet}</p>
             </div>
           ) : currentCard ? (
             <FlipCard key={currentCard.id} card={currentCard} />
@@ -294,9 +286,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
                 aria-label={`Thẻ ${i + 1}`}
                 aria-current={i === currentIndex}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentIndex
-                    ? "bg-blue-600 w-6"
-                    : "bg-slate-200 hover:bg-slate-300 w-1.5"
+                  i === currentIndex ? 'bg-blue-600 w-6' : 'bg-slate-200 hover:bg-slate-300 w-1.5'
                 }`}
               />
             ))}
@@ -346,7 +336,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 
@@ -354,7 +344,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
   const { t } = useLanguage();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState('');
   const [activeSet, setActiveSet] = useState<VocabSet | null>(null);
   const parsedStudentGrade = studentGrade ? Number(studentGrade) : null;
 
@@ -363,9 +353,9 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
       setLoading(true);
       try {
         const { data, error } = await supabase
-          .from("vocabulary_sets")
-          .select("id, title, emoji, grades, created_at, vocabulary_cards(id)")
-          .order("created_at", { ascending: false });
+          .from('vocabulary_sets')
+          .select('id, title, emoji, grades, created_at, vocabulary_cards(id)')
+          .order('created_at', { ascending: false });
         if (error) throw error;
 
         const filtered = (data || [])
@@ -395,7 +385,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
   const filteredSets = useMemo(() => {
     if (!filterText.trim()) return sets;
     const q = filterText.toLowerCase().trim();
-    return sets.filter((s) => s.title.toLowerCase().includes(q));
+    return sets.filter(s => s.title.toLowerCase().includes(q));
   }, [sets, filterText]);
 
   if (loading) {
@@ -404,9 +394,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
         <div className="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center">
           <div className="w-6 h-6 border-3 border-rose-200 border-t-rose-600 rounded-full animate-spin" />
         </div>
-        <p className="text-xs font-bold text-slate-400">
-          Đang tải danh sách thẻ từ vựng...
-        </p>
+        <p className="text-xs font-bold text-slate-400">Đang tải danh sách thẻ từ vựng...</p>
       </div>
     );
   }
@@ -428,7 +416,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
               </h2>
               {parsedStudentGrade && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-rose-50 text-rose-700 border border-rose-200/70 shadow-2xs">
-                  {interpolate(t.common?.gradeLabel || "Lớp {grade}", {
+                  {interpolate(t.common?.gradeLabel || 'Lớp {grade}', {
                     grade: parsedStudentGrade,
                   })}
                 </span>
@@ -448,9 +436,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 Tổng bộ thẻ
               </p>
-              <p className="text-sm font-black text-slate-800">
-                {filteredSets.length} chủ đề
-              </p>
+              <p className="text-sm font-black text-slate-800">{filteredSets.length} chủ đề</p>
             </div>
           </div>
         </div>
@@ -465,14 +451,14 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
             <input
               type="text"
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              onChange={e => setFilterText(e.target.value)}
               placeholder="Tìm bộ từ vựng..."
               className="w-full pl-9 pr-8 py-2 bg-white rounded-xl border border-slate-200/80 text-xs font-bold text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-400/20 focus:border-rose-500 transition-all shadow-2xs"
             />
             {filterText && (
               <button
                 type="button"
-                onClick={() => setFilterText("")}
+                onClick={() => setFilterText('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <X size={14} />
@@ -488,16 +474,14 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
           <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center mx-auto text-2xl">
             📭
           </div>
-          <p className="font-black text-slate-700 text-base">
-            {t.teacherModal.flashcardsEmpty}
-          </p>
+          <p className="font-black text-slate-700 text-base">{t.teacherModal.flashcardsEmpty}</p>
           <p className="text-xs text-slate-400 max-w-sm mx-auto font-medium">
             Hãy thử đổi từ khóa tìm kiếm để xem các bộ thẻ từ vựng khác nhé!
           </p>
           {filterText && (
             <button
               type="button"
-              onClick={() => setFilterText("")}
+              onClick={() => setFilterText('')}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 shadow-sm"
             >
               <RotateCcw size={13} /> Xem tất cả bộ thẻ
@@ -506,7 +490,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
-          {filteredSets.map((set) => (
+          {filteredSets.map(set => (
             <button
               key={set.id}
               type="button"
@@ -528,8 +512,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
               {/* Card Count Pill */}
               <div className="pt-2 border-t border-slate-100 w-full flex items-center justify-center">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-rose-50 text-rose-700 text-[10px] sm:text-[11px] font-black rounded-full border border-rose-200/60">
-                  <Sparkles size={11} className="text-rose-500" />{" "}
-                  {set.card_count} thẻ
+                  <Sparkles size={11} className="text-rose-500" /> {set.card_count} thẻ
                 </span>
               </div>
             </button>
@@ -538,9 +521,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
       )}
 
       {/* Study Mode Dialog */}
-      {activeSet && (
-        <StudyMode set={activeSet} onClose={() => setActiveSet(null)} />
-      )}
+      {activeSet && <StudyMode set={activeSet} onClose={() => setActiveSet(null)} />}
     </div>
   );
 }

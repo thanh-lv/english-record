@@ -1,56 +1,27 @@
-import {
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  Mic,
-  Video,
-  ArrowLeft,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useLanguage } from "../../../i18n/LanguageContext";
-import {
-  fetchRecordingPage,
-  fetchStudentRecordings,
-} from "../hooks/useRecordings";
-import { RecordingItem } from "../recordings/RecordingsManager";
+import { AlertCircle, ChevronLeft, ChevronRight, Mic, Video, ArrowLeft } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '../../../i18n/LanguageContext';
+import { fetchRecordingPage, fetchStudentRecordings } from '../hooks/useRecordings';
+import { RecordingItem } from '../recordings/RecordingsManager';
 
 const PAGE_SIZE = 10;
 
-type TabType = "topic" | "shadowing";
+type TabType = 'topic' | 'shadowing';
 
-function getPaginationItems(
-  currentPage: number,
-  totalPages: number,
-): (number | "...")[] {
+function getPaginationItems(currentPage: number, totalPages: number): (number | '...')[] {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
 
   if (currentPage <= 4) {
-    return [1, 2, 3, 4, 5, "...", totalPages];
+    return [1, 2, 3, 4, 5, '...', totalPages];
   }
 
   if (currentPage >= totalPages - 3) {
-    return [
-      1,
-      "...",
-      totalPages - 4,
-      totalPages - 3,
-      totalPages - 2,
-      totalPages - 1,
-      totalPages,
-    ];
+    return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
   }
 
-  return [
-    1,
-    "...",
-    currentPage - 1,
-    currentPage,
-    currentPage + 1,
-    "...",
-    totalPages,
-  ];
+  return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
 }
 
 function RecordingsList({
@@ -78,11 +49,11 @@ function RecordingsList({
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   useEffect(() => {
-    if (!highlightRecordId || initialJump.current || type !== "topic") return;
+    if (!highlightRecordId || initialJump.current || type !== 'topic') return;
     initialJump.current = true;
     fetchRecordingPage(studentName, highlightRecordId, PAGE_SIZE)
-      .then((p) => setPage(p))
-      .catch((err) => console.error("Error locating record page:", err));
+      .then(p => setPage(p))
+      .catch(err => console.error('Error locating record page:', err));
   }, [highlightRecordId, studentName, type]);
 
   useEffect(() => {
@@ -95,8 +66,8 @@ function RecordingsList({
         setRecords(records);
         setTotal(total);
       })
-      .catch((err) => {
-        console.error("Error fetching student recordings:", err);
+      .catch(err => {
+        console.error('Error fetching student recordings:', err);
         if (!cancelled) setLoadError(true);
       })
       .finally(() => {
@@ -109,8 +80,7 @@ function RecordingsList({
 
   const goToPage = (p: number) => setPage(Math.min(Math.max(p, 1), totalPages));
 
-  const emptyMsg =
-    type === "shadowing" ? t.recordings.emptyShadowing : t.recordings.empty;
+  const emptyMsg = type === 'shadowing' ? t.recordings.emptyShadowing : t.recordings.empty;
 
   if (loading) {
     return (
@@ -129,7 +99,7 @@ function RecordingsList({
         <p className="text-slate-500 font-bold">{t.common.loadDataError}</p>
         <button
           type="button"
-          onClick={() => setReloadKey((k) => k + 1)}
+          onClick={() => setReloadKey(k => k + 1)}
           className="px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-600 font-black text-sm rounded-lg transition-colors"
         >
           {t.common.retry}
@@ -142,7 +112,7 @@ function RecordingsList({
     return (
       <div className="p-12 text-center">
         <div className="w-16 h-16 bg-slate-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-          {type === "shadowing" ? (
+          {type === 'shadowing' ? (
             <Video size={24} className="text-slate-400" />
           ) : (
             <Mic size={24} className="text-slate-400" />
@@ -180,7 +150,7 @@ function RecordingsList({
 
           <div className="flex items-center gap-1 flex-wrap justify-center">
             {getPaginationItems(page, totalPages).map((item, idx) => {
-              if (item === "...") {
+              if (item === '...') {
                 return (
                   <span
                     key={`ellipsis-${idx}`}
@@ -198,8 +168,8 @@ function RecordingsList({
                   onClick={() => goToPage(item as number)}
                   className={`w-8 h-8 rounded-xl font-black text-xs transition-all flex items-center justify-center ${
                     isCurrent
-                      ? "bg-[#1E88E5] text-white shadow-xs scale-105"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      ? 'bg-[#1E88E5] text-white shadow-xs scale-105'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
                   {item}
@@ -239,16 +209,16 @@ export function StudentSubmissionsView({
   highlightRecordId?: string | null;
 }) {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<TabType>("topic");
+  const [activeTab, setActiveTab] = useState<TabType>('topic');
 
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     {
-      id: "topic",
+      id: 'topic',
       label: t.recordings.tabTopicAnswers,
       icon: <Mic size={14} />,
     },
     {
-      id: "shadowing",
+      id: 'shadowing',
       label: t.recordings.tabShadowing,
       icon: <Video size={14} />,
     },
@@ -269,39 +239,35 @@ export function StudentSubmissionsView({
         <span
           className={`w-11 h-11 rounded-xl border-2 font-black flex items-center justify-center shrink-0 shadow-xs ${
             avatar
-              ? "bg-amber-50 text-2xl shadow-xs border-amber-200"
-              : "text-sm bg-blue-50 text-blue-600 border-blue-200"
+              ? 'bg-amber-50 text-2xl shadow-xs border-amber-200'
+              : 'text-sm bg-blue-50 text-blue-600 border-blue-200'
           }`}
         >
           {avatar ||
             studentName
-              .split(" ")
-              .map((w) => w[0])
-              .join("")
+              .split(' ')
+              .map(w => w[0])
+              .join('')
               .toUpperCase()
               .slice(0, 2)}
         </span>
         <div className="flex-1 min-w-0">
-          <h3 className="font-black text-slate-800 text-base sm:text-lg truncate">
-            {studentName}
-          </h3>
-          <p className="text-xs text-slate-400 font-bold mt-0.5">
-            {t.recordings.title}
-          </p>
+          <h3 className="font-black text-slate-800 text-base sm:text-lg truncate">{studentName}</h3>
+          <p className="text-xs text-slate-400 font-bold mt-0.5">{t.recordings.title}</p>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex border-b border-slate-200/80 bg-slate-50/60 p-1.5 gap-1.5">
-        {tabs.map((tab) => (
+        {tabs.map(tab => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-black transition-all ${
               activeTab === tab.id
-                ? "bg-white text-blue-600 shadow-xs border border-slate-200/80"
-                : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
+                ? 'bg-white text-blue-600 shadow-xs border border-slate-200/80'
+                : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
             }`}
           >
             {tab.icon}

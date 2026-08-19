@@ -12,11 +12,11 @@ import {
   ChevronRight,
   Sparkles,
   Check,
-} from "lucide-react";
-import { useMemo, useEffect } from "react";
-import { useLanguage } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import { TeacherFeedback } from "../../common/TeacherFeedback";
+} from 'lucide-react';
+import { useMemo, useEffect } from 'react';
+import { useLanguage } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { TeacherFeedback } from '../../common/TeacherFeedback';
 
 interface TopicModalProps {
   selectedNumber: number;
@@ -96,10 +96,10 @@ export function TopicModal({
             <div
               className={`inline-flex items-center justify-center w-11 h-11 sm:w-13 sm:h-13 text-white rounded-2xl font-black text-sm sm:text-xl shadow-sm shrink-0 ${
                 canRetry
-                  ? "bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/20"
+                  ? 'bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/20'
                   : isTopicFullyRecorded
-                    ? "bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/20"
-                    : "bg-gradient-to-br from-blue-600 to-indigo-600 shadow-blue-500/20"
+                    ? 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/20'
+                    : 'bg-gradient-to-br from-blue-600 to-indigo-600 shadow-blue-500/20'
               }`}
             >
               {isBongBe ? `T${selectedNumber}` : selectedNumber}
@@ -109,10 +109,10 @@ export function TopicModal({
                 <span
                   className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
                     canRetry
-                      ? "bg-amber-100 text-amber-700"
+                      ? 'bg-amber-100 text-amber-700'
                       : isTopicFullyRecorded
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-blue-100 text-blue-700"
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-blue-100 text-blue-700'
                   }`}
                 >
                   {canRetry
@@ -120,8 +120,8 @@ export function TopicModal({
                     : isTopicFullyRecorded
                       ? t.topic.done
                       : isBongBe
-                        ? "Test Đặc Biệt"
-                        : "Bài Học"}
+                        ? 'Test Đặc Biệt'
+                        : 'Bài Học'}
                 </span>
                 {totalQuestions > 0 && (
                   <span className="text-[11px] font-bold text-slate-400">
@@ -179,7 +179,7 @@ export function TopicModal({
                   className="w-full py-3.5 px-4 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center gap-2 border border-slate-200 text-xs font-bold"
                 >
                   <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-                  {t.topic.loadingAudio + "..."}
+                  {t.topic.loadingAudio + '...'}
                 </button>
               ) : topicAudio ? (
                 <button
@@ -187,14 +187,11 @@ export function TopicModal({
                   onClick={onPlayTopicAudio}
                   className={`w-full py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all shadow-sm active:scale-95 ${
                     isPlayingTopicAudio
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-orange-500/25 ring-2 ring-orange-400/30"
-                      : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/25"
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-orange-500/25 ring-2 ring-orange-400/30'
+                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/25'
                   }`}
                 >
-                  <Volume2
-                    className={isPlayingTopicAudio ? "animate-bounce" : ""}
-                    size={18}
-                  />
+                  <Volume2 className={isPlayingTopicAudio ? 'animate-bounce' : ''} size={18} />
                   {isPlayingTopicAudio ? t.topic.stopAudio : t.topic.playAudio}
                 </button>
               ) : (
@@ -206,10 +203,7 @@ export function TopicModal({
 
               {/* Instruction Note */}
               <div className="w-full bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 flex items-start gap-2.5 shadow-2xs">
-                <AlertCircle
-                  className="text-amber-500 shrink-0 mt-0.5"
-                  size={18}
-                />
+                <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={18} />
                 <p className="text-xs font-bold text-amber-900 leading-relaxed text-left">
                   {t.topic.note}
                 </p>
@@ -237,10 +231,7 @@ export function TopicModal({
           {/* Error Message */}
           {appError && (
             <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm px-4 py-3 rounded-2xl flex items-start gap-2 text-left relative shadow-2xs animate-in fade-in">
-              <AlertCircle
-                size={18}
-                className="shrink-0 mt-0.5 text-rose-500"
-              />
+              <AlertCircle size={18} className="shrink-0 mt-0.5 text-rose-500" />
               <span className="pr-6 font-bold">{appError}</span>
               <button
                 type="button"
@@ -261,19 +252,19 @@ export function TopicModal({
             <span className="flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded-md text-slate-500 font-mono text-[10px]">
                 Space
-              </kbd>{" "}
+              </kbd>{' '}
               {t.topic.kbPlayAudio}
             </span>
             <span className="flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded-md text-slate-500 font-mono text-[10px]">
                 R
-              </kbd>{" "}
+              </kbd>{' '}
               {t.topic.kbRecord}
             </span>
             <span className="flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded-md text-slate-500 font-mono text-[10px]">
                 Esc
-              </kbd>{" "}
+              </kbd>{' '}
               {t.topic.kbClose}
             </span>
           </div>
@@ -294,14 +285,13 @@ export function TopicModal({
               onClick={onSaveRecording}
               className={`w-full sm:w-auto px-8 py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 ${
                 Object.keys(bongBeAudios).length === 0 || isSaving
-                  ? "bg-slate-200 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none"
-                  : "bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-blue-600/25"
+                  ? 'bg-slate-200 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none'
+                  : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-blue-600/25'
               }`}
             >
               {isSaving ? (
                 <>
-                  <Loader2 size={16} className="animate-spin" />{" "}
-                  {t.topic.submitting}
+                  <Loader2 size={16} className="animate-spin" /> {t.topic.submitting}
                 </>
               ) : (
                 <>
@@ -351,7 +341,7 @@ function QuestionPanel({
 
   const audioBlobUrl = useMemo(
     () => (audioBlob ? URL.createObjectURL(audioBlob) : null),
-    [audioBlob],
+    [audioBlob]
   );
 
   useEffect(() => {
@@ -383,10 +373,10 @@ function QuestionPanel({
                   onClick={() => onQuestionChange(idx)}
                   className={`w-7 h-7 rounded-xl text-[11px] font-black flex items-center justify-center transition-all ${
                     isCurrent
-                      ? "bg-blue-600 text-white shadow-2xs scale-105"
+                      ? 'bg-blue-600 text-white shadow-2xs scale-105'
                       : isDone
-                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-                        : "bg-white text-slate-500 hover:bg-slate-100 border border-slate-200"
+                        ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                        : 'bg-white text-slate-500 hover:bg-slate-100 border border-slate-200'
                   }`}
                   title={`Câu hỏi ${idx + 1}`}
                 >
@@ -401,9 +391,7 @@ function QuestionPanel({
       {/* Question Content Card */}
       {q && (
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs space-y-3">
-          <p className="text-base sm:text-lg font-black text-slate-800 leading-snug">
-            {q.text}
-          </p>
+          <p className="text-base sm:text-lg font-black text-slate-800 leading-snug">{q.text}</p>
           {q.translation && (
             <p className="text-xs sm:text-sm text-slate-400 italic font-semibold">
               {q.translation}
@@ -421,9 +409,7 @@ function QuestionPanel({
 
           {q.target && (
             <div className="bg-purple-50/70 border border-purple-200/70 rounded-xl p-2.5 text-xs font-bold text-purple-900 flex items-center gap-1.5">
-              <span className="text-purple-600 font-black">
-                🎯 {t.topic.target || "Mục tiêu:"}
-              </span>
+              <span className="text-purple-600 font-black">🎯 {t.topic.target || 'Mục tiêu:'}</span>
               <span>{q.target}</span>
             </div>
           )}
@@ -436,8 +422,7 @@ function QuestionPanel({
           <div className="space-y-3">
             <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 flex flex-col items-center gap-2.5 text-center">
               <span className="text-xs font-black text-emerald-700 flex items-center gap-1.5">
-                <CheckCircle2 size={16} className="text-emerald-600" />{" "}
-                {t.topic.saved}
+                <CheckCircle2 size={16} className="text-emerald-600" /> {t.topic.saved}
               </span>
               <audio
                 controls
@@ -491,16 +476,12 @@ function QuestionPanel({
             {audioBlob && !isRecording && (
               <div className="w-full space-y-3">
                 <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
-                  <audio
-                    controls
-                    src={audioBlobUrl || ""}
-                    className="w-full h-10"
-                  />
+                  <audio controls src={audioBlobUrl || ''} className="w-full h-10" />
                 </div>
                 <div className="flex justify-center">
                   <button
                     type="button"
-                    onClick={(e) => onDeleteBongBeAudio(activeQuestionIndex, e)}
+                    onClick={e => onDeleteBongBeAudio(activeQuestionIndex, e)}
                     className="px-4 py-2 text-xs font-black text-slate-600 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 rounded-xl flex items-center gap-1.5 transition-colors shadow-2xs active:scale-95"
                   >
                     <Trash2 size={14} /> {t.topic.reRecord}
@@ -518,13 +499,11 @@ function QuestionPanel({
           <button
             type="button"
             disabled={activeQuestionIndex === 0}
-            onClick={() =>
-              onQuestionChange(Math.max(0, activeQuestionIndex - 1))
-            }
+            onClick={() => onQuestionChange(Math.max(0, activeQuestionIndex - 1))}
             className={`px-4 py-2 font-black rounded-xl border text-xs flex items-center gap-1 transition-all active:scale-95 ${
               activeQuestionIndex === 0
-                ? "bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed"
-                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 shadow-2xs"
+                ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 shadow-2xs'
             }`}
           >
             <ChevronLeft size={16} /> {t.common.prevQuestion}
@@ -533,13 +512,11 @@ function QuestionPanel({
           <button
             type="button"
             disabled={activeQuestionIndex === total - 1}
-            onClick={() =>
-              onQuestionChange(Math.min(total - 1, activeQuestionIndex + 1))
-            }
+            onClick={() => onQuestionChange(Math.min(total - 1, activeQuestionIndex + 1))}
             className={`px-4 py-2 font-black rounded-xl text-xs flex items-center gap-1 transition-all active:scale-95 ${
               activeQuestionIndex === total - 1
-                ? "bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white shadow-2xs"
+                ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-2xs'
             }`}
           >
             {t.common.nextQuestion} <ChevronRight size={16} />

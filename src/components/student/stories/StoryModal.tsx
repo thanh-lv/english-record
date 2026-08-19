@@ -1,6 +1,6 @@
-import { BookOpen, Square, Volume2, X } from "lucide-react";
-import { useLanguage } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import { BookOpen, Square, Volume2, X } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
 
 interface StoryModalProps {
   story: any;
@@ -9,12 +9,7 @@ interface StoryModalProps {
   onPlayAudio: (e: React.MouseEvent) => void;
 }
 
-export function StoryModal({
-  story,
-  isPlayingAudio,
-  onClose,
-  onPlayAudio,
-}: StoryModalProps) {
+export function StoryModal({ story, isPlayingAudio, onClose, onPlayAudio }: StoryModalProps) {
   const { t } = useLanguage();
   useEscapeToClose(onClose);
   return (
@@ -27,11 +22,7 @@ export function StoryModal({
       <div className="bg-white rounded-lg w-full max-w-3xl overflow-hidden shadow-md animate-in zoom-in-95 duration-300 relative my-auto">
         {story.image_url ? (
           <div className="w-full h-64 md:h-80 relative">
-            <img
-              src={story.image_url}
-              alt=""
-              className="w-full h-full object-cover"
-            />
+            <img src={story.image_url} alt="" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <button
               onClick={onClose}
@@ -85,8 +76,8 @@ export function StoryModal({
               onClick={onPlayAudio}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-sm transition-all shadow-md ${
                 isPlayingAudio
-                  ? "bg-rose-100 text-rose-600 hover:bg-rose-200"
-                  : "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                  ? 'bg-rose-100 text-rose-600 hover:bg-rose-200'
+                  : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
               }`}
             >
               {isPlayingAudio ? (

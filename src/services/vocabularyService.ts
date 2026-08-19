@@ -1,15 +1,14 @@
-import { supabase } from "../lib/supabase";
-import { VocabSet, VocabCard } from "../types";
+import { supabase } from '../lib/supabase';
+import { VocabSet, VocabCard } from '../types';
 
-const WORKER_URL =
-  "https://free-image-generation-api.levanthanh29111999.workers.dev/";
+const WORKER_URL = 'https://free-image-generation-api.levanthanh29111999.workers.dev/';
 
 export const vocabularyService = {
   async fetchSets(): Promise<VocabSet[]> {
     const { data, error } = await supabase
-      .from("vocabulary_sets")
-      .select("id, title, emoji, grades, created_at, vocabulary_cards(id)")
-      .order("created_at", { ascending: false });
+      .from('vocabulary_sets')
+      .select('id, title, emoji, grades, created_at, vocabulary_cards(id)')
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
 
@@ -22,24 +21,18 @@ export const vocabularyService = {
 
   async fetchCards(setId: string): Promise<VocabCard[]> {
     const { data, error } = await supabase
-      .from("vocabulary_cards")
-      .select(
-        "id, set_id, front, back, ipa, image_url, order_index, created_at",
-      )
-      .eq("set_id", setId)
-      .order("order_index", { ascending: true });
+      .from('vocabulary_cards')
+      .select('id, set_id, front, back, ipa, image_url, order_index, created_at')
+      .eq('set_id', setId)
+      .order('order_index', { ascending: true });
 
     if (error) throw error;
     return (data || []) as VocabCard[];
   },
 
-  async createSet(
-    title: string,
-    emoji: string,
-    grades: number[] = [],
-  ): Promise<VocabSet> {
+  async createSet(title: string, emoji: string, grades: number[] = []): Promise<VocabSet> {
     const { data, error } = await supabase
-      .from("vocabulary_sets")
+      .from('vocabulary_sets')
       .insert({
         title,
         emoji,
@@ -54,12 +47,12 @@ export const vocabularyService = {
 
   async updateSet(
     setId: string,
-    updates: { title?: string; emoji?: string; grades?: number[] },
+    updates: { title?: string; emoji?: string; grades?: number[] }
   ): Promise<VocabSet> {
     const { data, error } = await supabase
-      .from("vocabulary_sets")
+      .from('vocabulary_sets')
       .update(updates)
-      .eq("id", setId)
+      .eq('id', setId)
       .select()
       .single();
 
@@ -68,16 +61,13 @@ export const vocabularyService = {
   },
 
   async deleteSet(setId: string): Promise<void> {
-    const { error } = await supabase
-      .from("vocabulary_sets")
-      .delete()
-      .eq("id", setId);
+    const { error } = await supabase.from('vocabulary_sets').delete().eq('id', setId);
     if (error) throw error;
   },
 
   async createCard(cardData: Partial<VocabCard>): Promise<VocabCard> {
     const { data, error } = await supabase
-      .from("vocabulary_cards")
+      .from('vocabulary_cards')
       .insert(cardData)
       .select()
       .single();
@@ -87,10 +77,7 @@ export const vocabularyService = {
   },
 
   async deleteCard(cardId: string): Promise<void> {
-    const { error } = await supabase
-      .from("vocabulary_cards")
-      .delete()
-      .eq("id", cardId);
+    const { error } = await supabase.from('vocabulary_cards').delete().eq('id', cardId);
     if (error) throw error;
   },
 
@@ -99,12 +86,12 @@ export const vocabularyService = {
     if (!apiKey) return null;
     try {
       const res = await fetch(WORKER_URL, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({ type: "ipa", prompt: word }),
+        body: JSON.stringify({ type: 'ipa', prompt: word }),
       });
       if (!res.ok) return null;
       const data = await res.json();

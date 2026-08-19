@@ -16,7 +16,10 @@ describe('i18n translations consistency', () => {
       const val2 = obj2[key];
 
       if (Array.isArray(val1)) {
-        expect(Array.isArray(val2), `Expected "${currentPath}" to be an array in both translations`).toBe(true);
+        expect(
+          Array.isArray(val2),
+          `Expected "${currentPath}" to be an array in both translations`
+        ).toBe(true);
         expect(val1.length, `Array length mismatch for "${currentPath}"`).toBe(val2.length);
         val1.forEach((item: any, i: number) => {
           expect(typeof item).toBe('string');

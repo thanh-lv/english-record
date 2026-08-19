@@ -7,10 +7,10 @@ import {
   RotateCcw,
   ArrowRight,
   CheckCircle2,
-} from "lucide-react";
-import React, { useEffect, useState, useMemo } from "react";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
-import { supabase } from "../../../lib/supabase";
+} from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { supabase } from '../../../lib/supabase';
 
 interface ShadowingTabProps {
   onVideoClick: (video: any) => void;
@@ -18,28 +18,22 @@ interface ShadowingTabProps {
   myRecordings?: any[];
 }
 
-export function ShadowingTab({
-  onVideoClick,
-  studentGrade,
-  myRecordings,
-}: ShadowingTabProps) {
+export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: ShadowingTabProps) {
   const { t } = useLanguage();
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterText, setFilterText] = useState("");
+  const [filterText, setFilterText] = useState('');
   const parsedStudentGrade = studentGrade ? Number(studentGrade) : null;
-  const [filterMode, setFilterMode] = useState<string>(
-    parsedStudentGrade ? "myGrade" : "all",
-  );
+  const [filterMode, setFilterMode] = useState<string>(parsedStudentGrade ? 'myGrade' : 'all');
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
         const { data, error } = await supabase
-          .from("shadowing_videos")
-          .select("*")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false });
+          .from('shadowing_videos')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
 
         if (error) throw error;
         setVideos(data || []);
@@ -53,29 +47,24 @@ export function ShadowingTab({
   }, []);
 
   const extractYoutubeId = (url: string) => {
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return match && match[2].length === 11 ? match[2] : null;
   };
 
   const isVideoForGrade = (video: any, grade: number) => {
-    if (
-      !video.grades ||
-      !Array.isArray(video.grades) ||
-      video.grades.length === 0
-    ) {
+    if (!video.grades || !Array.isArray(video.grades) || video.grades.length === 0) {
       return true;
     }
     return video.grades.includes(grade);
   };
 
   const filteredVideos = useMemo(() => {
-    return videos.filter((video) => {
+    return videos.filter(video => {
       // Grade filter mode
-      if (filterMode === "myGrade" && parsedStudentGrade) {
+      if (filterMode === 'myGrade' && parsedStudentGrade) {
         if (!isVideoForGrade(video, parsedStudentGrade)) return false;
-      } else if (filterMode !== "all") {
+      } else if (filterMode !== 'all') {
         const specificGrade = Number(filterMode);
         if (!isNaN(specificGrade) && !isVideoForGrade(video, specificGrade)) {
           return false;
@@ -95,9 +84,7 @@ export function ShadowingTab({
         <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
           <div className="w-6 h-6 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
         </div>
-        <p className="text-xs font-bold text-slate-400">
-          Đang tải danh sách video...
-        </p>
+        <p className="text-xs font-bold text-slate-400">Đang tải danh sách video...</p>
       </div>
     );
   }
@@ -119,7 +106,7 @@ export function ShadowingTab({
               </h2>
               {parsedStudentGrade && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-indigo-50 text-indigo-700 border border-indigo-200/70 shadow-2xs">
-                  {interpolate(t.common?.gradeLabel || "Lớp {grade}", {
+                  {interpolate(t.common?.gradeLabel || 'Lớp {grade}', {
                     grade: parsedStudentGrade,
                   })}
                 </span>
@@ -139,9 +126,7 @@ export function ShadowingTab({
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 Tổng số video
               </p>
-              <p className="text-sm font-black text-slate-800">
-                {filteredVideos.length} bài luyện
-              </p>
+              <p className="text-sm font-black text-slate-800">{filteredVideos.length} bài luyện</p>
             </div>
           </div>
         </div>
@@ -153,20 +138,16 @@ export function ShadowingTab({
             <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60">
               <button
                 type="button"
-                onClick={() => setFilterMode("myGrade")}
+                onClick={() => setFilterMode('myGrade')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
-                  filterMode === "myGrade"
-                    ? "bg-white text-indigo-600 shadow-2xs"
-                    : "text-slate-500 hover:text-slate-700"
+                  filterMode === 'myGrade'
+                    ? 'bg-white text-indigo-600 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <Sparkles
                   size={13}
-                  className={
-                    filterMode === "myGrade"
-                      ? "text-indigo-600"
-                      : "text-slate-400"
-                  }
+                  className={filterMode === 'myGrade' ? 'text-indigo-600' : 'text-slate-400'}
                 />
                 {interpolate(t.shadowing.myGradeOnly, {
                   grade: parsedStudentGrade,
@@ -174,11 +155,11 @@ export function ShadowingTab({
               </button>
               <button
                 type="button"
-                onClick={() => setFilterMode("all")}
+                onClick={() => setFilterMode('all')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                  filterMode === "all"
-                    ? "bg-white text-indigo-600 shadow-2xs"
-                    : "text-slate-500 hover:text-slate-700"
+                  filterMode === 'all'
+                    ? 'bg-white text-indigo-600 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 {t.shadowing.allVideos} ({videos.length})
@@ -195,14 +176,14 @@ export function ShadowingTab({
             <input
               type="text"
               value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
+              onChange={e => setFilterText(e.target.value)}
               placeholder="Tìm video luyện nói..."
               className="w-full sm:w-56 pl-9 pr-8 py-2 bg-white rounded-xl border border-slate-200/80 text-xs font-bold text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20 focus:border-indigo-500 transition-all shadow-2xs"
             />
             {filterText && (
               <button
                 type="button"
-                onClick={() => setFilterText("")}
+                onClick={() => setFilterText('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <X size={14} />
@@ -218,19 +199,16 @@ export function ShadowingTab({
           <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto text-2xl text-indigo-500">
             <Video size={28} />
           </div>
-          <p className="font-black text-slate-700 text-base">
-            {t.shadowing.empty}
-          </p>
+          <p className="font-black text-slate-700 text-base">{t.shadowing.empty}</p>
           <p className="text-xs text-slate-400 max-w-sm mx-auto font-medium">
-            Hãy thử đổi từ khóa tìm kiếm hoặc chọn bộ lọc &quot;Tất cả bài
-            học&quot; nhé!
+            Hãy thử đổi từ khóa tìm kiếm hoặc chọn bộ lọc &quot;Tất cả bài học&quot; nhé!
           </p>
-          {(filterText || filterMode !== "all") && (
+          {(filterText || filterMode !== 'all') && (
             <button
               type="button"
               onClick={() => {
-                setFilterText("");
-                setFilterMode("all");
+                setFilterText('');
+                setFilterMode('all');
               }}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 shadow-sm"
             >
@@ -240,11 +218,9 @@ export function ShadowingTab({
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-          {filteredVideos.map((video) => {
+          {filteredVideos.map(video => {
             const ytId = extractYoutubeId(video.youtube_url);
-            const thumb = ytId
-              ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
-              : "";
+            const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
 
             return (
               <button
@@ -279,14 +255,13 @@ export function ShadowingTab({
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between gap-1 flex-wrap">
-                      {Array.isArray(video.grades) &&
-                      video.grades.length > 0 ? (
+                      {Array.isArray(video.grades) && video.grades.length > 0 ? (
                         <span className="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-lg border border-indigo-200/60">
                           {interpolate(t.shadowing.forGrades, {
                             grades: video.grades
                               .slice()
                               .sort((a: number, b: number) => a - b)
-                              .join(", "),
+                              .join(', '),
                           })}
                         </span>
                       ) : (
@@ -295,15 +270,10 @@ export function ShadowingTab({
                         </span>
                       )}
 
-                      {myRecordings?.some(
-                        (rec: any) => rec.shadowing_video_id === video.id,
-                      ) && (
+                      {myRecordings?.some((rec: any) => rec.shadowing_video_id === video.id) && (
                         <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-lg border border-emerald-200/60 shadow-2xs">
-                          <CheckCircle2
-                            size={11}
-                            className="text-emerald-600"
-                          />
-                          {t.shadowing.completedBadge || "Đã thu âm"}
+                          <CheckCircle2 size={11} className="text-emerald-600" />
+                          {t.shadowing.completedBadge || 'Đã thu âm'}
                         </span>
                       )}
                     </div>
@@ -316,11 +286,9 @@ export function ShadowingTab({
                   {/* Card footer CTA */}
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-400 group-hover:text-indigo-600 transition-colors">
                     <span>
-                      {myRecordings?.some(
-                        (rec: any) => rec.shadowing_video_id === video.id,
-                      )
-                        ? "Xem lại & Luyện tập"
-                        : "Luyện tập ngay"}
+                      {myRecordings?.some((rec: any) => rec.shadowing_video_id === video.id)
+                        ? 'Xem lại & Luyện tập'
+                        : 'Luyện tập ngay'}
                     </span>
                     <ArrowRight
                       size={13}

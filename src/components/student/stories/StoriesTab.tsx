@@ -1,5 +1,5 @@
-import { Library } from "lucide-react";
-import { interpolate, useLanguage } from "../../../i18n/LanguageContext";
+import { Library } from 'lucide-react';
+import { interpolate, useLanguage } from '../../../i18n/LanguageContext';
 
 interface StoriesTabProps {
   dbStories: any[];
@@ -8,12 +8,7 @@ interface StoriesTabProps {
   onStoryClick: (story: any) => void;
 }
 
-export function StoriesTab({
-  dbStories,
-  profile,
-  studentAge,
-  onStoryClick,
-}: StoriesTabProps) {
+export function StoriesTab({ dbStories, profile, studentAge, onStoryClick }: StoriesTabProps) {
   const { t } = useLanguage();
   return (
     <div className="sm:bg-white/70 sm:backdrop-blur-sm sm:p-6 rounded-lg border-3 sm:border-white sm:shadow-md">
@@ -35,7 +30,7 @@ export function StoriesTab({
         </div>
       )}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-5">
-        {dbStories.map((story) => (
+        {dbStories.map(story => (
           <div
             key={story.id}
             className="bg-white rounded-lg border-3 border-purple-100 shadow-md hover:shadow-md hover:scale-105 transition-all cursor-pointer flex flex-col overflow-hidden"
@@ -43,11 +38,7 @@ export function StoriesTab({
           >
             <div className="w-full aspect-square bg-slate-100 relative">
               {story.image_url ? (
-                <img
-                  src={story.image_url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+                <img src={story.image_url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-5xl">
                   {story.emoji}

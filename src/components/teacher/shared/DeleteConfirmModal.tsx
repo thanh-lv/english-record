@@ -1,7 +1,7 @@
-import { AlertCircle, Loader2, Trash2 } from "lucide-react";
-import { useLanguage } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import { useBodyScrollLock } from "../../../utils";
+import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { useBodyScrollLock } from '../../../utils';
 
 interface DeleteConfirmModalProps {
   title: string;
@@ -40,10 +40,7 @@ export function DeleteConfirmModal({
             <AlertCircle size={24} />
           </div>
           <div className="space-y-1">
-            <h4
-              id="delete-confirm-title"
-              className="font-extrabold text-slate-800 text-lg"
-            >
+            <h4 id="delete-confirm-title" className="font-extrabold text-slate-800 text-lg">
               {title}
             </h4>
             <p className="text-sm text-slate-500 font-medium">{description}</p>
@@ -73,11 +70,7 @@ export function DeleteConfirmModal({
             disabled={saving}
             className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-lg text-sm transition-colors shadow-md border-b-4 border-rose-900 flex items-center gap-2"
           >
-            {saving ? (
-              <Loader2 size={15} className="animate-spin" />
-            ) : (
-              <Trash2 size={15} />
-            )}
+            {saving ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
             {confirmLabel || t.common.delete}
           </button>
         </div>

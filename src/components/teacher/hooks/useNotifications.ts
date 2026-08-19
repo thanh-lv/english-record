@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 
 export interface Notification {
   id: string;
@@ -7,13 +7,13 @@ export interface Notification {
   created_at: string;
 }
 
-const STORAGE_KEY = "teacher-notifications";
-const READ_KEY = "teacher-notifications-read";
+const STORAGE_KEY = 'teacher-notifications';
+const READ_KEY = 'teacher-notifications-read';
 const MAX_ITEMS = 50;
 
 function loadNotifications(): Notification[] {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   } catch {
     return [];
   }
@@ -21,15 +21,14 @@ function loadNotifications(): Notification[] {
 
 function loadReadIds(): Set<string> {
   try {
-    return new Set(JSON.parse(localStorage.getItem(READ_KEY) || "[]"));
+    return new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]'));
   } catch {
     return new Set();
   }
 }
 
 export function useNotifications() {
-  const [notifications, setNotifications] =
-    useState<Notification[]>(loadNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>(loadNotifications);
   const [readIds, setReadIds] = useState<Set<string>>(loadReadIds);
 
   useEffect(() => {
@@ -43,26 +42,26 @@ export function useNotifications() {
   const addNotification = useCallback((record: any) => {
     const item: Notification = {
       id: record.id ?? Math.random().toString(36).slice(2),
-      student_name: record.student_name || "Học sinh",
+      student_name: record.student_name || 'Học sinh',
       topic_number: record.topic_number,
       created_at: record.created_at || new Date().toISOString(),
     };
-    setNotifications((prev) => {
+    setNotifications(prev => {
       const next = [item, ...prev].slice(0, MAX_ITEMS);
       return next;
     });
   }, []);
 
   const markAllRead = useCallback(() => {
-    setReadIds((prev) => {
+    setReadIds(prev => {
       const next = new Set(prev);
-      notifications.forEach((n) => next.add(n.id));
+      notifications.forEach(n => next.add(n.id));
       return next;
     });
   }, [notifications]);
 
   const markRead = useCallback((id: string) => {
-    setReadIds((prev) => new Set([...prev, id]));
+    setReadIds(prev => new Set([...prev, id]));
   }, []);
 
   const clearAll = useCallback(() => {
@@ -70,7 +69,7 @@ export function useNotifications() {
     setReadIds(new Set());
   }, []);
 
-  const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
+  const unreadCount = notifications.filter(n => !readIds.has(n.id)).length;
 
   return {
     notifications,

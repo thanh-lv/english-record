@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { BarChart3 } from "lucide-react";
-import { AttendanceAnalytics } from "./AttendanceAnalytics";
-import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
+import { useState } from 'react';
+import { BarChart3 } from 'lucide-react';
+import { AttendanceAnalytics } from './AttendanceAnalytics';
+import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 
 export function AnalyticsTab() {
   const { t } = useLanguage();
@@ -20,11 +20,10 @@ export function AnalyticsTab() {
           </div>
           <div>
             <h3 className="font-black text-slate-800 text-sm sm:text-base">
-              {tAtt.analyticsTab || "Biểu Đồ Thống Kê & Doanh Thu"}
+              {tAtt.analyticsTab || 'Biểu Đồ Thống Kê & Doanh Thu'}
             </h3>
             <p className="text-xs text-slate-400 font-bold">
-              {tAtt?.analyticsSubtitle ||
-                "Phân tích xu hướng học phí & chuyên cần 6 tháng"}
+              {tAtt?.analyticsSubtitle || 'Phân tích xu hướng học phí & chuyên cần 6 tháng'}
             </p>
           </div>
         </div>
@@ -34,12 +33,12 @@ export function AnalyticsTab() {
           <div>
             <select
               value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
+              onChange={e => setMonth(Number(e.target.value))}
               className="px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-bold text-slate-800 text-xs sm:text-sm shadow-2xs cursor-pointer"
             >
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+              {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
                 <option key={m} value={m}>
-                  {interpolate(tAtt.monthName || "Tháng {m}", { m })}
+                  {interpolate(tAtt.monthName || 'Tháng {m}', { m })}
                 </option>
               ))}
             </select>
@@ -49,10 +48,10 @@ export function AnalyticsTab() {
           <div>
             <select
               value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
+              onChange={e => setYear(Number(e.target.value))}
               className="px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-bold text-slate-800 text-xs sm:text-sm shadow-2xs cursor-pointer"
             >
-              {[year - 1, year, year + 1].map((y) => (
+              {[year - 1, year, year + 1].map(y => (
                 <option key={y} value={y}>
                   {y}
                 </option>

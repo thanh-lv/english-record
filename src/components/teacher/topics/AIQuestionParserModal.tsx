@@ -1,20 +1,10 @@
-import {
-  AlertCircle,
-  Check,
-  ImageIcon,
-  Loader2,
-  Sparkles,
-  Trash2,
-  Type,
-  X,
-} from "lucide-react";
-import { useRef, useState } from "react";
-import { useLanguage } from "../../../i18n/LanguageContext";
-import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
-import { validateImageFile, sanitizeText } from "../../../utils/validators";
+import { AlertCircle, Check, ImageIcon, Loader2, Sparkles, Trash2, Type, X } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { useLanguage } from '../../../i18n/LanguageContext';
+import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { validateImageFile, sanitizeText } from '../../../utils/validators';
 
-const WORKER_URL =
-  "https://free-image-generation-api.levanthanh29111999.workers.dev/";
+const WORKER_URL = 'https://free-image-generation-api.levanthanh29111999.workers.dev/';
 
 interface ParsedQuestion {
   text: string;
@@ -26,18 +16,15 @@ interface AIQuestionParserModalProps {
   onClose: () => void;
 }
 
-export function AIQuestionParserModal({
-  onAddAll,
-  onClose,
-}: AIQuestionParserModalProps) {
+export function AIQuestionParserModal({ onAddAll, onClose }: AIQuestionParserModalProps) {
   const { t } = useLanguage();
   useEscapeToClose(onClose);
-  const [mode, setMode] = useState<"text" | "image">("text");
-  const [rawText, setRawText] = useState("");
+  const [mode, setMode] = useState<'text' | 'image'>('text');
+  const [rawText, setRawText] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState<string>('');
   const [parsing, setParsing] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [questions, setQuestions] = useState<ParsedQuestion[]>([]);
   const [adding, setAdding] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,8 +33,8 @@ export function AIQuestionParserModal({
     if (imagePreview) URL.revokeObjectURL(imagePreview);
     if (!file) {
       setImageFile(null);
-      setImagePreview("");
-      setError("");
+      setImagePreview('');
+      setError('');
       return;
     }
     const fileVal = validateImageFile(file, 10, {
@@ -55,12 +42,12 @@ export function AIQuestionParserModal({
       sizeTooLarge: t.common.imageSizeLimit,
     });
     if (!fileVal.isValid) {
-      setError(fileVal.error || "Tệp ảnh không hợp lệ");
+      setError(fileVal.error || 'Tệp ảnh không hợp lệ');
       return;
     }
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
-    setError("");
+    setError('');
   };
 
   const fileToBase64 = (file: File): Promise<string> =>
@@ -68,19 +55,15 @@ export function AIQuestionParserModal({
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result as string;
-        resolve(result.split(",")[1] || "");
+        resolve(result.split(',')[1] || '');
       };
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
 
   const applyParsedQuestions = (data: any) => {
-    if (
-      !data.questions ||
-      !Array.isArray(data.questions) ||
-      data.questions.length === 0
-    ) {
-      console.warn("AI parse raw response:", data.raw, data.error);
+    if (!data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
+      console.warn('AI parse raw response:', data.raw, data.error);
       setError(t.aiParser.errorNoQuestions);
       return;
     }
@@ -105,29 +88,29 @@ export function AIQuestionParserModal({
       return;
     }
 
-    if (mode === "text") {
+    if (mode === 'text') {
       const cleanText = sanitizeText(rawText);
       if (!cleanText || cleanText.length < 5) {
-        setError(t.common.questionMin || "Vui lòng nhập ít nhất 5 ký tự");
+        setError(t.common.questionMin || 'Vui lòng nhập ít nhất 5 ký tự');
         return;
       }
       if (cleanText.length > 20000) {
-        setError("Văn bản quá dài (tối đa 20,000 ký tự)");
+        setError('Văn bản quá dài (tối đa 20,000 ký tự)');
         return;
       }
       setParsing(true);
-      setError("");
+      setError('');
       setQuestions([]);
       try {
         const res = await fetch(WORKER_URL, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${apiKey}`,
           },
-          body: JSON.stringify({ type: "parse_questions", prompt: cleanText }),
+          body: JSON.stringify({ type: 'parse_questions', prompt: cleanText }),
         });
-        if (!res.ok) throw new Error("Failed");
+        if (!res.ok) throw new Error('Failed');
         const data = await res.json();
         applyParsedQuestions(data);
       } catch {
@@ -139,28 +122,28 @@ export function AIQuestionParserModal({
     }
 
     if (!imageFile) {
-      setError("Vui lòng chọn một ảnh bài tập");
+      setError('Vui lòng chọn một ảnh bài tập');
       return;
     }
     setParsing(true);
-    setError("");
+    setError('');
     setQuestions([]);
     try {
       const base64 = await fileToBase64(imageFile);
       const res = await fetch(WORKER_URL, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          type: "read_exam",
+          type: 'read_exam',
           image: base64,
           prompt:
             'Read this exam question sheet and extract every question along with its sample/expected answer if present. Return ONLY a JSON array, no explanation, no markdown fences, in this exact shape: [{"text": "question text", "sample_answer": "answer text or empty string"}]',
         }),
       });
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) throw new Error('Failed');
       const data = await res.json();
       applyParsedQuestions(data);
     } catch {
@@ -170,41 +153,33 @@ export function AIQuestionParserModal({
     }
   };
 
-  const updateQuestion = (
-    idx: number,
-    field: keyof ParsedQuestion,
-    value: string,
-  ) => {
-    setQuestions((prev) =>
-      prev.map((q, i) => (i === idx ? { ...q, [field]: value } : q)),
-    );
+  const updateQuestion = (idx: number, field: keyof ParsedQuestion, value: string) => {
+    setQuestions(prev => prev.map((q, i) => (i === idx ? { ...q, [field]: value } : q)));
   };
 
   const removeQuestion = (idx: number) => {
-    setQuestions((prev) => prev.filter((_, i) => i !== idx));
+    setQuestions(prev => prev.filter((_, i) => i !== idx));
   };
 
   const handleAddAll = async () => {
     const valid = questions
-      .map((q) => ({
+      .map(q => ({
         text: sanitizeText(q.text).slice(0, 500),
         sample_answer: sanitizeText(q.sample_answer).slice(0, 1000),
       }))
-      .filter((q) => q.text.length >= 2);
+      .filter(q => q.text.length >= 2);
 
     if (valid.length === 0) {
-      setError(
-        "Không có câu hỏi hợp lệ để thêm (câu hỏi cần có ít nhất 2 ký tự)",
-      );
+      setError('Không có câu hỏi hợp lệ để thêm (câu hỏi cần có ít nhất 2 ký tự)');
       return;
     }
     setAdding(true);
-    setError("");
+    setError('');
     try {
       await onAddAll(valid);
       onClose();
     } catch (err: any) {
-      setError(err.message || "Lỗi thêm câu hỏi");
+      setError(err.message || 'Lỗi thêm câu hỏi');
     } finally {
       setAdding(false);
     }
@@ -224,15 +199,10 @@ export function AIQuestionParserModal({
               <Sparkles size={18} />
             </span>
             <div>
-              <h4
-                id="ai-parser-title"
-                className="font-black text-lg text-slate-800"
-              >
+              <h4 id="ai-parser-title" className="font-black text-lg text-slate-800">
                 {t.aiParser.title}
               </h4>
-              <p className="text-xs text-slate-400 font-bold mt-0.5">
-                {t.aiParser.subtitle}
-              </p>
+              <p className="text-xs text-slate-400 font-bold mt-0.5">{t.aiParser.subtitle}</p>
             </div>
           </div>
           <button
@@ -249,29 +219,29 @@ export function AIQuestionParserModal({
           <div className="flex gap-1.5 bg-slate-100/80 p-1 rounded-xl w-fit">
             <button
               type="button"
-              onClick={() => setMode("text")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${mode === "text" ? "bg-white text-purple-700 shadow-2xs" : "text-slate-500 hover:text-slate-700"}`}
+              onClick={() => setMode('text')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${mode === 'text' ? 'bg-white text-purple-700 shadow-2xs' : 'text-slate-500 hover:text-slate-700'}`}
             >
               <Type size={14} /> {t.aiParser.tabText}
             </button>
             <button
               type="button"
-              onClick={() => setMode("image")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${mode === "image" ? "bg-white text-purple-700 shadow-2xs" : "text-slate-500 hover:text-slate-700"}`}
+              onClick={() => setMode('image')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${mode === 'image' ? 'bg-white text-purple-700 shadow-2xs' : 'text-slate-500 hover:text-slate-700'}`}
             >
               <ImageIcon size={14} /> {t.aiParser.tabImage}
             </button>
           </div>
 
           {/* Input */}
-          {mode === "text" ? (
+          {mode === 'text' ? (
             <div className="space-y-2">
               <label className="text-xs font-black text-slate-600 uppercase block">
                 {t.aiParser.textLabel}
               </label>
               <textarea
                 value={rawText}
-                onChange={(e) => setRawText(e.target.value)}
+                onChange={e => setRawText(e.target.value)}
                 placeholder={t.aiParser.textPlaceholder}
                 rows={8}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-400 resize-y transition-all"
@@ -287,7 +257,7 @@ export function AIQuestionParserModal({
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => handleSelectImage(e.target.files?.[0] || null)}
+                onChange={e => handleSelectImage(e.target.files?.[0] || null)}
               />
               {imagePreview ? (
                 <div className="relative">
@@ -312,9 +282,7 @@ export function AIQuestionParserModal({
                   className="w-full py-8 flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 text-slate-400 hover:border-purple-400 hover:text-purple-600 transition-all cursor-pointer"
                 >
                   <ImageIcon size={28} />
-                  <span className="text-xs font-black">
-                    {t.aiParser.imagePickPrompt}
-                  </span>
+                  <span className="text-xs font-black">{t.aiParser.imagePickPrompt}</span>
                 </button>
               )}
             </div>
@@ -323,16 +291,10 @@ export function AIQuestionParserModal({
           <button
             type="button"
             onClick={handleParse}
-            disabled={
-              parsing || (mode === "text" ? !rawText.trim() : !imageFile)
-            }
+            disabled={parsing || (mode === 'text' ? !rawText.trim() : !imageFile)}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white font-black rounded-xl text-xs transition-all shadow-xs active:scale-95"
           >
-            {parsing ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Sparkles size={14} />
-            )}
+            {parsing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
             {parsing ? t.aiParser.parsing : t.aiParser.parseButton}
           </button>
 
@@ -362,17 +324,13 @@ export function AIQuestionParserModal({
                     <div className="flex-1 space-y-1.5">
                       <input
                         value={q.text}
-                        onChange={(e) =>
-                          updateQuestion(idx, "text", e.target.value)
-                        }
+                        onChange={e => updateQuestion(idx, 'text', e.target.value)}
                         placeholder={t.aiParser.questionPlaceholder}
                         className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:border-purple-400 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all"
                       />
                       <input
                         value={q.sample_answer}
-                        onChange={(e) =>
-                          updateQuestion(idx, "sample_answer", e.target.value)
-                        }
+                        onChange={e => updateQuestion(idx, 'sample_answer', e.target.value)}
                         placeholder={t.aiParser.answerPlaceholder}
                         className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:border-purple-400 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all"
                       />
@@ -404,16 +362,10 @@ export function AIQuestionParserModal({
           <button
             type="button"
             onClick={handleAddAll}
-            disabled={
-              adding || questions.filter((q) => q.text.trim()).length === 0
-            }
+            disabled={adding || questions.filter(q => q.text.trim()).length === 0}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
           >
-            {adding ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Check size={14} />
-            )}
+            {adding ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
             {t.aiParser.addAll}
           </button>
         </div>

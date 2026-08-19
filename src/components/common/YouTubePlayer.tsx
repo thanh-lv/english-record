@@ -1,15 +1,15 @@
-import React from "react";
-import YouTube, { YouTubeProps } from "react-youtube";
-import { useLanguage } from "../../i18n/LanguageContext";
+import React from 'react';
+import YouTube, { YouTubeProps } from 'react-youtube';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface YouTubePlayerProps {
   url?: string | null;
   videoId?: string | null;
   title?: string;
   className?: string;
-  onReady?: YouTubeProps["onReady"];
-  onStateChange?: YouTubeProps["onStateChange"];
-  opts?: YouTubeProps["opts"];
+  onReady?: YouTubeProps['onReady'];
+  onStateChange?: YouTubeProps['onStateChange'];
+  opts?: YouTubeProps['opts'];
 }
 
 function extractYoutubeId(url?: string | null) {
@@ -23,7 +23,7 @@ export default function YouTubePlayer({
   url,
   videoId,
   title,
-  className = "",
+  className = '',
   onReady,
   onStateChange,
   opts,
@@ -42,8 +42,8 @@ export default function YouTubePlayer({
   }
 
   const playerOpts = {
-    height: "100%",
-    width: "100%",
+    height: '100%',
+    width: '100%',
     ...opts,
     playerVars: {
       rel: 0,

@@ -1,30 +1,24 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
-import { vi } from "./vi";
-import { en } from "./en";
-import { supabase } from "../lib/supabase";
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { vi } from './vi';
+import { en } from './en';
+import { supabase } from '../lib/supabase';
 
-export type Language = "vi" | "en";
+export type Language = 'vi' | 'en';
 export type Translations = typeof vi;
-export type AttendanceTranslations = Translations["attendance"];
-export type CommonTranslations = Translations["common"];
+export type AttendanceTranslations = Translations['attendance'];
+export type CommonTranslations = Translations['common'];
 
-const STORAGE_KEY = "app-language";
+const STORAGE_KEY = 'app-language';
 
 function detectBrowserLanguage(): Language {
-  const lang = navigator.language?.toLowerCase() || "";
-  if (lang.startsWith("vi")) return "vi";
-  return "en";
+  const lang = navigator.language?.toLowerCase() || '';
+  if (lang.startsWith('vi')) return 'vi';
+  return 'en';
 }
 
 function getSavedLanguage(): Language | null {
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved === "vi" || saved === "en") return saved;
+  if (saved === 'vi' || saved === 'en') return saved;
   return null;
 }
 
@@ -37,14 +31,14 @@ interface LanguageContextValue {
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
-  lang: "vi",
+  lang: 'vi',
   setLang: () => {},
   t: vi,
 });
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Language>(
-    () => getSavedLanguage() ?? detectBrowserLanguage(),
+    () => getSavedLanguage() ?? detectBrowserLanguage()
   );
 
   const setLang = (newLang: Language, profileId?: string) => {
@@ -52,9 +46,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLangState(newLang);
     if (profileId) {
       supabase
-        .from("profiles")
+        .from('profiles')
         .update({ language: newLang })
-        .eq("id", profileId)
+        .eq('id', profileId)
         .then(() => {});
     }
   };
@@ -79,9 +73,6 @@ export function useLanguage() {
 
 /** Helper: thay {key} trong string với giá trị */
 // eslint-disable-next-line react-refresh/only-export-components
-export function interpolate(
-  str: string,
-  vars: Record<string, string | number>,
-) {
-  return str.replace(/\{(\w+)\}/g, (_, key) => String(vars[key] ?? ""));
+export function interpolate(str: string, vars: Record<string, string | number>) {
+  return str.replace(/\{(\w+)\}/g, (_, key) => String(vars[key] ?? ''));
 }

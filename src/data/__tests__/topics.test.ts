@@ -20,7 +20,7 @@ describe('TOPICS static dataset', () => {
       expect(topic.questions.length).toBe(topic.translations.length);
       expect(topic.questions.length).toBe(topic.sampleAnswers.length);
 
-      topic.questions.forEach((q) => {
+      topic.questions.forEach(q => {
         expect(typeof q).toBe('string');
         expect(q.trim().length).toBeGreaterThan(0);
       });

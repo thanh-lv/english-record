@@ -11,11 +11,15 @@ vi.mock('../../lib/supabase', () => ({
 describe('storyService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllEnvs();
   });
 
   describe('fetchAllStories', () => {
     it('fetches all stories ordered by created_at descending', async () => {
-      const mockStories = [{ id: 's1', title: 'Story 1' }];
+      const mockStories = [
+        { id: 's1', title: 'Story 1', created_at: '2026-08-19T10:00:00Z', is_active: true },
+        { id: 's2', title: 'Story 2', created_at: '2026-08-18T10:00:00Z', is_active: false },
+      ];
       const selectMock = vi.fn().mockReturnValue({
         order: vi.fn().mockResolvedValue({ data: mockStories, error: null }),
       });
@@ -23,119 +27,297 @@ describe('storyService', () => {
 
       const res = await storyService.fetchAllStories();
       expect(supabase.from).toHaveBeenCalledWith('stories');
+      expect(selectMock).toHaveBeenCalledWith(
+        'id, title, type, emoji, image_url, content, grades, created_at, is_active'
+      );
       expect(res).toEqual(mockStories);
     });
 
-    it('throws error if supabase fails', async () => {
+    it('returns empty array when database data is null or undefined', async () => {
       const selectMock = vi.fn().mockReturnValue({
-        order: vi.fn().mockResolvedValue({ data: null, error: new Error('Failed to fetch') }),
+        order: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
       (supabase.from as any).mockReturnValue({ select: selectMock });
 
-      await expect(storyService.fetchAllStories()).rejects.toThrow('Failed to fetch');
+      const res = await storyService.fetchAllStories();
+      expect(res).toEqual([]);
+    });
+
+    it('throws error when supabase query fails', async () => {
+      const selectMock = vi.fn().mockReturnValue({
+        order: vi
+          .fn()
+          .mockResolvedValue({ data: null, error: new Error('Database connection failed') }),
+      });
+      (supabase.from as any).mockReturnValue({ select: selectMock });
+
+      await expect(storyService.fetchAllStories()).rejects.toThrow('Database connection failed');
     });
   });
 
   describe('toggleStoryActive', () => {
-    it('updates is_active', async () => {
+    it('toggles is_active from false to true', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
       (supabase.from as any).mockReturnValue({ update: updateMock });
 
       await storyService.toggleStoryActive('s1', false);
+      expect(supabase.from).toHaveBeenCalledWith('stories');
       expect(updateMock).toHaveBeenCalledWith({ is_active: true });
       expect(eqMock).toHaveBeenCalledWith('id', 's1');
     });
-  });
 
-  describe('updateStory, createStory, deleteStory', () => {
-    it('updates story', async () => {
+    it('toggles is_active from true to false', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
       (supabase.from as any).mockReturnValue({ update: updateMock });
 
-      await storyService.updateStory('s1', { title: 'Updated' });
-      expect(updateMock).toHaveBeenCalledWith({ title: 'Updated' });
+      await storyService.toggleStoryActive('s1', true);
+      expect(updateMock).toHaveBeenCalledWith({ is_active: false });
       expect(eqMock).toHaveBeenCalledWith('id', 's1');
     });
 
-    it('creates story and returns created object', async () => {
-      const newStory = { id: 's2', title: 'New Story' };
-      const singleMock = vi.fn().mockResolvedValue({ data: newStory, error: null });
+    it('throws error if toggle update fails in database', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Update active failed') });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      await expect(storyService.toggleStoryActive('s1', true)).rejects.toThrow(
+        'Update active failed'
+      );
+    });
+  });
+
+  describe('updateStory', () => {
+    it('updates partial story fields in database', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: null });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      await storyService.updateStory('s1', {
+        title: 'New Story Title',
+        content: 'Updated content of story...',
+        emoji: '📖',
+        grades: [1, 2, 3],
+      });
+
+      expect(supabase.from).toHaveBeenCalledWith('stories');
+      expect(updateMock).toHaveBeenCalledWith({
+        title: 'New Story Title',
+        content: 'Updated content of story...',
+        emoji: '📖',
+        grades: [1, 2, 3],
+      });
+      expect(eqMock).toHaveBeenCalledWith('id', 's1');
+    });
+
+    it('throws error when update query fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Update failed') });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      await expect(storyService.updateStory('s1', { title: 'Test' })).rejects.toThrow(
+        'Update failed'
+      );
+    });
+  });
+
+  describe('createStory', () => {
+    it('creates a new story and returns single created object', async () => {
+      const newStoryInput = {
+        title: 'The Brave Lion',
+        content: 'A brave lion protected the animals in the jungle.',
+        emoji: '🦁',
+        grades: [2, 3],
+        type: 'standard',
+        image_url: 'https://example.com/lion.png',
+      };
+      const createdStoryRecord = {
+        id: 'story-new-id',
+        ...newStoryInput,
+        created_at: '2026-08-19T10:00:00Z',
+      };
+
+      const singleMock = vi.fn().mockResolvedValue({ data: createdStoryRecord, error: null });
       const selectMock = vi.fn().mockReturnValue({ single: singleMock });
       const insertMock = vi.fn().mockReturnValue({ select: selectMock });
       (supabase.from as any).mockReturnValue({ insert: insertMock });
 
-      const result = await storyService.createStory({ title: 'New Story' });
-      expect(insertMock).toHaveBeenCalledWith({ title: 'New Story' });
-      expect(result).toEqual(newStory);
+      const result = await storyService.createStory(newStoryInput);
+
+      expect(supabase.from).toHaveBeenCalledWith('stories');
+      expect(insertMock).toHaveBeenCalledWith(newStoryInput);
+      expect(result).toEqual(createdStoryRecord);
     });
 
-    it('deletes story', async () => {
+    it('throws error when story creation fails', async () => {
+      const singleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Insert story failed') });
+      const selectMock = vi.fn().mockReturnValue({ single: singleMock });
+      const insertMock = vi.fn().mockReturnValue({ select: selectMock });
+      (supabase.from as any).mockReturnValue({ insert: insertMock });
+
+      await expect(storyService.createStory({ title: 'Fail' })).rejects.toThrow(
+        'Insert story failed'
+      );
+    });
+  });
+
+  describe('deleteStory', () => {
+    it('deletes story by id', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
       (supabase.from as any).mockReturnValue({ delete: deleteMock });
 
-      await storyService.deleteStory('s1');
-      expect(eqMock).toHaveBeenCalledWith('id', 's1');
+      await storyService.deleteStory('story-to-delete');
+      expect(supabase.from).toHaveBeenCalledWith('stories');
+      expect(eqMock).toHaveBeenCalledWith('id', 'story-to-delete');
+    });
+
+    it('throws error when delete fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Delete story failed') });
+      const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+
+      await expect(storyService.deleteStory('story-to-delete')).rejects.toThrow(
+        'Delete story failed'
+      );
     });
   });
 
-  describe('generateAiText and generateAiImage', () => {
+  describe('generateAiText', () => {
     beforeEach(() => {
-      vi.stubEnv('VITE_AI_API_KEY', 'test-ai-key');
+      vi.stubEnv('VITE_AI_API_KEY', 'valid-ai-key-123');
     });
 
-    it('generates AI story text with specific grades', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ story: 'Once upon a time in a magic forest...' }),
+    it('generates story text tailored for single grade [3]', async () => {
+      let requestBody: any = null;
+      let requestHeaders: any = null;
+
+      global.fetch = vi.fn().mockImplementation((_url: string, options: any) => {
+        requestHeaders = options.headers;
+        requestBody = JSON.parse(options.body);
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ story: 'Once upon a time in Grade 3...' }),
+        });
       });
 
-      const storyText = await storyService.generateAiText('A magic forest', [1, 2]);
-      expect(storyText).toBe('Once upon a time in a magic forest...');
-      expect(global.fetch).toHaveBeenCalled();
+      const story = await storyService.generateAiText('A magic forest', [3]);
+
+      expect(story).toBe('Once upon a time in Grade 3...');
+      expect(requestHeaders['Authorization']).toBe('Bearer valid-ai-key-123');
+      expect(requestHeaders['Content-Type']).toBe('application/json');
+      expect(requestBody.type).toBe('text');
+      expect(requestBody.prompt).toContain('Grade 3 students');
+      expect(requestBody.prompt).toContain('A magic forest');
+      expect(requestBody.prompt).toContain('Keep it under 150 words');
     });
 
-    it('generates AI story text with default grade description when grades empty', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ story: 'A lovely dog played ball.' }),
+    it('generates story text tailored for multiple grades [1, 2, 5]', async () => {
+      let requestBody: any = null;
+
+      global.fetch = vi.fn().mockImplementation((_url: string, options: any) => {
+        requestBody = JSON.parse(options.body);
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ story: 'A puppy and a kitten...' }),
+        });
       });
 
-      const storyText = await storyService.generateAiText('A lovely dog');
-      expect(storyText).toBe('A lovely dog played ball.');
+      const story = await storyService.generateAiText('Friendship', [1, 2, 5]);
+
+      expect(story).toBe('A puppy and a kitten...');
+      expect(requestBody.prompt).toContain('Grade 1, 2, 5 students');
     });
 
-    it('throws error when VITE_AI_API_KEY is missing in generateAiText', async () => {
+    it('uses fallback target age description when grades array is empty', async () => {
+      let requestBody: any = null;
+
+      global.fetch = vi.fn().mockImplementation((_url: string, options: any) => {
+        requestBody = JSON.parse(options.body);
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ story: 'Children story...' }),
+        });
+      });
+
+      const story = await storyService.generateAiText('Space exploration');
+
+      expect(story).toBe('Children story...');
+      expect(requestBody.prompt).toContain('children aged 5 to 10');
+    });
+
+    it('throws error when VITE_AI_API_KEY environment variable is empty or missing', async () => {
       vi.stubEnv('VITE_AI_API_KEY', '');
-      await expect(storyService.generateAiText('A kitten')).rejects.toThrow('Thiếu AI API Key');
+      await expect(storyService.generateAiText('Test')).rejects.toThrow('Thiếu AI API Key');
     });
 
-    it('throws error when AI fetch fails in generateAiText', async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false });
-      await expect(storyService.generateAiText('A kitten')).rejects.toThrow('Lỗi tạo nội dung');
-    });
-
-    it('generates AI image blob successfully', async () => {
-      const mockBlob = new Blob(['image-bytes'], { type: 'image/png' });
+    it('throws error when AI Worker returns non-200 status code', async () => {
       global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        blob: async () => mockBlob,
+        ok: false,
+        status: 500,
       });
 
-      const blob = await storyService.generateAiImage('A cute panda');
-      expect(blob).toBe(mockBlob);
+      await expect(storyService.generateAiText('Test')).rejects.toThrow(
+        'Lỗi tạo nội dung câu chuyện AI'
+      );
     });
 
-    it('throws error when VITE_AI_API_KEY is missing in generateAiImage', async () => {
+    it('re-throws when network request fails', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network disconnected'));
+      await expect(storyService.generateAiText('Test')).rejects.toThrow('Network disconnected');
+    });
+  });
+
+  describe('generateAiImage', () => {
+    beforeEach(() => {
+      vi.stubEnv('VITE_AI_API_KEY', 'valid-ai-key-123');
+    });
+
+    it('sends prompt to worker and returns image Blob on success', async () => {
+      const mockImageBlob = new Blob(['image-raw-data'], { type: 'image/png' });
+      let requestBody: any = null;
+      let requestHeaders: any = null;
+
+      global.fetch = vi.fn().mockImplementation((_url: string, options: any) => {
+        requestHeaders = options.headers;
+        requestBody = JSON.parse(options.body);
+        return Promise.resolve({
+          ok: true,
+          blob: async () => mockImageBlob,
+        });
+      });
+
+      const resultBlob = await storyService.generateAiImage('A cute dragon sleeping on a cloud');
+
+      expect(resultBlob).toBe(mockImageBlob);
+      expect(requestHeaders['Authorization']).toBe('Bearer valid-ai-key-123');
+      expect(requestHeaders['Content-Type']).toBe('application/json');
+      expect(requestBody).toEqual({
+        prompt: 'A cute dragon sleeping on a cloud',
+        type: 'image',
+      });
+    });
+
+    it('throws error when VITE_AI_API_KEY is missing', async () => {
       vi.stubEnv('VITE_AI_API_KEY', '');
-      await expect(storyService.generateAiImage('A puppy')).rejects.toThrow('Thiếu AI API Key');
+      await expect(storyService.generateAiImage('A dragon')).rejects.toThrow('Thiếu AI API Key');
     });
 
-    it('throws error when AI image fetch returns !ok', async () => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: false });
-      await expect(storyService.generateAiImage('A puppy')).rejects.toThrow('Lỗi tạo hình ảnh');
+    it('throws error when AI Worker returns error status', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 429,
+      });
+
+      await expect(storyService.generateAiImage('A dragon')).rejects.toThrow('Lỗi tạo hình ảnh AI');
+    });
+
+    it('re-throws when fetch network error occurs', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Fetch timeout'));
+      await expect(storyService.generateAiImage('A dragon')).rejects.toThrow('Fetch timeout');
     });
   });
 });
