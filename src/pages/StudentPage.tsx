@@ -1,15 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import { AchievementsTab } from '../components/student/achievements/AchievementsTab';
+import { Loader2 } from 'lucide-react';
+import { ExercisesTab } from '../components/student/exercises/ExercisesTab';
 import { AvatarSelectModal } from '../components/student/shared/AvatarSelectModal';
 import { CompletionCelebration } from '../components/student/achievements/CompletionCelebration';
-import { ExercisesTab } from '../components/student/exercises/ExercisesTab';
-import { FlashcardsTab } from '../components/student/flashcards/FlashcardsTab';
-import { GamesTab } from '../components/student/games/GamesTab';
-import { StoriesTab } from '../components/student/stories/StoriesTab';
 import { StoryModal } from '../components/student/stories/StoryModal';
-import { ShadowingTab } from '../components/student/shadowing/ShadowingTab';
-import { ShadowingDetail } from '../components/student/shadowing/ShadowingDetail';
 import { StudentSidebar } from '../components/student/shared/StudentSidebar';
 import { OfflineBanner } from '../components/common/OfflineBanner';
 import { TopicModal } from '../components/student/exercises/TopicModal';
@@ -19,6 +14,37 @@ import { useStudentData } from '../components/student/hooks/useStudentData';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useStoryPlayer } from '../components/student/hooks/useStoryPlayer';
 import { getCompletedTopicNumbers } from '../utils/topicCompletion';
+
+const AchievementsTab = lazy(() =>
+  import('../components/student/achievements/AchievementsTab').then(m => ({
+    default: m.AchievementsTab,
+  }))
+);
+const FlashcardsTab = lazy(() =>
+  import('../components/student/flashcards/FlashcardsTab').then(m => ({
+    default: m.FlashcardsTab,
+  }))
+);
+const GamesTab = lazy(() =>
+  import('../components/student/games/GamesTab').then(m => ({
+    default: m.GamesTab,
+  }))
+);
+const StoriesTab = lazy(() =>
+  import('../components/student/stories/StoriesTab').then(m => ({
+    default: m.StoriesTab,
+  }))
+);
+const ShadowingTab = lazy(() =>
+  import('../components/student/shadowing/ShadowingTab').then(m => ({
+    default: m.ShadowingTab,
+  }))
+);
+const ShadowingDetail = lazy(() =>
+  import('../components/student/shadowing/ShadowingDetail').then(m => ({
+    default: m.ShadowingDetail,
+  }))
+);
 
 export default function StudentPage({ user, profile }: { user: any; profile: any }) {
   const isBongBe = profile.name.toLowerCase().trim() === 'bông bé';
@@ -265,66 +291,75 @@ export default function StudentPage({ user, profile }: { user: any; profile: any
       />
 
       <div className="flex-1 min-w-0 space-y-6">
-        <Routes>
-          <Route index element={<Navigate to="exercises" replace />} />
-          <Route
-            path="exercises"
-            element={
-              <ExercisesTab
-                activeTopics={activeTopics}
-                isBongBe={isBongBe}
-                completedNumbers={completedTopicNumbers}
-                myRecordings={myRecordings}
-                onTopicClick={handleNumberClick}
-                studentGrade={profile?.grade}
-              />
-            }
-          />
-          <Route
-            path="achievements"
-            element={
-              <AchievementsTab
-                totalNumbers={totalNumbers}
-                completedNumbers={completedTopicNumbers}
-              />
-            }
-          />
-          <Route
-            path="stories"
-            element={
-              <StoriesTab
-                dbStories={dbStories}
-                profile={profile}
-                studentAge={studentAge}
-                onStoryClick={setSelectedStory}
-              />
-            }
-          />
-          <Route path="flashcards" element={<FlashcardsTab studentGrade={profile?.grade} />} />
-          <Route path="games" element={<GamesTab studentGrade={profile?.grade} />} />
-          <Route
-            path="shadowing"
-            element={
-              <ShadowingTab
-                studentGrade={profile?.grade}
-                myRecordings={myRecordings}
-                onVideoClick={v => navigate(`/student/shadowing/${v.id}`)}
-              />
-            }
-          />
-          <Route
-            path="shadowing/:videoId"
-            element={
-              <ShadowingDetail
-                user={user}
-                profile={profile}
-                myRecordings={myRecordings}
-                onSaveSuccess={saved => setMyRecordings(prev => [...prev, ...saved])}
-              />
-            }
-          />
-          <Route path="*" element={<Navigate to="/student/exercises" replace />} />
-        </Routes>
+        <Suspense
+          fallback={
+            <div className="flex flex-col items-center justify-center py-20 gap-2">
+              <Loader2 className="w-7 h-7 text-[#1E88E5] animate-spin" />
+              <p className="text-xs font-bold text-slate-400">Đang tải...</p>
+            </div>
+          }
+        >
+          <Routes>
+            <Route index element={<Navigate to="exercises" replace />} />
+            <Route
+              path="exercises"
+              element={
+                <ExercisesTab
+                  activeTopics={activeTopics}
+                  isBongBe={isBongBe}
+                  completedNumbers={completedTopicNumbers}
+                  myRecordings={myRecordings}
+                  onTopicClick={handleNumberClick}
+                  studentGrade={profile?.grade}
+                />
+              }
+            />
+            <Route
+              path="achievements"
+              element={
+                <AchievementsTab
+                  totalNumbers={totalNumbers}
+                  completedNumbers={completedTopicNumbers}
+                />
+              }
+            />
+            <Route
+              path="stories"
+              element={
+                <StoriesTab
+                  dbStories={dbStories}
+                  profile={profile}
+                  studentAge={studentAge}
+                  onStoryClick={setSelectedStory}
+                />
+              }
+            />
+            <Route path="flashcards" element={<FlashcardsTab studentGrade={profile?.grade} />} />
+            <Route path="games" element={<GamesTab studentGrade={profile?.grade} />} />
+            <Route
+              path="shadowing"
+              element={
+                <ShadowingTab
+                  studentGrade={profile?.grade}
+                  myRecordings={myRecordings}
+                  onVideoClick={v => navigate(`/student/shadowing/${v.id}`)}
+                />
+              }
+            />
+            <Route
+              path="shadowing/:videoId"
+              element={
+                <ShadowingDetail
+                  user={user}
+                  profile={profile}
+                  myRecordings={myRecordings}
+                  onSaveSuccess={saved => setMyRecordings(prev => [...prev, ...saved])}
+                />
+              }
+            />
+            <Route path="*" element={<Navigate to="/student/exercises" replace />} />
+          </Routes>
+        </Suspense>
       </div>
 
       {selectedNumber && currentTopic && (

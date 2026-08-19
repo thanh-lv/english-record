@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
 
+const LoginPage = lazy(() => import('./pages/LoginPage'));
 const TeacherPage = lazy(() => import('./pages/TeacherPage'));
 const StudentPage = lazy(() => import('./pages/StudentPage'));
 import { Mic, LogOut, Loader2 } from 'lucide-react';
@@ -115,7 +115,14 @@ export default function App() {
       </header>
 
       <main className="max-w-[1600px] mx-auto w-full px-4 md:px-6 lg:px-8 py-4 lg:py-6 flex-1 flex flex-col">
-        <Suspense fallback={null}>
+        <Suspense
+          fallback={
+            <div className="flex flex-col items-center justify-center py-24 gap-3">
+              <Loader2 className="w-8 h-8 text-[#1E88E5] animate-spin" />
+              <p className="text-xs font-bold text-slate-400">{t.common.loading || 'Đang tải...'}</p>
+            </div>
+          }
+        >
           <Routes>
             <Route
               path="/login"
