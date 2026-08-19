@@ -25,7 +25,11 @@ export const vocabularyService = {
         vocabulary_cards: undefined,
       }));
 
-      return parseApiResponse(vocabSetListItemsResponseArraySchema, mapped) as VocabSet[];
+      return parseApiResponse(
+        vocabSetListItemsResponseArraySchema,
+        mapped,
+        mapped as VocabSet[]
+      ) as VocabSet[];
     });
   },
 
@@ -38,7 +42,11 @@ export const vocabularyService = {
         .order('order_index', { ascending: true });
 
       if (error) throw error;
-      return parseApiResponse(vocabCardsResponseArraySchema, data || []) as VocabCard[];
+      return parseApiResponse(
+        vocabCardsResponseArraySchema,
+        data || [],
+        (data || []) as VocabCard[]
+      ) as VocabCard[];
     });
   },
 

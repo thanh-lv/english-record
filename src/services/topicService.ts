@@ -24,7 +24,7 @@ export const topicService = {
             ),
           }));
 
-          return parseApiResponse(topicsResponseArraySchema, mapped) as Topic[];
+          return parseApiResponse(topicsResponseArraySchema, mapped, mapped) as Topic[];
         },
         { ttlMs: 60 * 1000, persist: true }
       );

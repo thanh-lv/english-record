@@ -75,7 +75,7 @@ export const storyResponseSchema = z.object({
   emoji: z.string().optional(),
   image_url: z.string().nullable().optional(),
   content: z.string().optional(),
-  grades: z.array(z.number()).nullable().optional(),
+  grades: z.array(z.coerce.number()).nullable().optional(),
   is_active: z.boolean().optional(),
   created_at: z.string().nullable().optional(),
 });

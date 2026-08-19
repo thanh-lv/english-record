@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { sanitizeString } from './common.schema';
+import { sanitizeString, coerceNullableNumber } from './common.schema';
 
 const currentYear = new Date().getFullYear();
 
@@ -83,10 +83,10 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export const userProfileResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
-  role: z.enum(['student', 'teacher']).default('student'),
+  role: z.string().default('student'),
   avatar: z.string().nullable().optional(),
-  year_born: z.number().nullable().optional(),
-  grade: z.number().nullable().optional(),
+  year_born: coerceNullableNumber,
+  grade: coerceNullableNumber,
   language: z.string().nullable().optional(),
   auth_uid: z.string().nullable().optional(),
   auth_user_id: z.string().nullable().optional(),
@@ -108,9 +108,9 @@ export const recordingResponseSchema = z.object({
   audio_url: z.string().optional(),
   created_at: z.string().optional(),
   shadowing_video_id: z.string().nullable().optional(),
-  duration: z.number().nullable().optional(),
+  duration: coerceNullableNumber,
   status: z.string().nullable().optional(),
-  teacher_rating: z.number().nullable().optional(),
+  teacher_rating: coerceNullableNumber,
   teacher_feedback: z.string().nullable().optional(),
   student_reaction: z.string().nullable().optional(),
   user_id: z.string().nullable().optional(),

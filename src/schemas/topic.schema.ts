@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { sanitizeString, gradesArraySchema } from './common.schema';
+import { sanitizeString, gradesArraySchema, coerceNullableNumber } from './common.schema';
 
 /**
  * Topic title schema (2-100 characters)
@@ -116,8 +116,8 @@ export const questionResponseSchema = z.object({
   target: z.string().nullable().optional(),
   image_url: z.string().nullable().optional(),
   audio_url: z.string().nullable().optional(),
-  sort_order: z.number().nullable().optional(),
-  order_index: z.number().nullable().optional(),
+  sort_order: coerceNullableNumber,
+  order_index: coerceNullableNumber,
   created_at: z.string().nullable().optional(),
 });
 
@@ -128,9 +128,9 @@ export const topicResponseSchema = z.object({
   title: z.string(),
   type: z.enum(['standard', 'bongbe']).catch('standard'),
   is_active: z.boolean().default(true),
-  order_index: z.number().nullable().optional(),
+  order_index: coerceNullableNumber,
   created_at: z.string().nullable().optional(),
-  grades: z.array(z.number()).nullable().optional(),
+  grades: z.array(z.coerce.number()).nullable().optional(),
   questions: z.array(questionResponseSchema).default([]),
 });
 

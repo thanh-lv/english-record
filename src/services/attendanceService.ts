@@ -29,7 +29,8 @@ export const attendanceService = {
       if (error) throw error;
       return parseApiResponse(
         attendanceStudentsResponseArraySchema,
-        data || []
+        data || [],
+        (data || []) as AttendanceStudent[]
       ) as AttendanceStudent[];
     });
   },
@@ -85,7 +86,8 @@ export const attendanceService = {
       if (error) throw error;
       return parseApiResponse(
         attendanceRecordsResponseArraySchema,
-        data || []
+        data || [],
+        (data || []) as AttendanceRecord[]
       ) as AttendanceRecord[];
     });
   },
@@ -134,7 +136,8 @@ export const attendanceService = {
       if (error) throw error;
       return parseApiResponse(
         attendancePaymentsResponseArraySchema,
-        data || []
+        data || [],
+        (data || []) as AttendancePayment[]
       ) as AttendancePayment[];
     });
   },

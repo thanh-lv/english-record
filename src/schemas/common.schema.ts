@@ -14,6 +14,27 @@ export function sanitizeString(text: string | null | undefined): string {
 export const sanitizedString = z.string().transform(val => sanitizeString(val));
 
 /**
+ * Safely parses and coerces a value to a number, null, or undefined.
+ * Preserves undefined if field is omitted, coerces empty string to null, and strings to numbers.
+ */
+export const coerceNullableNumber = z.preprocess(val => {
+  if (val === undefined) return undefined;
+  if (val === null || val === '') return null;
+  const num = Number(val);
+  return isNaN(num) ? null : num;
+}, z.number().nullable().optional());
+
+/**
+ * Safely parses and coerces a value to a valid number or undefined if omitted.
+ */
+export const coerceNumber = z.preprocess(val => {
+  if (val === undefined) return undefined;
+  if (val === null || val === '') return 0;
+  const num = Number(val);
+  return isNaN(num) ? 0 : num;
+}, z.number().optional().default(0));
+
+/**
  * Vietnam mobile phone number regex (10 digits starting with 03, 05, 07, 08, 09, or +84)
  */
 export const VN_PHONE_REGEX = /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/;

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { sanitizeString, gradesArraySchema } from './common.schema';
+import { sanitizeString, gradesArraySchema, coerceNullableNumber } from './common.schema';
 
 const YOUTUBE_REGEX = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
 
@@ -80,11 +80,11 @@ export const shadowingVideoResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   youtube_url: z.string().optional(),
-  preview_start: z.number().nullable().optional(),
-  preview_end: z.number().nullable().optional(),
-  record_start: z.number().nullable().optional(),
-  record_end: z.number().nullable().optional(),
-  grades: z.array(z.number()).nullable().optional(),
+  preview_start: coerceNullableNumber,
+  preview_end: coerceNullableNumber,
+  record_start: coerceNullableNumber,
+  record_end: coerceNullableNumber,
+  grades: z.array(z.coerce.number()).nullable().optional(),
   is_active: z.boolean().optional(),
   created_at: z.string().nullable().optional(),
 });

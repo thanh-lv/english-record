@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { sanitizeString, phoneSchema } from './common.schema';
+import { sanitizeString, phoneSchema, coerceNullableNumber, coerceNumber } from './common.schema';
 
 /**
  * Attendance Student schema
@@ -56,11 +56,11 @@ export const attendanceStudentResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
   class_name: z.string().nullable().optional(),
-  unit_price: z.number().nullable().optional(),
+  unit_price: coerceNullableNumber,
   phone: z.string().nullable().optional(),
   zalo_phone: z.string().nullable().optional(),
-  hoc_lieu: z.number().nullable().optional(),
-  hoc_lieu_fee: z.number().nullable().optional(),
+  hoc_lieu: coerceNullableNumber,
+  hoc_lieu_fee: coerceNullableNumber,
   note: z.string().nullable().optional(),
   student_note: z.string().nullable().optional(),
   created_at: z.string().nullable().optional(),
@@ -75,7 +75,7 @@ export const attendanceRecordResponseSchema = z.object({
   attendance_students: z
     .object({
       name: z.string(),
-      unit_price: z.number().optional(),
+      unit_price: coerceNullableNumber,
     })
     .nullable()
     .optional(),
@@ -86,8 +86,8 @@ export const attendanceRecordsResponseArraySchema = z.array(attendanceRecordResp
 export const attendancePaymentResponseSchema = z.object({
   id: z.string(),
   student_id: z.string(),
-  month: z.number(),
-  year: z.number(),
+  month: z.coerce.number(),
+  year: z.coerce.number(),
   is_paid: z.boolean().default(false),
   paid_at: z.string().nullable().optional(),
 });

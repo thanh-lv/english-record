@@ -17,7 +17,11 @@ export const storyService = {
             .select('id, title, type, emoji, image_url, content, grades, created_at, is_active')
             .order('created_at', { ascending: false });
           if (error) throw error;
-          return parseApiResponse(storiesResponseArraySchema, data || []) as Story[];
+          return parseApiResponse(
+            storiesResponseArraySchema,
+            data || [],
+            (data || []) as Story[]
+          ) as Story[];
         },
         { ttlMs: 60 * 1000, persist: true }
       );

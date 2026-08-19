@@ -22,6 +22,7 @@ import {
   validateWithSchema,
   parseApiResponse,
   storyResponseSchema,
+  userProfileResponseSchema,
 } from '../index';
 
 describe('Zod Schemas Validation', () => {
@@ -274,6 +275,30 @@ describe('Zod Schemas Validation', () => {
       const result = parseApiResponse(storyResponseSchema, validStory);
       expect(result.id).toBe('story-1');
       expect(result.title).toBe('Bedtime Story');
+    });
+
+    it('robustly coerces string grades and string year_born in userProfileResponseSchema', () => {
+      const profileWithStringGrade = {
+        id: 'user-1',
+        name: 'Nguyen Van A',
+        role: 'student',
+        grade: '3',
+        year_born: '2016',
+      };
+      const result = parseApiResponse(userProfileResponseSchema, profileWithStringGrade);
+      expect(result.grade).toBe(3);
+      expect(result.year_born).toBe(2016);
+
+      const profileWithEmptyGrade = {
+        id: 'user-2',
+        name: 'Tran Thi B',
+        role: 'student',
+        grade: '',
+        year_born: null,
+      };
+      const result2 = parseApiResponse(userProfileResponseSchema, profileWithEmptyGrade);
+      expect(result2.grade).toBeNull();
+      expect(result2.year_born).toBeNull();
     });
 
     it('returns fallback data when validation fails and fallback is provided', () => {

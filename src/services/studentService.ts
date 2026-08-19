@@ -24,7 +24,11 @@ export const studentService = {
         .order('name');
 
       if (error) throw error;
-      return parseApiResponse(userProfilesResponseArraySchema, data || []) as UserProfile[];
+      return parseApiResponse(
+        userProfilesResponseArraySchema,
+        data || [],
+        (data || []) as UserProfile[]
+      ) as UserProfile[];
     });
   },
 
@@ -142,7 +146,7 @@ export const studentService = {
         youtube_url: r.shadowing_videos?.youtube_url || null,
       }));
 
-      const validated = parseApiResponse(recordingsResponseArraySchema, mapped);
+      const validated = parseApiResponse(recordingsResponseArraySchema, mapped, mapped);
       return { records: validated, total: count || 0 };
     });
   },

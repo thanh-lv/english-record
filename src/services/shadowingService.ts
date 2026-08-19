@@ -53,7 +53,11 @@ export const shadowingService = {
 
       const { data, error } = await query;
       if (error) throw error;
-      return parseApiResponse(shadowingVideosResponseArraySchema, data || []) as ShadowingVideo[];
+      return parseApiResponse(
+        shadowingVideosResponseArraySchema,
+        data || [],
+        (data || []) as ShadowingVideo[]
+      ) as ShadowingVideo[];
     });
   },
 

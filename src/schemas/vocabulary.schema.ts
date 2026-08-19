@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { sanitizeString, gradesArraySchema } from './common.schema';
+import {
+  sanitizeString,
+  gradesArraySchema,
+  coerceNullableNumber,
+  coerceNumber,
+} from './common.schema';
 
 /**
  * Vocabulary Set schema
@@ -101,7 +106,7 @@ export const vocabCardResponseSchema = z.object({
   ipa: z.string().nullable().optional(),
   image_url: z.string().nullable().optional(),
   audio_url: z.string().nullable().optional(),
-  order_index: z.number().nullable().optional(),
+  order_index: coerceNullableNumber,
   created_at: z.string().nullable().optional(),
 });
 
@@ -111,7 +116,7 @@ export const vocabSetResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   emoji: z.string().default('📚'),
-  grades: z.array(z.number()).nullable().optional(),
+  grades: z.array(z.coerce.number()).nullable().optional(),
   created_at: z.string().nullable().optional(),
   vocab_cards: z.array(vocabCardResponseSchema).default([]),
 });
@@ -122,9 +127,9 @@ export const vocabSetListItemResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   emoji: z.string().default('📚'),
-  grades: z.array(z.number()).nullable().optional(),
+  grades: z.array(z.coerce.number()).nullable().optional(),
   created_at: z.string().nullable().optional(),
-  card_count: z.number().default(0),
+  card_count: coerceNullableNumber,
 });
 
 export const vocabSetListItemsResponseArraySchema = z.array(vocabSetListItemResponseSchema);
