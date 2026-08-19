@@ -35,6 +35,8 @@ export function useRecording({
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<any>(null);
 
+  const MAX_RECORDING_SECONDS = 600; // 10 minutes
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -95,9 +97,9 @@ export function useRecording({
 
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
-          if (prev >= 119) {
+          if (prev >= MAX_RECORDING_SECONDS - 1) {
             stopRecording();
-            return 120;
+            return MAX_RECORDING_SECONDS;
           }
           return prev + 1;
         });

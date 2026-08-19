@@ -8,8 +8,42 @@ export const uploadService = {
   async uploadFile(
     file: File | Blob,
     folder: string = "uploads",
+    maxSizeMb: number = 10,
   ): Promise<string> {
-    const ext = file.type.split("/")[1] || "png";
+    const allowedImageFolders = [
+      "uploads",
+      "question_images",
+      "vocab_images",
+      "stories",
+    ];
+
+    if (allowedImageFolders.includes(folder) && file.type) {
+      const allowedMimeTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+        "audio/webm",
+        "audio/mp3",
+        "audio/wav",
+        "audio/ogg",
+        "audio/mpeg",
+      ];
+      if (!allowedMimeTypes.includes(file.type.toLowerCase())) {
+        throw new Error(
+          "Định dạng tệp không được hỗ trợ (chỉ chấp nhận JPG, PNG, WEBP, GIF, WebM, MP3, WAV).",
+        );
+      }
+    }
+
+    const maxBytes = maxSizeMb * 1024 * 1024;
+    if (file.size > maxBytes) {
+      throw new Error(`Dung lượng tệp vượt quá giới hạn cho phép (${maxSizeMb}MB).`);
+    }
+
+    const rawExt = file.type ? file.type.split("/")[1] : "bin";
+    const ext = rawExt.replace(/[^a-zA-Z0-9]/g, "") || "png";
     const filename = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
 
     const arrayBuffer = await file.arrayBuffer();

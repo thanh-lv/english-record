@@ -11,6 +11,10 @@ import {
 import { useRef, useState } from "react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import {
+  validateImageFile,
+  sanitizeText,
+} from "../../../utils/validators";
 
 const WORKER_URL =
   "https://free-image-generation-api.levanthanh29111999.workers.dev/";
@@ -43,8 +47,22 @@ export function AIQuestionParserModal({
 
   const handleSelectImage = (file: File | null) => {
     if (imagePreview) URL.revokeObjectURL(imagePreview);
+    if (!file) {
+      setImageFile(null);
+      setImagePreview("");
+      setError("");
+      return;
+    }
+    const fileVal = validateImageFile(file, 10, {
+      typeInvalid: t.common.imageTypeInvalid,
+      sizeTooLarge: t.common.imageSizeLimit,
+    });
+    if (!fileVal.isValid) {
+      setError(fileVal.error || "Tệp ảnh không hợp lệ");
+      return;
+    }
     setImageFile(file);
-    setImagePreview(file ? URL.createObjectURL(file) : "");
+    setImagePreview(URL.createObjectURL(file));
     setError("");
   };
 
@@ -60,17 +78,23 @@ export function AIQuestionParserModal({
     });
 
   const applyParsedQuestions = (data: any) => {
-    if (!data.questions || data.questions.length === 0) {
+    if (!data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
       console.warn("AI parse raw response:", data.raw, data.error);
       setError(t.aiParser.errorNoQuestions);
       return;
     }
-    setQuestions(
-      data.questions.map((q: any) => ({
-        text: q.text || "",
-        sample_answer: q.sample_answer || "",
-      })),
-    );
+    const validQuestions = data.questions
+      .map((q: any) => ({
+        text: sanitizeText(q.text).slice(0, 500),
+        sample_answer: sanitizeText(q.sample_answer).slice(0, 1000),
+      }))
+      .filter((q: ParsedQuestion) => q.text.length >= 2);
+
+    if (validQuestions.length === 0) {
+      setError(t.aiParser.errorNoQuestions);
+      return;
+    }
+    setQuestions(validQuestions);
   };
 
   const handleParse = async () => {
@@ -81,8 +105,15 @@ export function AIQuestionParserModal({
     }
 
     if (mode === "text") {
-      const text = rawText.trim();
-      if (!text) return;
+      const cleanText = sanitizeText(rawText);
+      if (!cleanText || cleanText.length < 5) {
+        setError(t.common.questionMin || "Vui lòng nhập ít nhất 5 ký tự");
+        return;
+      }
+      if (cleanText.length > 20000) {
+        setError("Văn bản quá dài (tối đa 20,000 ký tự)");
+        return;
+      }
       setParsing(true);
       setError("");
       setQuestions([]);
@@ -93,7 +124,7 @@ export function AIQuestionParserModal({
             "Content-Type": "application/json",
             Authorization: `Bearer ${apiKey}`,
           },
-          body: JSON.stringify({ type: "parse_questions", prompt: text }),
+          body: JSON.stringify({ type: "parse_questions", prompt: cleanText }),
         });
         if (!res.ok) throw new Error("Failed");
         const data = await res.json();
@@ -106,7 +137,10 @@ export function AIQuestionParserModal({
       return;
     }
 
-    if (!imageFile) return;
+    if (!imageFile) {
+      setError("Vui lòng chọn một ảnh bài tập");
+      return;
+    }
     setParsing(true);
     setError("");
     setQuestions([]);
@@ -150,12 +184,24 @@ export function AIQuestionParserModal({
   };
 
   const handleAddAll = async () => {
-    const valid = questions.filter((q) => q.text.trim());
-    if (valid.length === 0) return;
+    const valid = questions
+      .map((q) => ({
+        text: sanitizeText(q.text).slice(0, 500),
+        sample_answer: sanitizeText(q.sample_answer).slice(0, 1000),
+      }))
+      .filter((q) => q.text.length >= 2);
+
+    if (valid.length === 0) {
+      setError("Không có câu hỏi hợp lệ để thêm (câu hỏi cần có ít nhất 2 ký tự)");
+      return;
+    }
     setAdding(true);
+    setError("");
     try {
       await onAddAll(valid);
       onClose();
+    } catch (err: any) {
+      setError(err.message || "Lỗi thêm câu hỏi");
     } finally {
       setAdding(false);
     }

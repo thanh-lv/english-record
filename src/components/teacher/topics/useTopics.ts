@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { topicService } from "../../../services/topicService";
 import { Topic } from "../../../types";
+import {
+  validateTopicTitle,
+  validateGrades,
+  sanitizeText,
+} from "../../../utils/validators";
 
 export function useTopics() {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -21,11 +26,13 @@ export function useTopics() {
   const [editingTopic, setEditingTopic] = useState<string | null>(null);
   const [editTopicTitle, setEditTopicTitle] = useState("");
   const [editTopicGrades, setEditTopicGrades] = useState<number[]>([]);
+  const [editTopicError, setEditTopicError] = useState("");
   const [addingTopic, setAddingTopic] = useState<"standard" | "bongbe" | null>(
     null,
   );
   const [newTopicTitle, setNewTopicTitle] = useState("");
   const [newTopicGrades, setNewTopicGrades] = useState<number[]>([]);
+  const [addTopicError, setAddTopicError] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "topic" | "question";
@@ -86,37 +93,66 @@ export function useTopics() {
   };
 
   const saveTopic = async (topicId: string) => {
-    const trimTitle = editTopicTitle.trim();
-    if (trimTitle.length < 2) return;
+    const cleanTitle = sanitizeText(editTopicTitle);
+    const titleVal = validateTopicTitle(cleanTitle);
+    if (!titleVal.isValid) {
+      setEditTopicError(titleVal.error || "Tên chủ đề không hợp lệ");
+      return;
+    }
+    const gradesVal = validateGrades(editTopicGrades);
+    if (!gradesVal.isValid) {
+      setEditTopicError(gradesVal.error || "Khối lớp không hợp lệ");
+      return;
+    }
+
     setSaving(true);
+    setEditTopicError("");
     try {
       await topicService.updateTopic(topicId, {
-        title: trimTitle,
+        title: cleanTitle,
         grades: editTopicGrades,
       });
       setEditingTopic(null);
       fetchTopics();
+    } catch (err: any) {
+      setEditTopicError(err.message || "Lỗi lưu chủ đề");
     } finally {
       setSaving(false);
     }
   };
 
   const addTopic = async () => {
-    const trimTitle = newTopicTitle.trim();
-    if (trimTitle.length < 2 || !addingTopic) return;
+    const cleanTitle = sanitizeText(newTopicTitle);
+    if (!addingTopic) return;
+
+    const titleVal = validateTopicTitle(cleanTitle);
+    if (!titleVal.isValid) {
+      setAddTopicError(titleVal.error || "Tên chủ đề không hợp lệ");
+      return;
+    }
+    const gradesVal = validateGrades(newTopicGrades);
+    if (!gradesVal.isValid) {
+      setAddTopicError(gradesVal.error || "Khối lớp không hợp lệ");
+      return;
+    }
+
     setSaving(true);
+    setAddTopicError("");
     try {
       const maxOrder = topics.filter((t) => t.type === addingTopic).length + 1;
       await topicService.createTopic(
-        trimTitle,
+        cleanTitle,
         addingTopic,
         maxOrder,
         newTopicGrades,
       );
       setNewTopicTitle("");
       setNewTopicGrades([]);
+      setAddTopicError("");
       setAddingTopic(null);
       fetchTopics();
+    } catch (err: any) {
+      setAddTopicError(err.message || "Lỗi tạo chủ đề mới");
     } finally {
       setSaving(false);
     }
@@ -172,6 +208,10 @@ export function useTopics() {
     setNewTopicTitle,
     newTopicGrades,
     setNewTopicGrades,
+    addTopicError,
+    setAddTopicError,
+    editTopicError,
+    setEditTopicError,
     filterGrade,
     setFilterGrade,
     saving,

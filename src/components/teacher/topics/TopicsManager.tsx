@@ -85,6 +85,8 @@ export function TopicsManager() {
     setNewTopicTitle,
     newTopicGrades,
     setNewTopicGrades,
+    addTopicError,
+    setAddTopicError,
     saving,
     deleteTarget,
     setDeleteTarget,
@@ -243,7 +245,11 @@ export function TopicsManager() {
             <input
               autoFocus
               value={newTopicTitle}
-              onChange={(e) => setNewTopicTitle(e.target.value)}
+              maxLength={100}
+              onChange={(e) => {
+                setNewTopicTitle(e.target.value);
+                setAddTopicError("");
+              }}
               onKeyDown={(e) => e.key === "Enter" && addTopic()}
               placeholder={
                 tc.topicTitlePlaceholder ||
@@ -270,12 +276,19 @@ export function TopicsManager() {
               onClick={() => {
                 setAddingTopic(null);
                 setNewTopicGrades([]);
+                setAddTopicError("");
               }}
               className="p-2.5 bg-white text-slate-500 rounded-xl hover:bg-slate-100 border border-slate-200 shrink-0 transition-all active:scale-95"
             >
               <X size={14} />
             </button>
           </div>
+
+          {addTopicError && (
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <AlertCircle size={14} className="shrink-0" /> {addTopicError}
+            </div>
+          )}
 
           {/* Grade selection pills for new topic */}
           <div className="flex flex-wrap gap-1.5 items-center">

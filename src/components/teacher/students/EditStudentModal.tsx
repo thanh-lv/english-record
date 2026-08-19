@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { supabase } from "../../../lib/supabase";
+import { validateYearBorn, validateGrade } from "../../../utils/validators";
 
 interface EditStudentModalProps {
   student: any;
@@ -18,7 +19,7 @@ export function EditStudentModal({
   const [yearBorn, setYearBorn] = useState(
     student.year_born?.toString() || "2015",
   );
-  const [grade, setGrade] = useState(student.grade || "");
+  const [grade, setGrade] = useState(student.grade?.toString() || "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const { t } = useLanguage();
@@ -28,24 +29,32 @@ export function EditStudentModal({
     const currentYear = new Date().getFullYear();
     const minYear = currentYear - 15;
     const maxYear = currentYear - 2;
-    const parsedYear = parseInt(yearBorn);
-    if (
-      !Number.isInteger(parsedYear) ||
-      parsedYear < minYear ||
-      parsedYear > maxYear
-    ) {
-      setError(
-        interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear }),
-      );
+
+    const yearValidation = validateYearBorn(
+      yearBorn,
+      minYear,
+      maxYear,
+      interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear }),
+    );
+    if (!yearValidation.isValid) {
+      setError(yearValidation.error || "");
       return;
     }
+    const parsedYear = parseInt(yearBorn.trim(), 10);
+
+    const gradeValidation = validateGrade(grade, t.common.gradeInvalid);
+    if (!gradeValidation.isValid) {
+      setError(gradeValidation.error || t.common.gradeInvalid);
+      return;
+    }
+    const parsedGrade = grade.trim() ? parseInt(grade.trim(), 10) : null;
 
     setSaving(true);
     setError("");
     try {
       const updatePayload: any = {
         year_born: parsedYear,
-        grade: grade.trim() || null,
+        grade: parsedGrade,
       };
       let data: any = null;
       const res = await supabase

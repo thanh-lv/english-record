@@ -66,6 +66,7 @@ export function StoryManualModal({
               </label>
               <input
                 value={manualTitle}
+                maxLength={150}
                 onChange={(e) => onTitleChange(e.target.value)}
                 placeholder="VD: The Little Cat"
                 className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
@@ -77,6 +78,7 @@ export function StoryManualModal({
               </label>
               <input
                 value={manualEmoji}
+                maxLength={10}
                 onChange={(e) => onEmojiChange(e.target.value)}
                 className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               />
@@ -89,6 +91,7 @@ export function StoryManualModal({
             </label>
             <input
               value={manualType}
+              maxLength={50}
               onChange={(e) => onTypeChange(e.target.value)}
               className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
@@ -146,6 +149,7 @@ export function StoryManualModal({
             <textarea
               rows={5}
               value={manualContent}
+              maxLength={10000}
               onChange={(e) => onContentChange(e.target.value)}
               placeholder={
                 tc.readingContentPlaceholder ||

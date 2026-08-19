@@ -2,6 +2,13 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { vocabService } from "../../../services/vocabService";
 import { uploadService } from "../../../services/uploadService";
 import { VocabSet, VocabCard } from "../../../types/vocabulary";
+import {
+  validateVocabSet,
+  validateVocabCard,
+  validateImageFile,
+  validateGrades,
+  sanitizeText,
+} from "../../../utils/validators";
 
 export function useVocabulary(t: any) {
   const [sets, setSets] = useState<VocabSet[]>([]);
@@ -108,18 +115,33 @@ export function useVocabulary(t: any) {
   };
 
   const handleCreateSet = async () => {
-    if (!newTitle.trim()) {
-      setCreateSetError(
-        t.vocabManager?.titleRequired || "Vui lòng nhập tên bộ từ",
-      );
+    const cleanTitle = sanitizeText(newTitle);
+    const cleanEmoji = sanitizeText(newEmoji) || "📚";
+
+    const setVal = validateVocabSet(
+      { title: cleanTitle, emoji: cleanEmoji },
+      {
+        titleRequired: t.common?.vocabSetTitleMin || "Tên bộ từ phải có ít nhất 2 ký tự.",
+        titleMax: t.common?.vocabSetTitleMax || "Tên bộ từ không được vượt quá 100 ký tự.",
+      },
+    );
+    if (!setVal.isValid) {
+      setCreateSetError(setVal.error || "Tên bộ từ không hợp lệ");
       return;
     }
+
+    const gradesVal = validateGrades(selectedGrades);
+    if (!gradesVal.isValid) {
+      setCreateSetError(gradesVal.error || "Khối lớp không hợp lệ");
+      return;
+    }
+
     setCreateSetSaving(true);
     setCreateSetError("");
     try {
       const newSet = await vocabService.createSet(
-        newTitle.trim(),
-        newEmoji,
+        cleanTitle,
+        cleanEmoji,
         selectedGrades,
       );
       setSets([newSet, ...sets]);
@@ -128,7 +150,7 @@ export function useVocabulary(t: any) {
       setNewEmoji("📚");
       setSelectedGrades([]);
     } catch (err: any) {
-      setCreateSetError(err.message);
+      setCreateSetError(err.message || "Lỗi tạo bộ từ vựng");
     } finally {
       setCreateSetSaving(false);
     }
@@ -144,16 +166,33 @@ export function useVocabulary(t: any) {
 
   const handleUpdateSet = async () => {
     if (!editingSet) return;
-    if (!editTitle.trim()) {
-      setEditError(t.vocabManager?.titleRequired || "Vui lòng nhập tên bộ từ");
+    const cleanTitle = sanitizeText(editTitle);
+    const cleanEmoji = sanitizeText(editEmoji) || "📚";
+
+    const setVal = validateVocabSet(
+      { title: cleanTitle, emoji: cleanEmoji },
+      {
+        titleRequired: t.common?.vocabSetTitleMin || "Tên bộ từ phải có ít nhất 2 ký tự.",
+        titleMax: t.common?.vocabSetTitleMax || "Tên bộ từ không được vượt quá 100 ký tự.",
+      },
+    );
+    if (!setVal.isValid) {
+      setEditError(setVal.error || "Tên bộ từ không hợp lệ");
       return;
     }
+
+    const gradesVal = validateGrades(editGrades);
+    if (!gradesVal.isValid) {
+      setEditError(gradesVal.error || "Khối lớp không hợp lệ");
+      return;
+    }
+
     setEditSaving(true);
     setEditError("");
     try {
       const updated = await vocabService.updateSet(editingSet.id, {
-        title: editTitle.trim(),
-        emoji: editEmoji,
+        title: cleanTitle,
+        emoji: cleanEmoji,
         grades: editGrades,
       });
       setSets((prev) =>
@@ -161,7 +200,7 @@ export function useVocabulary(t: any) {
       );
       setEditingSet(null);
     } catch (err: any) {
-      setEditError(err.message);
+      setEditError(err.message || "Lỗi cập nhật bộ từ");
     } finally {
       setEditSaving(false);
     }
@@ -184,7 +223,7 @@ export function useVocabulary(t: any) {
   };
 
   const autoGenIpa = async () => {
-    const word = cardFront.trim();
+    const word = sanitizeText(cardFront);
     if (!word) return;
     setIpaLoading(true);
     try {
@@ -196,15 +235,24 @@ export function useVocabulary(t: any) {
   };
 
   const uploadCardImage = async (file: File) => {
+    const fileVal = validateImageFile(file, 5, {
+      typeInvalid: t.common?.imageTypeInvalid,
+      sizeTooLarge: t.common?.imageSizeLimit,
+    });
+    if (!fileVal.isValid) {
+      setCardImageError(fileVal.error || "Ảnh không hợp lệ");
+      return;
+    }
+
     setCardImageUploading(true);
     setCardImageError("");
     try {
       const url = await uploadService.uploadFile(file, "vocab_images");
       setCardImageUrl(url);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Upload error:", err);
       setCardImageError(
-        t.vocabManager?.uploadCardImageError || "Lỗi tải ảnh lên",
+        err.message || t.vocabManager?.uploadCardImageError || "Lỗi tải ảnh lên",
       );
     } finally {
       setCardImageUploading(false);
@@ -213,12 +261,26 @@ export function useVocabulary(t: any) {
 
   const handleAddCard = async () => {
     if (!addCardSetId) return;
-    if (!cardFront.trim() || !cardBack.trim()) {
-      setAddCardError(
-        t.vocabManager?.frontBackRequired || "Vui lòng nhập từ và nghĩa",
-      );
+    const cleanFront = sanitizeText(cardFront);
+    const cleanBack = sanitizeText(cardBack);
+    const cleanIpa = sanitizeText(cardIpa);
+
+    const cardVal = validateVocabCard(
+      { front: cleanFront, back: cleanBack, ipa: cleanIpa },
+      {
+        frontRequired: t.common?.vocabFrontRequired || "Vui lòng nhập từ tiếng Anh.",
+        frontMax: t.common?.vocabFrontMax || "Từ vựng không được vượt quá 200 ký tự.",
+        backRequired: t.common?.vocabBackRequired || "Vui lòng nhập nghĩa tiếng Việt.",
+        backMax: t.common?.vocabBackMax || "Nghĩa không được vượt quá 500 ký tự.",
+        ipaMax: t.common?.vocabIpaMax || "Phiên âm IPA không được vượt quá 100 ký tự.",
+      },
+    );
+
+    if (!cardVal.isValid) {
+      setAddCardError(cardVal.error || "Thông tin thẻ từ không hợp lệ");
       return;
     }
+
     setAddCardSaving(true);
     setAddCardError("");
     try {
@@ -226,9 +288,9 @@ export function useVocabulary(t: any) {
       const orderIndex = currentCards.length;
       const data = await vocabService.createCard({
         set_id: addCardSetId,
-        front: cardFront.trim(),
-        back: cardBack.trim(),
-        ipa: cardIpa.trim() || null,
+        front: cleanFront,
+        back: cleanBack,
+        ipa: cleanIpa || null,
         image_url: cardImageUrl || null,
         order_index: orderIndex,
       });
@@ -250,7 +312,7 @@ export function useVocabulary(t: any) {
       setCardIpa("");
       setCardImageUrl("");
     } catch (err: any) {
-      setAddCardError(err.message);
+      setAddCardError(err.message || "Lỗi tạo thẻ từ");
     } finally {
       setAddCardSaving(false);
     }

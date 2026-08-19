@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { supabase } from "../../../lib/supabase";
+import { validatePassword } from "../../../utils/validators";
 
 interface ResetPasswordModalProps {
   student: any;
@@ -22,17 +23,23 @@ export function ResetPasswordModal({
   useEscapeToClose(onClose);
 
   const handleReset = async () => {
-    const trimPass = password.trim();
-    if (trimPass.length < 3) {
-      setError(t.common.passwordMin);
+    const cleanPass = password.trim();
+    const passValidation = validatePassword(cleanPass, 3, {
+      required: t.common.passwordMin,
+      min: t.common.passwordMin,
+      max: t.common.passwordMax,
+    });
+    if (!passValidation.isValid) {
+      setError(passValidation.error || t.common.passwordMin);
       return;
     }
+
     setSaving(true);
     setError("");
     try {
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ password: trimPass })
+        .update({ password: cleanPass })
         .eq("id", student.id);
       if (updateError) throw updateError;
       setSuccess(true);
@@ -88,6 +95,7 @@ export function ResetPasswordModal({
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
+                maxLength={100}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   setError("");

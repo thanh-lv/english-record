@@ -11,6 +11,13 @@ import { useState } from "react";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
 import { supabase } from "../../../lib/supabase";
+import {
+  validateStudentName,
+  validatePassword,
+  validateYearBorn,
+  validateGrade,
+  sanitizeText,
+} from "../../../utils/validators";
 
 interface CreateStudentModalProps {
   onCreated: (student: any) => void;
@@ -32,41 +39,50 @@ export function CreateStudentModal({
   useEscapeToClose(onClose);
 
   const handleCreate = async () => {
-    const trimName = name.trim();
-    const trimPass = password.trim();
-    const trimGrade = grade.trim();
-    if (trimName.length < 2) {
-      setError(t.common.nameMin);
-      return;
-    }
-    if (trimPass.length < 3) {
-      setError(t.common.passwordMin);
-      return;
-    }
-    const currentYear = new Date().getFullYear();
-    const minYear = currentYear - 15;
-    const maxYear = currentYear - 2;
-    const parsedYear = parseInt(yearBorn);
-    if (
-      !Number.isInteger(parsedYear) ||
-      parsedYear < minYear ||
-      parsedYear > maxYear
-    ) {
-      setError(
-        interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear }),
-      );
+    const cleanName = sanitizeText(name);
+    const cleanPass = password.trim();
+
+    const nameValidation = validateStudentName(cleanName, {
+      required: t.common.nameMin,
+      min: t.common.nameMin,
+      max: t.common.nameMax,
+    });
+    if (!nameValidation.isValid) {
+      setError(nameValidation.error || t.common.nameMin);
       return;
     }
 
-    let parsedGrade: string | number | null = null;
-    if (trimGrade) {
-      const gNum = parseInt(trimGrade, 10);
-      if (isNaN(gNum) || gNum < 1 || gNum > 12) {
-        setError(t.common.gradeInvalid);
-        return;
-      }
-      parsedGrade = gNum;
+    const passValidation = validatePassword(cleanPass, 3, {
+      required: t.common.passwordMin,
+      min: t.common.passwordMin,
+      max: t.common.passwordMax,
+    });
+    if (!passValidation.isValid) {
+      setError(passValidation.error || t.common.passwordMin);
+      return;
     }
+
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 15;
+    const maxYear = currentYear - 2;
+    const yearValidation = validateYearBorn(
+      yearBorn,
+      minYear,
+      maxYear,
+      interpolate(t.common.yearBornInvalid, { min: minYear, max: maxYear }),
+    );
+    if (!yearValidation.isValid) {
+      setError(yearValidation.error || "");
+      return;
+    }
+    const parsedYear = parseInt(yearBorn.trim(), 10);
+
+    const gradeValidation = validateGrade(grade, t.common.gradeInvalid);
+    if (!gradeValidation.isValid) {
+      setError(gradeValidation.error || t.common.gradeInvalid);
+      return;
+    }
+    const parsedGrade = grade.trim() ? parseInt(grade.trim(), 10) : null;
 
     setSaving(true);
     setError("");
@@ -74,7 +90,7 @@ export function CreateStudentModal({
       const { data: existing } = await supabase
         .from("profiles")
         .select("id")
-        .ilike("name", trimName)
+        .ilike("name", cleanName)
         .maybeSingle();
       if (existing) {
         setError(t.common.nameDuplicate);
@@ -82,9 +98,9 @@ export function CreateStudentModal({
       }
 
       const insertPayload: any = {
-        name: trimName,
+        name: cleanName,
         role: "student",
-        password: trimPass,
+        password: cleanPass,
         year_born: parsedYear,
         grade: parsedGrade,
       };
@@ -158,6 +174,7 @@ export function CreateStudentModal({
             <input
               autoFocus
               value={name}
+              maxLength={50}
               onChange={(e) => {
                 setName(e.target.value);
                 setError("");
@@ -213,6 +230,7 @@ export function CreateStudentModal({
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
+                maxLength={100}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   setError("");

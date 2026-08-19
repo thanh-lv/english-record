@@ -69,6 +69,7 @@ export function TopicItem({
             <input
               autoFocus
               value={editTopicTitle}
+              maxLength={100}
               onChange={(e) => onEditTopicTitleChange(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && onSaveEdit(topic.id)}
               className="flex-1 px-3.5 py-2 rounded-xl border border-blue-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"

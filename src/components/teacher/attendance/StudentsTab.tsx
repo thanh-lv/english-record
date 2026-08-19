@@ -11,7 +11,13 @@ import {
   Phone,
 } from "lucide-react";
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
-import { formatClassName, useBodyScrollLock } from "../../../utils";
+import {
+  formatClassName,
+  useBodyScrollLock,
+  validateStudentName,
+  validatePhone,
+  sanitizeText,
+} from "../../../utils";
 
 export function StudentsTab() {
   const { t } = useLanguage();
@@ -43,7 +49,7 @@ export function StudentsTab() {
       .from("attendance_students")
       .select("*")
       .order("name");
-    if (data) setStudents(data);
+    setStudents(data || []);
     setLoading(false);
   };
 
@@ -71,21 +77,47 @@ export function StudentsTab() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    const cleanName = sanitizeText(name);
+    const nameVal = validateStudentName(cleanName, {
+      required: tc.nameMin,
+      min: tc.nameMin,
+      max: tc.nameMax,
+    });
+    if (!nameVal.isValid) {
+      setError(nameVal.error || tc.nameMin);
+      return;
+    }
+
+    const cleanPhone = phone.trim();
+    if (cleanPhone) {
+      const phoneVal = validatePhone(cleanPhone, tc.phoneInvalid);
+      if (!phoneVal.isValid) {
+        setError(phoneVal.error || tc.phoneInvalid);
+        return;
+      }
+    }
+
+    const rawPrice = parseInt(unitPrice.replace(/\D/g, ""), 10) || 0;
+    const rawHlPrice = parseInt(hocLieuFee.replace(/\D/g, ""), 10) || 0;
+
+    if (rawPrice < 0 || rawPrice > 100000000 || rawHlPrice < 0 || rawHlPrice > 100000000) {
+      setError(tc.amountInvalid || "Số tiền không hợp lệ");
+      return;
+    }
+
     setSaving(true);
     setError("");
 
-    const price = parseInt(unitPrice.replace(/\D/g, ""), 10) || 0;
-    const hlPrice = parseInt(hocLieuFee.replace(/\D/g, ""), 10) || 0;
-    const cName = className.trim() || tAtt.unassignedClass;
+    const cName = sanitizeText(className) || tAtt.unassignedClass;
+    const cleanNote = sanitizeText(note);
 
     const payload: any = {
-      name: name.trim(),
-      class_name: cName,
-      unit_price: price,
-      phone: phone.trim(),
-      hoc_lieu: hlPrice,
-      note: note.trim(),
+      name: cleanName,
+      class_name: cName.slice(0, 50),
+      unit_price: rawPrice,
+      phone: cleanPhone.slice(0, 20),
+      hoc_lieu: rawHlPrice,
+      note: cleanNote.slice(0, 1000),
     };
 
     try {
@@ -273,6 +305,7 @@ export function StudentsTab() {
                   required
                   autoFocus
                   value={name}
+                  maxLength={50}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={tAtt.studentNamePlaceholder}
                   className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -286,6 +319,7 @@ export function StudentsTab() {
                   <input
                     type="text"
                     value={className}
+                    maxLength={50}
                     onChange={(e) => setClassName(e.target.value)}
                     placeholder={tAtt.classNamePlaceholder}
                     className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -299,6 +333,7 @@ export function StudentsTab() {
                     type="text"
                     required
                     value={unitPrice}
+                    maxLength={15}
                     onChange={handlePriceChange}
                     placeholder={tAtt.unitPricePlaceholder}
                     className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -311,6 +346,7 @@ export function StudentsTab() {
                   <input
                     type="text"
                     value={hocLieuFee}
+                    maxLength={15}
                     onChange={handleHocLieuFeeChange}
                     placeholder="VD: 50.000"
                     className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -325,6 +361,7 @@ export function StudentsTab() {
                 <input
                   type="tel"
                   value={phone}
+                  maxLength={20}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="VD: 0912345678"
                   className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"

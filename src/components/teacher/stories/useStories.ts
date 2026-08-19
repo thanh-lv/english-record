@@ -2,6 +2,11 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { storyService } from "../../../services/storyService";
 import { uploadService } from "../../../services/uploadService";
 import { Story } from "../../../types";
+import {
+  validateStory,
+  validateGrades,
+  sanitizeText,
+} from "../../../utils/validators";
 
 export function useStories(t: any) {
   const [stories, setStories] = useState<Story[]>([]);
@@ -112,20 +117,42 @@ export function useStories(t: any) {
 
   const saveEditStory = async () => {
     if (!editingStory) return;
-    const trimTitle = editTitle.trim();
-    const trimContent = editContent.trim();
-    if (trimTitle.length < 2 || trimContent.length < 10) {
-      setEditError(
-        t.common?.storyRequired || "Vui lòng nhập tiêu đề và nội dung đủ dài",
-      );
+    const cleanTitle = sanitizeText(editTitle);
+    const cleanContent = sanitizeText(editContent);
+    const cleanEmoji = sanitizeText(editEmoji) || "📚";
+
+    const storyVal = validateStory(
+      {
+        title: cleanTitle,
+        content: cleanContent,
+        emoji: cleanEmoji,
+      },
+      {
+        titleRequired: t.common?.storyTitleMin || "Tiêu đề truyện phải có ít nhất 2 ký tự.",
+        titleMax: t.common?.storyTitleMax || "Tiêu đề truyện không được vượt quá 150 ký tự.",
+        contentRequired: t.common?.storyContentMin || "Nội dung truyện phải có ít nhất 10 ký tự.",
+        contentMax: t.common?.storyContentMax || "Nội dung truyện không được vượt quá 10,000 ký tự.",
+      },
+    );
+
+    if (!storyVal.isValid) {
+      setEditError(storyVal.error || "Dữ liệu truyện không hợp lệ");
       return;
     }
+
+    const gradesVal = validateGrades(editGrades);
+    if (!gradesVal.isValid) {
+      setEditError(gradesVal.error || "Khối lớp không hợp lệ");
+      return;
+    }
+
     setEditSaving(true);
+    setEditError("");
     try {
       await storyService.updateStory(editingStory.id, {
-        title: trimTitle,
-        content: trimContent,
-        emoji: editEmoji.trim() || "📚",
+        title: cleanTitle,
+        content: cleanContent,
+        emoji: cleanEmoji,
         grades: editGrades,
       });
       setStories((prev) =>
@@ -133,9 +160,9 @@ export function useStories(t: any) {
           s.id === editingStory.id
             ? {
                 ...s,
-                title: trimTitle,
-                content: trimContent,
-                emoji: editEmoji.trim() || "📚",
+                title: cleanTitle,
+                content: cleanContent,
+                emoji: cleanEmoji,
                 grades: editGrades,
               }
             : s,
@@ -143,7 +170,7 @@ export function useStories(t: any) {
       );
       setEditingStory(null);
     } catch (err: any) {
-      setEditError(err.message);
+      setEditError(err.message || "Lỗi cập nhật truyện");
     } finally {
       setEditSaving(false);
     }
@@ -165,21 +192,46 @@ export function useStories(t: any) {
   };
 
   const handleManualSave = async () => {
-    const trimTitle = manualTitle.trim();
-    const trimContent = manualContent.trim();
-    if (trimTitle.length < 2 || trimContent.length < 10) {
-      setManualError(t.common?.storyRequired || "Vui lòng điền đủ thông tin");
+    const cleanTitle = sanitizeText(manualTitle);
+    const cleanContent = sanitizeText(manualContent);
+    const cleanEmoji = sanitizeText(manualEmoji) || "📚";
+    const cleanType = sanitizeText(manualType) || "Truyện tranh";
+
+    const storyVal = validateStory(
+      {
+        title: cleanTitle,
+        content: cleanContent,
+        emoji: cleanEmoji,
+        type: cleanType,
+      },
+      {
+        titleRequired: t.common?.storyTitleMin || "Tiêu đề truyện phải có ít nhất 2 ký tự.",
+        titleMax: t.common?.storyTitleMax || "Tiêu đề truyện không được vượt quá 150 ký tự.",
+        contentRequired: t.common?.storyContentMin || "Nội dung truyện phải có ít nhất 10 ký tự.",
+        contentMax: t.common?.storyContentMax || "Nội dung truyện không được vượt quá 10,000 ký tự.",
+      },
+    );
+
+    if (!storyVal.isValid) {
+      setManualError(storyVal.error || "Vui lòng điền đủ thông tin");
       return;
     }
+
+    const gradesVal = validateGrades(manualGrades);
+    if (!gradesVal.isValid) {
+      setManualError(gradesVal.error || "Khối lớp không hợp lệ");
+      return;
+    }
+
     setManualSaving(true);
     setManualError("");
     try {
       const data = await storyService.createStory({
-        title: trimTitle,
+        title: cleanTitle,
         grades: manualGrades,
-        type: manualType,
-        emoji: manualEmoji.trim() || "📚",
-        content: trimContent,
+        type: cleanType,
+        emoji: cleanEmoji,
+        content: cleanContent,
         image_url: null,
         is_active: true,
       });
@@ -190,15 +242,25 @@ export function useStories(t: any) {
       setManualEmoji("📚");
       setManualGrades([]);
     } catch (err: any) {
-      setManualError(err.message);
+      setManualError(err.message || "Lỗi lưu câu chuyện");
     } finally {
       setManualSaving(false);
     }
   };
 
   const handleGenerateAiStory = async () => {
-    if (!prompt)
-      return setAiError(t.common?.promptRequired || "Nhập gợi ý câu chuyện");
+    const cleanPrompt = sanitizeText(prompt);
+    if (!cleanPrompt || cleanPrompt.length < 3) {
+      return setAiError(t.common?.promptMin || "Gợi ý AI phải có ít nhất 3 ký tự.");
+    }
+    if (cleanPrompt.length > 500) {
+      return setAiError(t.common?.promptMax || "Gợi ý AI không được vượt quá 500 ký tự.");
+    }
+
+    const gradesVal = validateGrades(aiGrades);
+    if (!gradesVal.isValid) {
+      return setAiError(gradesVal.error || "Khối lớp không hợp lệ");
+    }
 
     setIsGenerating(true);
     setAiError("");
@@ -207,38 +269,52 @@ export function useStories(t: any) {
     setGeneratedImageUrl("");
 
     try {
-      const storyText = await storyService.generateAiText(prompt, aiGrades);
+      const storyText = await storyService.generateAiText(cleanPrompt, aiGrades);
       setGeneratedStory(storyText);
 
-      const imgBlob = await storyService.generateAiImage(prompt);
+      const imgBlob = await storyService.generateAiImage(cleanPrompt);
       setGeneratedImageBlob(imgBlob);
       setGeneratedImageUrl(URL.createObjectURL(imgBlob));
     } catch (err: any) {
-      setAiError(err.message);
+      setAiError(err.message || "Lỗi tạo câu chuyện bằng AI");
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleSaveAiStory = async () => {
-    if (!title || !generatedStory || !generatedImageBlob)
-      return setAiError(
-        t.common?.storyRequired || "Thiếu tiêu đề hoặc nội dung",
-      );
+    const cleanTitle = sanitizeText(title);
+    const cleanStory = sanitizeText(generatedStory);
+    const cleanEmoji = sanitizeText(emoji) || "📚";
+    const cleanType = sanitizeText(type) || "Truyện tranh";
+
+    if (!cleanTitle || cleanTitle.length < 2) {
+      return setAiError(t.common?.storyTitleMin || "Tiêu đề truyện phải có ít nhất 2 ký tự.");
+    }
+    if (cleanTitle.length > 150) {
+      return setAiError(t.common?.storyTitleMax || "Tiêu đề truyện không được vượt quá 150 ký tự.");
+    }
+    if (!cleanStory || cleanStory.length < 10) {
+      return setAiError(t.common?.storyContentMin || "Nội dung truyện phải có ít nhất 10 ký tự.");
+    }
+    if (!generatedImageBlob) {
+      return setAiError("Thiếu hình ảnh minh họa cho truyện.");
+    }
+
     setIsSaving(true);
     setAiError("");
     try {
       const imageUrl = await uploadService.uploadFile(
         generatedImageBlob,
-        `stories/${Date.now()}`,
+        `stories`,
       );
 
       const data = await storyService.createStory({
-        title,
+        title: cleanTitle,
         grades: aiGrades,
-        type,
-        emoji,
-        content: generatedStory,
+        type: cleanType,
+        emoji: cleanEmoji,
+        content: cleanStory,
         image_url: imageUrl,
         is_active: true,
       });
@@ -252,7 +328,7 @@ export function useStories(t: any) {
       setGeneratedImageBlob(null);
       setAiGrades([]);
     } catch (err: any) {
-      setAiError(err.message);
+      setAiError(err.message || "Lỗi lưu truyện");
     } finally {
       setIsSaving(false);
     }

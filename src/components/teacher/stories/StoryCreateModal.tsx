@@ -65,6 +65,7 @@ export function StoryCreateModal({
             </label>
             <input
               value={title}
+              maxLength={150}
               onChange={(e) => onTitleChange(e.target.value)}
               placeholder="VD: The Magic Dragon"
               className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-purple-400 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-purple-100 transition-all"
@@ -123,6 +124,7 @@ export function StoryCreateModal({
             <div className="flex gap-2">
               <input
                 value={prompt}
+                maxLength={500}
                 onChange={(e) => onPromptChange(e.target.value)}
                 placeholder="VD: A friendly dragon who loves eating apples..."
                 className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:border-purple-400 focus:outline-none"

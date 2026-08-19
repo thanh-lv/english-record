@@ -1,7 +1,12 @@
 import React, { useState } from "react";
-import { X, ImagePlus, Loader2 } from "lucide-react";
+import { X, ImagePlus, Loader2, AlertCircle } from "lucide-react";
 import { uploadToStorage } from "../../../services/uploadService";
 import { useEscapeToClose } from "../../../hooks/useEscapeToClose";
+import {
+  validateQuestion,
+  validateImageFile,
+  sanitizeText,
+} from "../../../utils/validators";
 
 interface QuestionModalProps {
   t: any;
@@ -42,20 +47,31 @@ export function QuestionModal({
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageUploadError, setImageUploadError] = useState("");
+  const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const fileVal = validateImageFile(file, 5, {
+      typeInvalid: t.common.imageTypeInvalid,
+      sizeTooLarge: t.common.imageSizeLimit,
+    });
+    if (!fileVal.isValid) {
+      setImageUploadError(fileVal.error || t.common.uploadImageError);
+      e.target.value = "";
+      return;
+    }
+
     setUploadingImage(true);
     setImageUploadError("");
     try {
       const url = await uploadToStorage(file, "question_images");
       setImageUrl(url);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Lỗi upload ảnh:", err);
-      setImageUploadError(t.common.uploadImageError);
+      setImageUploadError(err.message || t.common.uploadImageError);
     } finally {
       setUploadingImage(false);
       e.target.value = "";
@@ -64,17 +80,46 @@ export function QuestionModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (text.trim().length < 2) return;
+    const cleanText = sanitizeText(text);
+    const cleanTranslation = sanitizeText(translation);
+    const cleanSampleAnswer = sanitizeText(sampleAnswer);
+    const cleanTarget = sanitizeText(target);
+
+    const qVal = validateQuestion(
+      {
+        text: cleanText,
+        translation: cleanTranslation,
+        sample_answer: cleanSampleAnswer,
+        target: cleanTarget,
+      },
+      {
+        textRequired: t.common.questionMin,
+        textMin: t.common.questionMin,
+        textMax: t.common.questionMax,
+        translationMax: t.common.translationMax,
+        sampleAnswerMax: t.common.sampleAnswerMax,
+        targetMax: t.common.targetMax,
+      },
+    );
+
+    if (!qVal.isValid) {
+      setError(qVal.error || t.common.questionMin);
+      return;
+    }
+
     setSaving(true);
+    setError("");
     try {
       await onSave({
-        text: text.trim(),
-        translation: translation.trim(),
-        sample_answer: sampleAnswer.trim(),
-        target: target.trim(),
+        text: cleanText,
+        translation: cleanTranslation,
+        sample_answer: cleanSampleAnswer,
+        target: cleanTarget,
         image_url: imageUrl,
       });
       onClose();
+    } catch (err: any) {
+      setError(err.message || "Lỗi lưu câu hỏi");
     } finally {
       setSaving(false);
     }
@@ -115,7 +160,11 @@ export function QuestionModal({
             <input
               autoFocus
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              maxLength={500}
+              onChange={(e) => {
+                setText(e.target.value);
+                setError("");
+              }}
               placeholder={t.common.questionPlaceholder}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
@@ -127,7 +176,11 @@ export function QuestionModal({
             </label>
             <input
               value={translation}
-              onChange={(e) => setTranslation(e.target.value)}
+              maxLength={500}
+              onChange={(e) => {
+                setTranslation(e.target.value);
+                setError("");
+              }}
               placeholder={t.common.translationPlaceholder}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
@@ -139,7 +192,11 @@ export function QuestionModal({
             </label>
             <input
               value={sampleAnswer}
-              onChange={(e) => setSampleAnswer(e.target.value)}
+              maxLength={1000}
+              onChange={(e) => {
+                setSampleAnswer(e.target.value);
+                setError("");
+              }}
               placeholder={t.common.sampleAnswerPlaceholder}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
@@ -152,7 +209,11 @@ export function QuestionModal({
               </label>
               <input
                 value={target}
-                onChange={(e) => setTarget(e.target.value)}
+                maxLength={200}
+                onChange={(e) => {
+                  setTarget(e.target.value);
+                  setError("");
+                }}
                 placeholder={t.common.targetPlaceholder}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               />
@@ -172,7 +233,7 @@ export function QuestionModal({
                 )}
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
                   className="hidden"
                   onChange={handleImageUpload}
                   disabled={uploadingImage}
@@ -201,6 +262,12 @@ export function QuestionModal({
               </p>
             )}
           </div>
+
+          {error && (
+            <div className="flex items-center gap-2 text-rose-600 text-xs font-bold bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              <AlertCircle size={14} className="shrink-0" /> {error}
+            </div>
+          )}
 
           <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
             <button

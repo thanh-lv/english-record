@@ -28,6 +28,7 @@ import { supabase } from "../../../lib/supabase";
 import { s3Client, S3_BUCKET } from "../../../lib/s3";
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { sanitizeText } from "../../../utils/validators";
 
 export function VocabAudioBuilder() {
   const { t } = useLanguage();
@@ -120,11 +121,20 @@ export function VocabAudioBuilder() {
   }, []);
 
   const handleSaveToLibrary = async () => {
-    if (!audioResult || !audioTitle.trim()) return;
+    const cleanTitle = sanitizeText(audioTitle);
+    if (!audioResult || !cleanTitle) return;
+    if (cleanTitle.length < 2 || cleanTitle.length > 100) {
+      setErrorMsg("Tên bài nghe phải từ 2 đến 100 ký tự.");
+      return;
+    }
+    if (!Array.isArray(parsedWords) || parsedWords.length === 0) {
+      setErrorMsg("Danh sách từ vựng không được để trống.");
+      return;
+    }
     setIsSaving(true);
     setErrorMsg(null);
     try {
-      const fileKey = `vocab-audio/${Date.now()}-${audioTitle.replace(/[^a-zA-Z0-9_-]/g, "")}.wav`;
+      const fileKey = `vocab-audio/${Date.now()}-${cleanTitle.replace(/[^a-zA-Z0-9_-]/g, "")}.wav`;
       const arrayBuffer = await audioResult.blob.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
       const uploadParams = {
@@ -147,7 +157,7 @@ export function VocabAudioBuilder() {
 
       const configSummary = `${repetitions}x rep • ${gapDuration}s gap`;
       const { error } = await supabase.from("vocab_audios").insert({
-        title: audioTitle.trim(),
+        title: cleanTitle,
         audio_url: fileUrl,
         word_list: parsedWords,
         words_count: parsedWords.length,
@@ -751,6 +761,7 @@ export function VocabAudioBuilder() {
                 type="text"
                 autoFocus
                 value={audioTitle}
+                maxLength={100}
                 onChange={(e) => setAudioTitle(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !isSaving && audioTitle.trim()) {

@@ -222,6 +222,7 @@ export function VocabularyManager() {
                   </label>
                   <input
                     value={newTitle}
+                    maxLength={100}
                     onChange={(e) => setNewTitle(e.target.value)}
                     placeholder="VD: Animals, Family..."
                     className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
@@ -233,6 +234,7 @@ export function VocabularyManager() {
                   </label>
                   <input
                     value={newEmoji}
+                    maxLength={10}
                     onChange={(e) => setNewEmoji(e.target.value)}
                     className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
                   />
@@ -347,6 +349,7 @@ export function VocabularyManager() {
                   </label>
                   <input
                     value={editTitle}
+                    maxLength={100}
                     onChange={(e) => setEditTitle(e.target.value)}
                     placeholder="VD: Animals, Family..."
                     className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
@@ -358,6 +361,7 @@ export function VocabularyManager() {
                   </label>
                   <input
                     value={editEmoji}
+                    maxLength={10}
                     onChange={(e) => setEditEmoji(e.target.value)}
                     className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
                   />
@@ -470,6 +474,7 @@ export function VocabularyManager() {
                 <div className="flex gap-2">
                   <input
                     value={cardFront}
+                    maxLength={200}
                     onChange={(e) => setCardFront(e.target.value)}
                     placeholder={
                       vm.frontPlaceholder || "VD: Elephant, Apple..."
@@ -502,6 +507,7 @@ export function VocabularyManager() {
                   </label>
                   <input
                     value={cardIpa}
+                    maxLength={100}
                     onChange={(e) => setCardIpa(e.target.value)}
                     placeholder={vm.ipaPlaceholder || "VD: ˈel.ɪ.fənt"}
                     className="w-full px-3.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-400 rounded-xl text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
@@ -513,6 +519,7 @@ export function VocabularyManager() {
                   </label>
                   <input
                     value={cardBack}
+                    maxLength={500}
                     onChange={(e) => setCardBack(e.target.value)}
                     placeholder={
                       vm.backPlaceholder || "VD: Con voi, Quả táo..."
@@ -543,7 +550,7 @@ export function VocabularyManager() {
                   <input
                     ref={cardImageInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
                     className="hidden"
                     onChange={(e) => {
                       const file = e.target.files?.[0];

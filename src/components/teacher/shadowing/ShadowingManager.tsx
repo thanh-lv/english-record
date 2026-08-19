@@ -17,6 +17,11 @@ import React, { useEffect, useState } from "react";
 import { useLanguage, interpolate } from "../../../i18n/LanguageContext";
 import { supabase } from "../../../lib/supabase";
 import { DeleteConfirmModal } from "../shared/DeleteConfirmModal";
+import {
+  validateShadowingVideo,
+  validateGrades,
+  sanitizeText,
+} from "../../../utils/validators";
 
 export function ShadowingManager() {
   const { t } = useLanguage();
@@ -46,7 +51,7 @@ export function ShadowingManager() {
   }, []);
 
   const formatTime = (seconds: number | null | undefined): string => {
-    if (seconds === null || seconds === undefined) return "";
+    if (seconds === null || seconds === undefined || isNaN(Number(seconds))) return "";
     const m = Math.floor(Number(seconds) / 60);
     const s = Math.floor(Number(seconds) % 60);
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
@@ -113,29 +118,50 @@ export function ShadowingManager() {
   };
 
   const handleSave = async () => {
-    const trimTitle = title.trim();
-    const trimUrl = youtubeUrl.trim();
-    if (trimTitle.length < 2) {
-      setError(t.teacherModal.videoTitleRequired);
+    const cleanTitle = sanitizeText(title);
+    const cleanUrl = youtubeUrl.trim();
+
+    const parsedPreviewStart = parseTime(previewStart);
+    const parsedPreviewEnd = parseTime(previewEnd);
+    const parsedRecordStart = parseTime(recordStart);
+    const parsedRecordEnd = parseTime(recordEnd);
+
+    const validation = validateShadowingVideo(
+      {
+        title: cleanTitle,
+        youtube_url: cleanUrl,
+        preview_start: parsedPreviewStart,
+        preview_end: parsedPreviewEnd,
+        record_start: parsedRecordStart,
+        record_end: parsedRecordEnd,
+      },
+      {
+        titleRequired: t.teacherModal.videoTitleRequired || t.common.videoTitleMin,
+        titleMax: t.common.videoTitleMax,
+        urlInvalid: t.teacherModal.videoUrlRequired,
+        previewRangeInvalid: t.common.previewRangeInvalid,
+        recordRangeInvalid: t.common.recordRangeInvalid,
+        negativeTime: t.common.timeNegative,
+      },
+    );
+
+    if (!validation.isValid) {
+      setError(validation.error || t.teacherModal.videoTitleRequired);
       return;
     }
-    const ytId = extractYoutubeId(trimUrl);
-    if (!ytId) {
-      setError(t.teacherModal.videoUrlRequired);
+
+    const gradesVal = validateGrades(selectedGrades);
+    if (!gradesVal.isValid) {
+      setError(gradesVal.error || "Khối lớp không hợp lệ");
       return;
     }
 
     setIsSaving(true);
     setError("");
     try {
-      const parsedPreviewStart = parseTime(previewStart);
-      const parsedPreviewEnd = parseTime(previewEnd);
-      const parsedRecordStart = parseTime(recordStart);
-      const parsedRecordEnd = parseTime(recordEnd);
-
       const payload: any = {
-        title: trimTitle,
-        youtube_url: trimUrl,
+        title: cleanTitle,
+        youtube_url: cleanUrl,
         preview_start: parsedPreviewStart,
         preview_end: parsedPreviewEnd,
         record_start: parsedRecordStart,
@@ -550,6 +576,7 @@ export function ShadowingManager() {
                 </label>
                 <input
                   value={title}
+                  maxLength={150}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
                 />
@@ -560,6 +587,7 @@ export function ShadowingManager() {
                 </label>
                 <input
                   value={youtubeUrl}
+                  maxLength={300}
                   onChange={(e) => setYoutubeUrl(e.target.value)}
                   placeholder={t.teacherModal.videoUrlPlaceholder}
                   className="w-full px-4 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-rose-400 focus:outline-none"
