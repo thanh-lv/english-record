@@ -21,6 +21,8 @@ import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
 import { EditStudentModal } from './EditStudentModal';
 import { ResetPasswordModal } from './ResetPasswordModal';
 
+import { useStudentsManager } from './useStudentsManager';
+
 const avatarColors = [
   'bg-blue-50 text-blue-600 border-blue-200',
   'bg-purple-50 text-purple-600 border-purple-200',
@@ -38,109 +40,35 @@ export function StudentsManager({
   const { t } = useLanguage();
   const tm = t.teacherModal;
   const tc = t.common;
-  const [students, setStudents] = useState<any[]>([]);
-  const [recordings, setRecordings] = useState<any[]>([]);
-  const [activeTopics, setActiveTopics] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingStudent, setEditingStudent] = useState<any>(null);
-  const [resetPassStudent, setResetPassStudent] = useState<any>(null);
-  const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [gradeFilter, setGradeFilter] = useState('all');
-  const [deleteSaving, setDeleteSaving] = useState(false);
+
+  const {
+    students,
+    filteredStudents,
+    availableGrades,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    gradeFilter,
+    setGradeFilter,
+    calculateStudentStats,
+    showAddModal,
+    setShowAddModal,
+    editingStudent,
+    setEditingStudent,
+    resetPassStudent,
+    setResetPassStudent,
+    deleteTarget,
+    setDeleteTarget,
+    deleteSaving,
+    handleDelete,
+    onStudentCreated,
+    onStudentUpdated,
+  } = useStudentsManager();
 
   useEscapeToClose(() => setShowAddModal(false), showAddModal);
   useEscapeToClose(() => setEditingStudent(null), !!editingStudent);
   useEscapeToClose(() => setResetPassStudent(null), !!resetPassStudent);
   useEscapeToClose(() => setDeleteTarget(null), !!deleteTarget);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [{ data: stData }, { data: recData }, { data: topData }] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('id, name, updated_at, role, password, avatar, year_born, grade')
-          .eq('role', 'student')
-          .order('name'),
-        supabase.from('recordings').select('*'),
-        supabase.from('topics').select('id, questions(id)').eq('is_active', true),
-      ]);
-
-      setStudents(stData || []);
-      setRecordings(recData || []);
-      setActiveTopics(topData || []);
-    } catch (err) {
-      console.error('Error fetching students data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateStudentStats = (studentName: string) => {
-    const studentRecs = recordings.filter(
-      r => r.student_name.toLowerCase() === studentName.toLowerCase()
-    );
-
-    const dates = studentRecs
-      .map(r => r.created_at)
-      .filter(Boolean)
-      .sort();
-    const streak = calculateStreak(dates);
-
-    const completedTopicCount = activeTopics.filter(topic => {
-      const topicQuestions = topic.questions || [];
-      if (topicQuestions.length === 0) {
-        return studentRecs.some(r => r.topic_id === topic.id);
-      }
-      return topicQuestions.every((q: any) =>
-        studentRecs.some(r => r.topic_id === topic.id && r.question_id === q.id)
-      );
-    }).length;
-
-    const totalRecordings = studentRecs.length;
-
-    return {
-      streak,
-      completedTopics: completedTopicCount,
-      totalTopics: activeTopics.length,
-      totalRecordings,
-    };
-  };
-
-  const filteredStudents = students.filter(st => {
-    const matchesSearch = st.name.toLowerCase().includes(searchQuery.toLowerCase().trim());
-    const matchesGrade =
-      gradeFilter === 'all' ||
-      (gradeFilter === 'none' && !st.grade) ||
-      st.grade?.toString() === gradeFilter;
-    return matchesSearch && matchesGrade;
-  });
-
-  const availableGrades = Array.from(new Set(students.map(s => s.grade).filter(Boolean))).sort(
-    (a: any, b: any) => a - b
-  );
-
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-    setDeleteSaving(true);
-    try {
-      const { error } = await supabase.from('profiles').delete().eq('id', deleteTarget.id);
-      if (error) throw error;
-
-      setStudents(prev => prev.filter(s => s.id !== deleteTarget.id));
-      setDeleteTarget(null);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeleteSaving(false);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -234,7 +162,7 @@ export function StudentsManager({
             return (
               <div
                 key={st.id}
-                onClick={() => onSelectStudent(st.name, st.avatar)}
+                onClick={() => onSelectStudent(st.name, st.avatar || undefined)}
                 className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs hover:border-emerald-300 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col justify-between group"
               >
                 <div>
@@ -352,7 +280,8 @@ export function StudentsManager({
       {showAddModal && (
         <CreateStudentModal
           onCreated={newSt => {
-            setStudents(prev => [newSt, ...prev]);
+            onStudentCreated(newSt);
+            setShowAddModal(false);
           }}
           onClose={() => setShowAddModal(false)}
         />
@@ -362,7 +291,8 @@ export function StudentsManager({
         <EditStudentModal
           student={editingStudent}
           onUpdated={updated => {
-            setStudents(prev => prev.map(s => (s.id === updated.id ? updated : s)));
+            onStudentUpdated(updated);
+            setEditingStudent(null);
           }}
           onClose={() => setEditingStudent(null)}
         />

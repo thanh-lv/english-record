@@ -1,6 +1,6 @@
 import { AlertCircle, Eye, EyeOff, Loader2, GraduationCap, User } from 'lucide-react';
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { authService, UserProfile } from '../services/authService';
 import { useLanguage } from '../i18n/LanguageContext';
 
 const FLOATING = ['🌟', '🎈', '📚', '🎵', '✨', '🦋', '🌈', '🎯'];
@@ -9,7 +9,7 @@ export default function LoginPage({
   setProfile,
   user,
 }: {
-  setProfile: (p: any) => void;
+  setProfile: (p: UserProfile) => void;
   user: any;
 }) {
   const { t } = useLanguage();
@@ -36,43 +36,7 @@ export default function LoginPage({
       return;
     }
 
-    const dbOperation = async () => {
-      const { data: existingUser, error: searchError } = await supabase
-        .from('profiles')
-        .select('id, name, role, password, avatar, year_born, auth_user_id')
-        .ilike('name', trimmedName)
-        .eq('role', 'student')
-        .maybeSingle();
-      if (searchError) throw searchError;
-      if (!existingUser || existingUser.role !== 'student') throw new Error(t.common.nameTaken);
-      if (existingUser.password && existingUser.password !== password) {
-        throw new Error(t.common.nameTaken);
-      }
-      const profileData = {
-        ...existingUser,
-        auth_user_id: user.id,
-        password,
-        updated_at: new Date().toISOString(),
-      };
-      const { error: dbError } = await supabase
-        .from('profiles')
-        .update({
-          auth_user_id: user.id,
-          password,
-          updated_at: profileData.updated_at,
-        })
-        .eq('id', existingUser.id);
-      if (dbError) throw dbError;
-      return profileData;
-    };
-
-    const profileData = await Promise.race([
-      dbOperation(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(t.common.networkTimeout)), 8000)
-      ),
-    ]);
-    localStorage.setItem('english_record_profile_id', (profileData as any).id);
+    const profileData = await authService.loginStudent(trimmedName, password, user.id);
     setProfile(profileData);
   };
 
@@ -86,24 +50,7 @@ export default function LoginPage({
       return;
     }
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim().toLowerCase(),
-      password,
-    });
-    if (signInError || !data.user) {
-      throw new Error(t.common.teacherLoginError);
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, name, role, avatar, year_born')
-      .eq('auth_uid', data.user.id)
-      .eq('role', 'teacher')
-      .maybeSingle();
-    if (profileError) throw profileError;
-    if (!profile) throw new Error(t.common.teacherAccountNotFound);
-
-    localStorage.setItem('english_record_profile_id', profile.id);
+    const profile = await authService.signInTeacher(email, password);
     setProfile(profile);
   };
 

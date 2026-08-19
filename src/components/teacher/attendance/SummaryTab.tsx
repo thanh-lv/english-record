@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { attendanceService } from '../../../services/attendanceService';
 import { supabase } from '../../../lib/supabase';
 import {
   Download,
@@ -359,15 +360,7 @@ export function SummaryTab() {
     const next = !paymentsMap[studentId];
     setPaymentsMap(prev => ({ ...prev, [studentId]: next }));
     try {
-      await supabase.from('attendance_payments').upsert(
-        {
-          student_id: studentId,
-          year: year,
-          month: month,
-          is_paid: next,
-        },
-        { onConflict: 'student_id,year,month' }
-      );
+      await attendanceService.setPaymentStatus(studentId, year, month, next);
     } catch (e) {
       console.error('Error toggling payment status:', e);
     }
@@ -537,8 +530,7 @@ export function SummaryTab() {
       return;
     setRecActionLoading(true);
     try {
-      const { error } = await supabase.from('attendance_records').delete().eq('id', recId);
-      if (error) throw error;
+      await attendanceService.deleteAttendanceRecord(recId);
       setRecords(prev => prev.filter(r => r.id !== recId));
     } catch (e) {
       console.error('Error deleting session:', e);

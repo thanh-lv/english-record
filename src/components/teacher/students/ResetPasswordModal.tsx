@@ -2,7 +2,7 @@ import { AlertCircle, Check, Eye, EyeOff, Key, Loader2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
-import { supabase } from '../../../lib/supabase';
+import { studentService } from '../../../services/studentService';
 import { validatePassword } from '../../../utils/validators';
 
 interface ResetPasswordModalProps {
@@ -34,11 +34,7 @@ export function ResetPasswordModal({ student, onClose }: ResetPasswordModalProps
     setSaving(true);
     setError('');
     try {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ password: cleanPass })
-        .eq('id', student.id);
-      if (updateError) throw updateError;
+      await studentService.resetStudentPassword(student.id, cleanPass);
       setSuccess(true);
       setTimeout(() => onClose(), 1500);
     } catch (err: any) {

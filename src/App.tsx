@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 
@@ -8,120 +8,23 @@ import { Mic, LogOut, Loader2 } from 'lucide-react';
 import { NotificationBell } from './components/teacher/shared/NotificationBell';
 import { useNotifications } from './components/teacher/hooks/useNotifications';
 import { useLanguage, interpolate } from './i18n/LanguageContext';
-import { supabase } from './lib/supabase';
+import { useAuth } from './hooks/useAuth';
 
 export default function App() {
-  const [user, setUser] = useState<any>(null);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [authLoading, setAuthLoading] = useState(true);
   const { t, lang, setLang } = useLanguage();
+  const { user, userProfile, setUserProfile, authLoading, isTeacher, logout } = useAuth({
+    onLanguageChange: setLang,
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
   const { notifications, unreadCount, readIds, addNotification, markRead, markAllRead, clearAll } =
     useNotifications();
 
-  useEffect(() => {
-    const safetyTimeout = setTimeout(() => {
-      setAuthLoading(prev => {
-        if (prev) console.warn('Auth timeout: forcing loading to stop after 5 seconds');
-        return false;
-      });
-    }, 5000);
-
-    const initAuth = async () => {
-      try {
-        const {
-          data: { user: currentUser },
-          error: getUserError,
-        } = await supabase.auth.getUser();
-        if (getUserError && getUserError.name !== 'AuthSessionMissingError') {
-          console.warn('GetUser warning:', getUserError.message);
-        }
-        if (!currentUser) {
-          const { error: signInError } = await supabase.auth.signInAnonymously();
-          if (signInError) {
-            console.error('Anonymous sign-in error:', signInError);
-            setAuthLoading(false);
-          }
-        }
-      } catch (err) {
-        console.error('Auth error:', err);
-        setAuthLoading(false);
-      }
-    };
-    initAuth();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const currentUser = session?.user || null;
-      setUser(currentUser);
-      const savedProfileId = localStorage.getItem('english_record_profile_id');
-
-      if (currentUser && savedProfileId) {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', savedProfileId)
-            .maybeSingle();
-          if (!error && data) {
-            setUserProfile(data);
-            if (data.language === 'vi' || data.language === 'en') {
-              setLang(data.language);
-            }
-          } else {
-            localStorage.removeItem('english_record_profile_id');
-            setUserProfile(null);
-          }
-        } catch (err) {
-          console.error('Error fetching persisted profile:', err);
-          setUserProfile(null);
-        }
-      } else if (currentUser && !session?.user.is_anonymous) {
-        // Teacher logged in via Supabase Auth — load profile by auth_uid
-        try {
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('auth_uid', currentUser.id)
-            .eq('role', 'teacher')
-            .maybeSingle();
-          if (data) {
-            localStorage.setItem('english_record_profile_id', data.id);
-            setUserProfile(data);
-            if (data.language === 'vi' || data.language === 'en') {
-              setLang(data.language);
-            }
-          } else {
-            setUserProfile(null);
-          }
-        } catch (err) {
-          console.error('Error fetching teacher profile:', err);
-          setUserProfile(null);
-        }
-      } else {
-        setUserProfile(null);
-      }
-      setAuthLoading(false);
-    });
-
-    return () => {
-      clearTimeout(safetyTimeout);
-      subscription.unsubscribe();
-    };
-  }, [setLang]);
-
   const handleLogout = async (e: React.MouseEvent) => {
     if (e) e.preventDefault();
-    localStorage.removeItem('english_record_profile_id');
-    setUserProfile(null);
-    await supabase.auth.signOut();
-    await supabase.auth.signInAnonymously();
+    await logout();
   };
-
-  const isTeacher = userProfile?.role === 'teacher';
 
   if (authLoading) {
     return (

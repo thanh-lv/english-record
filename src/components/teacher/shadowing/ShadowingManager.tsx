@@ -13,240 +13,54 @@ import {
   Youtube,
   X,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
-import { supabase } from '../../../lib/supabase';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
-import { validateShadowingVideo, validateGrades, sanitizeText } from '../../../utils/validators';
+import { useShadowingManager } from './useShadowingManager';
+import { extractYoutubeId, formatSecondsToTime } from '../../../services/shadowingService';
 
 export function ShadowingManager() {
   const { t } = useLanguage();
-  const [videos, setVideos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [editingVideo, setEditingVideo] = useState<any>(null);
 
-  const [title, setTitle] = useState('');
-  const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [previewStart, setPreviewStart] = useState('');
-  const [previewEnd, setPreviewEnd] = useState('');
-  const [recordStart, setRecordStart] = useState('');
-  const [recordEnd, setRecordEnd] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState('');
+  const {
+    filteredVideos,
+    loading,
+    searchQuery: searchText,
+    setSearchQuery: setSearchText,
+    filterGrade,
+    setFilterGrade,
+    showCreate,
+    setShowCreate,
+    editingVideo,
+    title,
+    setTitle,
+    youtubeUrl,
+    setYoutubeUrl,
+    previewStart,
+    setPreviewStart,
+    previewEnd,
+    setPreviewEnd,
+    recordStart,
+    setRecordStart,
+    recordEnd,
+    setRecordEnd,
+    selectedGrades,
+    setSelectedGrades,
+    isSaving,
+    error,
+    deleteTarget,
+    setDeleteTarget,
+    deleteSaving,
+    deleteError,
+    copiedId,
+    openCreateModal,
+    openEditModal,
+    handleSave,
+    handleToggleActive: toggleActive,
+    handleDelete: confirmDelete,
+    handleCopyLink,
+  } = useShadowingManager(t);
 
-  const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [deleteSaving, setDeleteSaving] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [selectedGrades, setSelectedGrades] = useState<number[]>([]);
-  const [filterGrade, setFilterGrade] = useState<string>('all');
-
-  useEffect(() => {
-    fetchVideos();
-  }, []);
-
-  const formatTime = (seconds: number | null | undefined): string => {
-    if (seconds === null || seconds === undefined || isNaN(Number(seconds))) return '';
-    const m = Math.floor(Number(seconds) / 60);
-    const s = Math.floor(Number(seconds) % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
-
-  const parseTime = (timeStr: string): number | null => {
-    if (!timeStr || !timeStr.trim()) return null;
-    if (!timeStr.includes(':')) {
-      const val = Number(timeStr);
-      return isNaN(val) ? null : val;
-    }
-    const parts = timeStr.split(':');
-    const m = parseInt(parts[0], 10) || 0;
-    const s = parseInt(parts[1], 10) || 0;
-    return m * 60 + s;
-  };
-
-  const fetchVideos = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('shadowing_videos')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setVideos(data || []);
-    } catch (err: any) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const extractYoutubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
-
-  const handleCopyLink = async (videoId: string) => {
-    const url = `${window.location.origin}/student/shadowing/${videoId}`;
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(url);
-      } else {
-        const textArea = document.createElement('textarea');
-        textArea.value = url;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand('copy');
-        textArea.remove();
-      }
-      setCopiedId(videoId);
-      setTimeout(() => {
-        setCopiedId(null);
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy link', err);
-    }
-  };
-
-  const handleSave = async () => {
-    const cleanTitle = sanitizeText(title);
-    const cleanUrl = youtubeUrl.trim();
-
-    const parsedPreviewStart = parseTime(previewStart);
-    const parsedPreviewEnd = parseTime(previewEnd);
-    const parsedRecordStart = parseTime(recordStart);
-    const parsedRecordEnd = parseTime(recordEnd);
-
-    const validation = validateShadowingVideo(
-      {
-        title: cleanTitle,
-        youtube_url: cleanUrl,
-        preview_start: parsedPreviewStart,
-        preview_end: parsedPreviewEnd,
-        record_start: parsedRecordStart,
-        record_end: parsedRecordEnd,
-      },
-      {
-        titleRequired: t.teacherModal.videoTitleRequired || t.common.videoTitleMin,
-        titleMax: t.common.videoTitleMax,
-        urlInvalid: t.teacherModal.videoUrlRequired,
-        previewRangeInvalid: t.common.previewRangeInvalid,
-        recordRangeInvalid: t.common.recordRangeInvalid,
-        negativeTime: t.common.timeNegative,
-      }
-    );
-
-    if (!validation.isValid) {
-      setError(validation.error || t.teacherModal.videoTitleRequired);
-      return;
-    }
-
-    const gradesVal = validateGrades(selectedGrades);
-    if (!gradesVal.isValid) {
-      setError(gradesVal.error || 'Khối lớp không hợp lệ');
-      return;
-    }
-
-    setIsSaving(true);
-    setError('');
-    try {
-      const payload: any = {
-        title: cleanTitle,
-        youtube_url: cleanUrl,
-        preview_start: parsedPreviewStart,
-        preview_end: parsedPreviewEnd,
-        record_start: parsedRecordStart,
-        record_end: parsedRecordEnd,
-        grades: selectedGrades,
-      };
-
-      if (editingVideo) {
-        let res = await supabase
-          .from('shadowing_videos')
-          .update(payload)
-          .eq('id', editingVideo.id)
-          .select()
-          .single();
-
-        if (res.error && res.error.message?.includes('grades')) {
-          delete payload.grades;
-          res = await supabase
-            .from('shadowing_videos')
-            .update(payload)
-            .eq('id', editingVideo.id)
-            .select()
-            .single();
-        }
-
-        if (res.error) throw res.error;
-        setVideos(videos.map(v => (v.id === editingVideo.id ? res.data : v)));
-      } else {
-        let res = await supabase.from('shadowing_videos').insert(payload).select().single();
-
-        if (res.error && res.error.message?.includes('grades')) {
-          delete payload.grades;
-          res = await supabase.from('shadowing_videos').insert(payload).select().single();
-        }
-
-        if (res.error) throw res.error;
-        setVideos([res.data, ...videos]);
-      }
-
-      setShowCreate(false);
-      setEditingVideo(null);
-      setTitle('');
-      setYoutubeUrl('');
-      setPreviewStart('');
-      setPreviewEnd('');
-      setRecordStart('');
-      setRecordEnd('');
-      setSelectedGrades([]);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleEdit = (video: any) => {
-    setEditingVideo(video);
-    setTitle(video.title);
-    setYoutubeUrl(video.youtube_url);
-    setPreviewStart(formatTime(video.preview_start));
-    setPreviewEnd(formatTime(video.preview_end));
-    setRecordStart(formatTime(video.record_start));
-    setRecordEnd(formatTime(video.record_end));
-    setSelectedGrades(Array.isArray(video.grades) ? video.grades : []);
-    setShowCreate(true);
-    setError('');
-  };
-
-  const toggleActive = async (id: string, currentValue: boolean) => {
-    await supabase.from('shadowing_videos').update({ is_active: !currentValue }).eq('id', id);
-    setVideos(prev => prev.map(v => (v.id === id ? { ...v, is_active: !currentValue } : v)));
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteTarget) return;
-    setDeleteSaving(true);
-    setDeleteError('');
-    try {
-      const { error } = await supabase.from('shadowing_videos').delete().eq('id', deleteTarget.id);
-      if (error) throw error;
-      setVideos(videos.filter(v => v.id !== deleteTarget.id));
-      setDeleteTarget(null);
-    } catch (err: any) {
-      setDeleteError(err.message);
-    } finally {
-      setDeleteSaving(false);
-    }
-  };
-
-  const [searchText, setSearchText] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'hidden'>('all');
 
   if (loading)
@@ -255,31 +69,6 @@ export function ShadowingManager() {
         <Loader2 className="animate-spin mx-auto text-indigo-500" size={32} />
       </div>
     );
-
-  const filteredVideos = videos.filter(v => {
-    // Grade filter
-    if (filterGrade !== 'all') {
-      if (filterGrade === 'unassigned') {
-        if (v.grades && v.grades.length > 0) return false;
-      } else {
-        const gNum = Number(filterGrade);
-        if (!Array.isArray(v.grades) || !v.grades.includes(gNum)) return false;
-      }
-    }
-
-    // Status filter
-    const isActive = v.is_active ?? true;
-    if (filterStatus === 'active' && !isActive) return false;
-    if (filterStatus === 'hidden' && isActive) return false;
-
-    // Search filter
-    if (searchText.trim()) {
-      const q = searchText.trim().toLowerCase();
-      if (!v.title?.toLowerCase().includes(q)) return false;
-    }
-
-    return true;
-  });
 
   return (
     <div className="space-y-6">
@@ -336,18 +125,7 @@ export function ShadowingManager() {
 
           {/* Add video button */}
           <button
-            onClick={() => {
-              setEditingVideo(null);
-              setTitle('');
-              setYoutubeUrl('');
-              setPreviewStart('');
-              setPreviewEnd('');
-              setRecordStart('');
-              setRecordEnd('');
-              setSelectedGrades([]);
-              setShowCreate(true);
-              setError('');
-            }}
+            onClick={openCreateModal}
             className="bg-[#1E88E5] hover:bg-[#1565C0] text-white px-4 py-2 rounded-xl font-black flex items-center gap-2 transition-all shadow-xs text-xs active:scale-95 shrink-0"
           >
             <Plus size={16} /> {t.teacherModal.addVideoTitle}
@@ -448,15 +226,15 @@ export function ShadowingManager() {
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400">👁️ Preview:</span>
                     <span className="text-slate-700 font-black">
-                      {formatTime(video.preview_start) || '00:00'} -{' '}
-                      {formatTime(video.preview_end) || t.common.end}
+                      {formatSecondsToTime(video.preview_start) || '00:00'} -{' '}
+                      {formatSecondsToTime(video.preview_end) || t.common.end}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400">🎙️ Record:</span>
                     <span className="text-slate-700 font-black">
-                      {formatTime(video.record_start) || '00:00'} -{' '}
-                      {formatTime(video.record_end) || t.common.end}
+                      {formatSecondsToTime(video.record_start) || '00:00'} -{' '}
+                      {formatSecondsToTime(video.record_end) || t.common.end}
                     </span>
                   </div>
                 </div>
@@ -464,7 +242,7 @@ export function ShadowingManager() {
                 {/* Bottom Action Buttons (Single Unified Row) */}
                 <div className="flex items-center gap-1.5 pt-1">
                   <button
-                    onClick={() => handleEdit(video)}
+                    onClick={() => openEditModal(video)}
                     className="flex-1 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-black rounded-xl transition-all flex justify-center items-center gap-1 border border-indigo-100 shadow-2xs"
                   >
                     {t.common.edit}

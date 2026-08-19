@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabase';
 import {
   TrendingUp,
   TrendingDown,
@@ -9,6 +7,7 @@ import {
   AlertCircle,
   Star,
 } from 'lucide-react';
+import { useAttendanceAnalytics } from './useAttendanceAnalytics';
 import { formatClassName } from '../../../utils';
 import { interpolate } from '../../../i18n/LanguageContext';
 
@@ -20,141 +19,12 @@ interface AnalyticsProps {
 }
 
 export function AttendanceAnalytics({ tAtt, month, year, paymentsMap }: AnalyticsProps) {
-  const [loading, setLoading] = useState(true);
-  const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
-  const [classRates, setClassRates] = useState<any[]>([]);
-  const [hoveredBar, setHoveredBar] = useState<number | null>(null);
-
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      setLoading(true);
-      try {
-        // 6-month list
-        const monthsList = [];
-        for (let i = 5; i >= 0; i--) {
-          const d = new Date(year, month - 1 - i, 1);
-          monthsList.push({
-            m: d.getMonth() + 1,
-            y: d.getFullYear(),
-            label: `T${d.getMonth() + 1}`,
-            fullLabel: interpolate(tAtt?.monthYear || 'Tháng {month}/{year}', {
-              month: d.getMonth() + 1,
-              year: d.getFullYear(),
-            }),
-          });
-        }
-
-        const trendData = await Promise.all(
-          monthsList.map(async ({ m, y, label, fullLabel }) => {
-            const startDate = new Date(y, m - 1, 1).toISOString();
-            const endDate = new Date(y, m, 0, 23, 59, 59).toISOString();
-
-            const [studRes, recRes, payRes] = await Promise.all([
-              supabase.from('attendance_students').select('id, unit_price'),
-              supabase
-                .from('attendance_records')
-                .select('student_id')
-                .gte('checkin_time', startDate)
-                .lte('checkin_time', endDate),
-              supabase
-                .from('attendance_payments')
-                .select('student_id, is_paid')
-                .eq('year', y)
-                .eq('month', m)
-                .eq('is_paid', true),
-            ]);
-
-            const priceMap: Record<string, number> = {};
-            (studRes.data || []).forEach(s => {
-              priceMap[s.id] = Number(s.unit_price) || 0;
-            });
-
-            const studentSessions: Record<string, number> = {};
-            (recRes.data || []).forEach(r => {
-              studentSessions[r.student_id] = (studentSessions[r.student_id] || 0) + 1;
-            });
-
-            let projected = 0;
-            let collected = 0;
-
-            const paidStudents = new Set((payRes.data || []).map(p => p.student_id));
-
-            Object.entries(studentSessions).forEach(([studId, count]) => {
-              const fee = count * (priceMap[studId] || 0);
-              projected += fee;
-              const isPaid =
-                m === month && y === year && paymentsMap
-                  ? !!paymentsMap[studId]
-                  : paidStudents.has(studId);
-              if (isPaid) collected += fee;
-            });
-
-            return { label, fullLabel, projected, collected, m, y };
-          })
-        );
-        setMonthlyTrends(trendData);
-
-        // Class attendance rates for current month
-        const startDate = new Date(year, month - 1, 1).toISOString();
-        const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
-
-        const [studRes, recRes] = await Promise.all([
-          supabase.from('attendance_students').select('id, name, class_name'),
-          supabase
-            .from('attendance_records')
-            .select('student_id')
-            .gte('checkin_time', startDate)
-            .lte('checkin_time', endDate),
-        ]);
-
-        if (studRes.data && recRes.data) {
-          const byClass: Record<string, { totalStudents: number; totalSessions: number }> = {};
-
-          studRes.data.forEach(s => {
-            const cls = formatClassName(
-              s.class_name,
-              tAtt?.unassignedClass || 'Chưa phân lớp',
-              tAtt?.className ? tAtt.className + ' ' : 'Lớp '
-            );
-            if (!byClass[cls]) byClass[cls] = { totalStudents: 0, totalSessions: 0 };
-            byClass[cls].totalStudents += 1;
-          });
-
-          recRes.data.forEach(r => {
-            const student = studRes.data!.find(s => s.id === r.student_id);
-            if (student) {
-              const cls = formatClassName(
-                student.class_name,
-                tAtt?.unassignedClass || 'Chưa phân lớp',
-                tAtt?.className ? tAtt.className + ' ' : 'Lớp '
-              );
-              if (byClass[cls]) byClass[cls].totalSessions += 1;
-            }
-          });
-
-          const classStats = Object.entries(byClass)
-            .map(([cls, data]) => ({
-              cls,
-              totalStudents: data.totalStudents,
-              totalSessions: data.totalSessions,
-              avgSessions:
-                data.totalStudents > 0
-                  ? Number((data.totalSessions / data.totalStudents).toFixed(1))
-                  : 0,
-            }))
-            .sort((a, b) => b.totalSessions - a.totalSessions);
-
-          setClassRates(classStats);
-        }
-      } catch (err) {
-        console.error('Analytics fetch error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAnalytics();
-  }, [month, year, paymentsMap, tAtt]);
+  const { loading, monthlyTrends, classRates, hoveredBar, setHoveredBar } = useAttendanceAnalytics({
+    month,
+    year,
+    paymentsMap,
+    tAtt,
+  });
 
   // ---- Derived stats ----
   const maxProjected = Math.max(...monthlyTrends.map(t => t.projected), 1);

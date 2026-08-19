@@ -2,3 +2,7 @@ export * from './storyService';
 export * from './topicService';
 export * from './uploadService';
 export * from './vocabularyService';
+export * from './authService';
+export * from './studentService';
+export * from './attendanceService';
+export * from './shadowingService';

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { attendanceService } from '../../../services/attendanceService';
 import {
   AlertTriangle,
   Trash2,
@@ -42,25 +42,21 @@ export function CheckinTab() {
   useBodyScrollLock(Boolean(modalDate || deleteTargetStudent));
 
   useEffect(() => {
-    supabase
-      .from('attendance_students')
-      .select('*')
-      .order('name')
-      .then(({ data }) => {
-        if (data) setStudents(data);
-        setLoading(false);
-      });
+    attendanceService.fetchAttendanceStudents().then(data => {
+      setStudents(data);
+      setLoading(false);
+    });
   }, []);
 
   const loadMonthRecords = async (year: number, month: number) => {
     const start = new Date(year, month, 1).toISOString();
     const end = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
-    const { data } = await supabase
-      .from('attendance_records')
-      .select('id, student_id, checkin_time')
-      .gte('checkin_time', start)
-      .lte('checkin_time', end);
-    if (data) setMonthRecords(data);
+    try {
+      const data = await attendanceService.fetchAttendanceRecords(start, end);
+      setMonthRecords(data);
+    } catch (err) {
+      console.error('Error fetching month records:', err);
+    }
   };
 
   useEffect(() => {
@@ -190,13 +186,11 @@ export function CheckinTab() {
     const startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0).toISOString();
     const endOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59).toISOString();
     try {
-      const { error } = await supabase
-        .from('attendance_records')
-        .delete()
-        .eq('student_id', deleteTargetStudent.id)
-        .gte('checkin_time', startOfDay)
-        .lte('checkin_time', endOfDay);
-      if (error) throw error;
+      await attendanceService.deleteStudentDayAttendance(
+        deleteTargetStudent.id,
+        startOfDay,
+        endOfDay
+      );
       await loadMonthRecords(calYear, calMonth);
       setDeleteTargetStudent(null);
     } catch (err) {
@@ -223,10 +217,8 @@ export function CheckinTab() {
       const recs = Array.from(checkedIds).map(student_id => ({
         student_id,
         checkin_time: timestamp,
-        status: 'present',
       }));
-      const { error } = await supabase.from('attendance_records').insert(recs);
-      if (error) throw error;
+      await attendanceService.saveAttendanceCheckin(recs);
       setSuccess(true);
       setCheckedIds(new Set());
       await loadMonthRecords(calYear, calMonth);

@@ -16,7 +16,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
-import { supabase } from '../../../lib/supabase';
+import { shadowingService } from '../../../services/shadowingService';
 import { useRecording } from '../hooks/useRecording';
 import YouTubePlayer from '../../common/YouTubePlayer';
 import { TeacherFeedback } from '../../common/TeacherFeedback';
@@ -52,13 +52,7 @@ export function ShadowingDetail({
       }
 
       try {
-        const { data, error } = await supabase
-          .from('shadowing_videos')
-          .select('*')
-          .eq('id', videoId)
-          .maybeSingle();
-
-        if (error) throw error;
+        const data = await shadowingService.fetchShadowingVideoById(videoId);
         if (!data) {
           setFetchError(t.shadowing.videoNotFound);
         } else {

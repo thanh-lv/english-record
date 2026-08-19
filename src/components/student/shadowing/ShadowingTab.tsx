@@ -8,9 +8,10 @@ import {
   ArrowRight,
   CheckCircle2,
 } from 'lucide-react';
-import React, { useEffect, useState, useMemo } from 'react';
+import React from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
-import { supabase } from '../../../lib/supabase';
+import { useShadowingStudent } from './useShadowingStudent';
+import { extractYoutubeId } from '../../../services/shadowingService';
 
 interface ShadowingTabProps {
   onVideoClick: (video: any) => void;
@@ -20,63 +21,17 @@ interface ShadowingTabProps {
 
 export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: ShadowingTabProps) {
   const { t } = useLanguage();
-  const [videos, setVideos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filterText, setFilterText] = useState('');
-  const parsedStudentGrade = studentGrade ? Number(studentGrade) : null;
-  const [filterMode, setFilterMode] = useState<string>(parsedStudentGrade ? 'myGrade' : 'all');
 
-  useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('shadowing_videos')
-          .select('*')
-          .eq('is_active', true)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setVideos(data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchVideos();
-  }, []);
-
-  const extractYoutubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
-
-  const isVideoForGrade = (video: any, grade: number) => {
-    if (!video.grades || !Array.isArray(video.grades) || video.grades.length === 0) {
-      return true;
-    }
-    return video.grades.includes(grade);
-  };
-
-  const filteredVideos = useMemo(() => {
-    return videos.filter(video => {
-      // Grade filter mode
-      if (filterMode === 'myGrade' && parsedStudentGrade) {
-        if (!isVideoForGrade(video, parsedStudentGrade)) return false;
-      } else if (filterMode !== 'all') {
-        const specificGrade = Number(filterMode);
-        if (!isNaN(specificGrade) && !isVideoForGrade(video, specificGrade)) {
-          return false;
-        }
-      }
-
-      // Search text filter
-      if (!filterText.trim()) return true;
-      const q = filterText.toLowerCase().trim();
-      return video.title?.toLowerCase().includes(q);
-    });
-  }, [videos, filterMode, parsedStudentGrade, filterText]);
+  const {
+    videos,
+    filteredVideos,
+    loading,
+    filterText,
+    setFilterText,
+    filterMode,
+    setFilterMode,
+    parsedStudentGrade,
+  } = useShadowingStudent({ studentGrade });
 
   if (loading) {
     return (

@@ -2,7 +2,7 @@ import { AlertCircle, Check, Eye, EyeOff, Loader2, UserPlus, X } from 'lucide-re
 import { useState } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
-import { supabase } from '../../../lib/supabase';
+import { studentService } from '../../../services/studentService';
 import {
   validateStudentName,
   validatePassword,
@@ -76,39 +76,18 @@ export function CreateStudentModal({ onCreated, onClose }: CreateStudentModalPro
     setSaving(true);
     setError('');
     try {
-      const { data: existing } = await supabase
-        .from('profiles')
-        .select('id')
-        .ilike('name', cleanName)
-        .maybeSingle();
-      if (existing) {
+      const exists = await studentService.checkStudentNameExists(cleanName);
+      if (exists) {
         setError(t.common.nameDuplicate);
         return;
       }
 
-      const insertPayload: any = {
+      const inserted = await studentService.createStudent({
         name: cleanName,
-        role: 'student',
         password: cleanPass,
         year_born: parsedYear,
         grade: parsedGrade,
-      };
-
-      let inserted: any = null;
-      const res = await supabase.from('profiles').insert(insertPayload).select().single();
-
-      if (res.error) {
-        if (res.error.message?.includes('grade')) {
-          delete insertPayload.grade;
-          const retryRes = await supabase.from('profiles').insert(insertPayload).select().single();
-          if (retryRes.error) throw retryRes.error;
-          inserted = retryRes.data;
-        } else {
-          throw res.error;
-        }
-      } else {
-        inserted = res.data;
-      }
+      });
 
       onCreated(inserted);
       onClose();

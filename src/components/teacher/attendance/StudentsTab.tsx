@@ -1,178 +1,46 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { useState } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { Users, Plus, Pencil, Trash2, Loader2, Save, Phone } from 'lucide-react';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
-import {
-  formatClassName,
-  useBodyScrollLock,
-  validateStudentName,
-  validatePhone,
-  sanitizeText,
-} from '../../../utils';
+import { formatClassName, useBodyScrollLock } from '../../../utils';
+import { useAttendanceStudents } from './useAttendanceStudents';
 
 export function StudentsTab() {
   const { t } = useLanguage();
   const tAtt = t.attendance;
   const tc = t.common;
-  const [students, setStudents] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
 
-  const [name, setName] = useState('');
-  const [className, setClassName] = useState('');
-  const [unitPrice, setUnitPrice] = useState('');
-  const [phone, setPhone] = useState('');
-  const [hocLieuFee, setHocLieuFee] = useState('');
-  const [note, setNote] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleteSaving, setDeleteSaving] = useState(false);
+  const {
+    students,
+    loading,
+    showForm,
+    setShowForm,
+    editId,
+    name,
+    setName,
+    className,
+    setClassName,
+    unitPrice,
+    handlePriceChange,
+    phone,
+    setPhone,
+    hocLieuFee,
+    handleHocLieuFeeChange,
+    note,
+    setNote,
+    saving,
+    error,
+    deleteId,
+    setDeleteId,
+    deleteSaving,
+    openCreateModal,
+    openEditModal: handleEdit,
+    handleSave,
+    handleDelete: handleDeleteConfirm,
+  } = useAttendanceStudents(t);
 
   // Lock body scroll when modal is open
   useBodyScrollLock(Boolean(showForm || deleteId));
-
-  const loadStudents = async () => {
-    setLoading(true);
-    const { data } = await supabase.from('attendance_students').select('*').order('name');
-    setStudents(data || []);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    loadStudents();
-  }, []);
-
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    if (!rawValue) {
-      setUnitPrice('');
-      return;
-    }
-    setUnitPrice(parseInt(rawValue, 10).toLocaleString());
-  };
-
-  const handleHocLieuFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    if (!rawValue) {
-      setHocLieuFee('');
-      return;
-    }
-    setHocLieuFee(parseInt(rawValue, 10).toLocaleString());
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanName = sanitizeText(name);
-    const nameVal = validateStudentName(cleanName, {
-      required: tc.nameMin,
-      min: tc.nameMin,
-      max: tc.nameMax,
-    });
-    if (!nameVal.isValid) {
-      setError(nameVal.error || tc.nameMin);
-      return;
-    }
-
-    const cleanPhone = phone.trim();
-    if (cleanPhone) {
-      const phoneVal = validatePhone(cleanPhone, tc.phoneInvalid);
-      if (!phoneVal.isValid) {
-        setError(phoneVal.error || tc.phoneInvalid);
-        return;
-      }
-    }
-
-    const rawPrice = parseInt(unitPrice.replace(/\D/g, ''), 10) || 0;
-    const rawHlPrice = parseInt(hocLieuFee.replace(/\D/g, ''), 10) || 0;
-
-    if (rawPrice < 0 || rawPrice > 100000000 || rawHlPrice < 0 || rawHlPrice > 100000000) {
-      setError(tc.amountInvalid || 'Số tiền không hợp lệ');
-      return;
-    }
-
-    setSaving(true);
-    setError('');
-
-    const cName = sanitizeText(className) || tAtt.unassignedClass;
-    const cleanNote = sanitizeText(note);
-
-    const payload: any = {
-      name: cleanName,
-      class_name: cName.slice(0, 50),
-      unit_price: rawPrice,
-      phone: cleanPhone.slice(0, 20),
-      hoc_lieu: rawHlPrice,
-      note: cleanNote.slice(0, 1000),
-    };
-
-    try {
-      if (editId) {
-        const { error: err } = await supabase
-          .from('attendance_students')
-          .update(payload)
-          .eq('id', editId);
-        if (err) {
-          delete payload.hoc_lieu;
-          const { error: errFallback } = await supabase
-            .from('attendance_students')
-            .update(payload)
-            .eq('id', editId);
-          if (errFallback) throw errFallback;
-        }
-      } else {
-        const { error: err } = await supabase.from('attendance_students').insert(payload);
-        if (err) {
-          delete payload.hoc_lieu;
-          const { error: errFallback } = await supabase.from('attendance_students').insert(payload);
-          if (errFallback) throw errFallback;
-        }
-      }
-
-      await loadStudents();
-      setShowForm(false);
-      setName('');
-      setClassName('');
-      setUnitPrice('');
-      setPhone('');
-      setHocLieuFee('');
-      setNote('');
-      setEditId(null);
-    } catch (err: any) {
-      setError(err.message || 'Error saving student. Name might already exist.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleEdit = (student: any) => {
-    setEditId(student.id);
-    setName(student.name);
-    setClassName(student.class_name || '');
-    setUnitPrice(student.unit_price ? student.unit_price.toLocaleString() : '');
-    setHocLieuFee(student.hoc_lieu ? Number(student.hoc_lieu).toLocaleString() : '');
-    setPhone(student.phone || '');
-    setNote(student.note || student.student_note || '');
-    setShowForm(true);
-  };
-
-  const handleDeleteConfirm = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!deleteId) return;
-    setDeleteSaving(true);
-    try {
-      await supabase.from('attendance_students').delete().eq('id', deleteId);
-      await loadStudents();
-      setDeleteId(null);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDeleteSaving(false);
-    }
-  };
 
   // Group students by class for display
   const [search, setSearch] = useState('');
@@ -215,14 +83,7 @@ export function StudentsTab() {
           </p>
         </div>
         <button
-          onClick={() => {
-            setEditId(null);
-            setName('');
-            setClassName('');
-            setUnitPrice('');
-            setError('');
-            setShowForm(true);
-          }}
+          onClick={openCreateModal}
           className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-black shadow-md transition-colors"
         >
           <Plus size={16} />
@@ -346,10 +207,7 @@ export function StudentsTab() {
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setError('');
-                  }}
+                  onClick={() => setShowForm(false)}
                   className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                 >
                   {tc.cancel || 'Hủy'}
@@ -453,7 +311,7 @@ export function StudentsTab() {
                           <span className="font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-lg text-xs">
                             {tAtt.pricePerSession.replace(
                               '{price}',
-                              student.unit_price.toLocaleString()
+                              (student.unit_price || 0).toLocaleString()
                             )}
                           </span>
                         </td>

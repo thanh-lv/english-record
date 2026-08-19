@@ -112,10 +112,25 @@ npm run dev
 - `npm run lint`: Chạy ESLint kiểm tra quy chuẩn mã nguồn.
 - `npm run lint:fix`: Tự động sửa các lỗi linter.
 - `npm run format`: Định dạng mã nguồn tự động với Prettier.
+- `npm run format:check`: Kiểm tra định dạng mã nguồn trong CI pipeline.
 - `npm run test`: Chạy toàn bộ Unit Tests với Vitest.
 - `npm run test:watch`: Chạy Vitest ở chế độ theo dõi file thay đổi.
 - `npm run test:coverage`: Xuất báo cáo độ bao phủ kiểm thử (Coverage Report).
-- `npm run check-all`: **Chạy kiểm tra toàn diện** (type-check + lint + test + build).
+- `npm run check-all`: **Chạy kiểm tra toàn diện** (format:check + type-check + lint + test + build).
+
+---
+
+## 🌐 Triển Khai Lên Render (Deployment)
+
+Dự án được tối ưu sẵn sàng triển khai dưới dạng **Static Site** trên **[Render](https://render.com/)** thông qua tệp cấu hình [render.yaml](file:///render.yaml):
+
+1. Kết nối repository `english-record` trên tài khoản Render.
+2. Chọn **New + > Blueprint** hoặc tạo **Static Site**:
+   - **Build Command**: `npm run build`
+   - **Publish Directory**: `dist`
+   - **Redirects/Rewrites**: `/*` chuyển tiếp về `/index.html` (SPA Routing).
+3. Thêm các biến môi trường cấu hình (Supabase, S3/R2) trong tab **Environment Variables** của Render.
+4. Render sẽ tự động build và deploy mỗi khi có commit mới được merge vào nhánh `main`.
 
 ---
 
@@ -123,10 +138,11 @@ npm run dev
 
 ```
 english-record/
-├── .github/workflows/         # Cấu hình GitHub Actions CI
+├── .github/workflows/         # Cấu hình GitHub Actions CI (Lint, Typecheck, Test, Build, Audit)
 ├── docs/                      # Tài liệu kỹ thuật chi tiết
 │   ├── ARCHITECTURE.md        # Kiến trúc hệ thống, Sơ đồ Mermaid, Database Schema
 │   └── ONBOARDING.md          # Hướng dẫn chi tiết cho thành viên mới
+├── render.yaml                # Cấu hình tự động triển khai Static Site trên Render
 ├── public/                    # Tài nguyên tĩnh
 ├── src/
 │   ├── components/            # UI Components theo từng phân hệ

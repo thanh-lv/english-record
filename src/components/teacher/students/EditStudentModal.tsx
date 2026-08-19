@@ -2,7 +2,7 @@ import { AlertCircle, Loader2, Pencil, Save, X } from 'lucide-react';
 import { useState } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
-import { supabase } from '../../../lib/supabase';
+import { studentService } from '../../../services/studentService';
 import { validateYearBorn, validateGrade } from '../../../utils/validators';
 
 interface EditStudentModalProps {
@@ -46,35 +46,10 @@ export function EditStudentModal({ student, onUpdated, onClose }: EditStudentMod
     setSaving(true);
     setError('');
     try {
-      const updatePayload: any = {
+      const data = await studentService.updateStudent(student.id, {
         year_born: parsedYear,
         grade: parsedGrade,
-      };
-      let data: any = null;
-      const res = await supabase
-        .from('profiles')
-        .update(updatePayload)
-        .eq('id', student.id)
-        .select()
-        .single();
-
-      if (res.error) {
-        if (res.error.message?.includes('grade')) {
-          delete updatePayload.grade;
-          const retryRes = await supabase
-            .from('profiles')
-            .update(updatePayload)
-            .eq('id', student.id)
-            .select()
-            .single();
-          if (retryRes.error) throw retryRes.error;
-          data = retryRes.data;
-        } else {
-          throw res.error;
-        }
-      } else {
-        data = res.data;
-      }
+      });
 
       onUpdated(data);
       onClose();
