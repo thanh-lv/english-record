@@ -1,6 +1,7 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import type { User } from '@supabase/supabase-js';
 import { ExercisesTab } from '../components/student/exercises/ExercisesTab';
 import { AvatarSelectModal } from '../components/student/shared/AvatarSelectModal';
 import { CompletionCelebration } from '../components/student/achievements/CompletionCelebration';
@@ -18,6 +19,7 @@ import {
 } from '../components/student/hooks';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { getCompletedTopicNumbers } from '../utils/topicCompletion';
+import { UserProfile } from '../types';
 
 const AchievementsTab = lazy(() =>
   import('../components/student/achievements/AchievementsTab').then(m => ({
@@ -50,7 +52,13 @@ const ShadowingDetail = lazy(() =>
   }))
 );
 
-export default function StudentPage({ user, profile }: { user: any; profile: any }) {
+export default function StudentPage({
+  user,
+  profile,
+}: {
+  user: User | null;
+  profile: UserProfile;
+}) {
   const navigate = useNavigate();
   const isBongBe = profile.name.toLowerCase().trim() === 'bông bé';
   const studentAge = new Date().getFullYear() - (profile.year_born || 2015);
@@ -188,7 +196,7 @@ export default function StudentPage({ user, profile }: { user: any; profile: any
                   completedNumbers={completedTopicNumbers}
                   myRecordings={myRecordings}
                   onTopicClick={topicSession.openTopicModal}
-                  studentGrade={profile?.grade}
+                  studentGrade={profile?.grade ?? undefined}
                 />
               }
             />
@@ -212,13 +220,16 @@ export default function StudentPage({ user, profile }: { user: any; profile: any
                 />
               }
             />
-            <Route path="flashcards" element={<FlashcardsTab studentGrade={profile?.grade} />} />
-            <Route path="games" element={<GamesTab studentGrade={profile?.grade} />} />
+            <Route
+              path="flashcards"
+              element={<FlashcardsTab studentGrade={profile?.grade ?? undefined} />}
+            />
+            <Route path="games" element={<GamesTab studentGrade={profile?.grade ?? undefined} />} />
             <Route
               path="shadowing"
               element={
                 <ShadowingTab
-                  studentGrade={profile?.grade}
+                  studentGrade={profile?.grade ?? undefined}
                   myRecordings={myRecordings}
                   onVideoClick={v => navigate(`/student/shadowing/${v.id}`)}
                 />

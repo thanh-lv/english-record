@@ -1,6 +1,8 @@
-import { AlertCircle, Eye, EyeOff, Loader2, GraduationCap, User } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, Loader2, GraduationCap, User as UserIcon } from 'lucide-react';
 import React, { useState } from 'react';
-import { authService, UserProfile } from '../services/authService';
+import type { User } from '@supabase/supabase-js';
+import { authService } from '../services/authService';
+import { UserProfile } from '../types';
 import { useLanguage } from '../i18n/LanguageContext';
 
 const FLOATING = ['🌟', '🎈', '📚', '🎵', '✨', '🦋', '🌈', '🎯'];
@@ -9,8 +11,8 @@ export default function LoginPage({
   setProfile,
   user,
 }: {
-  setProfile: (p: UserProfile) => void;
-  user: any;
+  setProfile: (p: UserProfile | null) => void;
+  user: User | null;
 }) {
   const { t } = useLanguage();
   const [loginMode, setLoginMode] = useState<'student' | 'teacher'>('student');
@@ -127,7 +129,7 @@ export default function LoginPage({
                   : 'text-slate-400 hover:text-slate-600'
               }`}
             >
-              <User size={13} /> {t.login.studentTab}
+              <UserIcon size={13} /> {t.login.studentTab}
             </button>
             <button
               type="button"

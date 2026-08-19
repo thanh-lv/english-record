@@ -1,5 +1,6 @@
 import { AlertCircle } from 'lucide-react';
 import { Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import type { User } from '@supabase/supabase-js';
 import { useLanguage } from '../i18n/LanguageContext';
 import { RecordingsManager } from '../components/teacher/recordings/RecordingsManager';
 import { StudentSubmissionsView } from '../components/teacher/students/StudentSubmissionsView';
@@ -8,6 +9,7 @@ import { DeleteConfirmModal } from '../components/teacher/shared/DeleteConfirmMo
 import { OfflineBanner } from '../components/common/OfflineBanner';
 import { useRecordings } from '../components/teacher/hooks/useRecordings';
 import { supabase } from '../lib/supabase';
+import { Recording } from '../types';
 import { lazy, Suspense, useEffect } from 'react';
 
 const StoriesManager = lazy(() =>
@@ -122,8 +124,8 @@ export default function TeacherPage({
   user,
   addNotification,
 }: {
-  user: any;
-  addNotification: (record: any) => void;
+  user: User | null;
+  addNotification: (record: Recording) => void;
 }) {
   const { t } = useLanguage();
   const navigate = useNavigate();

@@ -1,9 +1,10 @@
 import { BookOpen, Square, Volume2, X } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
+import { Story } from '../../../types';
 
 interface StoryModalProps {
-  story: any;
+  story: Story;
   isPlayingAudio: boolean;
   onClose: () => void;
   onPlayAudio: (e: React.MouseEvent) => void;

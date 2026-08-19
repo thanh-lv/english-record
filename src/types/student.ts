@@ -1,4 +1,5 @@
 import { UserProfile } from './auth';
+import { Recording } from './recording';
 
 export interface CreateStudentPayload {
   name: string;
@@ -24,7 +25,7 @@ export interface StudentStats {
 }
 
 export interface StudentRecordingsResponse {
-  records: any[];
+  records: Recording[];
   total: number;
 }
 
