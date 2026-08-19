@@ -1,7 +1,14 @@
-/* eslint-disable no-control-regex */
-/**
- * Input validation and sanitization utilities
- */
+import { z } from "zod";
+import {
+  sanitizeString,
+  studentGradeSchema,
+  gradesArraySchema,
+  createFileSchema,
+  ALLOWED_IMAGE_MIME_TYPES,
+  extractYoutubeId,
+} from "../schemas";
+
+export { sanitizeString as sanitizeText, extractYoutubeId };
 
 export interface ValidationResult {
   isValid: boolean;
@@ -9,51 +16,33 @@ export interface ValidationResult {
 }
 
 /**
- * Remove harmful invisible control characters and trim whitespace
- */
-export function sanitizeText(text: string | null | undefined): string {
-  if (!text) return "";
-  // Strip non-printable ASCII control chars (except standard newlines/tabs)
-  return text
-    .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F-\u009F]/g, "")
-    .trim();
-}
-
-/**
- * Validate student name
- * - Length: 2 to 50 characters
- * - Must not consist only of special characters
+ * Validate student name using Zod studentNameSchema
  */
 export function validateStudentName(
   name: string,
   errorMsgs?: { required?: string; min?: string; max?: string },
 ): ValidationResult {
-  const clean = sanitizeText(name);
+  const clean = sanitizeString(name);
   if (!clean) {
     return {
       isValid: false,
       error: errorMsgs?.required || "Vui lòng nhập tên học sinh.",
     };
   }
-  if (clean.length < 2) {
-    return {
-      isValid: false,
-      error: errorMsgs?.min || "Tên phải có ít nhất 2 ký tự.",
-    };
-  }
-  if (clean.length > 50) {
-    return {
-      isValid: false,
-      error: errorMsgs?.max || "Tên không được vượt quá 50 ký tự.",
-    };
+  const schema = z
+    .string()
+    .min(2, errorMsgs?.min || "Tên phải có ít nhất 2 ký tự.")
+    .max(50, errorMsgs?.max || "Tên không được vượt quá 50 ký tự.");
+
+  const res = schema.safeParse(clean);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
   }
   return { isValid: true };
 }
 
 /**
- * Validate password
- * - Student password: 3 to 100 characters
- * - Teacher password: 6 to 100 characters
+ * Validate password using Zod studentPasswordSchema
  */
 export function validatePassword(
   password: string,
@@ -67,23 +56,20 @@ export function validatePassword(
       error: errorMsgs?.required || "Vui lòng nhập mật khẩu.",
     };
   }
-  if (clean.length < minLen) {
-    return {
-      isValid: false,
-      error: errorMsgs?.min || `Mật khẩu phải có ít nhất ${minLen} ký tự.`,
-    };
-  }
-  if (clean.length > 100) {
-    return {
-      isValid: false,
-      error: errorMsgs?.max || "Mật khẩu không được vượt quá 100 ký tự.",
-    };
+  const schema = z
+    .string()
+    .min(minLen, errorMsgs?.min || `Mật khẩu phải có ít nhất ${minLen} ký tự.`)
+    .max(100, errorMsgs?.max || "Mật khẩu không được vượt quá 100 ký tự.");
+
+  const res = schema.safeParse(clean);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
   }
   return { isValid: true };
 }
 
 /**
- * Validate year of birth
+ * Validate year of birth using Zod yearBornSchema
  */
 export function validateYearBorn(
   year: number | string,
@@ -92,38 +78,39 @@ export function validateYearBorn(
   errorMsg?: string,
 ): ValidationResult {
   const currentYear = new Date().getFullYear();
-  const defaultMin = minYear ?? currentYear - 20;
-  const defaultMax = maxYear ?? currentYear - 2;
+  const min = minYear ?? currentYear - 20;
+  const max = maxYear ?? currentYear - 2;
 
-  const parsed = typeof year === "string" ? parseInt(year.trim(), 10) : year;
-  if (
-    !Number.isInteger(parsed) ||
-    isNaN(parsed) ||
-    parsed < defaultMin ||
-    parsed > defaultMax
-  ) {
+  const schema = z.preprocess(
+    (val) => (typeof val === "string" ? parseInt(val.trim(), 10) : val),
+    z
+      .number()
+      .int()
+      .min(min)
+      .max(max),
+  );
+
+  const res = schema.safeParse(year);
+  if (!res.success) {
     return {
       isValid: false,
       error:
         errorMsg ||
-        `Năm sinh không hợp lệ. Vui lòng nhập từ ${defaultMin} đến ${defaultMax}.`,
+        `Năm sinh không hợp lệ. Vui lòng nhập từ ${min} đến ${max}.`,
     };
   }
   return { isValid: true };
 }
 
 /**
- * Validate grade (1 - 12 or null/empty)
+ * Validate grade (1 - 12 or null/empty) using Zod studentGradeSchema
  */
 export function validateGrade(
   grade: number | string | null | undefined,
   errorMsg?: string,
 ): ValidationResult {
-  if (grade === null || grade === undefined || grade === "") {
-    return { isValid: true };
-  }
-  const parsed = typeof grade === "string" ? parseInt(grade.trim(), 10) : grade;
-  if (!Number.isInteger(parsed) || isNaN(parsed) || parsed < 1 || parsed > 12) {
+  const res = studentGradeSchema.safeParse(grade);
+  if (!res.success) {
     return {
       isValid: false,
       error: errorMsg || "Khối / Lớp phải là số từ 1 đến 12.",
@@ -133,59 +120,50 @@ export function validateGrade(
 }
 
 /**
- * Validate grades array
+ * Validate grades array using Zod gradesArraySchema
  */
 export function validateGrades(
   grades: unknown,
   errorMsg?: string,
 ): ValidationResult {
-  if (!Array.isArray(grades)) {
+  const res = gradesArraySchema.safeParse(grades);
+  if (!res.success) {
     return {
       isValid: false,
-      error: errorMsg || "Danh sách khối lớp không hợp lệ.",
+      error: errorMsg || "Khối lớp phải từ 1 đến 12.",
     };
-  }
-  const invalid = grades.some(
-    (g) => !Number.isInteger(g) || typeof g !== "number" || g < 1 || g > 12,
-  );
-  if (invalid) {
-    return { isValid: false, error: errorMsg || "Khối lớp phải từ 1 đến 12." };
   }
   return { isValid: true };
 }
 
 /**
- * Validate topic title
- * - Length: 2 to 100 characters
+ * Validate topic title using Zod topicTitleSchema
  */
 export function validateTopicTitle(
   title: string,
   errorMsgs?: { required?: string; min?: string; max?: string },
 ): ValidationResult {
-  const clean = sanitizeText(title);
+  const clean = sanitizeString(title);
   if (!clean) {
     return {
       isValid: false,
       error: errorMsgs?.required || "Vui lòng nhập tên chủ đề.",
     };
   }
-  if (clean.length < 2) {
-    return {
-      isValid: false,
-      error: errorMsgs?.min || "Tên chủ đề phải có ít nhất 2 ký tự.",
-    };
-  }
-  if (clean.length > 100) {
-    return {
-      isValid: false,
-      error: errorMsgs?.max || "Tên chủ đề không được vượt quá 100 ký tự.",
-    };
+  const schema = z
+    .string()
+    .min(2, errorMsgs?.min || "Tên chủ đề phải có ít nhất 2 ký tự.")
+    .max(100, errorMsgs?.max || "Tên chủ đề không được vượt quá 100 ký tự.");
+
+  const res = schema.safeParse(clean);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
   }
   return { isValid: true };
 }
 
 /**
- * Validate question details
+ * Validate question details using Zod questionSchema
  */
 export function validateQuestion(
   data: {
@@ -204,64 +182,51 @@ export function validateQuestion(
     targetMax?: string;
   },
 ): ValidationResult {
-  const text = sanitizeText(data.text);
-  if (!text) {
-    return {
-      isValid: false,
-      error: errorMsgs?.textRequired || "Vui lòng nhập nội dung câu hỏi.",
-    };
-  }
-  if (text.length < 2) {
-    return {
-      isValid: false,
-      error: errorMsgs?.textMin || "Câu hỏi phải có ít nhất 2 ký tự.",
-    };
-  }
-  if (text.length > 500) {
-    return {
-      isValid: false,
-      error: errorMsgs?.textMax || "Câu hỏi không được vượt quá 500 ký tự.",
-    };
-  }
-  if (data.translation && data.translation.trim().length > 500) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.translationMax || "Bản dịch không được vượt quá 500 ký tự.",
-    };
-  }
-  if (data.sample_answer && data.sample_answer.trim().length > 1000) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.sampleAnswerMax ||
-        "Câu trả lời mẫu không được vượt quá 1000 ký tự.",
-    };
-  }
-  if (data.target && data.target.trim().length > 200) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.targetMax ||
-        "Mục tiêu (target) không được vượt quá 200 ký tự.",
-    };
+  const customSchema = z.object({
+    text: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length >= 2, {
+        message: errorMsgs?.textMin || "Câu hỏi phải có ít nhất 2 ký tự.",
+      })
+      .refine((val) => val.length <= 500, {
+        message: errorMsgs?.textMax || "Câu hỏi không được vượt quá 500 ký tự.",
+      }),
+    translation: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length <= 500, {
+        message: errorMsgs?.translationMax || "Bản dịch không được vượt quá 500 ký tự.",
+      })
+      .optional()
+      .nullable(),
+    sample_answer: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length <= 1000, {
+        message: errorMsgs?.sampleAnswerMax || "Câu trả lời mẫu không được vượt quá 1000 ký tự.",
+      })
+      .optional()
+      .nullable(),
+    target: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length <= 200, {
+        message: errorMsgs?.targetMax || "Mục tiêu (target) không được vượt quá 200 ký tự.",
+      })
+      .optional()
+      .nullable(),
+  });
+
+  const res = customSchema.safeParse(data);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
   }
   return { isValid: true };
 }
 
 /**
- * Extract YouTube Video ID and validate URL
- */
-export function extractYoutubeId(url: string): string | null {
-  if (!url) return null;
-  const clean = url.trim();
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = clean.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
-}
-
-/**
- * Validate Shadowing video input
+ * Validate Shadowing video input using Zod shadowingVideoSchema
  */
 export function validateShadowingVideo(
   data: {
@@ -281,83 +246,92 @@ export function validateShadowingVideo(
     negativeTime?: string;
   },
 ): ValidationResult {
-  const title = sanitizeText(data.title);
-  if (!title || title.length < 2) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.titleRequired || "Tiêu đề video phải có ít nhất 2 ký tự.",
-    };
-  }
-  if (title.length > 150) {
-    return {
-      isValid: false,
-      error: errorMsgs?.titleMax || "Tiêu đề không được vượt quá 150 ký tự.",
-    };
-  }
-  const ytId = extractYoutubeId(data.youtube_url);
-  if (!ytId) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.urlInvalid ||
-        "Link YouTube không hợp lệ. Vui lòng kiểm tra lại đường dẫn.",
-    };
-  }
-
-  const { preview_start, preview_end, record_start, record_end } = data;
-
-  if (
-    (preview_start !== undefined &&
-      preview_start !== null &&
-      preview_start < 0) ||
-    (preview_end !== undefined && preview_end !== null && preview_end < 0) ||
-    (record_start !== undefined && record_start !== null && record_start < 0) ||
-    (record_end !== undefined && record_end !== null && record_end < 0)
-  ) {
-    return {
-      isValid: false,
-      error: errorMsgs?.negativeTime || "Thời gian không được là số âm.",
-    };
-  }
-
-  if (
-    preview_start !== undefined &&
-    preview_start !== null &&
-    preview_end !== undefined &&
-    preview_end !== null
-  ) {
-    if (preview_end <= preview_start) {
-      return {
-        isValid: false,
-        error:
+  const customSchema = z
+    .object({
+      title: z
+        .string()
+        .transform((val) => sanitizeString(val))
+        .refine((val) => val.length >= 2, {
+          message: errorMsgs?.titleRequired || "Tiêu đề video phải có ít nhất 2 ký tự.",
+        })
+        .refine((val) => val.length <= 150, {
+          message: errorMsgs?.titleMax || "Tiêu đề không được vượt quá 150 ký tự.",
+        }),
+      youtube_url: z
+        .string()
+        .trim()
+        .refine((val) => Boolean(extractYoutubeId(val)), {
+          message:
+            errorMsgs?.urlInvalid ||
+            "Link YouTube không hợp lệ. Vui lòng kiểm tra lại đường dẫn.",
+        }),
+      preview_start: z
+        .number()
+        .nonnegative(errorMsgs?.negativeTime || "Thời gian không được là số âm.")
+        .nullable()
+        .optional(),
+      preview_end: z
+        .number()
+        .nonnegative(errorMsgs?.negativeTime || "Thời gian không được là số âm.")
+        .nullable()
+        .optional(),
+      record_start: z
+        .number()
+        .nonnegative(errorMsgs?.negativeTime || "Thời gian không được là số âm.")
+        .nullable()
+        .optional(),
+      record_end: z
+        .number()
+        .nonnegative(errorMsgs?.negativeTime || "Thời gian không được là số âm.")
+        .nullable()
+        .optional(),
+    })
+    .refine(
+      (d) => {
+        if (
+          d.preview_start !== null &&
+          d.preview_start !== undefined &&
+          d.preview_end !== null &&
+          d.preview_end !== undefined
+        ) {
+          return d.preview_start < d.preview_end;
+        }
+        return true;
+      },
+      {
+        message:
           errorMsgs?.previewRangeInvalid ||
           "Thời gian kết thúc xem thử phải lớn hơn thời gian bắt đầu.",
-      };
-    }
-  }
-
-  if (
-    record_start !== undefined &&
-    record_start !== null &&
-    record_end !== undefined &&
-    record_end !== null
-  ) {
-    if (record_end <= record_start) {
-      return {
-        isValid: false,
-        error:
+      },
+    )
+    .refine(
+      (d) => {
+        if (
+          d.record_start !== null &&
+          d.record_start !== undefined &&
+          d.record_end !== null &&
+          d.record_end !== undefined
+        ) {
+          return d.record_start < d.record_end;
+        }
+        return true;
+      },
+      {
+        message:
           errorMsgs?.recordRangeInvalid ||
           "Thời gian kết thúc ghi âm phải lớn hơn thời gian bắt đầu.",
-      };
-    }
-  }
+      },
+    );
 
+  const res = customSchema.safeParse(data);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
+  }
   return { isValid: true };
 }
 
 /**
- * Validate Story data
+ * Validate Story data using Zod storySchema
  */
 export function validateStory(
   data: {
@@ -374,78 +348,76 @@ export function validateStory(
     emojiMax?: string;
   },
 ): ValidationResult {
-  const title = sanitizeText(data.title);
-  const content = sanitizeText(data.content);
+  const customSchema = z.object({
+    title: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length >= 2, {
+        message: errorMsgs?.titleRequired || "Tiêu đề truyện phải có ít nhất 2 ký tự.",
+      })
+      .refine((val) => val.length <= 150, {
+        message: errorMsgs?.titleMax || "Tiêu đề không được vượt quá 150 ký tự.",
+      }),
+    content: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length >= 10, {
+        message: errorMsgs?.contentRequired || "Nội dung truyện phải có ít nhất 10 ký tự.",
+      })
+      .refine((val) => val.length <= 10000, {
+        message: errorMsgs?.contentMax || "Nội dung truyện không được vượt quá 10,000 ký tự.",
+      }),
+    emoji: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length <= 10, {
+        message: errorMsgs?.emojiMax || "Emoji không hợp lệ.",
+      })
+      .optional(),
+  });
 
-  if (!title || title.length < 2) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.titleRequired || "Tiêu đề truyện phải có ít nhất 2 ký tự.",
-    };
-  }
-  if (title.length > 150) {
-    return {
-      isValid: false,
-      error: errorMsgs?.titleMax || "Tiêu đề không được vượt quá 150 ký tự.",
-    };
-  }
-  if (!content || content.length < 10) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.contentRequired ||
-        "Nội dung truyện phải có ít nhất 10 ký tự.",
-    };
-  }
-  if (content.length > 10000) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.contentMax ||
-        "Nội dung truyện không được vượt quá 10,000 ký tự.",
-    };
-  }
-  if (data.emoji && data.emoji.trim().length > 10) {
-    return {
-      isValid: false,
-      error: errorMsgs?.emojiMax || "Emoji không hợp lệ.",
-    };
+  const res = customSchema.safeParse(data);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
   }
   return { isValid: true };
 }
 
 /**
- * Validate Vocabulary Set
+ * Validate Vocabulary Set using Zod vocabSetSchema
  */
 export function validateVocabSet(
   data: { title: string; emoji?: string },
   errorMsgs?: { titleRequired?: string; titleMax?: string; emojiMax?: string },
 ): ValidationResult {
-  const title = sanitizeText(data.title);
-  if (!title || title.length < 2) {
-    return {
-      isValid: false,
-      error: errorMsgs?.titleRequired || "Tên bộ từ phải có ít nhất 2 ký tự.",
-    };
-  }
-  if (title.length > 100) {
-    return {
-      isValid: false,
-      error: errorMsgs?.titleMax || "Tên bộ từ không được vượt quá 100 ký tự.",
-    };
-  }
-  if (data.emoji && data.emoji.trim().length > 10) {
-    return {
-      isValid: false,
-      error: errorMsgs?.emojiMax || "Emoji không hợp lệ.",
-    };
+  const customSchema = z.object({
+    title: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length >= 2, {
+        message: errorMsgs?.titleRequired || "Tên bộ từ phải có ít nhất 2 ký tự.",
+      })
+      .refine((val) => val.length <= 100, {
+        message: errorMsgs?.titleMax || "Tên bộ từ không được vượt quá 100 ký tự.",
+      }),
+    emoji: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length <= 10, {
+        message: errorMsgs?.emojiMax || "Emoji không hợp lệ.",
+      })
+      .optional(),
+  });
+
+  const res = customSchema.safeParse(data);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
   }
   return { isValid: true };
 }
 
 /**
- * Validate Vocabulary Card
+ * Validate Vocabulary Card using Zod vocabCardSchema
  */
 export function validateVocabCard(
   data: { front: string; back: string; ipa?: string },
@@ -457,96 +429,88 @@ export function validateVocabCard(
     ipaMax?: string;
   },
 ): ValidationResult {
-  const front = sanitizeText(data.front);
-  const back = sanitizeText(data.back);
+  const customSchema = z.object({
+    front: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length >= 1, {
+        message: errorMsgs?.frontRequired || "Vui lòng nhập từ tiếng Anh (mặt trước).",
+      })
+      .refine((val) => val.length <= 200, {
+        message: errorMsgs?.frontMax || "Từ vựng không được vượt quá 200 ký tự.",
+      }),
+    back: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length >= 1, {
+        message: errorMsgs?.backRequired || "Vui lòng nhập nghĩa (mặt sau).",
+      })
+      .refine((val) => val.length <= 500, {
+        message: errorMsgs?.backMax || "Nghĩa không được vượt quá 500 ký tự.",
+      }),
+    ipa: z
+      .string()
+      .transform((val) => sanitizeString(val))
+      .refine((val) => val.length <= 100, {
+        message: errorMsgs?.ipaMax || "Phiên âm IPA không được vượt quá 100 ký tự.",
+      })
+      .optional()
+      .nullable(),
+  });
 
-  if (!front) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.frontRequired || "Vui lòng nhập từ tiếng Anh (mặt trước).",
-    };
-  }
-  if (front.length > 200) {
-    return {
-      isValid: false,
-      error: errorMsgs?.frontMax || "Từ vựng không được vượt quá 200 ký tự.",
-    };
-  }
-  if (!back) {
-    return {
-      isValid: false,
-      error: errorMsgs?.backRequired || "Vui lòng nhập nghĩa (mặt sau).",
-    };
-  }
-  if (back.length > 500) {
-    return {
-      isValid: false,
-      error: errorMsgs?.backMax || "Nghĩa không được vượt quá 500 ký tự.",
-    };
-  }
-  if (data.ipa && data.ipa.trim().length > 100) {
-    return {
-      isValid: false,
-      error: errorMsgs?.ipaMax || "Phiên âm IPA không được vượt quá 100 ký tự.",
-    };
+  const res = customSchema.safeParse(data);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
   }
   return { isValid: true };
 }
 
 /**
- * Validate Image file upload
+ * Validate Image file upload using Zod imageFileSchema
  */
 export function validateImageFile(
   file: File | Blob,
   maxSizeMb: number = 5,
   errorMsgs?: { typeInvalid?: string; sizeTooLarge?: string },
 ): ValidationResult {
-  const allowedTypes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-  ];
+  const schema = createFileSchema({
+    maxSizeMb,
+    allowedTypes: ALLOWED_IMAGE_MIME_TYPES,
+    typeErrorMessage:
+      errorMsgs?.typeInvalid ||
+      "Định dạng ảnh không hợp lệ. Chỉ chấp nhận JPG, PNG, WEBP hoặc GIF.",
+    sizeErrorMessage:
+      errorMsgs?.sizeTooLarge ||
+      `Dung lượng ảnh vượt quá giới hạn cho phép (${maxSizeMb}MB).`,
+  });
 
-  if (file.type && !allowedTypes.includes(file.type.toLowerCase())) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.typeInvalid ||
-        "Định dạng ảnh không hợp lệ. Chỉ chấp nhận JPG, PNG, WEBP hoặc GIF.",
-    };
+  const res = schema.safeParse(file);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
   }
-
-  const maxBytes = maxSizeMb * 1024 * 1024;
-  if (file.size > maxBytes) {
-    return {
-      isValid: false,
-      error:
-        errorMsgs?.sizeTooLarge ||
-        `Dung lượng ảnh vượt quá giới hạn cho phép (${maxSizeMb}MB).`,
-    };
-  }
-
   return { isValid: true };
 }
 
 /**
- * Validate Phone number
+ * Validate Phone number using Zod phoneSchema
  */
 export function validatePhone(
   phone: string,
   errorMsg?: string,
 ): ValidationResult {
-  const clean = sanitizeText(phone);
-  if (!clean) return { isValid: true }; // optional
-  const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]{6,15}$/;
-  if (!phoneRegex.test(clean)) {
-    return {
-      isValid: false,
-      error: errorMsg || "Số điện thoại không đúng định dạng.",
-    };
+  const clean = sanitizeString(phone);
+  if (!clean) return { isValid: true };
+
+  const schema = z.string().refine(
+    (val) => /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]{6,15}$/.test(val),
+    {
+      message: errorMsg || "Số điện thoại không đúng định dạng.",
+    },
+  );
+
+  const res = schema.safeParse(clean);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
   }
   return { isValid: true };
 }

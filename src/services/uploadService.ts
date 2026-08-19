@@ -1,8 +1,13 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { S3_BUCKET, s3Client } from "../lib/s3";
+import {
+  createFileSchema,
+  ALLOWED_IMAGE_MIME_TYPES,
+  ALLOWED_MEDIA_MIME_TYPES,
+} from "../schemas";
 
 /**
- * Service handling file uploads to S3 / Cloudflare R2
+ * Service handling file uploads to S3 / Cloudflare R2 with Zod validation
  */
 export const uploadService = {
   async uploadFile(
@@ -10,38 +15,27 @@ export const uploadService = {
     folder: string = "uploads",
     maxSizeMb: number = 10,
   ): Promise<string> {
-    const allowedImageFolders = [
-      "uploads",
+    const isImageOnlyFolder = [
       "question_images",
       "vocab_images",
-      "stories",
-    ];
+    ].includes(folder);
 
-    if (allowedImageFolders.includes(folder) && file.type) {
-      const allowedMimeTypes = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/webp",
-        "image/gif",
-        "audio/webm",
-        "audio/mp3",
-        "audio/wav",
-        "audio/ogg",
-        "audio/mpeg",
-      ];
-      if (!allowedMimeTypes.includes(file.type.toLowerCase())) {
-        throw new Error(
-          "Định dạng tệp không được hỗ trợ (chỉ chấp nhận JPG, PNG, WEBP, GIF, WebM, MP3, WAV).",
-        );
-      }
-    }
+    const allowedTypes = isImageOnlyFolder
+      ? ALLOWED_IMAGE_MIME_TYPES
+      : ALLOWED_MEDIA_MIME_TYPES;
 
-    const maxBytes = maxSizeMb * 1024 * 1024;
-    if (file.size > maxBytes) {
-      throw new Error(
-        `Dung lượng tệp vượt quá giới hạn cho phép (${maxSizeMb}MB).`,
-      );
+    const schema = createFileSchema({
+      maxSizeMb,
+      allowedTypes,
+      typeErrorMessage: isImageOnlyFolder
+        ? "Định dạng tệp không được hỗ trợ (chỉ chấp nhận JPG, PNG, WEBP, GIF)."
+        : "Định dạng tệp không được hỗ trợ (chỉ chấp nhận JPG, PNG, WEBP, GIF, WebM, MP3, WAV).",
+      sizeErrorMessage: `Dung lượng tệp vượt quá giới hạn cho phép (${maxSizeMb}MB).`,
+    });
+
+    const parsed = schema.safeParse(file);
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0]?.message || "Tệp không hợp lệ.");
     }
 
     const rawExt = file.type ? file.type.split("/")[1] : "bin";
