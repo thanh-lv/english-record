@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { Users, Plus, Pencil, Trash2, Loader2, Save, Phone } from 'lucide-react';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
-import { formatClassName, useBodyScrollLock } from '../../../utils';
+import { formatClassName } from '../../../utils';
+import { useBodyScrollLock } from '../../../hooks';
 import { useAttendanceStudents } from './useAttendanceStudents';
 
 export function StudentsTab() {

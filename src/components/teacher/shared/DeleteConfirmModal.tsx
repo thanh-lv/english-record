@@ -1,7 +1,6 @@
 import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
-import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
-import { useBodyScrollLock } from '../../../utils';
+import { useEscapeToClose, useBodyScrollLock } from '../../../hooks';
 
 interface DeleteConfirmModalProps {
   title: string;

@@ -12,7 +12,8 @@ import {
   Save,
   Users,
 } from 'lucide-react';
-import { formatClassName, useBodyScrollLock } from '../../../utils';
+import { formatClassName } from '../../../utils';
+import { useBodyScrollLock } from '../../../hooks';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 
 export function CheckinTab() {

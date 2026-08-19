@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { MessageCircle, Copy, Check, ExternalLink, X, Phone } from 'lucide-react';
-import { formatClassName, useBodyScrollLock } from '../../../utils';
-import { interpolate } from '../../../i18n/LanguageContext';
-
-import { useLanguage } from '../../../i18n/LanguageContext';
+import { formatClassName } from '../../../utils';
+import { useBodyScrollLock } from '../../../hooks';
+import { interpolate, useLanguage } from '../../../i18n/LanguageContext';
 
 interface ZaloShareModalProps {
   student: any;

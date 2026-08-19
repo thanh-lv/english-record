@@ -24,7 +24,8 @@ import { toPng } from 'html-to-image';
 import JSZip from 'jszip';
 import { TuitionSlipTemplate } from './TuitionSlipTemplate';
 import { ZaloShareModal } from './ZaloShareModal';
-import { formatClassName, useBodyScrollLock } from '../../../utils';
+import { formatClassName } from '../../../utils';
+import { useBodyScrollLock } from '../../../hooks';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 
 export function SummaryTab() {
