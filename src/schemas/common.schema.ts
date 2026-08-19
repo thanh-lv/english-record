@@ -1,12 +1,11 @@
-/* eslint-disable no-control-regex */
 import { z } from 'zod';
+import { sanitizeInput } from '../utils/security';
 
 /**
- * Remove harmful invisible control characters and trim whitespace
+ * Remove harmful invisible control characters, strip XSS script vectors, and trim whitespace
  */
 export function sanitizeString(text: string | null | undefined): string {
-  if (!text) return '';
-  return text.replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F-\u009F]/g, '').trim();
+  return sanitizeInput(text);
 }
 
 /**

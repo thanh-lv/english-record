@@ -11,8 +11,10 @@ import {
   sanitizeText,
 } from '../../../utils/validators';
 
+import { UserProfile } from '../../../types';
+
 interface CreateStudentModalProps {
-  onCreated: (student: any) => void;
+  onCreated: (student: UserProfile) => void;
   onClose: () => void;
 }
 

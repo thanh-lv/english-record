@@ -5,9 +5,11 @@ import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
 import { studentService } from '../../../services/studentService';
 import { validateYearBorn, validateGrade } from '../../../utils/validators';
 
+import { UserProfile } from '../../../types';
+
 interface EditStudentModalProps {
-  student: any;
-  onUpdated: (updated: any) => void;
+  student: UserProfile;
+  onUpdated: (updated: UserProfile) => void;
   onClose: () => void;
 }
 
