@@ -865,14 +865,14 @@ export function SummaryTab() {
                           </button>
 
                           {/* Gửi Zalo */}
-                          <button
+                          {/* <button
                             type="button"
                             onClick={() => setZaloStudent(s)}
                             className="px-2.5 py-1 text-xs font-black text-[#0068FF] bg-[#0068FF]/10 hover:bg-[#0068FF]/20 rounded-xl transition-all flex items-center gap-1 print:hidden shadow-2xs active:scale-95 cursor-pointer"
                             title={tAtt.sendZaloTooltip || 'Gửi thông báo Zalo cho Phụ huynh'}
                           >
                             <MessageCircle size={13} /> Zalo
-                          </button>
+                          </button> */}
 
                           {/* Xem chi tiết */}
                           <button

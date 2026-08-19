@@ -180,7 +180,7 @@ export default function TeacherPage({
             }
           >
             <Routes>
-              <Route index element={<Navigate to="recordings" replace />} />
+              <Route index element={<Navigate to="attendance" replace />} />
               <Route
                 path="recordings"
                 element={
@@ -221,7 +221,7 @@ export default function TeacherPage({
               <Route path="shadowing" element={<ShadowingManager />} />
               <Route path="audio-builder" element={<VocabAudioBuilder />} />
               <Route path="logs" element={<LogsManager />} />
-              <Route path="*" element={<Navigate to="/teacher/recordings" replace />} />
+              <Route path="*" element={<Navigate to="/teacher/attendance" replace />} />
             </Routes>
           </Suspense>
         </div>

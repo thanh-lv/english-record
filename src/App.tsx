@@ -131,7 +131,7 @@ export default function App() {
               element={
                 userProfile ? (
                   <Navigate
-                    to={location.state?.from || (isTeacher ? '/teacher' : '/student')}
+                    to={location.state?.from || (isTeacher ? '/teacher/attendance' : '/student')}
                     replace
                   />
                 ) : (
@@ -146,7 +146,7 @@ export default function App() {
                   <StudentPage user={user} profile={userProfile} />
                 ) : (
                   <Navigate
-                    to={userProfile ? '/teacher' : '/login'}
+                    to={userProfile ? '/teacher/attendance' : '/login'}
                     state={{ from: location.pathname }}
                     replace
                   />
@@ -171,7 +171,7 @@ export default function App() {
               path="*"
               element={
                 <Navigate
-                  to={!userProfile ? '/login' : isTeacher ? '/teacher' : '/student'}
+                  to={!userProfile ? '/login' : isTeacher ? '/teacher/attendance' : '/student'}
                   state={!userProfile ? { from: location.pathname } : undefined}
                   replace
                 />
