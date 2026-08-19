@@ -91,6 +91,7 @@ export function AudioPlayer({ src, compact }: { src: string; compact?: boolean }
         <audio
           ref={audioRef}
           src={src}
+          preload="metadata"
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
@@ -121,6 +122,7 @@ export function AudioPlayer({ src, compact }: { src: string; compact?: boolean }
       <audio
         ref={audioRef}
         src={src}
+        preload="metadata"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}

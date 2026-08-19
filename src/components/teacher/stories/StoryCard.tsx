@@ -1,6 +1,7 @@
 import { Eye, EyeOff, Pencil, Trash2 } from 'lucide-react';
 import { Story } from '../../../types';
 import { Translations, interpolate } from '../../../i18n/LanguageContext';
+import { LazyImage } from '../../common/LazyImage';
 
 interface StoryCardProps {
   t: Translations;
@@ -20,10 +21,11 @@ export function StoryCard({ t, story, onEdit, onDelete, onToggleActive }: StoryC
       {/* Thumbnail Area */}
       <div className="aspect-[16/10] sm:aspect-[4/3] bg-gradient-to-br from-slate-100 to-purple-50/50 relative overflow-hidden">
         {story.image_url ? (
-          <img
+          <LazyImage
             src={story.image_url}
             alt={story.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            containerClassName="w-full h-full"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-1">

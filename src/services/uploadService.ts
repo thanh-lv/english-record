@@ -1,8 +1,10 @@
 import { S3_BUCKET, getS3Client } from '../lib/s3';
 import { createFileSchema, ALLOWED_IMAGE_MIME_TYPES, ALLOWED_MEDIA_MIME_TYPES } from '../schemas';
+import { optimizeImageFile } from '../utils/imageOptimizer';
 
 /**
- * Service handling file uploads to S3 / Cloudflare R2 with lazy loaded S3 SDK and Zod validation
+ * Service handling file uploads to S3 / Cloudflare R2 with lazy loaded S3 SDK,
+ * automatic client-side image compression (WebP downsampling), and Zod validation.
  */
 export const uploadService = {
   async uploadFile(
@@ -10,7 +12,7 @@ export const uploadService = {
     folder: string = 'uploads',
     maxSizeMb: number = 10
   ): Promise<string> {
-    const isImageOnlyFolder = ['question_images', 'vocab_images'].includes(folder);
+    const isImageOnlyFolder = ['question_images', 'vocab_images', 'stories', 'avatars'].includes(folder);
 
     const allowedTypes = isImageOnlyFolder ? ALLOWED_IMAGE_MIME_TYPES : ALLOWED_MEDIA_MIME_TYPES;
 
@@ -28,11 +30,26 @@ export const uploadService = {
       throw new Error(parsed.error.issues[0]?.message || 'Tệp không hợp lệ.');
     }
 
-    const rawExt = file.type ? file.type.split('/')[1] : 'bin';
-    const ext = rawExt.replace(/[^a-zA-Z0-9]/g, '') || 'png';
+    // Automatically optimize raster images (downscale & compress to WebP)
+    let processedFile: File | Blob = file;
+    if (file.type && file.type.startsWith('image/')) {
+      try {
+        processedFile = await optimizeImageFile(file, {
+          maxWidth: 1280,
+          maxHeight: 1280,
+          quality: 0.85,
+          outputFormat: 'image/webp',
+        });
+      } catch {
+        processedFile = file;
+      }
+    }
+
+    const rawExt = processedFile.type ? processedFile.type.split('/')[1] : 'bin';
+    const ext = rawExt.replace(/[^a-zA-Z0-9]/g, '') || 'webp';
     const filename = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
 
-    const arrayBuffer = await file.arrayBuffer();
+    const arrayBuffer = await processedFile.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
     // Lazy load PutObjectCommand and S3Client only when upload is requested
@@ -43,7 +60,7 @@ export const uploadService = {
       Bucket: S3_BUCKET,
       Key: filename,
       Body: uint8Array,
-      ContentType: file.type || 'application/octet-stream',
+      ContentType: processedFile.type || 'application/octet-stream',
     });
 
     await s3Client.send(command);

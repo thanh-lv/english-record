@@ -1,5 +1,6 @@
 import { Library } from 'lucide-react';
 import { interpolate, useLanguage } from '../../../i18n/LanguageContext';
+import { LazyImage } from '../../common/LazyImage';
 
 interface StoriesTabProps {
   dbStories: any[];
@@ -38,7 +39,12 @@ export function StoriesTab({ dbStories, profile, studentAge, onStoryClick }: Sto
           >
             <div className="w-full aspect-square bg-slate-100 relative">
               {story.image_url ? (
-                <img src={story.image_url} alt="" className="w-full h-full object-cover" />
+                <LazyImage
+                  src={story.image_url}
+                  alt={story.title}
+                  className="w-full h-full object-cover"
+                  containerClassName="w-full h-full"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-5xl">
                   {story.emoji}
