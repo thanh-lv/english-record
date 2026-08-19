@@ -1,16 +1,23 @@
 import { supabase } from '../lib/supabase';
+import { clientCache } from '../lib/cache';
 import { Story } from '../types';
 
 const WORKER_URL = 'https://free-image-generation-api.levanthanh29111999.workers.dev/';
 
 export const storyService = {
   async fetchAllStories(): Promise<Story[]> {
-    const { data, error } = await supabase
-      .from('stories')
-      .select('id, title, type, emoji, image_url, content, grades, created_at, is_active')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return (data || []) as Story[];
+    return clientCache.fetchWithCache(
+      'stories:all',
+      async () => {
+        const { data, error } = await supabase
+          .from('stories')
+          .select('id, title, type, emoji, image_url, content, grades, created_at, is_active')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        return (data || []) as Story[];
+      },
+      { ttlMs: 60 * 1000, persist: true }
+    );
   },
 
   async toggleStoryActive(storyId: string, currentValue: boolean): Promise<void> {
@@ -19,22 +26,26 @@ export const storyService = {
       .update({ is_active: !currentValue })
       .eq('id', storyId);
     if (error) throw error;
+    clientCache.invalidate('stories');
   },
 
   async updateStory(storyId: string, updates: Partial<Story>): Promise<void> {
     const { error } = await supabase.from('stories').update(updates).eq('id', storyId);
     if (error) throw error;
+    clientCache.invalidate('stories');
   },
 
   async createStory(storyData: Partial<Story>): Promise<Story> {
     const { data, error } = await supabase.from('stories').insert(storyData).select().single();
     if (error) throw error;
+    clientCache.invalidate('stories');
     return data as Story;
   },
 
   async deleteStory(storyId: string): Promise<void> {
     const { error } = await supabase.from('stories').delete().eq('id', storyId);
     if (error) throw error;
+    clientCache.invalidate('stories');
   },
 
   async generateAiText(prompt: string, grades: number[] = []): Promise<string> {

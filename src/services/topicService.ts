@@ -1,21 +1,28 @@
 import { supabase } from '../lib/supabase';
+import { clientCache } from '../lib/cache';
 import { Topic, Question } from '../types';
 
 export const topicService = {
   async fetchAllTopics(): Promise<Topic[]> {
-    const { data, error } = await supabase
-      .from('topics')
-      .select('*, questions(*)')
-      .order('order_index');
+    return clientCache.fetchWithCache(
+      'topics:all',
+      async () => {
+        const { data, error } = await supabase
+          .from('topics')
+          .select('*, questions(*)')
+          .order('order_index');
 
-    if (error) throw error;
+        if (error) throw error;
 
-    return (data || []).map((t: any) => ({
-      ...t,
-      questions: (t.questions || []).sort(
-        (a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0)
-      ),
-    }));
+        return (data || []).map((t: any) => ({
+          ...t,
+          questions: (t.questions || []).sort(
+            (a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0)
+          ),
+        }));
+      },
+      { ttlMs: 60 * 1000, persist: true }
+    );
   },
 
   async toggleTopicActive(topicId: string, currentValue: boolean): Promise<void> {
@@ -24,6 +31,7 @@ export const topicService = {
       .update({ is_active: !currentValue })
       .eq('id', topicId);
     if (error) throw error;
+    clientCache.invalidate('topics');
   },
 
   async updateTopic(
@@ -45,6 +53,7 @@ export const topicService = {
     }
 
     if (error) throw error;
+    clientCache.invalidate('topics');
   },
 
   async updateTopicTitle(topicId: string, title: string): Promise<void> {
@@ -74,26 +83,31 @@ export const topicService = {
     }
 
     if (error) throw error;
+    clientCache.invalidate('topics');
   },
 
   async deleteTopic(topicId: string): Promise<void> {
     const { error } = await supabase.from('topics').delete().eq('id', topicId);
     if (error) throw error;
+    clientCache.invalidate('topics');
   },
 
   async createQuestion(questionData: Partial<Question>): Promise<void> {
     const { error } = await supabase.from('questions').insert(questionData);
     if (error) throw error;
+    clientCache.invalidate('topics');
   },
 
   async updateQuestion(questionId: string, questionData: Partial<Question>): Promise<void> {
     const { error } = await supabase.from('questions').update(questionData).eq('id', questionId);
     if (error) throw error;
+    clientCache.invalidate('topics');
   },
 
   async deleteQuestion(questionId: string): Promise<void> {
     const { error } = await supabase.from('questions').delete().eq('id', questionId);
     if (error) throw error;
+    clientCache.invalidate('topics');
   },
 
   async insertParsedQuestions(
@@ -110,5 +124,6 @@ export const topicService = {
     }));
     const { error } = await supabase.from('questions').insert(rows);
     if (error) throw error;
+    clientCache.invalidate('topics');
   },
 };

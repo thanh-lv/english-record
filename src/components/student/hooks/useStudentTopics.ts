@@ -1,52 +1,74 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
+import { clientCache } from '../../../lib/cache';
 import { loggerService } from '../../../services/loggerService';
 import { Topic } from '../../../types';
 
 export function useStudentTopics(profile: any, isBongBe: boolean) {
-  const [activeTopics, setActiveTopics] = useState<Topic[]>([]);
-  const [topicsLoading, setTopicsLoading] = useState(true);
+  const topicType = isBongBe ? 'bongbe' : 'standard';
+  const studentGrade = profile?.grade ? Number(profile.grade) : null;
+  const cacheKey = `topics:student:${topicType}:${studentGrade ?? 'all'}`;
+
+  const [activeTopics, setActiveTopics] = useState<Topic[]>(
+    () => clientCache.get<Topic[]>(cacheKey) || []
+  );
+  const [topicsLoading, setTopicsLoading] = useState<boolean>(
+    () => !clientCache.get<Topic[]>(cacheKey)
+  );
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchTopics = async () => {
-      setTopicsLoading(true);
       try {
-        const topicType = isBongBe ? 'bongbe' : 'standard';
-        const studentGrade = profile?.grade ? Number(profile.grade) : null;
-        const { data, error } = await supabase
-          .from('topics')
-          .select('*, questions(*)')
-          .eq('type', topicType)
-          .eq('is_active', true)
-          .order('order_index');
+        const result = await clientCache.fetchWithCache(
+          cacheKey,
+          async () => {
+            const { data, error } = await supabase
+              .from('topics')
+              .select('*, questions(*)')
+              .eq('type', topicType)
+              .eq('is_active', true)
+              .order('order_index');
 
-        if (error) throw error;
+            if (error) throw error;
 
-        const normalized = (data || [])
-          .filter((t: any) => {
-            if (!studentGrade) return true;
-            if (!t.grades || !Array.isArray(t.grades) || t.grades.length === 0) {
-              return true;
-            }
-            return t.grades.includes(studentGrade);
-          })
-          .map((t: any) => ({
-            ...t,
-            questions: (t.questions || []).sort(
-              (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
-            ),
-          }));
+            return (data || [])
+              .filter((t: any) => {
+                if (!studentGrade) return true;
+                if (!t.grades || !Array.isArray(t.grades) || t.grades.length === 0) {
+                  return true;
+                }
+                return t.grades.includes(studentGrade);
+              })
+              .map((t: any) => ({
+                ...t,
+                questions: (t.questions || []).sort(
+                  (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
+                ),
+              }));
+          },
+          { ttlMs: 60 * 1000, persist: true }
+        );
 
-        setActiveTopics(normalized);
+        if (!cancelled) {
+          setActiveTopics(result);
+        }
       } catch (err) {
         loggerService.error('useStudentTopics', 'Error fetching student topics', err);
       } finally {
-        setTopicsLoading(false);
+        if (!cancelled) {
+          setTopicsLoading(false);
+        }
       }
     };
 
     fetchTopics();
-  }, [isBongBe, profile?.grade]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cacheKey, topicType, studentGrade]);
 
   return { activeTopics, topicsLoading };
 }

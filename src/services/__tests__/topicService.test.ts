@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { topicService } from '../topicService';
 import { supabase } from '../../lib/supabase';
+import { clientCache } from '../../lib/cache';
 
 vi.mock('../../lib/supabase', () => ({
   supabase: {
@@ -10,6 +11,7 @@ vi.mock('../../lib/supabase', () => ({
 
 describe('topicService', () => {
   beforeEach(() => {
+    clientCache.clear();
     vi.clearAllMocks();
   });
 

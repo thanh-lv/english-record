@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { storyService } from '../storyService';
 import { supabase } from '../../lib/supabase';
+import { clientCache } from '../../lib/cache';
 
 vi.mock('../../lib/supabase', () => ({
   supabase: {
@@ -10,6 +11,7 @@ vi.mock('../../lib/supabase', () => ({
 
 describe('storyService', () => {
   beforeEach(() => {
+    clientCache.clear();
     vi.clearAllMocks();
     vi.unstubAllEnvs();
   });

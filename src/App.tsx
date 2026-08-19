@@ -119,7 +119,9 @@ export default function App() {
           fallback={
             <div className="flex flex-col items-center justify-center py-24 gap-3">
               <Loader2 className="w-8 h-8 text-[#1E88E5] animate-spin" />
-              <p className="text-xs font-bold text-slate-400">{t.common.loading || 'Đang tải...'}</p>
+              <p className="text-xs font-bold text-slate-400">
+                {t.common.loading || 'Đang tải...'}
+              </p>
             </div>
           }
         >
