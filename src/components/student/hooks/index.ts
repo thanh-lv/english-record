@@ -5,3 +5,5 @@ export * from './useStudentData';
 export * from './useStudentRecordings';
 export * from './useStudentStories';
 export * from './useStudentTopics';
+export * from './useCelebrationTrigger';
+export * from './useTopicModalSession';
