@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { authService } from '../services/authService';
+import { loggerService } from '../services/loggerService';
 import { UserProfile, Language } from '../types';
 
 export interface UseAuthOptions {
@@ -14,9 +15,17 @@ export function useAuth(options?: UseAuthOptions) {
   const { onLanguageChange } = options || {};
 
   useEffect(() => {
+    loggerService.setUserContext({
+      id: userProfile?.id || null,
+      name: userProfile?.name || null,
+      role: userProfile?.role || null,
+    });
+  }, [userProfile]);
+
+  useEffect(() => {
     const safetyTimeout = setTimeout(() => {
       setAuthLoading(prev => {
-        if (prev) console.warn('Auth timeout: forcing loading to stop after 5 seconds');
+        if (prev) loggerService.warn('Auth', 'Auth timeout: forcing loading to stop after 5 seconds');
         return false;
       });
     }, 5000);
@@ -28,7 +37,7 @@ export function useAuth(options?: UseAuthOptions) {
           await authService.signInAnonymously();
         }
       } catch (err) {
-        console.error('Auth error:', err);
+        loggerService.error('Auth', 'Auth initialization error', err);
         setAuthLoading(false);
       }
     };
@@ -54,7 +63,7 @@ export function useAuth(options?: UseAuthOptions) {
             setUserProfile(null);
           }
         } catch (err) {
-          console.error('Error fetching persisted profile:', err);
+          loggerService.error('Auth', 'Error fetching persisted profile', err);
           setUserProfile(null);
         }
       } else if (currentUser && !session?.user.is_anonymous) {
@@ -71,7 +80,7 @@ export function useAuth(options?: UseAuthOptions) {
             setUserProfile(null);
           }
         } catch (err) {
-          console.error('Error fetching teacher profile:', err);
+          loggerService.error('Auth', 'Error fetching teacher profile', err);
           setUserProfile(null);
         }
       } else {

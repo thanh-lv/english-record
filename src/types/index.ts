@@ -9,3 +9,4 @@ export * from './attendance';
 export * from './recording';
 export * from './notification';
 export * from './audio';
+export * from './logger';
