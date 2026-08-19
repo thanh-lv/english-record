@@ -31,6 +31,23 @@ describe('authService', () => {
       authService.clearStoredProfileId();
       expect(authService.getStoredProfileId()).toBeNull();
     });
+
+    it('gracefully handles localStorage exceptions', () => {
+      vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('SecurityError');
+      });
+      expect(authService.getStoredProfileId()).toBeNull();
+
+      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('QuotaExceededError');
+      });
+      expect(() => authService.setStoredProfileId('123')).not.toThrow();
+
+      vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+        throw new Error('SecurityError');
+      });
+      expect(() => authService.clearStoredProfileId()).not.toThrow();
+    });
   });
 
   describe('getCurrentUser', () => {
@@ -52,6 +69,19 @@ describe('authService', () => {
 
       const user = await authService.getCurrentUser();
       expect(user).toBeNull();
+    });
+
+    it('logs a warning on unexpected error other than AuthSessionMissingError', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      (supabase.auth.getUser as any).mockResolvedValue({
+        data: { user: null },
+        error: { name: 'NetworkError', message: 'Connection lost' },
+      });
+
+      const user = await authService.getCurrentUser();
+      expect(user).toBeNull();
+      expect(warnSpy).toHaveBeenCalledWith('GetUser warning:', 'Connection lost');
+      warnSpy.mockRestore();
     });
   });
 
@@ -118,6 +148,17 @@ describe('authService', () => {
       expect(eqRoleMock).toHaveBeenCalledWith('role', 'teacher');
       expect(profile).toEqual(mockProfile);
     });
+
+    it('returns null if teacher profile not found or error occurs', async () => {
+      const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Not found') });
+      const eqRoleMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
+      const eqUidMock = vi.fn().mockReturnValue({ eq: eqRoleMock });
+      const selectMock = vi.fn().mockReturnValue({ eq: eqUidMock });
+      (supabase.from as any).mockReturnValue({ select: selectMock });
+
+      const profile = await authService.getTeacherProfileByAuthUid('invalid-uid');
+      expect(profile).toBeNull();
+    });
   });
 
   describe('signInTeacher', () => {
@@ -150,6 +191,18 @@ describe('authService', () => {
         'Email hoặc mật khẩu không chính xác.'
       );
     });
+
+    it('throws error when teacher profile does not exist in profiles table', async () => {
+      (supabase.auth.signInWithPassword as any).mockResolvedValue({
+        data: { user: { id: 'teacher-auth-1' } },
+        error: null,
+      });
+      vi.spyOn(authService, 'getTeacherProfileByAuthUid').mockResolvedValue(null);
+
+      await expect(
+        authService.signInTeacher('teacher@example.com', 'pass123456')
+      ).rejects.toThrow('Tài khoản giáo viên không tồn tại trong hệ thống.');
+    });
   });
 
   describe('loginStudent', () => {
@@ -161,13 +214,11 @@ describe('authService', () => {
         password: '123',
       };
 
-      // Search query chain: select -> ilike -> eq -> maybeSingle
       const maybeSingleMock = vi.fn().mockResolvedValue({ data: existing, error: null });
       const eqMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
       const ilikeMock = vi.fn().mockReturnValue({ eq: eqMock });
       const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
 
-      // Update query chain: update -> eq
       const eqUpdateMock = vi.fn().mockResolvedValue({ error: null });
       const updateMock = vi.fn().mockReturnValue({ eq: eqUpdateMock });
 
@@ -183,6 +234,53 @@ describe('authService', () => {
       expect(res.id).toBe('st-1');
       expect(res.auth_user_id).toBe('anon-user-1');
       expect(localStorage.getItem(PROFILE_ID_STORAGE_KEY)).toBe('st-1');
+    });
+
+    it('allows student login when existing account has no password set', async () => {
+      const existing = {
+        id: 'st-1',
+        name: 'Alice',
+        role: 'student',
+        password: null,
+      };
+
+      const maybeSingleMock = vi.fn().mockResolvedValue({ data: existing, error: null });
+      const eqMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
+      const ilikeMock = vi.fn().mockReturnValue({ eq: eqMock });
+      const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
+
+      const eqUpdateMock = vi.fn().mockResolvedValue({ error: null });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqUpdateMock });
+
+      (supabase.from as any).mockReturnValue({ select: selectMock, update: updateMock });
+
+      const res = await authService.loginStudent('Alice', 'newpass123', 'anon-1');
+      expect(res.id).toBe('st-1');
+      expect(res.password).toBe('newpass123');
+    });
+
+    it('throws error when student does not exist', async () => {
+      const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: null });
+      const eqMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
+      const ilikeMock = vi.fn().mockReturnValue({ eq: eqMock });
+      const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
+      (supabase.from as any).mockReturnValue({ select: selectMock });
+
+      await expect(
+        authService.loginStudent('NonExistent', '123', 'anon-1')
+      ).rejects.toThrow('Tên học sinh không tồn tại.');
+    });
+
+    it('throws error when search query fails', async () => {
+      const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Search failed') });
+      const eqMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
+      const ilikeMock = vi.fn().mockReturnValue({ eq: eqMock });
+      const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
+      (supabase.from as any).mockReturnValue({ select: selectMock });
+
+      await expect(
+        authService.loginStudent('Alice', '123', 'anon-1')
+      ).rejects.toThrow('Search failed');
     });
 
     it('throws error when student password does not match', async () => {
@@ -203,6 +301,39 @@ describe('authService', () => {
       await expect(authService.loginStudent('Alice', 'wrong-pass', 'anon-1')).rejects.toThrow(
         'Tên học sinh đã tồn tại hoặc mật khẩu không chính xác.'
       );
+    });
+
+    it('throws error when update profile fails on login', async () => {
+      const existing = { id: 'st-1', name: 'Alice', role: 'student', password: '123' };
+
+      const maybeSingleMock = vi.fn().mockResolvedValue({ data: existing, error: null });
+      const eqMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
+      const ilikeMock = vi.fn().mockReturnValue({ eq: eqMock });
+      const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
+
+      const eqUpdateMock = vi.fn().mockResolvedValue({ error: new Error('Update failed') });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqUpdateMock });
+
+      (supabase.from as any).mockReturnValue({ select: selectMock, update: updateMock });
+
+      await expect(
+        authService.loginStudent('Alice', '123', 'anon-1')
+      ).rejects.toThrow('Update failed');
+    });
+
+    it('times out when DB operation hangs', async () => {
+      const selectMock = vi.fn().mockReturnValue({
+        ilike: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockImplementation(() => new Promise(() => {})), // Never resolves
+          }),
+        }),
+      });
+      (supabase.from as any).mockReturnValue({ select: selectMock });
+
+      await expect(
+        authService.loginStudent('Alice', '123', 'anon-1', 20)
+      ).rejects.toThrow('Hết thời gian kết nối, vui lòng thử lại!');
     });
   });
 

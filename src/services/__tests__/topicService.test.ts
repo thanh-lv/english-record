@@ -61,6 +61,14 @@ describe('topicService', () => {
       expect(updateMock).toHaveBeenCalledWith({ is_active: false });
       expect(eqMock).toHaveBeenCalledWith('id', 'topic-1');
     });
+
+    it('throws error when toggle fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Toggle error') });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      await expect(topicService.toggleTopicActive('topic-1', true)).rejects.toThrow('Toggle error');
+    });
   });
 
   describe('updateTopic', () => {
@@ -90,6 +98,16 @@ describe('topicService', () => {
 
       await topicService.updateTopic('topic-1', { title: 'New Title', grades: [1, 2] });
       expect(callCount).toBe(2);
+    });
+
+    it('throws error when update fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Update error') });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      await expect(
+        topicService.updateTopic('topic-1', { title: 'Error' })
+      ).rejects.toThrow('Update error');
     });
 
     it('updateTopicTitle calls updateTopic with title only', async () => {
@@ -133,6 +151,15 @@ describe('topicService', () => {
       expect(callCount).toBe(2);
     });
 
+    it('throws error when createTopic fails', async () => {
+      const insertMock = vi.fn().mockResolvedValue({ error: new Error('Create topic error') });
+      (supabase.from as any).mockReturnValue({ insert: insertMock });
+
+      await expect(topicService.createTopic('Topic A', 'standard', 1)).rejects.toThrow(
+        'Create topic error'
+      );
+    });
+
     it('deletes topic by id', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
@@ -140,6 +167,14 @@ describe('topicService', () => {
 
       await topicService.deleteTopic('topic-delete-id');
       expect(eqMock).toHaveBeenCalledWith('id', 'topic-delete-id');
+    });
+
+    it('throws error when deleteTopic fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Delete error') });
+      const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+
+      await expect(topicService.deleteTopic('topic-delete-id')).rejects.toThrow('Delete error');
     });
   });
 
@@ -152,6 +187,15 @@ describe('topicService', () => {
       expect(insertMock).toHaveBeenCalledWith({ topic_id: 't1', text: 'Hello?' });
     });
 
+    it('throws error when createQuestion fails', async () => {
+      const insertMock = vi.fn().mockResolvedValue({ error: new Error('Create question error') });
+      (supabase.from as any).mockReturnValue({ insert: insertMock });
+
+      await expect(topicService.createQuestion({ topic_id: 't1' })).rejects.toThrow(
+        'Create question error'
+      );
+    });
+
     it('updates question', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
@@ -162,6 +206,16 @@ describe('topicService', () => {
       expect(eqMock).toHaveBeenCalledWith('id', 'q1');
     });
 
+    it('throws error when updateQuestion fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Update question error') });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      await expect(topicService.updateQuestion('q1', { text: 'New' })).rejects.toThrow(
+        'Update question error'
+      );
+    });
+
     it('deletes question', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
@@ -169,6 +223,14 @@ describe('topicService', () => {
 
       await topicService.deleteQuestion('q1');
       expect(eqMock).toHaveBeenCalledWith('id', 'q1');
+    });
+
+    it('throws error when deleteQuestion fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Delete question error') });
+      const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+
+      await expect(topicService.deleteQuestion('q1')).rejects.toThrow('Delete question error');
     });
 
     it('inserts parsed questions with auto-incremented order', async () => {
@@ -183,6 +245,15 @@ describe('topicService', () => {
         { topic_id: 't1', text: 'Q1', sample_answer: 'A1', order_index: 5 },
         { topic_id: 't1', text: 'Q2', sample_answer: null, order_index: 6 },
       ]);
+    });
+
+    it('throws error when insertParsedQuestions fails', async () => {
+      const insertMock = vi.fn().mockResolvedValue({ error: new Error('Insert parsed error') });
+      (supabase.from as any).mockReturnValue({ insert: insertMock });
+
+      await expect(
+        topicService.insertParsedQuestions('t1', [{ text: 'Q1' }], 1)
+      ).rejects.toThrow('Insert parsed error');
     });
   });
 });

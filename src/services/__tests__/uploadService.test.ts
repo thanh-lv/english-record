@@ -18,7 +18,14 @@ describe('uploadService', () => {
   it('rejects unsupported file mime types in media folders', async () => {
     const file = new File(['content'], 'test.exe', { type: 'application/x-msdownload' });
     await expect(uploadService.uploadFile(file, 'uploads', 10)).rejects.toThrow(
-      'Định dạng tệp không được hỗ trợ'
+      'Định dạng tệp không được hỗ trợ (chỉ chấp nhận JPG, PNG, WEBP, GIF, WebM, MP3, WAV).'
+    );
+  });
+
+  it('rejects audio/media files in image-only folders like vocab_images or question_images', async () => {
+    const audioFile = new File(['audio-content'], 'sound.mp3', { type: 'audio/mpeg' });
+    await expect(uploadService.uploadFile(audioFile, 'vocab_images', 10)).rejects.toThrow(
+      'Định dạng tệp không được hỗ trợ (chỉ chấp nhận JPG, PNG, WEBP, GIF).'
     );
   });
 
@@ -45,6 +52,15 @@ describe('uploadService', () => {
     const url = await uploadService.uploadFile(file, 'question_images', 10);
 
     expect(url.startsWith('https://cdn.englishrecord.com/question_images/')).toBe(true);
+  });
+
+  it('resolves URL using VITE_R2_PUBLIC_URL if VITE_S3_PUBLIC_DOMAIN is not present', async () => {
+    vi.stubEnv('VITE_S3_PUBLIC_DOMAIN', '');
+    vi.stubEnv('VITE_R2_PUBLIC_URL', 'https://r2.englishrecord.com/');
+    const file = new File(['img-data'], 'pic.png', { type: 'image/png' });
+    const url = await uploadService.uploadFile(file, 'vocab_images', 10);
+
+    expect(url.startsWith('https://r2.englishrecord.com/vocab_images/')).toBe(true);
   });
 
   it('resolves URL using fallback endpoint when public domains are not set', async () => {

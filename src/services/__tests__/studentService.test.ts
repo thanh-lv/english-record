@@ -64,6 +64,15 @@ describe('studentService', () => {
       const exists = await studentService.checkStudentNameExists('Nonexistent');
       expect(exists).toBe(false);
     });
+
+    it('throws error when check query fails', async () => {
+      const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Check error') });
+      const ilikeMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
+      const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
+      (supabase.from as any).mockReturnValue({ select: selectMock });
+
+      await expect(studentService.checkStudentNameExists('Alice')).rejects.toThrow('Check error');
+    });
   });
 
   describe('createStudent', () => {
@@ -113,6 +122,17 @@ describe('studentService', () => {
       expect(callCount).toBe(2);
       expect(res.name).toBe('Alice');
     });
+
+    it('throws error when insert completely fails', async () => {
+      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Insert error') });
+      const selectMock = vi.fn().mockReturnValue({ single: singleMock });
+      const insertMock = vi.fn().mockReturnValue({ select: selectMock });
+      (supabase.from as any).mockReturnValue({ insert: insertMock });
+
+      await expect(
+        studentService.createStudent({ name: 'Alice' })
+      ).rejects.toThrow('Insert error');
+    });
   });
 
   describe('updateStudent', () => {
@@ -132,6 +152,47 @@ describe('studentService', () => {
 
       expect(res).toEqual(updated);
     });
+
+    it('handles fallback when grade column fails during update', async () => {
+      let callCount = 0;
+      const updateMock = vi.fn().mockImplementation(() => ({
+        eq: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            single: vi.fn().mockImplementation(() => {
+              callCount++;
+              if (callCount === 1) {
+                return Promise.resolve({
+                  data: null,
+                  error: { message: 'column "grade" does not exist' },
+                });
+              }
+              return Promise.resolve({ data: { id: 'st-1', year_born: 2018 }, error: null });
+            }),
+          }),
+        }),
+      }));
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      const res = await studentService.updateStudent('st-1', {
+        year_born: 2018,
+        grade: 5,
+      });
+
+      expect(callCount).toBe(2);
+      expect(res.year_born).toBe(2018);
+    });
+
+    it('throws error when update fails', async () => {
+      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Update error') });
+      const selectMock = vi.fn().mockReturnValue({ single: singleMock });
+      const eqMock = vi.fn().mockReturnValue({ select: selectMock });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      await expect(
+        studentService.updateStudent('st-1', { name: 'Alice' })
+      ).rejects.toThrow('Update error');
+    });
   });
 
   describe('resetStudentPassword', () => {
@@ -147,6 +208,16 @@ describe('studentService', () => {
       );
       expect(eqMock).toHaveBeenCalledWith('id', 'st-1');
     });
+
+    it('throws error when password reset fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Reset failed') });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      await expect(
+        studentService.resetStudentPassword('st-1', 'new-pass-123')
+      ).rejects.toThrow('Reset failed');
+    });
   });
 
   describe('deleteStudent', () => {
@@ -157,6 +228,14 @@ describe('studentService', () => {
 
       await studentService.deleteStudent('st-1');
       expect(eqMock).toHaveBeenCalledWith('id', 'st-1');
+    });
+
+    it('throws error when delete fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Delete error') });
+      const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+
+      await expect(studentService.deleteStudent('st-1')).rejects.toThrow('Delete error');
     });
   });
 
@@ -182,6 +261,53 @@ describe('studentService', () => {
       const res = await studentService.fetchStudentRecordings('Alice', 1, 10);
       expect(res.records[0].youtube_url).toBe('https://youtube.com/watch?v=123');
       expect(res.total).toBe(1);
+    });
+
+    it('applies topic-only filter when filterType is topic', async () => {
+      const isMock = vi.fn().mockResolvedValue({ data: [], error: null, count: 0 });
+      const queryObj = {
+        ilike: vi.fn().mockReturnThis(),
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockReturnThis(),
+        is: isMock,
+      };
+      (supabase.from as any).mockReturnValue({
+        select: vi.fn().mockReturnValue(queryObj),
+      });
+
+      await studentService.fetchStudentRecordings('Alice', 1, 10, 'topic');
+      expect(isMock).toHaveBeenCalledWith('shadowing_video_id', null);
+    });
+
+    it('applies shadowing-only filter when filterType is shadowing', async () => {
+      const notMock = vi.fn().mockResolvedValue({ data: [], error: null, count: 0 });
+      const queryObj = {
+        ilike: vi.fn().mockReturnThis(),
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockReturnThis(),
+        not: notMock,
+      };
+      (supabase.from as any).mockReturnValue({
+        select: vi.fn().mockReturnValue(queryObj),
+      });
+
+      await studentService.fetchStudentRecordings('Alice', 1, 10, 'shadowing');
+      expect(notMock).toHaveBeenCalledWith('shadowing_video_id', 'is', null);
+    });
+
+    it('throws error when recordings query fails', async () => {
+      const queryObj = {
+        ilike: vi.fn().mockReturnThis(),
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockResolvedValue({ data: null, error: new Error('Recordings error'), count: 0 }),
+      };
+      (supabase.from as any).mockReturnValue({
+        select: vi.fn().mockReturnValue(queryObj),
+      });
+
+      await expect(
+        studentService.fetchStudentRecordings('Alice')
+      ).rejects.toThrow('Recordings error');
     });
   });
 });

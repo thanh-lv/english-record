@@ -66,6 +66,16 @@ describe('vocabularyService', () => {
       expect(cards).toEqual(mockCards);
       expect(eqMock).toHaveBeenCalledWith('set_id', 'set-1');
     });
+
+    it('throws error when fetchCards fails', async () => {
+      const eqMock = vi.fn().mockReturnValue({
+        order: vi.fn().mockResolvedValue({ data: null, error: new Error('Cards error') }),
+      });
+      const selectMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ select: selectMock });
+
+      await expect(vocabularyService.fetchCards('set-1')).rejects.toThrow('Cards error');
+    });
   });
 
   describe('set operations: createSet, updateSet, deleteSet', () => {
@@ -85,6 +95,15 @@ describe('vocabularyService', () => {
       expect(res).toEqual({ ...createdSet, card_count: 0 });
     });
 
+    it('throws error when createSet fails', async () => {
+      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Create set error') });
+      const selectMock = vi.fn().mockReturnValue({ single: singleMock });
+      const insertMock = vi.fn().mockReturnValue({ select: selectMock });
+      (supabase.from as any).mockReturnValue({ insert: insertMock });
+
+      await expect(vocabularyService.createSet('Fruits', '🍎')).rejects.toThrow('Create set error');
+    });
+
     it('updates an existing set', async () => {
       const updated = { id: 'set-1', title: 'Updated' };
       const singleMock = vi.fn().mockResolvedValue({ data: updated, error: null });
@@ -99,6 +118,18 @@ describe('vocabularyService', () => {
       expect(res).toEqual(updated);
     });
 
+    it('throws error when updateSet fails', async () => {
+      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Update set error') });
+      const selectMock = vi.fn().mockReturnValue({ single: singleMock });
+      const eqMock = vi.fn().mockReturnValue({ select: selectMock });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ update: updateMock });
+
+      await expect(vocabularyService.updateSet('set-1', { title: 'Err' })).rejects.toThrow(
+        'Update set error'
+      );
+    });
+
     it('deletes a set', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
@@ -106,6 +137,14 @@ describe('vocabularyService', () => {
 
       await vocabularyService.deleteSet('set-1');
       expect(eqMock).toHaveBeenCalledWith('id', 'set-1');
+    });
+
+    it('throws error when deleteSet fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Delete set error') });
+      const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+
+      await expect(vocabularyService.deleteSet('set-1')).rejects.toThrow('Delete set error');
     });
   });
 
@@ -121,6 +160,17 @@ describe('vocabularyService', () => {
       expect(res).toEqual(newCard);
     });
 
+    it('throws error when createCard fails', async () => {
+      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Create card error') });
+      const selectMock = vi.fn().mockReturnValue({ single: singleMock });
+      const insertMock = vi.fn().mockReturnValue({ select: selectMock });
+      (supabase.from as any).mockReturnValue({ insert: insertMock });
+
+      await expect(vocabularyService.createCard({ front: 'Cat' })).rejects.toThrow(
+        'Create card error'
+      );
+    });
+
     it('deletes a card', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
@@ -128,6 +178,14 @@ describe('vocabularyService', () => {
 
       await vocabularyService.deleteCard('c1');
       expect(eqMock).toHaveBeenCalledWith('id', 'c1');
+    });
+
+    it('throws error when deleteCard fails', async () => {
+      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Delete card error') });
+      const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+
+      await expect(vocabularyService.deleteCard('c1')).rejects.toThrow('Delete card error');
     });
   });
 
@@ -149,7 +207,19 @@ describe('vocabularyService', () => {
       expect(ipa).toBe('/ˈel.ə.fənt/');
     });
 
-    it('returns null if fetch throws or returns !ok', async () => {
+    it('returns null if fetch returns not ok status code', async () => {
+      vi.stubEnv('VITE_AI_API_KEY', 'valid-key');
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: async () => ({}),
+      });
+
+      const ipa = await vocabularyService.generateIpa('elephant');
+      expect(ipa).toBeNull();
+    });
+
+    it('returns null if fetch throws or network error occurs', async () => {
       vi.stubEnv('VITE_AI_API_KEY', 'valid-key');
       global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
