@@ -31,17 +31,13 @@ describe('getCompletedTopicNumbers', () => {
   });
 
   it('identifies completed topic with global recording (no question_id or question_text)', () => {
-    const recordings = [
-      { topic_number: 1, question_id: null, question_text: null },
-    ];
+    const recordings = [{ topic_number: 1, question_id: null, question_text: null }];
     // Topic 1 has global recording -> completed
     expect(getCompletedTopicNumbers(activeTopics, recordings)).toEqual([1]);
   });
 
   it('identifies topic with no questions as completed when any recording exists for it', () => {
-    const recordings = [
-      { topic_number: 2, question_id: 'any-dummy-id' },
-    ];
+    const recordings = [{ topic_number: 2, question_id: 'any-dummy-id' }];
     expect(getCompletedTopicNumbers(activeTopics, recordings)).toEqual([2]);
   });
 

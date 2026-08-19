@@ -41,10 +41,7 @@ describe('calculateStreak', () => {
   });
 
   it('returns 0 when the latest record is 2 days ago (streak broken)', () => {
-    const records = [
-      { created_at: makeDate(2, 10) },
-      { created_at: makeDate(3, 10) },
-    ];
+    const records = [{ created_at: makeDate(2, 10) }, { created_at: makeDate(3, 10) }];
     expect(calculateStreak(records)).toBe(0);
   });
 
@@ -79,7 +76,7 @@ describe('calculateStreak', () => {
 
   it('stops counting streak when there is a gap in consecutive days', () => {
     const records = [
-      { created_at: makeDate(0, 9) },  // Today (Day 1)
+      { created_at: makeDate(0, 9) }, // Today (Day 1)
       { created_at: makeDate(1, 10) }, // Yesterday (Day 2)
       // Gap: makeDate(2) is missing!
       { created_at: makeDate(3, 8) },

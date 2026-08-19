@@ -43,7 +43,7 @@ describe('audioEncoder utilities', () => {
         view.getUint8(0),
         view.getUint8(1),
         view.getUint8(2),
-        view.getUint8(3),
+        view.getUint8(3)
       );
       expect(riff).toBe('RIFF');
       expect(view.getUint32(4, true)).toBe(36 + numSamples * 2);
@@ -52,7 +52,7 @@ describe('audioEncoder utilities', () => {
         view.getUint8(8),
         view.getUint8(9),
         view.getUint8(10),
-        view.getUint8(11),
+        view.getUint8(11)
       );
       expect(wave).toBe('WAVE');
 
@@ -60,7 +60,7 @@ describe('audioEncoder utilities', () => {
         view.getUint8(12),
         view.getUint8(13),
         view.getUint8(14),
-        view.getUint8(15),
+        view.getUint8(15)
       );
       expect(fmt).toBe('fmt ');
       expect(view.getUint32(16, true)).toBe(16); // Subchunk1Size for PCM
@@ -76,7 +76,7 @@ describe('audioEncoder utilities', () => {
         view.getUint8(36),
         view.getUint8(37),
         view.getUint8(38),
-        view.getUint8(39),
+        view.getUint8(39)
       );
       expect(dataHeader).toBe('data');
       expect(view.getUint32(40, true)).toBe(numSamples * 2);
@@ -167,7 +167,9 @@ describe('audioEncoder utilities', () => {
       global.fetch = mockFetch as any;
       const buffer = await fetchWordAudioBuffer('apple', mockCtx as any, 'en-GB');
       expect(buffer).toBeDefined();
-      expect(mockFetch).toHaveBeenCalledWith('https://api.dictionaryapi.dev/media/pronunciations/en/apple-uk.mp3');
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://api.dictionaryapi.dev/media/pronunciations/en/apple-uk.mp3'
+      );
     });
 
     it('falls back to Lingva API when Dictionary API fails', async () => {
@@ -235,7 +237,9 @@ describe('audioEncoder utilities', () => {
 
     it('throws an error if no valid words are provided', async () => {
       await expect(generateVocabularyAudio([], config)).rejects.toThrow('No valid words provided');
-      await expect(generateVocabularyAudio(['  ', ''], config)).rejects.toThrow('No valid words provided');
+      await expect(generateVocabularyAudio(['  ', ''], config)).rejects.toThrow(
+        'No valid words provided'
+      );
     });
 
     it('generates vocabulary audio, tracks progress, and computes word timestamps', async () => {

@@ -181,21 +181,23 @@ describe('validators utilities', () => {
     it('fails when question fields exceed max length', () => {
       expect(validateQuestion({ text: 'A'.repeat(501) }).isValid).toBe(false);
       expect(
-        validateQuestion({ text: 'Valid question', translation: 'A'.repeat(501) }).isValid,
+        validateQuestion({ text: 'Valid question', translation: 'A'.repeat(501) }).isValid
       ).toBe(false);
       expect(
-        validateQuestion({ text: 'Valid question', sample_answer: 'A'.repeat(1001) }).isValid,
+        validateQuestion({ text: 'Valid question', sample_answer: 'A'.repeat(1001) }).isValid
       ).toBe(false);
-      expect(
-        validateQuestion({ text: 'Valid question', target: 'A'.repeat(201) }).isValid,
-      ).toBe(false);
+      expect(validateQuestion({ text: 'Valid question', target: 'A'.repeat(201) }).isValid).toBe(
+        false
+      );
     });
   });
 
   describe('extractYoutubeId', () => {
     it('extracts ID from standard watch URL', () => {
       expect(extractYoutubeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
-      expect(extractYoutubeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s')).toBe('dQw4w9WgXcQ');
+      expect(extractYoutubeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s')).toBe(
+        'dQw4w9WgXcQ'
+      );
     });
 
     it('extracts ID from shortened youtu.be URL', () => {
@@ -232,14 +234,14 @@ describe('validators utilities', () => {
         validateShadowingVideo({
           title: '',
           youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        }).isValid,
+        }).isValid
       ).toBe(false);
 
       expect(
         validateShadowingVideo({
           title: 'Valid title',
           youtube_url: 'invalid-url',
-        }).isValid,
+        }).isValid
       ).toBe(false);
     });
 
@@ -249,7 +251,7 @@ describe('validators utilities', () => {
           title: 'Valid title',
           youtube_url: 'https://youtu.be/dQw4w9WgXcQ',
           preview_start: -1,
-        }).isValid,
+        }).isValid
       ).toBe(false);
 
       expect(
@@ -258,7 +260,7 @@ describe('validators utilities', () => {
           youtube_url: 'https://youtu.be/dQw4w9WgXcQ',
           preview_start: 10,
           preview_end: 5,
-        }).isValid,
+        }).isValid
       ).toBe(false);
 
       expect(
@@ -267,7 +269,7 @@ describe('validators utilities', () => {
           youtube_url: 'https://youtu.be/dQw4w9WgXcQ',
           record_start: 20,
           record_end: 20,
-        }).isValid,
+        }).isValid
       ).toBe(false);
     });
   });
@@ -276,7 +278,8 @@ describe('validators utilities', () => {
     it('validates a complete story', () => {
       const data = {
         title: 'The Tortoise and The Hare',
-        content: 'Once upon a time there was a speedy hare who bragged about how fast he could run.',
+        content:
+          'Once upon a time there was a speedy hare who bragged about how fast he could run.',
         emoji: '🐢',
       };
       expect(validateStory(data)).toEqual({ isValid: true });
@@ -284,7 +287,7 @@ describe('validators utilities', () => {
 
     it('fails when title is too short or content is less than 10 characters', () => {
       expect(validateStory({ title: 'A', content: 'Long enough content here' }).isValid).toBe(
-        false,
+        false
       );
       expect(validateStory({ title: 'Valid Title', content: 'Short' }).isValid).toBe(false);
     });
@@ -294,14 +297,14 @@ describe('validators utilities', () => {
         validateStory({
           title: 'A'.repeat(151),
           content: 'Valid content is here',
-        }).isValid,
+        }).isValid
       ).toBe(false);
 
       expect(
         validateStory({
           title: 'Valid Title',
           content: 'A'.repeat(10001),
-        }).isValid,
+        }).isValid
       ).toBe(false);
 
       expect(
@@ -309,7 +312,7 @@ describe('validators utilities', () => {
           title: 'Valid Title',
           content: 'Valid content is here',
           emoji: 'A'.repeat(11),
-        }).isValid,
+        }).isValid
       ).toBe(false);
     });
   });
@@ -330,7 +333,7 @@ describe('validators utilities', () => {
       expect(validateVocabCard({ front: 'A'.repeat(201), back: 'Sư tử' }).isValid).toBe(false);
       expect(validateVocabCard({ front: 'Lion', back: 'A'.repeat(501) }).isValid).toBe(false);
       expect(
-        validateVocabCard({ front: 'Lion', back: 'Sư tử', ipa: 'a'.repeat(101) }).isValid,
+        validateVocabCard({ front: 'Lion', back: 'Sư tử', ipa: 'a'.repeat(101) }).isValid
       ).toBe(false);
     });
   });
