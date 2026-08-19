@@ -75,3 +75,52 @@ export const resetPasswordSchema = z.object({
 });
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+/* ==========================================================================
+   API Response Boundary Schemas (Runtime validation for external/DB data)
+   ========================================================================== */
+
+export const userProfileResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  role: z.enum(['student', 'teacher']).default('student'),
+  avatar: z.string().nullable().optional(),
+  year_born: z.number().nullable().optional(),
+  grade: z.number().nullable().optional(),
+  language: z.string().nullable().optional(),
+  auth_uid: z.string().nullable().optional(),
+  auth_user_id: z.string().nullable().optional(),
+  password: z.string().nullable().optional(),
+  updated_at: z.string().nullable().optional(),
+  created_at: z.string().nullable().optional(),
+});
+
+export const userProfilesResponseArraySchema = z.array(userProfileResponseSchema);
+
+export const recordingResponseSchema = z.object({
+  id: z.string(),
+  student_name: z.string().optional(),
+  topic_id: z.string().nullable().optional(),
+  topic_number: z.union([z.string(), z.number()]).nullable().optional(),
+  topic: z.string().nullable().optional(),
+  question_id: z.string().nullable().optional(),
+  question_text: z.string().nullable().optional(),
+  audio_url: z.string().optional(),
+  created_at: z.string().optional(),
+  shadowing_video_id: z.string().nullable().optional(),
+  duration: z.number().nullable().optional(),
+  status: z.string().nullable().optional(),
+  teacher_rating: z.number().nullable().optional(),
+  teacher_feedback: z.string().nullable().optional(),
+  student_reaction: z.string().nullable().optional(),
+  user_id: z.string().nullable().optional(),
+  youtube_url: z.string().nullable().optional(),
+  shadowing_videos: z
+    .object({
+      youtube_url: z.string().optional(),
+    })
+    .nullable()
+    .optional(),
+});
+
+export const recordingsResponseArraySchema = z.array(recordingResponseSchema);

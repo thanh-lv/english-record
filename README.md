@@ -141,22 +141,24 @@ english-record/
 ├── .github/workflows/         # Cấu hình GitHub Actions CI (Lint, Typecheck, Test, Build, Audit)
 ├── docs/                      # Tài liệu kỹ thuật chi tiết
 │   ├── ARCHITECTURE.md        # Kiến trúc hệ thống, Sơ đồ Mermaid, Database Schema
+│   ├── ENVIRONMENT_AND_DATA_FLOW.md # Biến môi trường & 8 Luồng dữ liệu (Data Flows)
 │   └── ONBOARDING.md          # Hướng dẫn chi tiết cho thành viên mới
 ├── render.yaml                # Cấu hình tự động triển khai Static Site trên Render
-├── public/                    # Tài nguyên tĩnh
+├── public/                    # Tài nguyên tĩnh (PWA manifest, Service Worker)
 ├── src/
 │   ├── components/            # UI Components theo từng phân hệ
 │   │   ├── common/            # AudioPlayer, YouTubePlayer, OfflineBanner...
 │   │   ├── student/           # Màn hình học sinh (exercises, flashcards, games, stories...)
 │   │   └── teacher/           # Màn hình giáo viên (attendance, topics, vocabulary, stories...)
-│   ├── hooks/                 # Custom React Hooks
+│   ├── hooks/                 # Custom React Hooks (useQuery, useAuth, useRecording...)
 │   ├── i18n/                  # Hệ thống đa ngôn ngữ (Tiếng Việt / Tiếng Anh)
-│   ├── lib/                   # SDK Clients (Supabase, S3)
+│   ├── lib/                   # Cache Engine, SDK Clients (Supabase, S3)
 │   ├── pages/                 # Trang ứng dụng (LoginPage, StudentPage, TeacherPage)
+│   ├── schemas/               # Zod validation schemas & XSS Sanitization
 │   ├── services/              # Tầng xử lý nghiệp vụ & API (Topics, Vocab, Stories, Upload)
 │   ├── test/                  # Cấu hình test environment
 │   ├── types/                 # Định nghĩa kiểu dữ liệu TypeScript
-│   ├── utils/                 # Các tiện ích (AudioEncoder, Validators, Streak...)
+│   ├── utils/                 # Các tiện ích (AudioEncoder, Validators, Security, Streak...)
 │   ├── App.tsx                # App Root & Session Routing
 │   └── main.tsx               # Main Entry Point
 ├── .env.example               # Mẫu cấu hình môi trường
@@ -167,5 +169,6 @@ english-record/
 
 ## 📖 Tài Liệu Chi Tiết
 
-- 🏗️ **[Tài liệu Kiến Trúc Hệ Thống (docs/ARCHITECTURE.md)](file:///docs/ARCHITECTURE.md)**: Sơ đồ luồng dữ liệu, phân quyền (Auth Flow), quy trình nén và upload âm thanh, cấu trúc bảng PostgreSQL.
+- 🏗️ **[Tài liệu Kiến Trúc Hệ Thống (docs/ARCHITECTURE.md)](file:///docs/ARCHITECTURE.md)**: Kiến trúc hệ thống, phân quyền (Auth Flow), quy trình nén và upload âm thanh, cấu trúc bảng PostgreSQL.
+- 🔄 **[Thiết Lập Môi Trường & 8 Luồng Dữ Liệu (docs/ENVIRONMENT_AND_DATA_FLOW.md)](file:///docs/ENVIRONMENT_AND_DATA_FLOW.md)**: Hướng dẫn biến môi trường, chi tiết 8 luồng dữ liệu bằng sơ đồ tuần tự (Authentication, Audio Recording, Client Cache & SWR, Security & XSS Prevention, Attendance & Tuition, Shadowing, Vocab Audio Builder, Client Remote Logging).
 - 🚀 **[Hướng Dẫn Bắt Đầu Dành Cho Thành Viên Mới (docs/ONBOARDING.md)](file:///docs/ONBOARDING.md)**: Hướng dẫn nhanh 5 phút, cách thêm tính năng mới, viết test, quy chuẩn commit và xử lý sự cố thường gặp.

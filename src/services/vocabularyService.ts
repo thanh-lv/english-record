@@ -1,6 +1,11 @@
 import { supabase } from '../lib/supabase';
 import { withServiceHandling } from './serviceHandler';
 import { VocabSet, VocabCard } from '../types';
+import {
+  parseApiResponse,
+  vocabCardsResponseArraySchema,
+  vocabSetListItemsResponseArraySchema,
+} from '../schemas';
 
 const WORKER_URL = 'https://free-image-generation-api.levanthanh29111999.workers.dev/';
 
@@ -14,11 +19,13 @@ export const vocabularyService = {
 
       if (error) throw error;
 
-      return (data || []).map((set: any) => ({
+      const mapped = (data || []).map((set: any) => ({
         ...set,
         card_count: set.vocabulary_cards?.length ?? 0,
         vocabulary_cards: undefined,
       }));
+
+      return parseApiResponse(vocabSetListItemsResponseArraySchema, mapped) as VocabSet[];
     });
   },
 
@@ -31,7 +38,7 @@ export const vocabularyService = {
         .order('order_index', { ascending: true });
 
       if (error) throw error;
-      return (data || []) as VocabCard[];
+      return parseApiResponse(vocabCardsResponseArraySchema, data || []) as VocabCard[];
     });
   },
 

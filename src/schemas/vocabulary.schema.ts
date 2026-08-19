@@ -88,3 +88,43 @@ export const vocabAudioBuilderSchema = z.object({
 });
 
 export type VocabAudioBuilderInput = z.infer<typeof vocabAudioBuilderSchema>;
+
+/* ==========================================================================
+   API Response Boundary Schemas (Runtime validation for external/DB data)
+   ========================================================================== */
+
+export const vocabCardResponseSchema = z.object({
+  id: z.string(),
+  set_id: z.string().optional(),
+  front: z.string(),
+  back: z.string(),
+  ipa: z.string().nullable().optional(),
+  image_url: z.string().nullable().optional(),
+  audio_url: z.string().nullable().optional(),
+  order_index: z.number().nullable().optional(),
+  created_at: z.string().nullable().optional(),
+});
+
+export const vocabCardsResponseArraySchema = z.array(vocabCardResponseSchema);
+
+export const vocabSetResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  emoji: z.string().default('📚'),
+  grades: z.array(z.number()).nullable().optional(),
+  created_at: z.string().nullable().optional(),
+  vocab_cards: z.array(vocabCardResponseSchema).default([]),
+});
+
+export const vocabSetsResponseArraySchema = z.array(vocabSetResponseSchema);
+
+export const vocabSetListItemResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  emoji: z.string().default('📚'),
+  grades: z.array(z.number()).nullable().optional(),
+  created_at: z.string().nullable().optional(),
+  card_count: z.number().default(0),
+});
+
+export const vocabSetListItemsResponseArraySchema = z.array(vocabSetListItemResponseSchema);

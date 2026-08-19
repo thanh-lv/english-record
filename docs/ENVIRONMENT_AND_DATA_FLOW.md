@@ -1,6 +1,6 @@
 # Tài Liệu Thiết Lập Môi Trường & Luồng Dữ Liệu (Environment Setup & Data Flows)
 
-Tài liệu này cung cấp hướng dẫn toàn diện về cách thiết lập môi trường phát triển, giải thích chi tiết các biến môi trường, cấu trúc database, các tài nguyên tĩnh trong thư mục `public/` và toàn bộ **6 Luồng Dữ Liệu (Data Flows)** cốt lõi của hệ thống **English Record**.
+Tài liệu này cung cấp hướng dẫn toàn diện về cách thiết lập môi trường phát triển, giải thích chi tiết các biến môi trường, cấu trúc database, các tài nguyên tĩnh trong thư mục `public/` và toàn bộ **8 Luồng Dữ Liệu (Data Flows)** cốt lõi của hệ thống **English Record**.
 
 ---
 
@@ -28,22 +28,22 @@ Sao chép `.env.example` thành `.env` và cấu hình các biến sau:
 | `VITE_S3_ACCESS_KEY_ID` | **Có** | Access Key ID có quyền ghi vào S3 Bucket | `0a1b2c3d4e5f...` |
 | `VITE_S3_SECRET_ACCESS_KEY` | **Có** | Secret Access Key tương ứng | `9z8y7x6w5v4u...` |
 | `VITE_S3_PUBLIC_URL` | **Có** | Public Domain hoặc Custom CDN URL để phát audio | `https://audio.myenglish.com` |
-| `VITE_CF_AI_WORKER_URL` | Tùy chọn | URL của Cloudflare Worker hỗ trợ AI IPA / TTS | `https://ai-helper.workers.dev` |
+| `VITE_AI_API_KEY` | Tùy chọn | API Key cho AI Image Generation (Workers / Pollinations) | `sk-...` |
 
 ---
 
 ### C. Cấu Trúc Bảng Dữ Liệu Trên Supabase
 
-1. **`profiles`**: Thông tin người dùng (`id`, `auth_uid`, `name`, `role`, `grade`, `avatar`, `language`).
+1. **`profiles`**: Thông tin người dùng (`id`, `auth_uid`, `name`, `role`, `grade`, `avatar`, `language`, `password`).
 2. **`topics`**: Danh mục chủ đề luyện nói (`id`, `title`, `type`, `grades`, `order_index`, `is_active`).
-3. **`questions`**: Câu hỏi thuộc chủ đề (`id`, `topic_id`, `question_text`, `audio_url`, `order_index`).
-4. **`recordings`**: Bản ghi âm của học sinh (`id`, `student_name`, `topic_id`, `topic_number`, `audio_url`, `teacher_rating`, `teacher_feedback`, `student_reaction`).
-5. **`stories`**: Câu chuyện đọc tiếng Anh (`id`, `title`, `content`, `emoji`, `image_url`, `grades`, `is_active`).
-6. **`vocab_sets` & `vocab_cards`**: Bộ thẻ từ vựng (`title`, `word`, `ipa`, `meaning`, `audio_url`, `word_timestamps`).
-7. **`shadowing_videos`**: Video luyện nói theo phụ đề YouTube (`title`, `youtube_url`, `subtitles`, `grades`).
-8. **`attendance_students`**: Danh sách học sinh điểm danh (`name`, `class_name`, `unit_price`, `parent_phone`).
+3. **`questions`**: Câu hỏi thuộc chủ đề (`id`, `topic_id`, `text`, `translation`, `sample_answer`, `target`, `image_url`, `audio_url`, `order_index`).
+4. **`recordings`**: Bản ghi âm của học sinh (`id`, `student_name`, `topic_id`, `topic_number`, `audio_url`, `teacher_rating`, `teacher_feedback`, `student_reaction`, `status`).
+5. **`stories`**: Câu chuyện đọc tiếng Anh (`id`, `title`, `type`, `content`, `emoji`, `image_url`, `grades`, `is_active`).
+6. **`vocab_sets` & `vocab_cards`**: Bộ thẻ từ vựng (`title`, `front`, `back`, `ipa`, `image_url`, `audio_url`).
+7. **`shadowing_videos`**: Video luyện nói theo phụ đề YouTube (`title`, `youtube_url`, `preview_start`, `preview_end`, `record_start`, `record_end`, `grades`, `is_active`).
+8. **`attendance_students`**: Danh sách học sinh điểm danh (`name`, `class_name`, `unit_price`, `phone`, `zalo_phone`, `hoc_lieu_fee`, `note`).
 9. **`attendance_records`**: Lịch sử điểm danh từng buổi (`student_id`, `checkin_time`).
-10. **`attendance_payments`**: Lịch sử đóng học phí (`student_id`, `month`, `year`, `amount`, `is_paid`).
+10. **`attendance_payments`**: Lịch sử đóng học phí (`student_id`, `month`, `year`, `is_paid`, `paid_at`).
 11. **`client_error_logs`**: Lịch sử log lỗi và chẩn đoán phía client (`user_id`, `level`, `module`, `message`, `stack`, `url`, `user_agent`).
 
 ---
@@ -52,7 +52,7 @@ Sao chép `.env.example` thành `.env` và cấu hình các biến sau:
 
 | Tên File | Vai Trò & Mục Đích |
 | :--- | :--- |
-| [`public/manifest.json`](file:///Users/thanhlv/Documents/Projects/english-record/public/manifest.json) | Cấu hình PWA (Progressive Web App) cho phép cài đặt app lên màn hình chính điện thoại |
+| [`public/manifest.json`](file:///Users/thanhlv/Documents/Projects/english-record/public/manifest.json) | Cấu hình PWA (Progressive Web App) cho phép cài đặt app lên màn hình chính |
 | [`public/sw.js`](file:///Users/thanhlv/Documents/Projects/english-record/public/sw.js) | Service Worker xử lý Offline Caching, Cache Busting và lưu trữ tài nguyên tĩnh |
 | [`public/icon.svg`](file:///Users/thanhlv/Documents/Projects/english-record/public/icon.svg) | Logo Vector của ứng dụng, hiển thị trên Favicon, Bookmark và Apple Touch Icon |
 | [`public/_redirects`](file:///Users/thanhlv/Documents/Projects/english-record/public/_redirects) | Cấu hình Rewrite URL cho Cloudflare Pages / Netlify để hỗ trợ Client-Side Routing |
@@ -99,33 +99,95 @@ sequenceDiagram
 
 ---
 
-### 🟢 Luồng 2: Thu Âm, Tải Lên & Chấm Bài (Voice Recording & Teacher Feedback)
+### 🟢 Luồng 2: Thu Âm, Mã Hóa & Tải Lên Đám Mây (Voice Recording & Audio Pipeline)
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Student as Học sinh
+    participant Modal as TopicModal / ShadowingDetail
     participant RecHook as useRecording Hook
-    participant Encoder as audioEncoder (WAV / MP3)
-    participant Storage as Cloudflare R2 / S3
+    participant MediaRec as MediaRecorder (Web Audio API)
+    participant Encoder as audioEncoder (WAV / WebM)
+    participant S3 as Cloudflare R2 / S3 Storage
     participant DB as Supabase (recordings table)
-    actor Teacher as Giáo viên
 
-    Student->>RecHook: Nhấn nút Bắt đầu Thu âm
-    RecHook->>RecHook: MediaRecorder ghi nhận Audio Stream
-    Student->>RecHook: Nhấn nút Dừng & Gửi bài
-    RecHook->>Encoder: Mã hóa Audio Buffer sang định dạng chuẩn
-    RecHook->>Storage: uploadAudioToS3(blob, 'recordings/filename.mp3')
-    Storage-->>RecHook: Trả về Public Audio URL
-    RecHook->>DB: INSERT into recordings (student_name, topic_id, audio_url)
-    DB-->>Teacher: Supabase Realtime thông báo có bài ghi âm mới
-    Teacher->>DB: UPDATE recordings (teacher_rating, teacher_feedback)
-    DB-->>Student: Realtime cập nhật điểm số và nhận xét của cô giáo
+    Student->>Modal: Nhấn "Bắt đầu thu âm"
+    Modal->>RecHook: startRecording()
+    RecHook->>MediaRec: Bắt đầu thu audio stream từ microphone
+    MediaRec-->>RecHook: Phát sinh các chunk audio/webm
+    Student->>Modal: Nhấn "Dừng & Gửi bài"
+    Modal->>RecHook: stopRecording()
+    RecHook->>Encoder: Tạo Blob audio hoàn chỉnh & chuẩn hóa bitrate
+    RecHook->>S3: uploadToStorage(blob, 'recordings/filename.webm')
+    S3-->>RecHook: Trả về Public Audio CDN URL
+    RecHook->>DB: INSERT into recordings (student_name, topic_id, audio_url, duration)
+    DB-->>Modal: Ghi nhận nộp bài thành công
+    Modal->>Modal: Kích hoạt hiệu ứng chúc mừng (CompletionCelebration)
 ```
 
 ---
 
-### 🟢 Luồng 3: Điểm Danh & Quản Lý Học Phí (Attendance & Tuition)
+### 🟢 Luồng 3: Bộ Nhớ Đệm Client, Khử Trùng Lặp & SWR (`clientCache` & `useQuery`)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Component as React Component (useQuery)
+    participant Engine as clientCache (RAM + LocalStorage)
+    participant API as Supabase Service (PostgREST)
+
+    Component->>Engine: getOrFetch('topics_all', fetchAllTopics, { ttl: 60000 })
+    
+    alt Dữ liệu có sẵn trong Cache và chưa hết hạn (Fresh)
+        Engine-->>Component: Trả về kết quả ngay lập tức (0ms latency)
+    else Có Request trùng lặp đang chạy đồng thời (In-Flight)
+        Engine-->>Component: Tái sử dụng cùng một In-flight Promise (Deduplication)
+    else Dữ liệu hết hạn (Stale) hoặc chưa có trong Cache
+        Engine->>API: Gọi fetchAllTopics()
+        API-->>Engine: Trả về dữ liệu mới nhất
+        Engine->>Engine: Cập nhật RAM Cache + LocalStorage Fallback
+        Engine-->>Component: Trả về dữ liệu mới nhất & re-render
+    end
+
+    alt Khi có thao tác Ghi (Tạo / Sửa / Xóa Chủ đề)
+        Component->>API: topicService.createTopic(payload)
+        Component->>Engine: clientCache.invalidate('topics') (Xóa toàn bộ key chứa 'topics')
+    end
+```
+
+---
+
+### 🟢 Luồng 4: Phòng Chống XSS & Khử Nhiễm Dữ Liệu Đầu Vào (Security Pipeline)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Người dùng nhập Form
+    participant Form as Modal / Form Component
+    participant Security as utils/security.ts
+    participant Schema as Zod Schemas (topic, story, student...)
+    participant Service as Service Layer (withServiceHandling)
+    participant DB as Supabase Database
+
+    User->>Form: Nhập chuỗi có chứa script/XSS (<script>, <img onerror>, javascript:...)
+    Form->>Schema: validateWithSchema(schema, rawData)
+    Schema->>Security: sanitizeInput(rawText)
+    Security->>Security: Loại bỏ script tags, iframe, inline on* handlers, protocols nguy hiểm
+    Security-->>Schema: Chuỗi an toàn đã được làm sạch
+    Schema->>Schema: Kiểm tra độ dài (min, max), định dạng (regex, types)
+    
+    alt Dữ liệu không hợp lệ
+        Schema-->>Form: Trả về lỗi hiển thị thân thiện cho người dùng
+    else Dữ liệu hợp lệ
+        Form->>Service: Gọi Service với Payload đã làm sạch
+        Service->>DB: Thực thi INSERT / UPDATE an toàn
+    end
+```
+
+---
+
+### 🟢 Luồng 5: Điểm Danh, Tính Học Phí & Chia Sẻ Zalo (Attendance & Tuition)
 
 ```mermaid
 sequenceDiagram
@@ -152,63 +214,60 @@ sequenceDiagram
 
 ---
 
-### 🟢 Luồng 4: Tạo Thẻ Từ Vựng & Sinh Âm Thanh AI / TTS (Vocabulary Builder)
+### 🟢 Luồng 6: Luyện Nói Shadowing & Phân Đoạn Video YouTube
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student as Học sinh
+    participant Page as ShadowingDetail.tsx
+    participant Player as YouTube IFrame Player
+    participant Rec as useRecording Hook
+
+    Student->>Page: Chọn video luyện Shadowing
+    Page->>Player: Tải video YouTube & nhảy đến `preview_start`
+    Player->>Student: Phát đoạn video câu mẫu từ `preview_start` đến `preview_end`
+    Student->>Rec: Bắt đầu thu âm lặp lại câu nói (Shadowing)
+    Rec->>Page: Hoàn thành thu âm, tải lên S3 & lưu vào `recordings`
+```
+
+---
+
+### 🟢 Luồng 7: Tạo Bộ Từ Vựng & Sinh Âm Thanh / Timestamps (Vocab Audio Builder)
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Teacher as Giáo viên
     participant UI as VocabAudioBuilder.tsx
-    participant AI as Cloudflare AI Worker
+    participant TTS as Web SpeechSynthesis / AudioBuilder
     participant Storage as Cloudflare R2 / S3
-    participant DB as Supabase (vocab_cards)
+    participant DB as Supabase (vocab_sets, vocab_cards)
 
     Teacher->>UI: Nhập danh sách từ vựng tiếng Anh
-    Teacher->>UI: Nhấn "Tự động sinh Phiên âm IPA & Nghĩa"
-    UI->>AI: Gửi yêu cầu phân tích từ vựng
-    AI-->>UI: Trả về { ipa, meaning, example }
-    Teacher->>UI: Nhấn "Tạo Audio TTS & Mốc thời gian từng từ"
-    UI->>AI: Yêu cầu Text-to-Speech + Word Timestamps
-    AI-->>UI: Trả về Audio Blob + Word Timestamps
+    Teacher->>UI: Cấu hình khoảng cách giữa các từ & số lần lặp
+    UI->>TTS: Khởi tạo tiến trình sinh chuỗi âm thanh và tính mốc timestamps
+    TTS-->>UI: Trả về Audio Blob + Mảng WordTimestamp[]
     UI->>Storage: Tải file audio lên S3
     Storage-->>UI: Audio URL
-    UI->>DB: Lưu VocabCard vào bảng vocab_cards
+    UI->>DB: Lưu VocabSet & VocabCards vào database
 ```
 
 ---
 
-### 🟢 Luồng 5: Luyện Nói Shadowing Qua Video YouTube
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Student as Học sinh
-    participant Page as ShadowingPage.tsx
-    participant Player as YouTube IFrame Player
-    participant Rec as useRecording
-
-    Student->>Page: Chọn bài luyện Shadowing
-    Page->>Player: Tải video YouTube & danh sách câu phụ đề kèm mốc thời gian
-    Player->>Student: Phát đoạn video câu mẫu (từ time_start đến time_end)
-    Student->>Rec: Thu âm giọng nói nhại lại theo câu mẫu
-    Rec->>Page: Phân tích độ tương đồng âm thanh & lưu bài luyện
-```
-
----
-
-### 🟢 Luồng 6: Ghi Log Lỗi Phía Client & Chẩn Đoán Từ Xa (Client Logging)
+### 🟢 Luồng 8: Ghi Log Lỗi Phía Client & Chẩn Đoán Từ Xa (Client Logging)
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant App as Ứng dụng React / Trình duyệt
-    participant EB as ErrorBoundary / window.onerror
+    participant EB as ErrorBoundary / withServiceHandling
     participant Logger as loggerService
     participant Local as localStorage (Crash Buffer)
     participant DB as Supabase (client_error_logs)
     actor Admin as Giáo viên / Kỹ thuật viên
 
-    App->>EB: Phát sinh lỗi render hoặc Uncaught Promise Rejection
+    App->>EB: Phát sinh lỗi Service hoặc Unhandled Exception
     EB->>Logger: logger.error(module, message, error, data)
     Logger->>Local: Lưu vào localStorage ('english_record_error_logs')
     
@@ -217,9 +276,8 @@ sequenceDiagram
         Logger->>DB: INSERT INTO client_error_logs (user_id, module, message, stack, url, user_agent)
     end
 
-    alt Người dùng cần hỗ trợ
-        EB->>App: Hiển thị màn hình dự phòng thân thiện
-        App->>Admin: Người dùng nhấn "Sao chép lỗi" hoặc "Tải file log" gửi cho Admin
+    alt Khi cần hỗ trợ kỹ thuật
+        App->>Admin: Xem danh sách lỗi thời gian thực tại Tab Logs trong Teacher Portal
     end
 ```
 
@@ -230,15 +288,24 @@ sequenceDiagram
 Để đảm bảo toàn bộ mã nguồn tuân thủ tiêu chuẩn chất lượng cao nhất:
 
 ```bash
-# 1. Kiểm tra toàn bộ kiểu dữ liệu TypeScript
+# 1. Kiểm tra format code bằng Prettier
+npm run format:check
+
+# 2. Kiểm tra toàn bộ kiểu dữ liệu TypeScript
 npm run type-check
 
-# 2. Chạy toàn bộ 34+ unit test suites
+# 3. Quét mã nguồn với ESLint
+npm run lint
+
+# 4. Chạy toàn bộ 45+ unit test suites
 npm run test
 
-# 3. Xuất báo cáo độ phủ mã nguồn
+# 5. Xuất báo cáo độ phủ mã nguồn
 npm run test:coverage
 
-# 4. Biên dịch bản build production
+# 6. Biên dịch bản build production
 npm run build
+
+# Hoặc chạy kiểm tra toàn diện một lệnh duy nhất:
+npm run check-all
 ```

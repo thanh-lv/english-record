@@ -71,3 +71,22 @@ export const shadowingVideoSchema = z
   );
 
 export type ShadowingVideoInput = z.infer<typeof shadowingVideoSchema>;
+
+/* ==========================================================================
+   API Response Boundary Schemas (Runtime validation for external/DB data)
+   ========================================================================== */
+
+export const shadowingVideoResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  youtube_url: z.string().optional(),
+  preview_start: z.number().nullable().optional(),
+  preview_end: z.number().nullable().optional(),
+  record_start: z.number().nullable().optional(),
+  record_end: z.number().nullable().optional(),
+  grades: z.array(z.number()).nullable().optional(),
+  is_active: z.boolean().optional(),
+  created_at: z.string().nullable().optional(),
+});
+
+export const shadowingVideosResponseArraySchema = z.array(shadowingVideoResponseSchema);

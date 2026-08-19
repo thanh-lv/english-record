@@ -33,20 +33,23 @@ describe('authService', () => {
     });
 
     it('gracefully handles localStorage exceptions', () => {
-      vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      const getItemSpy = vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
         throw new Error('SecurityError');
       });
       expect(authService.getStoredProfileId()).toBeNull();
+      getItemSpy.mockRestore();
 
-      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      const setItemSpy = vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
         throw new Error('QuotaExceededError');
       });
       expect(() => authService.setStoredProfileId('123')).not.toThrow();
+      setItemSpy.mockRestore();
 
-      vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      const removeItemSpy = vi.spyOn(localStorage, 'removeItem').mockImplementation(() => {
         throw new Error('SecurityError');
       });
       expect(() => authService.clearStoredProfileId()).not.toThrow();
+      removeItemSpy.mockRestore();
     });
   });
 

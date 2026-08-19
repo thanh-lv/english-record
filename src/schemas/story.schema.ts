@@ -63,3 +63,21 @@ export const aiStoryPromptSchema = z.object({
 });
 
 export type AiStoryPromptInput = z.infer<typeof aiStoryPromptSchema>;
+
+/* ==========================================================================
+   API Response Boundary Schemas (Runtime validation for external/DB data)
+   ========================================================================== */
+
+export const storyResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  type: z.string().optional(),
+  emoji: z.string().optional(),
+  image_url: z.string().nullable().optional(),
+  content: z.string().optional(),
+  grades: z.array(z.number()).nullable().optional(),
+  is_active: z.boolean().optional(),
+  created_at: z.string().nullable().optional(),
+});
+
+export const storiesResponseArraySchema = z.array(storyResponseSchema);

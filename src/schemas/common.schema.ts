@@ -51,3 +51,22 @@ export function validateWithSchema<T>(
   const errorMessage = firstIssue ? firstIssue.message : 'Dữ liệu không hợp lệ.';
   return { success: false, error: errorMessage, issues: result.error.issues };
 }
+
+/**
+ * Validates and parses incoming external API response payloads at the system boundary.
+ * Throws a formatted Error or returns fallback if validation fails.
+ */
+export function parseApiResponse<T>(schema: z.ZodType<T>, data: unknown, fallback?: T): T {
+  const result = schema.safeParse(data);
+  if (result.success) {
+    return result.data;
+  }
+  if (fallback !== undefined) {
+    return fallback;
+  }
+  const firstIssue = result.error.issues[0];
+  const path = firstIssue?.path?.length ? ` (${firstIssue.path.join('.')})` : '';
+  throw new Error(
+    `API Boundary Validation Error${path}: ${firstIssue?.message || 'Dữ liệu API không đúng định dạng'}`
+  );
+}

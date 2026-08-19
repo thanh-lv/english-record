@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import { clientCache } from '../lib/cache';
 import { withServiceHandling } from './serviceHandler';
 import { Story } from '../types';
+import { parseApiResponse, storiesResponseArraySchema, storyResponseSchema } from '../schemas';
 
 const WORKER_URL = 'https://free-image-generation-api.levanthanh29111999.workers.dev/';
 
@@ -16,7 +17,7 @@ export const storyService = {
             .select('id, title, type, emoji, image_url, content, grades, created_at, is_active')
             .order('created_at', { ascending: false });
           if (error) throw error;
-          return (data || []) as Story[];
+          return parseApiResponse(storiesResponseArraySchema, data || []) as Story[];
         },
         { ttlMs: 60 * 1000, persist: true }
       );
@@ -47,7 +48,7 @@ export const storyService = {
       const { data, error } = await supabase.from('stories').insert(storyData).select().single();
       if (error) throw error;
       clientCache.invalidate('stories');
-      return data as Story;
+      return parseApiResponse(storyResponseSchema, data) as Story;
     });
   },
 

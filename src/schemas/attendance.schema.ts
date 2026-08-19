@@ -47,3 +47,49 @@ export const attendanceStudentSchema = z.object({
 });
 
 export type AttendanceStudentInput = z.infer<typeof attendanceStudentSchema>;
+
+/* ==========================================================================
+   API Response Boundary Schemas (Runtime validation for external/DB data)
+   ========================================================================== */
+
+export const attendanceStudentResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  class_name: z.string().nullable().optional(),
+  unit_price: z.number().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  zalo_phone: z.string().nullable().optional(),
+  hoc_lieu: z.number().nullable().optional(),
+  hoc_lieu_fee: z.number().nullable().optional(),
+  note: z.string().nullable().optional(),
+  student_note: z.string().nullable().optional(),
+  created_at: z.string().nullable().optional(),
+});
+
+export const attendanceStudentsResponseArraySchema = z.array(attendanceStudentResponseSchema);
+
+export const attendanceRecordResponseSchema = z.object({
+  id: z.string(),
+  student_id: z.string(),
+  checkin_time: z.string(),
+  attendance_students: z
+    .object({
+      name: z.string(),
+      unit_price: z.number().optional(),
+    })
+    .nullable()
+    .optional(),
+});
+
+export const attendanceRecordsResponseArraySchema = z.array(attendanceRecordResponseSchema);
+
+export const attendancePaymentResponseSchema = z.object({
+  id: z.string(),
+  student_id: z.string(),
+  month: z.number(),
+  year: z.number(),
+  is_paid: z.boolean().default(false),
+  paid_at: z.string().nullable().optional(),
+});
+
+export const attendancePaymentsResponseArraySchema = z.array(attendancePaymentResponseSchema);

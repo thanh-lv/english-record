@@ -6,6 +6,11 @@ import {
   UpdateStudentPayload,
   StudentRecordingsResponse,
 } from '../types';
+import {
+  parseApiResponse,
+  userProfilesResponseArraySchema,
+  recordingsResponseArraySchema,
+} from '../schemas';
 
 export type { CreateStudentPayload, UpdateStudentPayload, StudentRecordingsResponse };
 
@@ -19,7 +24,7 @@ export const studentService = {
         .order('name');
 
       if (error) throw error;
-      return (data || []) as UserProfile[];
+      return parseApiResponse(userProfilesResponseArraySchema, data || []) as UserProfile[];
     });
   },
 
@@ -137,7 +142,8 @@ export const studentService = {
         youtube_url: r.shadowing_videos?.youtube_url || null,
       }));
 
-      return { records: mapped, total: count || 0 };
+      const validated = parseApiResponse(recordingsResponseArraySchema, mapped);
+      return { records: validated, total: count || 0 };
     });
   },
 };

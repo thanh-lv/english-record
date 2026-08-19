@@ -1,6 +1,11 @@
 import { supabase } from '../lib/supabase';
 import { withServiceHandling } from './serviceHandler';
 import { ShadowingVideo, ShadowingVideoPayload } from '../types';
+import {
+  parseApiResponse,
+  shadowingVideoResponseSchema,
+  shadowingVideosResponseArraySchema,
+} from '../schemas';
 
 export type { ShadowingVideo, ShadowingVideoPayload };
 
@@ -48,7 +53,7 @@ export const shadowingService = {
 
       const { data, error } = await query;
       if (error) throw error;
-      return (data || []) as ShadowingVideo[];
+      return parseApiResponse(shadowingVideosResponseArraySchema, data || []) as ShadowingVideo[];
     });
   },
 
@@ -61,7 +66,7 @@ export const shadowingService = {
         .maybeSingle();
 
       if (error) throw error;
-      return (data || null) as ShadowingVideo | null;
+      return data ? (parseApiResponse(shadowingVideoResponseSchema, data) as ShadowingVideo) : null;
     });
   },
 

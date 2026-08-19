@@ -20,6 +20,8 @@ import {
   attendanceStudentSchema,
   imageFileSchema,
   validateWithSchema,
+  parseApiResponse,
+  storyResponseSchema,
 } from '../index';
 
 describe('Zod Schemas Validation', () => {
@@ -256,6 +258,35 @@ describe('Zod Schemas Validation', () => {
       if (!res.success) {
         expect(res.error).toBe('Tên chủ đề phải có ít nhất 2 ký tự.');
       }
+    });
+  });
+
+  describe('parseApiResponse & API Boundary Validation', () => {
+    it('parses valid API responses successfully', () => {
+      const validStory = {
+        id: 'story-1',
+        title: 'Bedtime Story',
+        type: 'Truyện tranh',
+        emoji: '📖',
+        content: 'Long text here...',
+        is_active: true,
+      };
+      const result = parseApiResponse(storyResponseSchema, validStory);
+      expect(result.id).toBe('story-1');
+      expect(result.title).toBe('Bedtime Story');
+    });
+
+    it('returns fallback data when validation fails and fallback is provided', () => {
+      const invalidData = { id: 123, title: '' };
+      const fallback = 'Fallback Title';
+      const result = parseApiResponse(topicTitleSchema, invalidData, fallback);
+      expect(result).toBe(fallback);
+    });
+
+    it('throws descriptive error when validation fails and no fallback is given', () => {
+      expect(() => parseApiResponse(topicTitleSchema, '')).toThrow(
+        'API Boundary Validation Error: Tên chủ đề phải có ít nhất 2 ký tự.'
+      );
     });
   });
 });

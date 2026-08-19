@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import { clientCache } from '../lib/cache';
 import { withServiceHandling } from './serviceHandler';
 import { Topic, Question } from '../types';
+import { parseApiResponse, topicsResponseArraySchema } from '../schemas';
 
 export const topicService = {
   async fetchAllTopics(): Promise<Topic[]> {
@@ -16,12 +17,14 @@ export const topicService = {
 
           if (error) throw error;
 
-          return (data || []).map((t: any) => ({
+          const mapped = (data || []).map((t: any) => ({
             ...t,
             questions: (t.questions || []).sort(
               (a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0)
             ),
           }));
+
+          return parseApiResponse(topicsResponseArraySchema, mapped) as Topic[];
         },
         { ttlMs: 60 * 1000, persist: true }
       );

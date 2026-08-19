@@ -7,6 +7,12 @@ import {
   AttendanceStudentPayload,
   AttendanceMonthlyTrend,
 } from '../types';
+import {
+  parseApiResponse,
+  attendanceStudentsResponseArraySchema,
+  attendanceRecordsResponseArraySchema,
+  attendancePaymentsResponseArraySchema,
+} from '../schemas';
 
 export type {
   AttendanceStudent,
@@ -21,7 +27,10 @@ export const attendanceService = {
     return withServiceHandling('attendanceService', 'fetchAttendanceStudents', async () => {
       const { data, error } = await supabase.from('attendance_students').select('*').order('name');
       if (error) throw error;
-      return (data || []) as AttendanceStudent[];
+      return parseApiResponse(
+        attendanceStudentsResponseArraySchema,
+        data || []
+      ) as AttendanceStudent[];
     });
   },
 
@@ -74,7 +83,10 @@ export const attendanceService = {
         .lte('checkin_time', endDateIso);
 
       if (error) throw error;
-      return (data || []) as AttendanceRecord[];
+      return parseApiResponse(
+        attendanceRecordsResponseArraySchema,
+        data || []
+      ) as AttendanceRecord[];
     });
   },
 
@@ -120,7 +132,10 @@ export const attendanceService = {
         .eq('month', month);
 
       if (error) throw error;
-      return (data || []) as AttendancePayment[];
+      return parseApiResponse(
+        attendancePaymentsResponseArraySchema,
+        data || []
+      ) as AttendancePayment[];
     });
   },
 
