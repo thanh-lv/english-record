@@ -3,7 +3,9 @@ import { vi } from './vi';
 import { en } from './en';
 import { supabase } from '../lib/supabase';
 
-export type Language = 'vi' | 'en';
+import { Language } from '../types';
+
+export type { Language };
 export type Translations = typeof vi;
 export type AttendanceTranslations = Translations['attendance'];
 export type CommonTranslations = Translations['common'];

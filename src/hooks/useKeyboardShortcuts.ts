@@ -1,13 +1,7 @@
 import { useEffect } from 'react';
+import { ShortcutHandlers } from '../types';
 
-interface ShortcutHandlers {
-  onPlayPause?: () => void; // Space
-  onStartRecord?: () => void; // R
-  onStopRecord?: () => void; // R (when recording)
-  onClose?: () => void; // Escape
-  isRecording?: boolean;
-  isModalOpen?: boolean;
-}
+export type { ShortcutHandlers };
 
 export function useKeyboardShortcuts({
   onPlayPause,

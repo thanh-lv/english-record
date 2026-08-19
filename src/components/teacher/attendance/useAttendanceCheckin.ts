@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { attendanceService } from '../../../services/attendanceService';
-import { Student as AttendanceStudent, AttendanceRecord } from '../../../types';
+import { AttendanceStudent, AttendanceRecord } from '../../../types';
 
 export function useAttendanceCheckin() {
   const [students, setStudents] = useState<AttendanceStudent[]>([]);

@@ -1,21 +1,9 @@
 import { supabase } from '../lib/supabase';
+import { UserProfile } from '../types';
 
 export const PROFILE_ID_STORAGE_KEY = 'english_record_profile_id';
 
-export interface UserProfile {
-  id: string;
-  name: string;
-  role: 'student' | 'teacher';
-  avatar?: string | null;
-  year_born?: number | null;
-  grade?: number | null;
-  language?: 'vi' | 'en' | string;
-  auth_uid?: string | null;
-  auth_user_id?: string | null;
-  password?: string | null;
-  updated_at?: string | null;
-  created_at?: string | null;
-}
+export type { UserProfile };
 
 export const authService = {
   getStoredProfileId(): string | null {

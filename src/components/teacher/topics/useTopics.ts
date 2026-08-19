@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { topicService } from '../../../services/topicService';
-import { Topic } from '../../../types';
+import { Topic, ParsedQuestion } from '../../../types';
 import { validateTopicTitle, validateGrades, sanitizeText } from '../../../utils/validators';
 
 export function useTopics() {
@@ -146,7 +146,7 @@ export function useTopics() {
 
   const addParsedQuestions = async (
     topicId: string,
-    parsed: { text: string; sample_answer: string }[]
+    parsed: ParsedQuestion[]
   ) => {
     const topic = topics.find(t => t.id === topicId);
     const startingOrder = topic?.questions?.length || 0;

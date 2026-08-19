@@ -7,13 +7,10 @@ import {
   ALLOWED_IMAGE_MIME_TYPES,
   extractYoutubeId,
 } from '../schemas';
+import { ValidationResult } from '../types';
 
 export { sanitizeString as sanitizeText, extractYoutubeId };
-
-export interface ValidationResult {
-  isValid: boolean;
-  error?: string;
-}
+export type { ValidationResult };
 
 /**
  * Validate student name using Zod studentNameSchema

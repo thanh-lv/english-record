@@ -6,10 +6,7 @@ import { validateImageFile, sanitizeText } from '../../../utils/validators';
 
 const WORKER_URL = 'https://free-image-generation-api.levanthanh29111999.workers.dev/';
 
-interface ParsedQuestion {
-  text: string;
-  sample_answer: string;
-}
+import { ParsedQuestion } from '../../../types';
 
 interface AIQuestionParserModalProps {
   onAddAll: (questions: ParsedQuestion[]) => Promise<void>;

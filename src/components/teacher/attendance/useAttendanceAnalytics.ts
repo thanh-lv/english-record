@@ -3,8 +3,9 @@ import { attendanceService } from '../../../services/attendanceService';
 import { supabase } from '../../../lib/supabase';
 import { formatClassName } from '../../../utils';
 import { interpolate } from '../../../i18n/LanguageContext';
+import { AttendanceMonthlyTrend, ClassAttendanceRate } from '../../../types';
 
-interface UseAttendanceAnalyticsOptions {
+export interface UseAttendanceAnalyticsOptions {
   month: number;
   year: number;
   paymentsMap?: Record<string, boolean>;
@@ -18,8 +19,8 @@ export function useAttendanceAnalytics({
   tAtt,
 }: UseAttendanceAnalyticsOptions) {
   const [loading, setLoading] = useState(true);
-  const [monthlyTrends, setMonthlyTrends] = useState<any[]>([]);
-  const [classRates, setClassRates] = useState<any[]>([]);
+  const [monthlyTrends, setMonthlyTrends] = useState<AttendanceMonthlyTrend[]>([]);
+  const [classRates, setClassRates] = useState<ClassAttendanceRate[]>([]);
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
 
   const tAttRef = useRef(tAtt);

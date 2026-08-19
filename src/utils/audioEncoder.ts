@@ -4,27 +4,9 @@
  * into downloadable WAV/MP3 blobs.
  */
 
-export interface AudioBuilderConfig {
-  repetitionsPerWord: number; // default: 3
-  wordDurationSlot: number; // default: 3.0 seconds
-  gapBetweenWords: number; // default: 4.0 seconds
-  voiceLang?: string; // default: 'en-US'
-}
+import { AudioBuilderConfig, WordTimestamp, RenderedAudioResult } from '../types';
 
-export interface WordTimestamp {
-  word: string;
-  index: number;
-  startTime: number; // in seconds
-  endTime: number; // in seconds
-  repTimes: number[]; // timestamp for each rep
-}
-
-export interface RenderedAudioResult {
-  blob: Blob;
-  audioUrl: string;
-  totalDuration: number;
-  wordTimestamps: WordTimestamp[];
-}
+export type { AudioBuilderConfig, WordTimestamp, RenderedAudioResult };
 
 /**
  * Fetches TTS AudioBuffer for a word using Google TTS endpoint or synthetic fallback.

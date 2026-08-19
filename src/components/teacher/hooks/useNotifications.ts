@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
-export interface Notification {
-  id: string;
-  student_name: string;
-  topic_number?: number;
-  created_at: string;
-}
+import { Notification, NotificationType } from '../../../types';
+
+export type { Notification, NotificationType };
 
 const STORAGE_KEY = 'teacher-notifications';
 const READ_KEY = 'teacher-notifications-read';

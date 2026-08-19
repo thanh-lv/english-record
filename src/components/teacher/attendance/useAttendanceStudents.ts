@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { attendanceService } from '../../../services/attendanceService';
-import { Student as AttendanceStudent } from '../../../types';
+import { AttendanceStudent } from '../../../types';
 import { sanitizeText, validateStudentName, validatePhone } from '../../../utils';
 
 export function useAttendanceStudents(t: any) {

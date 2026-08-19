@@ -1,21 +1,7 @@
 import { supabase } from '../lib/supabase';
-import { UserProfile } from './authService';
+import { UserProfile, CreateStudentPayload, UpdateStudentPayload, StudentRecordingsResponse } from '../types';
 
-export interface CreateStudentPayload {
-  name: string;
-  password?: string;
-  year_born?: number | null;
-  grade?: number | null;
-  role?: 'student';
-}
-
-export interface UpdateStudentPayload {
-  name?: string;
-  year_born?: number | null;
-  grade?: number | null;
-  avatar?: string | null;
-  language?: string;
-}
+export type { CreateStudentPayload, UpdateStudentPayload, StudentRecordingsResponse };
 
 export const studentService = {
   async fetchStudents(): Promise<UserProfile[]> {

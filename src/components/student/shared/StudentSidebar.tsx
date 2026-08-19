@@ -13,14 +13,9 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { useState } from 'react';
+import { ActiveTab } from '../../../types';
 
-export type ActiveTab =
-  | 'exercises'
-  | 'shadowing'
-  | 'stories'
-  | 'achievements'
-  | 'flashcards'
-  | 'games';
+export type { ActiveTab };
 
 const TAB_THEMES: Record<
   ActiveTab,

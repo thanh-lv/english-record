@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { shadowingService, ShadowingVideo } from '../../../services/shadowingService';
+import { shadowingService } from '../../../services/shadowingService';
+import { ShadowingVideo } from '../../../types';
 
 interface UseShadowingStudentOptions {
   studentGrade?: number | string | null;

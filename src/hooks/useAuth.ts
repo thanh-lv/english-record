@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { authService, UserProfile } from '../services/authService';
+import { authService } from '../services/authService';
+import { UserProfile, Language } from '../types';
 
-interface UseAuthOptions {
-  onLanguageChange?: (lang: 'vi' | 'en') => void;
+export interface UseAuthOptions {
+  onLanguageChange?: (lang: Language) => void;
 }
 
 export function useAuth(options?: UseAuthOptions) {

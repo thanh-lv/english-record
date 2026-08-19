@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { attendanceService } from '../../../services/attendanceService';
 import { supabase } from '../../../lib/supabase';
-import { Student as AttendanceStudent, AttendanceRecord } from '../../../types';
+import { AttendanceStudent, AttendanceRecord } from '../../../types';
 
 export function useTuitionSummary(t: any) {
   const tAtt = t?.attendance || {};

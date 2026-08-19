@@ -1,15 +1,13 @@
 import { supabase } from '../lib/supabase';
-import { Student as AttendanceStudent, AttendanceRecord, AttendancePayment } from '../types';
+import {
+  AttendanceStudent,
+  AttendanceRecord,
+  AttendancePayment,
+  AttendanceStudentPayload,
+  AttendanceMonthlyTrend,
+} from '../types';
 
-export interface AttendanceStudentPayload {
-  name: string;
-  class_name?: string;
-  unit_price?: number;
-  phone?: string;
-  zalo_phone?: string;
-  hoc_lieu_fee?: number;
-  note?: string;
-}
+export type { AttendanceStudent, AttendanceRecord, AttendancePayment, AttendanceStudentPayload, AttendanceMonthlyTrend };
 
 export const attendanceService = {
   async fetchAttendanceStudents(): Promise<AttendanceStudent[]> {

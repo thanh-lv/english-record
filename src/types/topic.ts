@@ -1,3 +1,5 @@
+export type TopicType = 'standard' | 'bongbe';
+
 export interface Question {
   id: string;
   topic_id: string;
@@ -12,13 +14,30 @@ export interface Question {
   created_at?: string;
 }
 
+export interface ParsedQuestion {
+  text: string;
+  sample_answer?: string;
+}
+
 export interface Topic {
   id: string;
   title: string;
-  type: 'standard' | 'bongbe';
+  type: TopicType;
   is_active: boolean;
   order_index?: number;
   created_at?: string;
   grades?: number[];
   questions: Question[];
+}
+
+export interface CreateTopicPayload {
+  title: string;
+  type: TopicType;
+  order_index: number;
+  grades?: number[];
+}
+
+export interface UpdateTopicPayload {
+  title?: string;
+  grades?: number[];
 }

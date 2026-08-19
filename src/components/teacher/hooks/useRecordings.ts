@@ -9,13 +9,9 @@ interface UseRecordingsOptions {
 const RECORDING_COLUMNS =
   'id, student_name, topic_number, topic, question_text, audio_url, created_at, teacher_rating, teacher_feedback, student_reaction, user_id, shadowing_video_id';
 
-export interface StudentSummary {
-  key: string;
-  studentName: string;
-  count: number;
-  latestCreatedAt: string;
-  hasUngraded: boolean;
-}
+import { StudentSummary, Recording } from '../../../types';
+
+export type { StudentSummary, Recording };
 
 export function useRecordings(user: any, options?: UseRecordingsOptions) {
   const { t } = useLanguage();

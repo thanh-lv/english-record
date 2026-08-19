@@ -13,16 +13,9 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { useState } from 'react';
+import { TeacherTab } from '../../../types';
 
-export type TeacherTab =
-  | 'attendance'
-  | 'recordings'
-  | 'topics'
-  | 'students'
-  | 'stories'
-  | 'vocabulary'
-  | 'shadowing'
-  | 'audio-builder';
+export type { TeacherTab };
 
 const TAB_THEMES: Record<
   TeacherTab,

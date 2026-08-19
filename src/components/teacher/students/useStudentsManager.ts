@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { studentService } from '../../../services/studentService';
 import { supabase } from '../../../lib/supabase';
 import { calculateStreak } from '../../../utils';
-import { UserProfile } from '../../../services/authService';
+import { UserProfile, StudentStats } from '../../../types';
 
 export function useStudentsManager() {
   const [students, setStudents] = useState<UserProfile[]>([]);

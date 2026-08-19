@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   shadowingService,
-  ShadowingVideo,
   formatSecondsToTime,
   parseTimeToSeconds,
 } from '../../../services/shadowingService';
+import { ShadowingVideo } from '../../../types';
 import { validateShadowingVideo, validateGrades, sanitizeText } from '../../../utils/validators';
 
 export function useShadowingManager(t: any) {
