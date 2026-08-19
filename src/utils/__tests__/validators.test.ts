@@ -289,7 +289,14 @@ describe('validators utilities', () => {
       expect(validateStory({ title: 'Valid Title', content: 'Short' }).isValid).toBe(false);
     });
 
-    it('fails when content exceeds 10,000 characters or emoji is invalid', () => {
+    it('fails when content exceeds 10,000 characters, title exceeds 150 characters, or emoji is invalid', () => {
+      expect(
+        validateStory({
+          title: 'A'.repeat(151),
+          content: 'Valid content is here',
+        }).isValid,
+      ).toBe(false);
+
       expect(
         validateStory({
           title: 'Valid Title',
@@ -320,6 +327,8 @@ describe('validators utilities', () => {
       });
       expect(validateVocabCard({ front: '', back: 'Sư tử' }).isValid).toBe(false);
       expect(validateVocabCard({ front: 'Lion', back: '' }).isValid).toBe(false);
+      expect(validateVocabCard({ front: 'A'.repeat(201), back: 'Sư tử' }).isValid).toBe(false);
+      expect(validateVocabCard({ front: 'Lion', back: 'A'.repeat(501) }).isValid).toBe(false);
       expect(
         validateVocabCard({ front: 'Lion', back: 'Sư tử', ipa: 'a'.repeat(101) }).isValid,
       ).toBe(false);

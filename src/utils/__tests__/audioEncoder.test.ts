@@ -140,6 +140,74 @@ describe('audioEncoder utilities', () => {
       expect(mockFetch).toHaveBeenCalled();
     });
 
+    it('fetches with UK pronunciation preference when lang is en-GB', async () => {
+      const mockFetch = vi.fn().mockImplementation((url: string) => {
+        if (url.includes('dictionaryapi.dev')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => [
+              {
+                phonetics: [
+                  { audio: 'https://api.dictionaryapi.dev/media/pronunciations/en/apple-us.mp3' },
+                  { audio: 'https://api.dictionaryapi.dev/media/pronunciations/en/apple-uk.mp3' },
+                ],
+              },
+            ],
+          });
+        }
+        if (url.includes('.mp3')) {
+          return Promise.resolve({
+            ok: true,
+            arrayBuffer: async () => new Uint8Array(1024).buffer,
+          });
+        }
+        return Promise.reject(new Error('Unknown URL'));
+      });
+
+      global.fetch = mockFetch as any;
+      const buffer = await fetchWordAudioBuffer('apple', mockCtx as any, 'en-GB');
+      expect(buffer).toBeDefined();
+      expect(mockFetch).toHaveBeenCalledWith('https://api.dictionaryapi.dev/media/pronunciations/en/apple-uk.mp3');
+    });
+
+    it('falls back to Lingva API when Dictionary API fails', async () => {
+      const mockFetch = vi.fn().mockImplementation((url: string) => {
+        if (url.includes('dictionaryapi.dev')) {
+          return Promise.resolve({ ok: false });
+        }
+        if (url.includes('lingva.ml')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({ audio: [1, 2, 3, 4] }),
+          });
+        }
+        return Promise.reject(new Error('Unknown URL'));
+      });
+
+      global.fetch = mockFetch as any;
+      const buffer = await fetchWordAudioBuffer('cat', mockCtx as any, 'en-US');
+      expect(buffer).toBeDefined();
+    });
+
+    it('falls back to Google TTS when Dictionary and Lingva fail', async () => {
+      const mockFetch = vi.fn().mockImplementation((url: string) => {
+        if (url.includes('dictionaryapi.dev') || url.includes('lingva.ml')) {
+          return Promise.resolve({ ok: false });
+        }
+        if (url.includes('translate.google.com')) {
+          return Promise.resolve({
+            ok: true,
+            arrayBuffer: async () => new Uint8Array(512).buffer,
+          });
+        }
+        return Promise.reject(new Error('Unknown URL'));
+      });
+
+      global.fetch = mockFetch as any;
+      const buffer = await fetchWordAudioBuffer('dog', mockCtx as any, 'en-US');
+      expect(buffer).toBeDefined();
+    });
+
     it('falls back to synthetic audio buffer when all network fetches fail', async () => {
       global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
@@ -212,6 +280,17 @@ describe('audioEncoder utilities', () => {
       expect(w3.index).toBe(2);
       expect(w3.startTime).toBe(6.0);
       expect(w3.endTime).toBe(8.0);
+    });
+
+    it('handles repetitionsPerWord = 1 correctly', async () => {
+      const singleRepConfig: AudioBuilderConfig = {
+        repetitionsPerWord: 1,
+        wordDurationSlot: 2.0,
+        gapBetweenWords: 1.0,
+      };
+
+      const result = await generateVocabularyAudio(['apple'], singleRepConfig);
+      expect(result.wordTimestamps[0].repTimes).toHaveLength(1);
     });
   });
 });

@@ -1,4 +1,5 @@
 import { vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 
 // Polyfill URL.createObjectURL and revokeObjectURL
 if (typeof window !== 'undefined') {

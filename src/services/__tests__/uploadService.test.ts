@@ -12,6 +12,7 @@ vi.mock('../../lib/s3', () => ({
 describe('uploadService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllEnvs();
   });
 
   it('rejects unsupported file mime types in media folders', async () => {
@@ -38,12 +39,22 @@ describe('uploadService', () => {
     expect(url).toContain('.wav');
   });
 
-  it('uploads valid file in question_images folder', async () => {
-    const file = new File(['img-data'], 'pic.jpeg', { type: 'image/jpeg' });
+  it('resolves URL using VITE_S3_PUBLIC_DOMAIN if present', async () => {
+    vi.stubEnv('VITE_S3_PUBLIC_DOMAIN', 'https://cdn.englishrecord.com/');
+    const file = new File(['img-data'], 'pic.png', { type: 'image/png' });
     const url = await uploadService.uploadFile(file, 'question_images', 10);
 
-    expect(s3Client.send).toHaveBeenCalledTimes(1);
-    expect(url).toContain('question_images/');
-    expect(url).toContain('.jpeg');
+    expect(url.startsWith('https://cdn.englishrecord.com/question_images/')).toBe(true);
+  });
+
+  it('resolves URL using fallback endpoint when public domains are not set', async () => {
+    vi.stubEnv('VITE_S3_PUBLIC_DOMAIN', '');
+    vi.stubEnv('VITE_R2_PUBLIC_URL', '');
+    vi.stubEnv('VITE_S3_ENDPOINT', 'https://s3.example.com/');
+
+    const file = new File(['img-data'], 'pic.jpeg', { type: 'image/jpeg' });
+    const url = await uploadService.uploadFile(file, 'stories', 10);
+
+    expect(url.startsWith('https://s3.example.com/test-bucket/stories/')).toBe(true);
   });
 });

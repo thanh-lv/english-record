@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { WifiOff, Wifi } from "lucide-react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useOnlineStatus } from "../../hooks/useOnlineStatus";
@@ -7,19 +7,19 @@ export function OfflineBanner() {
   const { t } = useLanguage();
   const isOnline = useOnlineStatus();
   const [showBackOnline, setShowBackOnline] = useState(false);
-  const [wasOffline, setWasOffline] = useState(false);
+  const wasOfflineRef = useRef(false);
 
   useEffect(() => {
     if (!isOnline) {
-      setWasOffline(true);
+      wasOfflineRef.current = true;
       setShowBackOnline(false);
-    } else if (wasOffline) {
+    } else if (wasOfflineRef.current) {
+      wasOfflineRef.current = false;
       setShowBackOnline(true);
-      setWasOffline(false);
       const timer = setTimeout(() => setShowBackOnline(false), 3000);
       return () => clearTimeout(timer);
     }
-  }, [isOnline, wasOffline]);
+  }, [isOnline]);
 
   if (!isOnline) {
     return (
