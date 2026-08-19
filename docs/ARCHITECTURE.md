@@ -294,8 +294,7 @@ english-record/
 ├── .env.example               # Mẫu biến môi trường
 ├── package.json               # Dependencies & Scripts
 ├── tailwind.config.js         # Cấu hình giao diện TailwindCSS
-├── vite.config.ts             # Cấu hình Vite Build Tool
-└── vitest.config.ts           # Cấu hình Unit Test Runner
+└── vite.config.ts             # Cấu hình Vite Build Tool & Vitest Test Runner
 ```
 
 ---

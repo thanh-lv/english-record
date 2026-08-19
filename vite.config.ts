@@ -1,5 +1,6 @@
-import { defineConfig, Plugin } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import type { Plugin } from 'vite';
 import fs from 'fs';
 import path from 'path';
 
@@ -34,12 +35,22 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "vendor-react": ["react", "react-dom"],
-          "vendor-supabase": ["@supabase/supabase-js"],
-          "vendor-s3": ["@aws-sdk/client-s3"],
-          "vendor-lucide": ["lucide-react"],
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-s3': ['@aws-sdk/client-s3'],
+          'vendor-lucide': ['lucide-react'],
         },
       },
+    },
+  },
+  test: {
+    environment: 'happy-dom',
+    globals: true,
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/__tests__/**/*.{test,spec}.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
     },
   },
 });
