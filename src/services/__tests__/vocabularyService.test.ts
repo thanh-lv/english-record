@@ -96,7 +96,9 @@ describe('vocabularyService', () => {
     });
 
     it('throws error when createSet fails', async () => {
-      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Create set error') });
+      const singleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Create set error') });
       const selectMock = vi.fn().mockReturnValue({ single: singleMock });
       const insertMock = vi.fn().mockReturnValue({ select: selectMock });
       (supabase.from as any).mockReturnValue({ insert: insertMock });
@@ -119,7 +121,9 @@ describe('vocabularyService', () => {
     });
 
     it('throws error when updateSet fails', async () => {
-      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Update set error') });
+      const singleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Update set error') });
       const selectMock = vi.fn().mockReturnValue({ single: singleMock });
       const eqMock = vi.fn().mockReturnValue({ select: selectMock });
       const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
@@ -161,7 +165,9 @@ describe('vocabularyService', () => {
     });
 
     it('throws error when createCard fails', async () => {
-      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Create card error') });
+      const singleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Create card error') });
       const selectMock = vi.fn().mockReturnValue({ single: singleMock });
       const insertMock = vi.fn().mockReturnValue({ select: selectMock });
       (supabase.from as any).mockReturnValue({ insert: insertMock });

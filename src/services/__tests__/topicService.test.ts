@@ -105,9 +105,9 @@ describe('topicService', () => {
       const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
       (supabase.from as any).mockReturnValue({ update: updateMock });
 
-      await expect(
-        topicService.updateTopic('topic-1', { title: 'Error' })
-      ).rejects.toThrow('Update error');
+      await expect(topicService.updateTopic('topic-1', { title: 'Error' })).rejects.toThrow(
+        'Update error'
+      );
     });
 
     it('updateTopicTitle calls updateTopic with title only', async () => {
@@ -251,9 +251,9 @@ describe('topicService', () => {
       const insertMock = vi.fn().mockResolvedValue({ error: new Error('Insert parsed error') });
       (supabase.from as any).mockReturnValue({ insert: insertMock });
 
-      await expect(
-        topicService.insertParsedQuestions('t1', [{ text: 'Q1' }], 1)
-      ).rejects.toThrow('Insert parsed error');
+      await expect(topicService.insertParsedQuestions('t1', [{ text: 'Q1' }], 1)).rejects.toThrow(
+        'Insert parsed error'
+      );
     });
   });
 });

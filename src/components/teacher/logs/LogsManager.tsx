@@ -101,7 +101,8 @@ export function LogsManager() {
             Nhật Ký Lỗi & Trải Nghiệm Người Dùng
           </h2>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Theo dõi sự cố, lỗi thu âm, lỗi mạng và phản hồi kỹ thuật từ học sinh và thiết bị client.
+            Theo dõi sự cố, lỗi thu âm, lỗi mạng và phản hồi kỹ thuật từ học sinh và thiết bị
+            client.
           </p>
         </div>
 
@@ -324,7 +325,9 @@ export function LogsManager() {
 
                         {log.data && (
                           <div>
-                            <p className="text-slate-400 text-[11px] font-bold mb-1">Metadata / Data:</p>
+                            <p className="text-slate-400 text-[11px] font-bold mb-1">
+                              Metadata / Data:
+                            </p>
                             <pre className="text-[11px] text-emerald-400 whitespace-pre-wrap">
                               {typeof log.data === 'object'
                                 ? JSON.stringify(log.data, null, 2)

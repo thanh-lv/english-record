@@ -1,5 +1,10 @@
 import { supabase } from '../lib/supabase';
-import { UserProfile, CreateStudentPayload, UpdateStudentPayload, StudentRecordingsResponse } from '../types';
+import {
+  UserProfile,
+  CreateStudentPayload,
+  UpdateStudentPayload,
+  StudentRecordingsResponse,
+} from '../types';
 
 export type { CreateStudentPayload, UpdateStudentPayload, StudentRecordingsResponse };
 

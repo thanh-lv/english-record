@@ -33,7 +33,9 @@ describe('Attendance Hooks', () => {
 
   describe('useAttendanceStudents', () => {
     it('fetches attendance students and handles modal creation and editing', async () => {
-      const mockStudents = [{ id: 's1', name: 'Alice', unit_price: 100000, class_name: '3A', is_active: true }];
+      const mockStudents = [
+        { id: 's1', name: 'Alice', unit_price: 100000, class_name: '3A', is_active: true },
+      ];
       (attendanceService.fetchAttendanceStudents as any).mockResolvedValue(mockStudents);
       (attendanceService.createAttendanceStudent as any).mockResolvedValue({
         id: 's2',

@@ -139,7 +139,11 @@ export class ErrorBoundary extends Component<Props, State> {
                     className="text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 flex items-center gap-1 transition-all cursor-pointer"
                     title="Sao chép thông tin lỗi"
                   >
-                    {this.state.copied ? <Check size={12} className="text-emerald-600" /> : <Copy size={12} />}
+                    {this.state.copied ? (
+                      <Check size={12} className="text-emerald-600" />
+                    ) : (
+                      <Copy size={12} />
+                    )}
                     <span>{this.state.copied ? 'Đã chép!' : 'Sao chép lỗi'}</span>
                   </button>
 

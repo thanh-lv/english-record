@@ -83,7 +83,13 @@ class LoggerService {
     }
   }
 
-  private addLog(level: LogLevel, module: string, message: string, data?: any, stack?: string): LogEntry {
+  private addLog(
+    level: LogLevel,
+    module: string,
+    message: string,
+    data?: any,
+    stack?: string
+  ): LogEntry {
     const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
     const url = typeof window !== 'undefined' ? window.location?.href : undefined;
 
@@ -231,7 +237,10 @@ class LoggerService {
     URL.revokeObjectURL(url);
   }
 
-  public async fetchRemoteLogs(options?: { limit?: number; level?: LogLevel }): Promise<RemoteLogRecord[]> {
+  public async fetchRemoteLogs(options?: {
+    limit?: number;
+    level?: LogLevel;
+  }): Promise<RemoteLogRecord[]> {
     const { limit = 50, level } = options || {};
     let query = supabase.from('client_error_logs').select('*');
 
@@ -239,9 +248,7 @@ class LoggerService {
       query = query.eq('level', level);
     }
 
-    const { data, error } = await query
-      .order('created_at', { ascending: false })
-      .limit(limit);
+    const { data, error } = await query.order('created_at', { ascending: false }).limit(limit);
 
     if (error) throw error;
     return (data || []) as RemoteLogRecord[];
@@ -257,16 +264,11 @@ class LoggerService {
     this.isInitialized = true;
 
     window.addEventListener('error', event => {
-      this.error(
-        'WindowError',
-        event.message || 'Uncaught window error',
-        event.error,
-        {
-          filename: event.filename,
-          lineno: event.lineno,
-          colno: event.colno,
-        }
-      );
+      this.error('WindowError', event.message || 'Uncaught window error', event.error, {
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+      });
     });
 
     window.addEventListener('unhandledrejection', event => {

@@ -66,7 +66,9 @@ describe('studentService', () => {
     });
 
     it('throws error when check query fails', async () => {
-      const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Check error') });
+      const maybeSingleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Check error') });
       const ilikeMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
       const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
       (supabase.from as any).mockReturnValue({ select: selectMock });
@@ -124,14 +126,14 @@ describe('studentService', () => {
     });
 
     it('throws error when insert completely fails', async () => {
-      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Insert error') });
+      const singleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Insert error') });
       const selectMock = vi.fn().mockReturnValue({ single: singleMock });
       const insertMock = vi.fn().mockReturnValue({ select: selectMock });
       (supabase.from as any).mockReturnValue({ insert: insertMock });
 
-      await expect(
-        studentService.createStudent({ name: 'Alice' })
-      ).rejects.toThrow('Insert error');
+      await expect(studentService.createStudent({ name: 'Alice' })).rejects.toThrow('Insert error');
     });
   });
 
@@ -183,15 +185,17 @@ describe('studentService', () => {
     });
 
     it('throws error when update fails', async () => {
-      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Update error') });
+      const singleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Update error') });
       const selectMock = vi.fn().mockReturnValue({ single: singleMock });
       const eqMock = vi.fn().mockReturnValue({ select: selectMock });
       const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
       (supabase.from as any).mockReturnValue({ update: updateMock });
 
-      await expect(
-        studentService.updateStudent('st-1', { name: 'Alice' })
-      ).rejects.toThrow('Update error');
+      await expect(studentService.updateStudent('st-1', { name: 'Alice' })).rejects.toThrow(
+        'Update error'
+      );
     });
   });
 
@@ -214,9 +218,9 @@ describe('studentService', () => {
       const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
       (supabase.from as any).mockReturnValue({ update: updateMock });
 
-      await expect(
-        studentService.resetStudentPassword('st-1', 'new-pass-123')
-      ).rejects.toThrow('Reset failed');
+      await expect(studentService.resetStudentPassword('st-1', 'new-pass-123')).rejects.toThrow(
+        'Reset failed'
+      );
     });
   });
 
@@ -299,15 +303,17 @@ describe('studentService', () => {
       const queryObj = {
         ilike: vi.fn().mockReturnThis(),
         order: vi.fn().mockReturnThis(),
-        range: vi.fn().mockResolvedValue({ data: null, error: new Error('Recordings error'), count: 0 }),
+        range: vi
+          .fn()
+          .mockResolvedValue({ data: null, error: new Error('Recordings error'), count: 0 }),
       };
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue(queryObj),
       });
 
-      await expect(
-        studentService.fetchStudentRecordings('Alice')
-      ).rejects.toThrow('Recordings error');
+      await expect(studentService.fetchStudentRecordings('Alice')).rejects.toThrow(
+        'Recordings error'
+      );
     });
   });
 });

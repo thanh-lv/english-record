@@ -151,7 +151,9 @@ describe('useRecording hook', () => {
     // Trigger data available
     act(() => {
       if (mockMediaRecorderInstance?.ondataavailable) {
-        mockMediaRecorderInstance.ondataavailable({ data: new Blob(['voice-blob'], { type: 'audio/webm' }) });
+        mockMediaRecorderInstance.ondataavailable({
+          data: new Blob(['voice-blob'], { type: 'audio/webm' }),
+        });
       }
     });
 

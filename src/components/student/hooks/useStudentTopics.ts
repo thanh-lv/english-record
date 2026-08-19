@@ -32,7 +32,9 @@ export function useStudentTopics(profile: any, isBongBe: boolean) {
           })
           .map((t: any) => ({
             ...t,
-            questions: (t.questions || []).sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)),
+            questions: (t.questions || []).sort(
+              (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
+            ),
           }));
 
         setActiveTopics(normalized);

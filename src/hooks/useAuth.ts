@@ -25,7 +25,8 @@ export function useAuth(options?: UseAuthOptions) {
   useEffect(() => {
     const safetyTimeout = setTimeout(() => {
       setAuthLoading(prev => {
-        if (prev) loggerService.warn('Auth', 'Auth timeout: forcing loading to stop after 5 seconds');
+        if (prev)
+          loggerService.warn('Auth', 'Auth timeout: forcing loading to stop after 5 seconds');
         return false;
       });
     }, 5000);

@@ -51,7 +51,10 @@ describe('loggerService', () => {
   });
 
   it('handles error passed as plain object or string', () => {
-    const objLog = loggerService.error('API', 'Custom error object', { code: 500, detail: 'Failed' });
+    const objLog = loggerService.error('API', 'Custom error object', {
+      code: 500,
+      detail: 'Failed',
+    });
     expect(objLog.data?.rawError).toEqual({ code: 500, detail: 'Failed' });
 
     const strLog = loggerService.error('Simple', 'Simple string error', 'Raw error text');
@@ -124,7 +127,11 @@ describe('loggerService', () => {
 
     loggerService.setUserContext({ id: 'u2', name: 'Bob' });
     loggerService.warn('NetworkModule', 'Slow response received');
-    loggerService.error('AudioModule', 'Microphone permission denied', new Error('PermissionDenied'));
+    loggerService.error(
+      'AudioModule',
+      'Microphone permission denied',
+      new Error('PermissionDenied')
+    );
 
     const errorsOnly = loggerService.getLogs({ level: 'ERROR' });
     expect(errorsOnly).toHaveLength(1);

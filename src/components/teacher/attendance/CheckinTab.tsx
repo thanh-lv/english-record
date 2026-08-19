@@ -177,9 +177,7 @@ export function CheckinTab() {
   const getStudentDayRecords = (studentId: string) => dayRecordsByStudentId.get(studentId) || [];
 
   const availableClasses = useMemo(() => {
-    return Array.from(
-      new Set(students.map(s => s.class_name || tAtt.unassignedClass))
-    ).sort();
+    return Array.from(new Set(students.map(s => s.class_name || tAtt.unassignedClass))).sort();
   }, [students, tAtt.unassignedClass]);
 
   const filteredStudents = useMemo(() => {

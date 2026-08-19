@@ -108,12 +108,16 @@ describe('shadowingService', () => {
     });
 
     it('throws error when video fetch fails', async () => {
-      const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Video fetch error') });
+      const maybeSingleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Video fetch error') });
       const eqMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
       const selectMock = vi.fn().mockReturnValue({ eq: eqMock });
       (supabase.from as any).mockReturnValue({ select: selectMock });
 
-      await expect(shadowingService.fetchShadowingVideoById('v1')).rejects.toThrow('Video fetch error');
+      await expect(shadowingService.fetchShadowingVideoById('v1')).rejects.toThrow(
+        'Video fetch error'
+      );
     });
   });
 
@@ -162,7 +166,9 @@ describe('shadowingService', () => {
     });
 
     it('throws error when video create fails', async () => {
-      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Create error') });
+      const singleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Create error') });
       const selectMock = vi.fn().mockReturnValue({ single: singleMock });
       const insertMock = vi.fn().mockReturnValue({ select: selectMock });
       (supabase.from as any).mockReturnValue({ insert: insertMock });
@@ -219,15 +225,17 @@ describe('shadowingService', () => {
     });
 
     it('throws error when video update fails', async () => {
-      const singleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Update error') });
+      const singleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Update error') });
       const selectMock = vi.fn().mockReturnValue({ single: singleMock });
       const eqMock = vi.fn().mockReturnValue({ select: selectMock });
       const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
       (supabase.from as any).mockReturnValue({ update: updateMock });
 
-      await expect(
-        shadowingService.updateShadowingVideo('v1', { title: 'Error' })
-      ).rejects.toThrow('Update error');
+      await expect(shadowingService.updateShadowingVideo('v1', { title: 'Error' })).rejects.toThrow(
+        'Update error'
+      );
     });
   });
 

@@ -147,10 +147,7 @@ export function useTopics() {
     fetchTopics();
   };
 
-  const addParsedQuestions = async (
-    topicId: string,
-    parsed: ParsedQuestion[]
-  ) => {
+  const addParsedQuestions = async (topicId: string, parsed: ParsedQuestion[]) => {
     const topic = topics.find(t => t.id === topicId);
     const startingOrder = topic?.questions?.length || 0;
     await topicService.insertParsedQuestions(topicId, parsed, startingOrder);

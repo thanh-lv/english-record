@@ -56,9 +56,9 @@ describe('attendanceService', () => {
       const insertMock = vi.fn().mockReturnValue({ select: selectMock });
       (supabase.from as any).mockReturnValue({ insert: insertMock });
 
-      await expect(
-        attendanceService.createAttendanceStudent({ name: 'Bob' })
-      ).rejects.toThrow('Insert failed');
+      await expect(attendanceService.createAttendanceStudent({ name: 'Bob' })).rejects.toThrow(
+        'Insert failed'
+      );
     });
   });
 
@@ -107,7 +107,9 @@ describe('attendanceService', () => {
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
       (supabase.from as any).mockReturnValue({ delete: deleteMock });
 
-      await expect(attendanceService.deleteAttendanceStudent('s-1')).rejects.toThrow('Delete failed');
+      await expect(attendanceService.deleteAttendanceStudent('s-1')).rejects.toThrow(
+        'Delete failed'
+      );
     });
   });
 
@@ -242,12 +244,16 @@ describe('attendanceService', () => {
     });
 
     it('throws error on payments fetch failure', async () => {
-      const eqMonthMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Payments error') });
+      const eqMonthMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Payments error') });
       const eqYearMock = vi.fn().mockReturnValue({ eq: eqMonthMock });
       const selectMock = vi.fn().mockReturnValue({ eq: eqYearMock });
       (supabase.from as any).mockReturnValue({ select: selectMock });
 
-      await expect(attendanceService.fetchAttendancePayments(2026, 8)).rejects.toThrow('Payments error');
+      await expect(attendanceService.fetchAttendancePayments(2026, 8)).rejects.toThrow(
+        'Payments error'
+      );
     });
   });
 
@@ -312,9 +318,7 @@ describe('attendanceService', () => {
         { student_id: 's2' }, // s2 has 1 session: 150k
         { student_id: 's3' }, // s3 has 1 session: 0k
       ];
-      const paymentsData = [
-        { student_id: 's1', is_paid: true },
-      ];
+      const paymentsData = [{ student_id: 's1', is_paid: true }];
 
       (supabase.from as any).mockImplementation((table: string) => {
         if (table === 'attendance_students') {

@@ -7,7 +7,13 @@ import {
   AttendanceMonthlyTrend,
 } from '../types';
 
-export type { AttendanceStudent, AttendanceRecord, AttendancePayment, AttendanceStudentPayload, AttendanceMonthlyTrend };
+export type {
+  AttendanceStudent,
+  AttendanceRecord,
+  AttendancePayment,
+  AttendanceStudentPayload,
+  AttendanceMonthlyTrend,
+};
 
 export const attendanceService = {
   async fetchAttendanceStudents(): Promise<AttendanceStudent[]> {

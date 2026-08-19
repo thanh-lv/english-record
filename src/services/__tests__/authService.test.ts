@@ -150,7 +150,9 @@ describe('authService', () => {
     });
 
     it('returns null if teacher profile not found or error occurs', async () => {
-      const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Not found') });
+      const maybeSingleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Not found') });
       const eqRoleMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
       const eqUidMock = vi.fn().mockReturnValue({ eq: eqRoleMock });
       const selectMock = vi.fn().mockReturnValue({ eq: eqUidMock });
@@ -199,9 +201,9 @@ describe('authService', () => {
       });
       vi.spyOn(authService, 'getTeacherProfileByAuthUid').mockResolvedValue(null);
 
-      await expect(
-        authService.signInTeacher('teacher@example.com', 'pass123456')
-      ).rejects.toThrow('Tài khoản giáo viên không tồn tại trong hệ thống.');
+      await expect(authService.signInTeacher('teacher@example.com', 'pass123456')).rejects.toThrow(
+        'Tài khoản giáo viên không tồn tại trong hệ thống.'
+      );
     });
   });
 
@@ -266,21 +268,23 @@ describe('authService', () => {
       const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
       (supabase.from as any).mockReturnValue({ select: selectMock });
 
-      await expect(
-        authService.loginStudent('NonExistent', '123', 'anon-1')
-      ).rejects.toThrow('Tên học sinh không tồn tại.');
+      await expect(authService.loginStudent('NonExistent', '123', 'anon-1')).rejects.toThrow(
+        'Tên học sinh không tồn tại.'
+      );
     });
 
     it('throws error when search query fails', async () => {
-      const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Search failed') });
+      const maybeSingleMock = vi
+        .fn()
+        .mockResolvedValue({ data: null, error: new Error('Search failed') });
       const eqMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
       const ilikeMock = vi.fn().mockReturnValue({ eq: eqMock });
       const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
       (supabase.from as any).mockReturnValue({ select: selectMock });
 
-      await expect(
-        authService.loginStudent('Alice', '123', 'anon-1')
-      ).rejects.toThrow('Search failed');
+      await expect(authService.loginStudent('Alice', '123', 'anon-1')).rejects.toThrow(
+        'Search failed'
+      );
     });
 
     it('throws error when student password does not match', async () => {
@@ -316,9 +320,9 @@ describe('authService', () => {
 
       (supabase.from as any).mockReturnValue({ select: selectMock, update: updateMock });
 
-      await expect(
-        authService.loginStudent('Alice', '123', 'anon-1')
-      ).rejects.toThrow('Update failed');
+      await expect(authService.loginStudent('Alice', '123', 'anon-1')).rejects.toThrow(
+        'Update failed'
+      );
     });
 
     it('times out when DB operation hangs', async () => {
@@ -331,9 +335,9 @@ describe('authService', () => {
       });
       (supabase.from as any).mockReturnValue({ select: selectMock });
 
-      await expect(
-        authService.loginStudent('Alice', '123', 'anon-1', 20)
-      ).rejects.toThrow('Hết thời gian kết nối, vui lòng thử lại!');
+      await expect(authService.loginStudent('Alice', '123', 'anon-1', 20)).rejects.toThrow(
+        'Hết thời gian kết nối, vui lòng thử lại!'
+      );
     });
   });
 
