@@ -1,6 +1,7 @@
 import {
   BookMarked,
   BookOpen,
+  Bug,
   FileAudio,
   Library,
   Menu,
@@ -65,6 +66,11 @@ const TAB_THEMES: Record<
     iconActiveClass: 'text-teal-600',
     dotClass: 'bg-teal-600 shadow-teal-200',
   },
+  logs: {
+    activeClass: 'bg-rose-50 text-rose-700 border-rose-200/90 shadow-xs',
+    iconActiveClass: 'text-rose-600',
+    dotClass: 'bg-rose-600 shadow-rose-200',
+  },
 };
 
 export function TeacherSidebar() {
@@ -113,6 +119,11 @@ export function TeacherSidebar() {
       id: 'audio-builder',
       label: (t.teacherNav as any).audioBuilder || 'Tạo Audio',
       icon: <FileAudio size={18} />,
+    },
+    {
+      id: 'logs',
+      label: (t.teacherNav as any).logs || 'Nhật ký lỗi',
+      icon: <Bug size={18} />,
     },
   ];
 

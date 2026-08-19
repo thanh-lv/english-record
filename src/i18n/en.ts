@@ -119,6 +119,7 @@ export const en = {
     shadowing: 'Shadowing',
     audioBuilder: 'Audio Generator',
     attendance: 'Attendance',
+    logs: 'Error Logs',
   },
 
   // Teacher header

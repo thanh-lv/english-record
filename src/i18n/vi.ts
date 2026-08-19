@@ -119,6 +119,7 @@ export const vi = {
     shadowing: 'Shadowing',
     audioBuilder: 'Tạo Audio',
     attendance: 'Điểm danh',
+    logs: 'Nhật ký lỗi',
   },
 
   // Teacher header

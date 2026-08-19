@@ -13,7 +13,8 @@ export type TeacherTab =
   | 'stories'
   | 'vocabulary'
   | 'shadowing'
-  | 'audio-builder';
+  | 'audio-builder'
+  | 'logs';
 
 export type ActiveTab =
   | 'exercises'

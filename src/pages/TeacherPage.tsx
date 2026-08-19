@@ -45,6 +45,11 @@ const AttendanceManager = lazy(() =>
     default: m.AttendanceManager,
   }))
 );
+const LogsManager = lazy(() =>
+  import('../components/teacher/logs/LogsManager').then(m => ({
+    default: m.LogsManager,
+  }))
+);
 
 const formatDate = (timestamp: string) => {
   const d = new Date(timestamp);
@@ -213,6 +218,7 @@ export default function TeacherPage({
               <Route path="vocabulary" element={<VocabularyManager />} />
               <Route path="shadowing" element={<ShadowingManager />} />
               <Route path="audio-builder" element={<VocabAudioBuilder />} />
+              <Route path="logs" element={<LogsManager />} />
               <Route path="*" element={<Navigate to="/teacher/recordings" replace />} />
             </Routes>
           </Suspense>
