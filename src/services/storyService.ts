@@ -7,15 +7,22 @@ import { parseApiResponse, storiesResponseArraySchema, storyResponseSchema } fro
 const WORKER_URL = 'https://free-image-generation-api.levanthanh29111999.workers.dev/';
 
 export const storyService = {
-  async fetchAllStories(): Promise<Story[]> {
+  async fetchAllStories(teacherId?: string): Promise<Story[]> {
     return withServiceHandling('storyService', 'fetchAllStories', async () => {
+      const cacheKey = teacherId ? `stories:all:${teacherId}` : 'stories:all';
       return clientCache.fetchWithCache(
-        'stories:all',
+        cacheKey,
         async () => {
-          const { data, error } = await supabase
+          let query = supabase
             .from('stories')
             .select('id, title, type, emoji, image_url, content, grades, created_at, is_active')
             .order('created_at', { ascending: false });
+
+          if (teacherId) {
+            query = query.eq('teacher_id', teacherId);
+          }
+
+          const { data, error } = await query;
           if (error) throw error;
           return parseApiResponse(
             storiesResponseArraySchema,
@@ -82,7 +89,23 @@ export const storyService = {
         body: JSON.stringify({ prompt: textPrompt, type: 'text' }),
       });
 
-      if (!res.ok) throw new Error('Lỗi tạo nội dung câu chuyện AI');
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error(
+            'Lỗi xác thực: VITE_AI_API_KEY không hợp lệ hoặc đã hết hạn (401 Unauthorized)'
+          );
+        }
+        let errDetail = '';
+        try {
+          const errJson = await res.json();
+          errDetail = errJson.error || errJson.message || '';
+        } catch {}
+        throw new Error(
+          errDetail
+            ? `Lỗi tạo nội dung câu chuyện AI: ${errDetail}`
+            : 'Lỗi tạo nội dung câu chuyện AI'
+        );
+      }
       const data = await res.json();
       return data.story;
     });
@@ -102,7 +125,14 @@ export const storyService = {
         body: JSON.stringify({ prompt, type: 'image' }),
       });
 
-      if (!res.ok) throw new Error('Lỗi tạo hình ảnh AI');
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error(
+            'Lỗi xác thực: VITE_AI_API_KEY không hợp lệ hoặc đã hết hạn (401 Unauthorized)'
+          );
+        }
+        throw new Error('Lỗi tạo hình ảnh AI');
+      }
       return await res.blob();
     });
   },

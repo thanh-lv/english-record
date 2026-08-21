@@ -15,13 +15,21 @@ import {
 export type { CreateStudentPayload, UpdateStudentPayload, StudentRecordingsResponse };
 
 export const studentService = {
-  async fetchStudents(): Promise<UserProfile[]> {
+  async fetchStudents(teacherId?: string): Promise<UserProfile[]> {
     return withServiceHandling('studentService', 'fetchStudents', async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('profiles')
-        .select('id, name, updated_at, role, password, avatar, year_born, grade')
+        .select(
+          'id, name, updated_at, role, password, avatar, year_born, grade, teacher_id, username'
+        )
         .eq('role', 'student')
         .order('name');
+
+      if (teacherId) {
+        query = query.eq('teacher_id', teacherId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       return parseApiResponse(
@@ -32,13 +40,15 @@ export const studentService = {
     });
   },
 
-  async checkStudentNameExists(name: string): Promise<boolean> {
+  async checkStudentNameExists(name: string, teacherId?: string): Promise<boolean> {
     return withServiceHandling('studentService', 'checkStudentNameExists', async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .ilike('name', name.trim())
-        .maybeSingle();
+      let query = supabase.from('profiles').select('id').ilike('name', name.trim());
+
+      if (teacherId) {
+        query = query.eq('teacher_id', teacherId);
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) throw error;
       return Boolean(data);
@@ -53,6 +63,8 @@ export const studentService = {
         password: payload.password?.trim() || '',
         year_born: payload.year_born || 2015,
         grade: payload.grade ?? null,
+        teacher_id: payload.teacher_id || null,
+        username: payload.username?.trim() || null,
       };
 
       let { data, error } = await supabase.from('profiles').insert(insertPayload).select().single();
@@ -119,7 +131,8 @@ export const studentService = {
     studentName: string,
     page = 1,
     pageSize = 10,
-    filterType: 'all' | 'topic' | 'shadowing' = 'all'
+    filterType: 'all' | 'topic' | 'shadowing' = 'all',
+    teacherId?: string
   ): Promise<{ records: any[]; total: number }> {
     return withServiceHandling('studentService', 'fetchStudentRecordings', async () => {
       const fromIndex = (page - 1) * pageSize;
@@ -128,9 +141,11 @@ export const studentService = {
       let query = supabase
         .from('recordings')
         .select('*, shadowing_videos(youtube_url)', { count: 'exact' })
-        .ilike('student_name', studentName.trim())
-        .order('created_at', { ascending: false })
-        .range(fromIndex, toIndex);
+        .ilike('student_name', studentName.trim());
+
+      if (teacherId) {
+        query = query.eq('teacher_id', teacherId);
+      }
 
       if (filterType === 'topic') {
         query = query.is('shadowing_video_id', null);
@@ -138,7 +153,9 @@ export const studentService = {
         query = query.not('shadowing_video_id', 'is', null);
       }
 
-      const { data, error, count } = await query;
+      const { data, error, count } = await query
+        .order('created_at', { ascending: false })
+        .range(fromIndex, toIndex);
       if (error) throw error;
 
       const mapped = (data || []).map((r: any) => ({

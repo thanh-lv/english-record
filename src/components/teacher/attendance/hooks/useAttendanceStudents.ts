@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { attendanceService } from '../../../../services/attendanceService';
 import { loggerService } from '../../../../services/loggerService';
-import { AttendanceStudent } from '../../../../types';
+import { AttendanceStudent, AttendanceStudentPayload } from '../../../../types';
 import { sanitizeText, validateStudentName, validatePhone } from '../../../../utils';
+import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export function useAttendanceStudents(t: any) {
+  const { teacherId } = useTeacher();
   const tAtt = t?.attendance || {};
   const tc = t?.common || {};
 
@@ -17,25 +19,25 @@ export function useAttendanceStudents(t: any) {
   const [className, setClassName] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
   const [phone, setPhone] = useState('');
-  const [hocLieuFee, setHocLieuFee] = useState('');
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const loadStudents = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await attendanceService.fetchAttendanceStudents();
+      const data = await attendanceService.fetchAttendanceStudents(teacherId);
       setStudents(data);
     } catch (err) {
       loggerService.error('useAttendanceStudents', 'Error fetching attendance students', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [teacherId]);
 
   useEffect(() => {
     loadStudents();
@@ -50,22 +52,12 @@ export function useAttendanceStudents(t: any) {
     setUnitPrice(parseInt(rawValue, 10).toLocaleString());
   };
 
-  const handleHocLieuFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    if (!rawValue) {
-      setHocLieuFee('');
-      return;
-    }
-    setHocLieuFee(parseInt(rawValue, 10).toLocaleString());
-  };
-
   const openCreateModal = () => {
     setEditId(null);
     setName('');
     setClassName('');
     setUnitPrice('');
     setPhone('');
-    setHocLieuFee('');
     setNote('');
     setError('');
     setShowForm(true);
@@ -77,7 +69,6 @@ export function useAttendanceStudents(t: any) {
     setClassName(s.class_name || '');
     setUnitPrice(s.unit_price ? s.unit_price.toLocaleString() : '');
     setPhone(s.phone || '');
-    setHocLieuFee(s.hoc_lieu_fee ? s.hoc_lieu_fee.toLocaleString() : '');
     setNote(s.note || '');
     setError('');
     setShowForm(true);
@@ -106,9 +97,8 @@ export function useAttendanceStudents(t: any) {
     }
 
     const rawPrice = parseInt(unitPrice.replace(/\D/g, ''), 10) || 0;
-    const rawHlPrice = parseInt(hocLieuFee.replace(/\D/g, ''), 10) || 0;
 
-    if (rawPrice < 0 || rawPrice > 100000000 || rawHlPrice < 0 || rawHlPrice > 100000000) {
+    if (rawPrice < 0 || rawPrice > 100000000) {
       setError(tc.amountInvalid || 'Số tiền không hợp lệ');
       return;
     }
@@ -117,13 +107,13 @@ export function useAttendanceStudents(t: any) {
     setError('');
 
     const cName = sanitizeText(className) || tAtt.unassignedClass;
-    const payload = {
+    const payload: AttendanceStudentPayload = {
       name: cleanName,
       class_name: cName,
       unit_price: rawPrice,
       phone: cleanPhone || undefined,
-      hoc_lieu_fee: rawHlPrice,
-      note: sanitizeText(note) || undefined,
+      note: sanitizeText(note) || '',
+      teacher_id: teacherId,
     };
 
     try {
@@ -146,12 +136,14 @@ export function useAttendanceStudents(t: any) {
   const handleDelete = async () => {
     if (!deleteId) return;
     setDeleteSaving(true);
+    setDeleteError('');
     try {
       await attendanceService.deleteAttendanceStudent(deleteId);
       setStudents(prev => prev.filter(s => s.id !== deleteId));
       setDeleteId(null);
-    } catch (err) {
+    } catch (err: any) {
       loggerService.error('useAttendanceStudents', 'Error deleting student', err);
+      setDeleteError(err.message || 'Lỗi khi xóa học sinh');
     } finally {
       setDeleteSaving(false);
     }
@@ -171,8 +163,6 @@ export function useAttendanceStudents(t: any) {
     handlePriceChange,
     phone,
     setPhone,
-    hocLieuFee,
-    handleHocLieuFeeChange,
     note,
     setNote,
     saving,
@@ -180,6 +170,8 @@ export function useAttendanceStudents(t: any) {
     deleteId,
     setDeleteId,
     deleteSaving,
+    deleteError,
+    setDeleteError,
     openCreateModal,
     openEditModal,
     handleSave,

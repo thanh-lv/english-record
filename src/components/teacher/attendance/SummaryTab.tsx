@@ -16,7 +16,6 @@ import {
   Save,
   Wallet,
   BookOpen,
-  MessageCircle,
   Check,
   X,
 } from 'lucide-react';
@@ -27,9 +26,11 @@ import { ZaloShareModal } from './ZaloShareModal';
 import { formatClassName } from '../../../utils';
 import { useBodyScrollLock } from '../../../hooks';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { useTeacher } from '../../../contexts/TeacherContext';
 
 export function SummaryTab() {
   const { t, lang } = useLanguage();
+  const { teacherId } = useTeacher();
   const tAtt = t.attendance;
   const tc = t.common;
   const [records, setRecords] = useState<any[]>([]);
@@ -41,7 +42,7 @@ export function SummaryTab() {
   const [studentNotes, setStudentNotes] = useState<Record<string, string>>({});
   const [classHocLieu, setClassHocLieu] = useState<Record<string, string>>(() => {
     try {
-      const saved = localStorage.getItem('english_record_class_hoc_lieu');
+      const saved = localStorage.getItem(`english_record_class_hoc_lieu_${teacherId || 'default'}`);
       return saved ? JSON.parse(saved) : {};
     } catch (e) {
       return {};
@@ -52,7 +53,10 @@ export function SummaryTab() {
     setClassHocLieu(prev => {
       const next = { ...prev, [cls]: val };
       try {
-        localStorage.setItem('english_record_class_hoc_lieu', JSON.stringify(next));
+        localStorage.setItem(
+          `english_record_class_hoc_lieu_${teacherId || 'default'}`,
+          JSON.stringify(next)
+        );
       } catch (e) {}
       return next;
     });
@@ -62,7 +66,9 @@ export function SummaryTab() {
     Record<string, { label: string; value: number }>
   >(() => {
     try {
-      const saved = localStorage.getItem('english_record_class_hoc_lieu_map');
+      const saved = localStorage.getItem(
+        `english_record_class_hoc_lieu_map_${teacherId || 'default'}`
+      );
       return saved ? JSON.parse(saved) : {};
     } catch (e) {
       return {};
@@ -87,7 +93,10 @@ export function SummaryTab() {
         [className]: { label: updatedLabel, value: updatedValue },
       };
       try {
-        localStorage.setItem('english_record_class_hoc_lieu_map', JSON.stringify(next));
+        localStorage.setItem(
+          `english_record_class_hoc_lieu_map_${teacherId || 'default'}`,
+          JSON.stringify(next)
+        );
       } catch (e) {}
       return next;
     });
@@ -182,57 +191,60 @@ export function SummaryTab() {
       const startDate = new Date(year, month - 1, 1).toISOString();
       const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
 
-      // Try RPC first for fast backend calculation (Step 1)
-      const rpcRes = await supabase.rpc('get_monthly_attendance_summary', {
-        p_year: year,
-        p_month: month,
+      setRpcSummary(null);
+
+      let studQuery = supabase.from('attendance_students').select('*').order('name');
+      if (teacherId) {
+        studQuery = studQuery.eq('teacher_id', teacherId);
+      }
+
+      const studRes = await studQuery;
+      const currentStudents = studRes.data || [];
+      const studentIds = currentStudents.map((s: any) => s.id);
+
+      let currentRecords: any[] = [];
+      let currentPayments: any[] = [];
+
+      if (studentIds.length > 0) {
+        const [recRes, payRes] = await Promise.all([
+          supabase
+            .from('attendance_records')
+            .select('*, attendance_students(name, unit_price)')
+            .in('student_id', studentIds)
+            .gte('checkin_time', startDate)
+            .lte('checkin_time', endDate),
+          supabase
+            .from('attendance_payments')
+            .select('student_id, is_paid')
+            .in('student_id', studentIds)
+            .eq('year', year)
+            .eq('month', month),
+        ]);
+        currentRecords = recRes.data || [];
+        currentPayments = payRes.data || [];
+      }
+
+      setStudents(currentStudents);
+      const nMap: Record<string, string> = {};
+      currentStudents.forEach((s: any) => {
+        if (s.note || s.student_note) {
+          nMap[s.id] = s.note || s.student_note;
+        }
       });
+      setStudentNotes(prev => ({ ...nMap, ...prev }));
+      setRecords(currentRecords);
 
-      if (!rpcRes.error && rpcRes.data) {
-        setRpcSummary(rpcRes.data);
-      } else {
-        setRpcSummary(null);
-      }
+      const pMap: Record<string, boolean> = {};
+      currentPayments.forEach((p: any) => {
+        pMap[p.student_id] = p.is_paid;
+      });
+      setPaymentsMap(pMap);
 
-      const [studRes, recRes, payRes] = await Promise.all([
-        supabase.from('attendance_students').select('*'),
-        supabase
-          .from('attendance_records')
-          .select('*, attendance_students(name, unit_price)')
-          .gte('checkin_time', startDate)
-          .lte('checkin_time', endDate),
-        supabase
-          .from('attendance_payments')
-          .select('student_id, is_paid')
-          .eq('year', year)
-          .eq('month', month),
-      ]);
-
-      if (studRes.data) {
-        setStudents(studRes.data);
-        const nMap: Record<string, string> = {};
-        studRes.data.forEach((s: any) => {
-          if (s.note || s.student_note) {
-            nMap[s.id] = s.note || s.student_note;
-          }
-        });
-        setStudentNotes(prev => ({ ...nMap, ...prev }));
-      }
-      if (recRes.data) setRecords(recRes.data);
-      if (payRes && payRes.data) {
-        const pMap: Record<string, boolean> = {};
-        payRes.data.forEach((p: any) => {
-          pMap[p.student_id] = p.is_paid;
-        });
-        setPaymentsMap(pMap);
-      } else {
-        setPaymentsMap({});
-      }
       setLoading(false);
     };
 
     loadData();
-  }, [month, year]);
+  }, [month, year, teacherId]);
 
   const allSummary = rpcSummary
     ? rpcSummary.map(item => {

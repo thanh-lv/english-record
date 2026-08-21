@@ -24,21 +24,31 @@ export default function LoginPage({
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleStudentLogin = async () => {
-    const trimmedName = name.trim();
-    if (trimmedName.length < 2) {
-      setError(t.common.nameRequired);
+    const trimmedUsername = name.trim();
+    if (trimmedUsername.length < 2) {
+      setError(t.login.usernameRequired || t.common.nameRequired || 'Vui lòng nhập tên đăng nhập.');
       return;
     }
     if (password.length < 3) {
       setError(t.common.passwordRequired);
       return;
     }
-    if (!user) {
-      setError(t.common.systemInit);
-      return;
+
+    let currentUserId = user?.id;
+    if (!currentUserId) {
+      try {
+        const anonUser = await authService.signInAnonymously();
+        currentUserId = anonUser?.id;
+      } catch (err) {
+        console.warn('Anonymous sign-in skipped or unavailable:', err);
+      }
     }
 
-    const profileData = await authService.loginStudent(trimmedName, password, user.id);
+    const profileData = await authService.loginStudent(
+      trimmedUsername,
+      password,
+      currentUserId || 'anonymous'
+    );
     setProfile(profileData);
   };
 
@@ -47,7 +57,7 @@ export default function LoginPage({
       setError(t.common.emailInvalid);
       return;
     }
-    if (password.length < 6) {
+    if (password.length < 3) {
       setError(t.common.teacherPasswordMin);
       return;
     }

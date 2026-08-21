@@ -55,6 +55,7 @@ export function ShadowingManager() {
     copiedId,
     openCreateModal,
     openEditModal,
+    closeModal,
     handleSave,
     handleToggleActive: toggleActive,
     handleDelete: confirmDelete,
@@ -300,7 +301,7 @@ export function ShadowingManager() {
                 {editingVideo ? t.teacherModal.editVideoTitle : t.teacherModal.addVideoTitle}
               </h4>
               <button
-                onClick={() => setShowCreate(false)}
+                onClick={closeModal}
                 className="p-1 hover:bg-slate-100 rounded-lg text-slate-400"
               >
                 <X size={20} />
@@ -438,7 +439,7 @@ export function ShadowingManager() {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button
-                onClick={() => setShowCreate(false)}
+                onClick={closeModal}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs"
               >
                 {t.common.cancel}

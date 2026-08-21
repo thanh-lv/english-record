@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import { loggerService } from '../../../services/loggerService';
 
 interface UseRecordingOptions {
   user: any;
@@ -110,7 +111,14 @@ export function useRecording({
   const saveRecording = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user || isSaving) return;
+    if (isSaving || !profile?.name) return;
+
+    if (!profile?.teacher_id) {
+      setAppError(
+        'Tài khoản học sinh chưa được liên kết với giáo viên. Vui lòng liên hệ giáo viên.'
+      );
+      return;
+    }
 
     const audiosToSave: { questionIndex: number; blob: Blob }[] = Object.entries(bongBeAudios).map(
       ([idx, blob]) => ({
@@ -137,18 +145,43 @@ export function useRecording({
       ]);
       const s3Client = await getS3Client();
 
+      let authUserId = user?.id || profile?.auth_user_id || null;
+      if (!authUserId || authUserId === 'anonymous') {
+        try {
+          const { data } = await supabase.auth.getSession();
+          if (data?.session?.user?.id) {
+            authUserId = data.session.user.id;
+          } else {
+            const anonRes = await supabase.auth.signInAnonymously();
+            authUserId = anonRes?.data?.user?.id || null;
+          }
+        } catch (authErr) {
+          console.warn('[useRecording] Anonymous auth check skipped:', authErr);
+        }
+      }
+
+      const studentFolderId = profile?.id || authUserId || 'student';
+
       for (const { questionIndex, blob } of audiosToSave) {
         const fileExt = blob.type.includes('mp4') ? 'mp4' : 'webm';
         const prefix = selectedNumber != null ? `topic_${selectedNumber}` : `shadowing`;
-        const fileName = `${user.id}/${Date.now()}_${prefix}_q${questionIndex}.${fileExt}`;
+        const fileName = `${studentFolderId}/${Date.now()}_${prefix}_q${questionIndex}.${fileExt}`;
 
-        const s3Command = new PutObjectCommand({
-          Bucket: S3_BUCKET,
-          Key: fileName,
-          Body: new Uint8Array(await blob.arrayBuffer()),
-          ContentType: blob.type,
-        });
-        await s3Client.send(s3Command);
+        try {
+          const s3Command = new PutObjectCommand({
+            Bucket: S3_BUCKET,
+            Key: fileName,
+            Body: new Uint8Array(await blob.arrayBuffer()),
+            ContentType: blob.type,
+          });
+          await s3Client.send(s3Command);
+        } catch (s3Err: any) {
+          console.error('[useRecording] S3 upload failed:', s3Err);
+          loggerService.error('useRecording', 'S3/R2 audio upload error', s3Err);
+          throw new Error(s3Err?.message || 'Lỗi tải lên file âm thanh (Cloudflare R2 / S3)', {
+            cause: s3Err,
+          });
+        }
 
         const publicBaseUrl = import.meta.env.VITE_R2_PUBLIC_URL;
         let audioUrl = '';
@@ -166,25 +199,47 @@ export function useRecording({
           selectedNumber != null ? currentTopic?.questions?.[questionIndex]?.id : null;
         const topicId = selectedNumber != null ? currentTopic?.id : null;
 
-        const newRecording = {
+        const newRecording: Record<string, any> = {
           student_name: profile.name,
           topic: currentTopic.title,
           topic_number: selectedNumber,
           audio_url: audioUrl,
           created_at: new Date().toISOString(),
-          user_id: user.id,
           question_text: questionText,
           topic_id: topicId,
           question_id: questionId,
           shadowing_video_id: shadowingVideoId ?? null,
+          teacher_id: profile.teacher_id,
         };
+
+        if (authUserId && authUserId !== 'anonymous') {
+          newRecording.user_id = authUserId;
+        }
 
         if (existingRecordingId) {
           await supabase.from('recordings').delete().eq('id', existingRecordingId);
         }
 
-        const { data, error } = await supabase.from('recordings').insert([newRecording]).select();
-        if (error) throw error;
+        let { data, error } = await supabase.from('recordings').insert([newRecording]).select();
+
+        // If error is foreign key violation on user_id (code 23503), retry without user_id
+        if (
+          error &&
+          (error.code === '23503' ||
+            error.message?.toLowerCase().includes('user') ||
+            error.message?.toLowerCase().includes('foreign key'))
+        ) {
+          delete newRecording.user_id;
+          const retryRes = await supabase.from('recordings').insert([newRecording]).select();
+          data = retryRes.data;
+          error = retryRes.error;
+        }
+
+        if (error) {
+          console.error('[useRecording] Supabase insert failed:', error);
+          loggerService.error('useRecording', 'Supabase recordings insert error', error);
+          throw error;
+        }
 
         if (data && data.length > 0) {
           savedRecordings.push(...data);
@@ -194,9 +249,12 @@ export function useRecording({
       onSaveSuccess(savedRecordings, selectedNumber);
       setBongBeAudios({});
       setAudioBase64(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting recording:', error);
-      setAppError(navigator.onLine ? t.common.submitError : t.common.offlineError);
+      loggerService.error('useRecording', 'Error submitting recording', error);
+      setAppError(
+        error?.message || (navigator.onLine ? t.common.submitError : t.common.offlineError)
+      );
     } finally {
       setIsSaving(false);
     }

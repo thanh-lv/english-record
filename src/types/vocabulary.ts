@@ -5,6 +5,7 @@ export interface VocabSet {
   grades?: number[];
   created_at?: string;
   card_count?: number;
+  teacher_id?: string;
 }
 
 export interface VocabCard {

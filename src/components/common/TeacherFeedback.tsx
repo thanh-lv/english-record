@@ -91,7 +91,7 @@ export function TeacherFeedback({
           <div className="bg-white/70 p-3 rounded-xl border border-amber-200/60">
             <p className="text-slate-500 font-semibold text-xs italic">
               {t.feedback.waitingFeedback ||
-                'Cô giáo đang xem bài và sẽ sớm nhận xét cho con nhé! 🌟'}
+                'Giáo viên đang xem bài và sẽ sớm nhận xét cho con nhé! 🌟'}
             </p>
           </div>
         )}

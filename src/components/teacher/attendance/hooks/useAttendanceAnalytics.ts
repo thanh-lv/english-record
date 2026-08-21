@@ -5,6 +5,7 @@ import { loggerService } from '../../../../services/loggerService';
 import { formatClassName } from '../../../../utils';
 import { interpolate } from '../../../../i18n/LanguageContext';
 import { AttendanceMonthlyTrend, ClassAttendanceRate } from '../../../../types';
+import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export interface UseAttendanceAnalyticsOptions {
   month: number;
@@ -19,6 +20,7 @@ export function useAttendanceAnalytics({
   paymentsMap,
   tAtt,
 }: UseAttendanceAnalyticsOptions) {
+  const { teacherId } = useTeacher();
   const [loading, setLoading] = useState(true);
   const [monthlyTrends, setMonthlyTrends] = useState<AttendanceMonthlyTrend[]>([]);
   const [classRates, setClassRates] = useState<ClassAttendanceRate[]>([]);
@@ -33,7 +35,12 @@ export function useAttendanceAnalytics({
     setLoading(true);
     try {
       const currentTAtt = tAttRef.current;
-      const trendData = await attendanceService.fetchAnalyticsData(year, month, paymentsMap);
+      const trendData = await attendanceService.fetchAnalyticsData(
+        year,
+        month,
+        paymentsMap,
+        teacherId
+      );
       const mappedTrends = trendData.map(item => ({
         ...item,
         fullLabel: interpolate(currentTAtt?.monthYear || 'Tháng {month}/{year}', {
@@ -47,13 +54,22 @@ export function useAttendanceAnalytics({
       const startDate = new Date(year, month - 1, 1).toISOString();
       const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
 
-      const [studRes, recRes] = await Promise.all([
-        supabase.from('attendance_students').select('id, name, class_name'),
-        supabase
+      let studQuery = supabase.from('attendance_students').select('id, name, class_name');
+      if (teacherId) {
+        studQuery = studQuery.eq('teacher_id', teacherId);
+      }
+
+      let recQuery: any = supabase.from('attendance_records').select('student_id');
+      if (teacherId) {
+        recQuery = supabase
           .from('attendance_records')
-          .select('student_id')
-          .gte('checkin_time', startDate)
-          .lte('checkin_time', endDate),
+          .select('student_id, attendance_students!inner(teacher_id)')
+          .eq('attendance_students.teacher_id', teacherId);
+      }
+
+      const [studRes, recRes] = await Promise.all([
+        studQuery,
+        recQuery.gte('checkin_time', startDate).lte('checkin_time', endDate),
       ]);
 
       if (studRes.data && recRes.data) {
@@ -69,7 +85,7 @@ export function useAttendanceAnalytics({
           byClass[cls].totalStudents += 1;
         });
 
-        recRes.data.forEach(r => {
+        (recRes.data || []).forEach((r: any) => {
           const student = studRes.data!.find(s => s.id === r.student_id);
           if (student) {
             const cls = formatClassName(

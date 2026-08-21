@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { AlertCircle, Check, Loader2, Plus, Search, Sparkles, X } from 'lucide-react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
-import { supabase } from '../../../lib/supabase';
 import { AIQuestionParserModal } from './AIQuestionParserModal';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
 import { useTopics } from './useTopics';
@@ -63,11 +62,16 @@ export function TopicsManager() {
     saving,
     deleteTarget,
     setDeleteTarget,
+    deleteSaving,
+    deleteError,
+    setDeleteError,
     fetchTopics,
     toggleTopicActive,
     saveTopic,
     addTopic,
     confirmDelete,
+    createQuestion,
+    updateQuestion,
     addParsedQuestions,
   } = useTopics();
 
@@ -442,30 +446,10 @@ export function TopicsManager() {
           onClose={() => setQuestionModal(null)}
           onSave={async values => {
             if (questionModal.mode === 'add') {
-              const topic = topics.find(t => t.id === questionModal.topicId);
-              const maxOrder = topic?.questions?.length || 0;
-              await supabase.from('questions').insert({
-                topic_id: questionModal.topicId,
-                text: values.text,
-                translation: values.translation || null,
-                sample_answer: values.sample_answer || null,
-                target: values.target || null,
-                image_url: values.image_url || null,
-                order_index: maxOrder,
-              });
+              await createQuestion(questionModal.topicId, values);
             } else if (questionModal.question) {
-              await supabase
-                .from('questions')
-                .update({
-                  text: values.text,
-                  translation: values.translation || null,
-                  sample_answer: values.sample_answer || null,
-                  target: values.target || null,
-                  image_url: values.image_url || null,
-                })
-                .eq('id', questionModal.question.id);
+              await updateQuestion(questionModal.question.id, values);
             }
-            fetchTopics();
           }}
         />
       )}
@@ -483,12 +467,17 @@ export function TopicsManager() {
         <DeleteConfirmModal
           title={
             deleteTarget.type === 'topic'
-              ? t.common.deleteTopicConfirm
-              : t.common.deleteQuestionConfirm
+              ? t.common.deleteTopicConfirm || 'Xác nhận xóa chủ đề'
+              : t.common.deleteQuestionConfirm || 'Xác nhận xóa câu hỏi'
           }
           description={deleteTarget.label}
+          saving={deleteSaving}
+          error={deleteError}
           onConfirm={confirmDelete}
-          onCancel={() => setDeleteTarget(null)}
+          onCancel={() => {
+            setDeleteTarget(null);
+            setDeleteError('');
+          }}
         />
       )}
     </div>

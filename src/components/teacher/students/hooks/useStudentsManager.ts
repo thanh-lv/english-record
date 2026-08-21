@@ -4,8 +4,10 @@ import { supabase } from '../../../../lib/supabase';
 import { loggerService } from '../../../../services/loggerService';
 import { calculateStreak } from '../../../../utils';
 import { UserProfile, StudentStats } from '../../../../types';
+import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export function useStudentsManager() {
+  const { teacherId } = useTeacher();
   const [students, setStudents] = useState<UserProfile[]>([]);
   const [recordings, setRecordings] = useState<any[]>([]);
   const [activeTopics, setActiveTopics] = useState<any[]>([]);
@@ -16,6 +18,7 @@ export function useStudentsManager() {
   const [resetPassStudent, setResetPassStudent] = useState<UserProfile | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserProfile | null>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [gradeFilter, setGradeFilter] = useState('all');
@@ -23,10 +26,18 @@ export function useStudentsManager() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      let recQuery = supabase.from('recordings').select('*');
+      let topQuery = supabase.from('topics').select('id, questions(id)').eq('is_active', true);
+
+      if (teacherId) {
+        recQuery = recQuery.eq('teacher_id', teacherId);
+        topQuery = topQuery.eq('teacher_id', teacherId);
+      }
+
       const [stData, { data: recData }, { data: topData }] = await Promise.all([
-        studentService.fetchStudents(),
-        supabase.from('recordings').select('*'),
-        supabase.from('topics').select('id, questions(id)').eq('is_active', true),
+        studentService.fetchStudents(teacherId),
+        recQuery,
+        topQuery,
       ]);
 
       setStudents(stData || []);
@@ -37,7 +48,7 @@ export function useStudentsManager() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [teacherId]);
 
   useEffect(() => {
     fetchData();
@@ -97,12 +108,14 @@ export function useStudentsManager() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleteSaving(true);
+    setDeleteError('');
     try {
       await studentService.deleteStudent(deleteTarget.id);
       setStudents(prev => prev.filter(s => s.id !== deleteTarget.id));
       setDeleteTarget(null);
-    } catch (err) {
+    } catch (err: any) {
       loggerService.error('useStudentsManager', 'Error deleting student', err);
+      setDeleteError(err.message || 'Lỗi khi xóa học sinh');
     } finally {
       setDeleteSaving(false);
     }
@@ -137,6 +150,8 @@ export function useStudentsManager() {
     deleteTarget,
     setDeleteTarget,
     deleteSaving,
+    deleteError,
+    setDeleteError,
     handleDelete,
     onStudentCreated,
     onStudentUpdated,

@@ -16,9 +16,11 @@ import {
 import { formatClassName } from '../../../utils';
 import { useBodyScrollLock } from '../../../hooks';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { useTeacher } from '../../../contexts/TeacherContext';
 
 export function CheckinTab() {
   const { t, lang } = useLanguage();
+  const { teacherId } = useTeacher();
   const tAtt = t.attendance;
   const tc = t.common;
   const [students, setStudents] = useState<any[]>([]);
@@ -44,22 +46,25 @@ export function CheckinTab() {
   useBodyScrollLock(Boolean(modalDate || deleteTargetStudent));
 
   useEffect(() => {
-    attendanceService.fetchAttendanceStudents().then(data => {
+    attendanceService.fetchAttendanceStudents(teacherId).then(data => {
       setStudents(data);
       setLoading(false);
     });
-  }, []);
+  }, [teacherId]);
 
-  const loadMonthRecords = useCallback(async (year: number, month: number) => {
-    const start = new Date(year, month, 1).toISOString();
-    const end = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
-    try {
-      const data = await attendanceService.fetchAttendanceRecords(start, end);
-      setMonthRecords(data);
-    } catch (err) {
-      loggerService.error('CheckinTab', 'Error fetching month records', err);
-    }
-  }, []);
+  const loadMonthRecords = useCallback(
+    async (year: number, month: number) => {
+      const start = new Date(year, month, 1).toISOString();
+      const end = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+      try {
+        const data = await attendanceService.fetchAttendanceRecords(start, end, teacherId);
+        setMonthRecords(data);
+      } catch (err) {
+        loggerService.error('CheckinTab', 'Error fetching month records', err);
+      }
+    },
+    [teacherId]
+  );
 
   useEffect(() => {
     loadMonthRecords(calYear, calMonth);

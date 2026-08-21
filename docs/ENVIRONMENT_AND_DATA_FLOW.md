@@ -41,7 +41,7 @@ Sao chép `.env.example` thành `.env` và cấu hình các biến sau:
 5. **`stories`**: Câu chuyện đọc tiếng Anh (`id`, `title`, `type`, `content`, `emoji`, `image_url`, `grades`, `is_active`).
 6. **`vocab_sets` & `vocab_cards`**: Bộ thẻ từ vựng (`title`, `front`, `back`, `ipa`, `image_url`, `audio_url`).
 7. **`shadowing_videos`**: Video luyện nói theo phụ đề YouTube (`title`, `youtube_url`, `preview_start`, `preview_end`, `record_start`, `record_end`, `grades`, `is_active`).
-8. **`attendance_students`**: Danh sách học sinh điểm danh (`name`, `class_name`, `unit_price`, `phone`, `zalo_phone`, `hoc_lieu_fee`, `note`).
+8. **`attendance_students`**: Danh sách học sinh điểm danh (`name`, `class_name`, `unit_price`, `phone`, `hoc_lieu_label`, `hoc_lieu_value`, `note`, `teacher_id`).
 9. **`attendance_records`**: Lịch sử điểm danh từng buổi (`student_id`, `checkin_time`).
 10. **`attendance_payments`**: Lịch sử đóng học phí (`student_id`, `month`, `year`, `is_paid`, `paid_at`).
 11. **`client_error_logs`**: Lịch sử log lỗi và chẩn đoán phía client (`user_id`, `level`, `module`, `message`, `stack`, `url`, `user_agent`).

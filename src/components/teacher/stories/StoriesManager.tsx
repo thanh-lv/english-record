@@ -30,6 +30,9 @@ export function StoriesManager() {
     setEditingStory,
     deleteStoryTarget,
     setDeleteStoryTarget,
+    deleteSaving,
+    deleteError,
+    setDeleteError,
     editTitle,
     setEditTitle,
     editContent,
@@ -263,8 +266,13 @@ export function StoriesManager() {
         <DeleteConfirmModal
           title={tc.deleteStoryConfirm || 'Xác nhận xóa câu chuyện'}
           description={deleteStoryTarget.title}
+          saving={deleteSaving}
+          error={deleteError}
           onConfirm={confirmDeleteStory}
-          onCancel={() => setDeleteStoryTarget(null)}
+          onCancel={() => {
+            setDeleteStoryTarget(null);
+            setDeleteError('');
+          }}
         />
       )}
     </div>

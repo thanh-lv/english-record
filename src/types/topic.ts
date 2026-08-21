@@ -27,6 +27,7 @@ export interface Topic {
   order_index?: number;
   created_at?: string;
   grades?: number[];
+  teacher_id?: string;
   questions: Question[];
 }
 
@@ -35,6 +36,7 @@ export interface CreateTopicPayload {
   type: TopicType;
   order_index: number;
   grades?: number[];
+  teacher_id?: string;
 }
 
 export interface UpdateTopicPayload {

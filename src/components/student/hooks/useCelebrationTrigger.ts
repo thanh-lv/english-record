@@ -5,34 +5,37 @@ import { useEffect, useRef, useState } from 'react';
  * from the student presentation component.
  *
  * @param completedTopicNumbers - List of fully completed topic numbers
- * @param topicsLoading - Loading state of topic data
+ * @param isDataLoading - Loading state of topic & recording data
  * @param activeTopicsCount - Total number of active topics
  */
 export function useCelebrationTrigger(
   completedTopicNumbers: number[],
-  topicsLoading: boolean,
+  isDataLoading: boolean,
   activeTopicsCount: number
 ) {
   const [showCelebration, setShowCelebration] = useState(false);
-  const prevCompletedCount = useRef(0);
+  const prevCompletedCount = useRef<number | null>(null);
   const isDataReady = useRef(false);
 
   useEffect(() => {
-    if (topicsLoading || activeTopicsCount === 0) return;
+    // If still loading either topics or student recordings, or no active topics yet, wait!
+    if (isDataLoading || activeTopicsCount === 0) return;
 
     const fullyCompletedCount = completedTopicNumbers.length;
 
+    // First time data is completely loaded and settled: snapshot initial count without triggering celebration
     if (!isDataReady.current) {
       isDataReady.current = true;
       prevCompletedCount.current = fullyCompletedCount;
       return;
     }
 
-    if (fullyCompletedCount > prevCompletedCount.current) {
+    // Only trigger celebration if count actually increased during this active session
+    if (prevCompletedCount.current !== null && fullyCompletedCount > prevCompletedCount.current) {
       setShowCelebration(true);
     }
     prevCompletedCount.current = fullyCompletedCount;
-  }, [completedTopicNumbers, topicsLoading, activeTopicsCount]);
+  }, [completedTopicNumbers, isDataLoading, activeTopicsCount]);
 
   const closeCelebration = () => setShowCelebration(false);
 

@@ -727,7 +727,13 @@ function ScrambleGame({ cards, onClose }: { cards: VocabCard[]; onClose: () => v
   );
 }
 // ─── GAMES TAB ───────────────────────────────────────────────────
-export function GamesTab({ studentGrade }: { studentGrade?: number }) {
+export function GamesTab({
+  studentGrade,
+  teacherId,
+}: {
+  studentGrade?: number;
+  teacherId?: string | null;
+}) {
   const { t } = useLanguage();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -740,10 +746,16 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
     const fetch = async () => {
       setLoading(true);
 
-      const { data } = await supabase
+      let query = supabase
         .from('vocabulary_sets')
-        .select('id, title, emoji, grades, vocabulary_cards(id)')
+        .select('id, title, emoji, grades, vocabulary_cards(id), teacher_id')
         .order('created_at', { ascending: false });
+
+      if (teacherId) {
+        query = query.eq('teacher_id', teacherId);
+      }
+
+      const { data } = await query;
 
       setSets(
         (data || [])
@@ -760,7 +772,7 @@ export function GamesTab({ studentGrade }: { studentGrade?: number }) {
       setLoading(false);
     };
     fetch();
-  }, [studentGrade]);
+  }, [studentGrade, teacherId]);
 
   const handleSelectSet = async (set: VocabSet) => {
     setSelectedSet(set);

@@ -28,10 +28,12 @@ import { supabase } from '../../../lib/supabase';
 import { uploadService } from '../../../services/uploadService';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
 import { sanitizeText } from '../../../utils/validators';
+import { useTeacher } from '../../../contexts/TeacherContext';
 
 export function VocabAudioBuilder() {
   const { t } = useLanguage();
   const tAudio = t.audioBuilder;
+  const { teacherId } = useTeacher();
 
   const [inputText, setInputText] = useState<string>('');
   const [repetitions, setRepetitions] = useState<number>(3);
@@ -52,6 +54,7 @@ export function VocabAudioBuilder() {
   const [isSaving, setIsSaving] = useState(false);
   const [audioToDelete, setAudioToDelete] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteAudioError, setDeleteAudioError] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -99,10 +102,16 @@ export function VocabAudioBuilder() {
   const fetchLibrary = async () => {
     setIsLibraryLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('vocab_audios')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (teacherId) {
+        query = query.eq('teacher_id', teacherId);
+      }
+
+      const { data, error } = await query;
       if (!error && data) {
         setSavedAudios(data);
       }
@@ -115,7 +124,7 @@ export function VocabAudioBuilder() {
 
   useEffect(() => {
     fetchLibrary();
-  }, []);
+  }, [teacherId]);
 
   const handleSaveToLibrary = async () => {
     const cleanTitle = sanitizeText(audioTitle);
@@ -141,6 +150,7 @@ export function VocabAudioBuilder() {
         words_count: parsedWords.length,
         duration: audioResult.totalDuration,
         config_summary: configSummary,
+        teacher_id: teacherId || null,
       });
 
       if (error) throw error;
@@ -156,20 +166,24 @@ export function VocabAudioBuilder() {
     }
   };
 
-  const handleDeleteSavedAudio = async (audio: any, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteSavedAudio = (audio: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setDeleteAudioError(null);
     setAudioToDelete(audio);
   };
 
   const confirmDeleteAudio = async () => {
     if (!audioToDelete) return;
     setIsDeleting(true);
+    setDeleteAudioError(null);
     try {
-      await supabase.from('vocab_audios').delete().eq('id', audioToDelete.id);
+      const { error } = await supabase.from('vocab_audios').delete().eq('id', audioToDelete.id);
+      if (error) throw error;
       setSavedAudios(prev => prev.filter(a => a.id !== audioToDelete.id));
       setAudioToDelete(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setDeleteAudioError(err?.message || 'Lỗi khi xóa file audio.');
     } finally {
       setIsDeleting(false);
     }
@@ -675,7 +689,13 @@ export function VocabAudioBuilder() {
                     ⚙️ {audio.config_summary}
                   </span>
                 </div>
-                <audio controls src={audio.audio_url} className="w-full h-9 mt-1 rounded-xl" />
+                <audio
+                  controls
+                  preload="metadata"
+                  crossOrigin="anonymous"
+                  src={audio.audio_url}
+                  className="w-full h-9 mt-1 rounded-xl"
+                />
               </div>
             ))}
           </div>
@@ -747,8 +767,12 @@ export function VocabAudioBuilder() {
           description={`"${audioToDelete.title}"`}
           confirmLabel={tAudio.delete}
           saving={isDeleting}
+          error={deleteAudioError || undefined}
           onConfirm={confirmDeleteAudio}
-          onCancel={() => setAudioToDelete(null)}
+          onCancel={() => {
+            setAudioToDelete(null);
+            setDeleteAudioError(null);
+          }}
         />
       )}
     </div>

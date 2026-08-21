@@ -116,13 +116,25 @@ export function useTopicModalSession({
     const activeQuestion = currentTopic.questions?.[activeQuestionIndex];
     if (!activeQuestion) return null;
 
+    const isTopicMatch = (r: any) =>
+      (r.topic_id && currentTopic.id && r.topic_id === currentTopic.id) ||
+      (r.topic &&
+        currentTopic.title &&
+        r.topic.trim().toLowerCase() === currentTopic.title.trim().toLowerCase()) ||
+      Number(r.topic_number) === selectedNumber ||
+      (currentTopic.order_index != null &&
+        Number(r.topic_number) === Number(currentTopic.order_index));
+
     return (
       myRecordings.find(
         (r: any) =>
-          r.topic_number === selectedNumber &&
-          (r.question_id === activeQuestion.id ||
-            r.question_text === activeQuestion.text ||
-            (isBongBe && r.topic === currentTopic.title))
+          isTopicMatch(r) &&
+          ((r.question_id && activeQuestion.id && r.question_id === activeQuestion.id) ||
+            (r.question_text &&
+              activeQuestion.text &&
+              r.question_text.trim().toLowerCase() === activeQuestion.text.trim().toLowerCase()) ||
+            (isBongBe && r.topic === currentTopic.title) ||
+            (!r.question_id && !r.question_text))
       ) || null
     );
   }, [selectedNumber, currentTopic, activeQuestionIndex, myRecordings, isBongBe]);
@@ -133,18 +145,39 @@ export function useTopicModalSession({
       return { isTopicFullyRecorded: false, canRetry: false };
     }
 
+    const isTopicMatch = (r: any) =>
+      (r.topic_id && currentTopic.id && r.topic_id === currentTopic.id) ||
+      (r.topic &&
+        currentTopic.title &&
+        r.topic.trim().toLowerCase() === currentTopic.title.trim().toLowerCase()) ||
+      Number(r.topic_number) === selectedNumber ||
+      (currentTopic.order_index != null &&
+        Number(r.topic_number) === Number(currentTopic.order_index));
+
     const recordedQuestionsCount = currentTopic.questions.filter((q: any) =>
       myRecordings.some(
         (r: any) =>
-          r.topic_number === selectedNumber &&
-          (r.question_id === q.id || r.question_text === q.text)
+          isTopicMatch(r) &&
+          ((r.question_id && q.id && r.question_id === q.id) ||
+            (r.question_text &&
+              q.text &&
+              r.question_text.trim().toLowerCase() === q.text.trim().toLowerCase()) ||
+            (!r.question_id && !r.question_text))
       )
     ).length;
 
-    const fullyRecorded =
-      currentTopic.questions.length > 0 && recordedQuestionsCount === currentTopic.questions.length;
+    const hasGlobal = myRecordings.some(
+      (r: any) => isTopicMatch(r) && !r.question_id && !r.question_text
+    );
+    const hasAny = myRecordings.some((r: any) => isTopicMatch(r));
 
-    const topicRecordings = myRecordings.filter((r: any) => r.topic_number === selectedNumber);
+    const fullyRecorded =
+      hasGlobal ||
+      (currentTopic.questions.length > 0 &&
+        recordedQuestionsCount === currentTopic.questions.length) ||
+      (currentTopic.questions.length === 0 && hasAny);
+
+    const topicRecordings = myRecordings.filter((r: any) => isTopicMatch(r));
     const hasRejected = topicRecordings.some((r: any) => r.status === 'rejected');
 
     return {

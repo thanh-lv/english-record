@@ -18,6 +18,7 @@ export interface Recording {
   teacher_feedback?: string | null;
   student_reaction?: string | null;
   user_id?: string | null;
+  teacher_id?: string | null;
   shadowing_videos?: {
     youtube_url?: string;
   } | null;

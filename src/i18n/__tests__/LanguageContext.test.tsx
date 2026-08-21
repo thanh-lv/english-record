@@ -46,7 +46,7 @@ describe('LanguageContext and interpolate', () => {
 
       const { result } = renderHook(() => useLanguage(), { wrapper });
       expect(result.current.lang).toBe('en');
-      expect(result.current.t.appName).toBe('English with Ms My');
+      expect(result.current.t.appName).toBe('English with Fun');
     });
 
     it('switches language and persists to localStorage and Supabase profile', async () => {

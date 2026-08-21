@@ -10,4 +10,5 @@ export interface Notification {
   is_read?: boolean;
   avatar?: string;
   type?: NotificationType;
+  teacher_id?: string | null;
 }

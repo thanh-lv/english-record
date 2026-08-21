@@ -268,12 +268,12 @@ describe('studentService', () => {
     });
 
     it('applies topic-only filter when filterType is topic', async () => {
-      const isMock = vi.fn().mockResolvedValue({ data: [], error: null, count: 0 });
+      const isMock = vi.fn().mockReturnThis();
       const queryObj = {
         ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockReturnThis(),
-        range: vi.fn().mockReturnThis(),
         is: isMock,
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
       };
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue(queryObj),
@@ -284,12 +284,12 @@ describe('studentService', () => {
     });
 
     it('applies shadowing-only filter when filterType is shadowing', async () => {
-      const notMock = vi.fn().mockResolvedValue({ data: [], error: null, count: 0 });
+      const notMock = vi.fn().mockReturnThis();
       const queryObj = {
         ilike: vi.fn().mockReturnThis(),
-        order: vi.fn().mockReturnThis(),
-        range: vi.fn().mockReturnThis(),
         not: notMock,
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
       };
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue(queryObj),
@@ -297,6 +297,22 @@ describe('studentService', () => {
 
       await studentService.fetchStudentRecordings('Alice', 1, 10, 'shadowing');
       expect(notMock).toHaveBeenCalledWith('shadowing_video_id', 'is', null);
+    });
+
+    it('filters by teacher_id when teacherId is provided', async () => {
+      const eqMock = vi.fn().mockReturnThis();
+      const queryObj = {
+        ilike: vi.fn().mockReturnThis(),
+        eq: eqMock,
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
+      };
+      (supabase.from as any).mockReturnValue({
+        select: vi.fn().mockReturnValue(queryObj),
+      });
+
+      await studentService.fetchStudentRecordings('Alice', 1, 10, 'all', 'teacher-123');
+      expect(eqMock).toHaveBeenCalledWith('teacher_id', 'teacher-123');
     });
 
     it('throws error when recordings query fails', async () => {

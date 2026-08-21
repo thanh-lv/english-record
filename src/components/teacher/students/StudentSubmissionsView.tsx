@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { fetchRecordingPage, fetchStudentRecordings } from '../hooks/useRecordings';
 import { RecordingItem } from '../recordings/RecordingsManager';
+import { useTeacher } from '../../../contexts/TeacherContext';
 
 const PAGE_SIZE = 10;
 
@@ -38,6 +39,7 @@ function RecordingsList({
   formatDate: (ts: string) => string;
 }) {
   const { t } = useLanguage();
+  const { teacherId } = useTeacher();
   const [page, setPage] = useState(1);
   const [records, setRecords] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
@@ -51,16 +53,16 @@ function RecordingsList({
   useEffect(() => {
     if (!highlightRecordId || initialJump.current || type !== 'topic') return;
     initialJump.current = true;
-    fetchRecordingPage(studentName, highlightRecordId, PAGE_SIZE)
+    fetchRecordingPage(studentName, highlightRecordId, PAGE_SIZE, teacherId)
       .then(p => setPage(p))
       .catch(err => console.error('Error locating record page:', err));
-  }, [highlightRecordId, studentName, type]);
+  }, [highlightRecordId, studentName, type, teacherId]);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setLoadError(false);
-    fetchStudentRecordings(studentName, page, PAGE_SIZE, type)
+    fetchStudentRecordings(studentName, page, PAGE_SIZE, type, teacherId)
       .then(({ records, total }) => {
         if (cancelled) return;
         setRecords(records);
@@ -76,7 +78,7 @@ function RecordingsList({
     return () => {
       cancelled = true;
     };
-  }, [studentName, page, reloadKey, type]);
+  }, [studentName, page, reloadKey, type, teacherId]);
 
   const goToPage = (p: number) => setPage(Math.min(Math.max(p, 1), totalPages));
 

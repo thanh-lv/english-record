@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { authService } from '../services/authService';
 import { loggerService } from '../services/loggerService';
@@ -10,9 +10,15 @@ export interface UseAuthOptions {
 
 export function useAuth(options?: UseAuthOptions) {
   const [user, setUser] = useState<any>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(() =>
+    authService.getStoredProfile()
+  );
+  const [authLoading, setAuthLoading] = useState<boolean>(() => {
+    return !authService.getStoredProfile() && !authService.getStoredProfileId();
+  });
   const { onLanguageChange } = options || {};
+  const onLanguageChangeRef = useRef(onLanguageChange);
+  onLanguageChangeRef.current = onLanguageChange;
 
   useEffect(() => {
     loggerService.setUserContext({
@@ -35,11 +41,12 @@ export function useAuth(options?: UseAuthOptions) {
       try {
         const currentUser = await authService.getCurrentUser();
         if (!currentUser) {
-          await authService.signInAnonymously();
+          await authService.signInAnonymously().catch(err => {
+            console.warn('Anonymous sign-in on init skipped or failed:', err?.message);
+          });
         }
       } catch (err) {
         loggerService.error('Auth', 'Auth initialization error', err);
-        setAuthLoading(false);
       }
     };
     initAuth();
@@ -51,40 +58,55 @@ export function useAuth(options?: UseAuthOptions) {
       setUser(currentUser);
       const savedProfileId = authService.getStoredProfileId();
 
-      if (currentUser && savedProfileId) {
+      if (savedProfileId) {
         try {
           const profile = await authService.getProfileById(savedProfileId);
           if (profile) {
+            authService.setStoredProfile(profile);
             setUserProfile(profile);
-            if ((profile.language === 'vi' || profile.language === 'en') && onLanguageChange) {
-              onLanguageChange(profile.language as 'vi' | 'en');
+            if (
+              (profile.language === 'vi' || profile.language === 'en') &&
+              onLanguageChangeRef.current
+            ) {
+              onLanguageChangeRef.current(profile.language as 'vi' | 'en');
             }
           } else {
-            authService.clearStoredProfileId();
+            authService.clearStoredProfile();
             setUserProfile(null);
           }
         } catch (err) {
           loggerService.error('Auth', 'Error fetching persisted profile', err);
-          setUserProfile(null);
+          const cached = authService.getStoredProfile();
+          if (!cached) {
+            setUserProfile(null);
+          }
         }
       } else if (currentUser && !session?.user.is_anonymous) {
         // Teacher logged in via Supabase Auth — load profile by auth_uid
         try {
           const profile = await authService.getTeacherProfileByAuthUid(currentUser.id);
           if (profile) {
-            authService.setStoredProfileId(profile.id);
+            authService.setStoredProfile(profile);
             setUserProfile(profile);
-            if ((profile.language === 'vi' || profile.language === 'en') && onLanguageChange) {
-              onLanguageChange(profile.language as 'vi' | 'en');
+            if (
+              (profile.language === 'vi' || profile.language === 'en') &&
+              onLanguageChangeRef.current
+            ) {
+              onLanguageChangeRef.current(profile.language as 'vi' | 'en');
             }
           } else {
+            authService.clearStoredProfile();
             setUserProfile(null);
           }
         } catch (err) {
           loggerService.error('Auth', 'Error fetching teacher profile', err);
-          setUserProfile(null);
+          const cached = authService.getStoredProfile();
+          if (!cached) {
+            setUserProfile(null);
+          }
         }
       } else {
+        authService.clearStoredProfile();
         setUserProfile(null);
       }
       setAuthLoading(false);
@@ -94,14 +116,21 @@ export function useAuth(options?: UseAuthOptions) {
       clearTimeout(safetyTimeout);
       subscription.unsubscribe();
     };
-  }, [onLanguageChange]);
+  }, []);
 
   const loginStudent = useCallback(
     async (name: string, pass: string) => {
-      if (!user) {
-        throw new Error('Hệ thống đang khởi tạo, vui lòng thử lại sau 2 giây.');
+      let currentUserId = user?.id;
+      if (!currentUserId) {
+        try {
+          const anonUser = await authService.signInAnonymously();
+          currentUserId = anonUser?.id;
+        } catch {
+          // ignore
+        }
       }
-      const profile = await authService.loginStudent(name, pass, user.id);
+      const profile = await authService.loginStudent(name, pass, currentUserId || 'anonymous');
+      authService.setStoredProfile(profile);
       setUserProfile(profile);
       return profile;
     },
@@ -110,15 +139,25 @@ export function useAuth(options?: UseAuthOptions) {
 
   const loginTeacher = useCallback(async (email: string, pass: string) => {
     const profile = await authService.signInTeacher(email, pass);
+    authService.setStoredProfile(profile);
+    setUserProfile(profile);
+    return profile;
+  }, []);
+
+  const loginSuperAdmin = useCallback(async (email: string, pass: string) => {
+    const profile = await authService.signInSuperAdmin(email, pass);
+    authService.setStoredProfile(profile);
     setUserProfile(profile);
     return profile;
   }, []);
 
   const logout = useCallback(async () => {
+    authService.clearStoredProfile();
     setUserProfile(null);
     await authService.signOut();
   }, []);
 
+  const isSuperAdmin = userProfile?.role === 'super_admin';
   const isTeacher = userProfile?.role === 'teacher';
   const isStudent = userProfile?.role === 'student';
 
@@ -127,10 +166,12 @@ export function useAuth(options?: UseAuthOptions) {
     userProfile,
     setUserProfile,
     authLoading,
+    isSuperAdmin,
     isTeacher,
     isStudent,
     loginStudent,
     loginTeacher,
+    loginSuperAdmin,
     logout,
   };
 }

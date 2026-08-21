@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { vi } from './vi';
 import { en } from './en';
 import { supabase } from '../lib/supabase';
+import { authService } from '../services/authService';
 
 import { Language } from '../types';
 
@@ -43,17 +44,21 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     () => getSavedLanguage() ?? detectBrowserLanguage()
   );
 
-  const setLang = (newLang: Language, profileId?: string) => {
+  const setLang = useCallback((newLang: Language, profileId?: string) => {
     localStorage.setItem(STORAGE_KEY, newLang);
     setLangState(newLang);
     if (profileId) {
+      const stored = authService.getStoredProfile();
+      if (stored && stored.id === profileId) {
+        authService.setStoredProfile({ ...stored, language: newLang });
+      }
       supabase
         .from('profiles')
         .update({ language: newLang })
         .eq('id', profileId)
         .then(() => {});
     }
-  };
+  }, []);
 
   // Sync nếu localStorage bị xóa bên ngoài
   useEffect(() => {

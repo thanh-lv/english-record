@@ -6,7 +6,8 @@ import { Story } from '../../../types';
 
 export function useStudentStories(profile: any) {
   const studentGrade = profile?.grade ? Number(profile.grade) : null;
-  const cacheKey = `stories:student:${studentGrade ?? 'all'}`;
+  const teacherId = profile?.teacher_id || null;
+  const cacheKey = `stories:student:${studentGrade ?? 'all'}:${teacherId ?? 'global'}`;
 
   const [dbStories, setDbStories] = useState<Story[]>(
     () => clientCache.get<Story[]>(cacheKey) || []
@@ -20,11 +21,17 @@ export function useStudentStories(profile: any) {
         const result = await clientCache.fetchWithCache(
           cacheKey,
           async () => {
-            const { data, error } = await supabase
+            let query = supabase
               .from('stories')
-              .select('id, title, type, emoji, image_url, content, grades, is_active')
+              .select('id, title, type, emoji, image_url, content, grades, is_active, teacher_id')
               .eq('is_active', true)
               .order('created_at', { ascending: false });
+
+            if (teacherId) {
+              query = query.eq('teacher_id', teacherId);
+            }
+
+            const { data, error } = await query;
 
             if (error) throw error;
 
@@ -52,7 +59,7 @@ export function useStudentStories(profile: any) {
     return () => {
       cancelled = true;
     };
-  }, [cacheKey, studentGrade]);
+  }, [cacheKey, studentGrade, teacherId]);
 
   return { dbStories, setDbStories };
 }

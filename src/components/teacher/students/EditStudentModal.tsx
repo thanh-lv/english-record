@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
 import { studentService } from '../../../services/studentService';
-import { validateYearBorn, validateGrade } from '../../../utils/validators';
+import { validateYearBorn, validateGrade, validateUsername } from '../../../utils/validators';
 
 import { UserProfile } from '../../../types';
 
@@ -14,6 +14,7 @@ interface EditStudentModalProps {
 }
 
 export function EditStudentModal({ student, onUpdated, onClose }: EditStudentModalProps) {
+  const [username, setUsername] = useState(student.username || '');
   const [yearBorn, setYearBorn] = useState(student.year_born?.toString() || '2015');
   const [grade, setGrade] = useState(student.grade?.toString() || '');
   const [error, setError] = useState('');
@@ -22,6 +23,15 @@ export function EditStudentModal({ student, onUpdated, onClose }: EditStudentMod
   useEscapeToClose(onClose);
 
   const handleSave = async () => {
+    const cleanUsername = username.trim().toLowerCase();
+    if (cleanUsername) {
+      const usernameVal = validateUsername(cleanUsername);
+      if (!usernameVal.isValid) {
+        setError(usernameVal.error || 'Tên đăng nhập không hợp lệ');
+        return;
+      }
+    }
+
     const currentYear = new Date().getFullYear();
     const minYear = currentYear - 15;
     const maxYear = currentYear - 2;
@@ -49,6 +59,7 @@ export function EditStudentModal({ student, onUpdated, onClose }: EditStudentMod
     setError('');
     try {
       const data = await studentService.updateStudent(student.id, {
+        username: cleanUsername || null,
         year_born: parsedYear,
         grade: parsedGrade,
       });
@@ -91,6 +102,22 @@ export function EditStudentModal({ student, onUpdated, onClose }: EditStudentMod
         </div>
 
         <div className="space-y-3.5">
+          <div>
+            <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+              {t.teacherModal.usernameLabel}
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={e => {
+                setUsername(e.target.value.toLowerCase());
+                setError('');
+              }}
+              onKeyDown={e => e.key === 'Enter' && handleSave()}
+              placeholder={t.teacherModal.usernamePlaceholder}
+              className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">

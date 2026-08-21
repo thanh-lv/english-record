@@ -9,6 +9,7 @@ export interface ShadowingVideo {
   grades?: number[];
   is_active?: boolean;
   created_at?: string;
+  teacher_id?: string;
 }
 
 export interface ShadowingVideoPayload {
@@ -20,6 +21,7 @@ export interface ShadowingVideoPayload {
   record_end?: number | null;
   grades?: number[];
   is_active?: boolean;
+  teacher_id?: string;
 }
 
 export type ShadowingFilterMode = 'all' | 'myGrade' | string;

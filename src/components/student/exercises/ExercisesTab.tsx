@@ -42,12 +42,20 @@ export function ExercisesTab({
   const topicsData = useMemo(() => {
     return totalNumbers.map(num => {
       const topic = activeTopics[num - 1];
+      const isTopicMatch = (r: any) =>
+        (r.topic_id && topic?.id && r.topic_id === topic.id) ||
+        (r.topic &&
+          topic?.title &&
+          r.topic.trim().toLowerCase() === topic.title.trim().toLowerCase()) ||
+        Number(r.topic_number) === num ||
+        (topic?.order_index != null && Number(r.topic_number) === Number(topic.order_index));
+
       let isCompleted = completedNumbers.includes(num);
       let isPartiallyCompleted = false;
       let progressText = t.exercises.done;
 
       const hasGlobalRecording = myRecordings.some(
-        (r: any) => r.topic_number === num && !r.question_id && !r.question_text
+        (r: any) => isTopicMatch(r) && !r.question_id && !r.question_text
       );
 
       let totalQs = 1;
@@ -64,11 +72,16 @@ export function ExercisesTab({
         answeredQs = topic.questions.filter((q: any) =>
           myRecordings.some(
             rec =>
-              rec.topic_number === num && (rec.question_id === q.id || rec.question_text === q.text)
+              isTopicMatch(rec) &&
+              ((rec.question_id && q.id && rec.question_id === q.id) ||
+                (rec.question_text &&
+                  q.text &&
+                  rec.question_text.trim().toLowerCase() === q.text.trim().toLowerCase()) ||
+                (!rec.question_id && !rec.question_text))
           )
         ).length;
 
-        isCompleted = answeredQs === totalQs;
+        isCompleted = completedNumbers.includes(num) || answeredQs === totalQs;
         isPartiallyCompleted = answeredQs > 0 && answeredQs < totalQs;
 
         if (isCompleted) {
@@ -77,14 +90,16 @@ export function ExercisesTab({
           progressText = `${answeredQs}/${totalQs}`;
         }
       } else {
-        isCompleted = completedNumbers.includes(num);
+        isCompleted =
+          completedNumbers.includes(num) || myRecordings.some((r: any) => isTopicMatch(r));
         answeredQs = isCompleted ? 1 : 0;
       }
 
       const progressPct = totalQs > 0 ? Math.round((answeredQs / totalQs) * 100) : 0;
 
       const topicRating = !isBongBe
-        ? (myRecordings.find(rec => rec.topic_number === num)?.teacher_rating ?? 0)
+        ? (myRecordings.find(rec => isTopicMatch(rec) && rec.teacher_rating != null)
+            ?.teacher_rating ?? 0)
         : 0;
       const needsRetry = isCompleted && topicRating > 0 && topicRating <= 3;
 
@@ -166,10 +181,10 @@ export function ExercisesTab({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <span className="text-xs font-extrabold text-slate-700 truncate">
-                    Tiến độ hoàn thành
+                    {t.exercises.completionProgress}
                   </span>
                   <span className="text-xs font-black text-blue-600 shrink-0">
-                    {completedCount}/{totalTopics} bài ({overallProgressPct}%)
+                    {completedCount}/{totalTopics} ({overallProgressPct}%)
                   </span>
                 </div>
                 <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
@@ -196,7 +211,7 @@ export function ExercisesTab({
                   : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              Tất cả ({totalTopics})
+              {interpolate(t.exercises.filterAll, { count: totalTopics })}
             </button>
             <button
               type="button"
@@ -207,7 +222,7 @@ export function ExercisesTab({
                   : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              Cần làm ({totalTopics - completedCount})
+              {interpolate(t.exercises.filterPending, { count: totalTopics - completedCount })}
             </button>
             <button
               type="button"
@@ -218,7 +233,7 @@ export function ExercisesTab({
                   : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              Đã xong ({completedCount})
+              {interpolate(t.exercises.filterDone, { count: completedCount })}
             </button>
           </div>
 
@@ -232,7 +247,7 @@ export function ExercisesTab({
               type="text"
               value={filterText}
               onChange={e => setFilterText(e.target.value)}
-              placeholder="Tìm bài học..."
+              placeholder={t.exercises.searchPlaceholder}
               className="w-full sm:w-56 pl-9 pr-8 py-2 bg-white rounded-xl border border-slate-200/80 text-xs font-bold text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-500 transition-all shadow-2xs"
             />
             {filterText && (
@@ -254,9 +269,9 @@ export function ExercisesTab({
           <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-2xl">
             🔍
           </div>
-          <p className="font-black text-slate-700 text-base">Không tìm thấy bài học nào phù hợp</p>
+          <p className="font-black text-slate-700 text-base">{t.exercises.noMatchingFound}</p>
           <p className="text-xs text-slate-400 max-w-sm mx-auto font-medium">
-            Hãy thử thay đổi từ khoá tìm kiếm hoặc chọn bộ lọc &quot;Tất cả&quot; nhé!
+            {t.exercises.noMatchingHint}
           </p>
           {(filterText || statusFilter !== 'all') && (
             <button
@@ -267,7 +282,7 @@ export function ExercisesTab({
               }}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 shadow-sm"
             >
-              <RotateCcw size={13} /> Xem tất cả bài học
+              <RotateCcw size={13} /> {t.exercises.viewAllBtn}
             </button>
           )}
         </div>
@@ -315,14 +330,14 @@ export function ExercisesTab({
                               : 'bg-slate-100 text-slate-700 group-hover:bg-blue-100 group-hover:text-blue-700'
                       }`}
                     >
-                      {isBongBe ? `Test ${num}` : `Bài ${num}`}
+                      {isBongBe ? `Test ${num}` : `${t.exercises.lessonUnit} ${num}`}
                     </div>
 
                     {/* Prize / Stars / Status Indicator */}
                     {isCompleted && !needsRetry ? (
                       <span
                         className="text-2xl drop-shadow-md transform group-hover:scale-125 group-hover:rotate-12 transition-transform duration-300"
-                        title="Món quà hoàn thành"
+                        title={t.exercises.giftTitle}
                       >
                         {getPrizeForTopic(num)}
                       </span>
@@ -342,7 +357,7 @@ export function ExercisesTab({
                       </div>
                     ) : totalQs > 1 ? (
                       <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-500 border border-slate-200/60">
-                        {totalQs} câu
+                        {interpolate(t.exercises.questionsCount, { count: totalQs })}
                       </span>
                     ) : null}
                   </div>
@@ -350,7 +365,8 @@ export function ExercisesTab({
                   {/* Topic Title */}
                   <div className="w-full my-1 min-h-[38px] flex items-center">
                     <h3 className="font-black text-slate-800 text-xs sm:text-sm leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      {topic?.title || (isBongBe ? `Chủ đề Test ${num}` : `Chủ đề ${num}`)}
+                      {topic?.title ||
+                        (isBongBe ? `Test ${num}` : `${t.exercises.lessonUnit} ${num}`)}
                     </h3>
                   </div>
 
@@ -359,17 +375,20 @@ export function ExercisesTab({
                     <div className="flex items-center justify-between text-[10px] font-black">
                       {needsRetry ? (
                         <span className="text-amber-600 flex items-center gap-1">
-                          <RotateCcw size={10} /> Cần luyện lại
+                          <RotateCcw size={10} /> {t.exercises.needPractice}
                         </span>
                       ) : isCompleted ? (
                         <span className="text-emerald-600 flex items-center gap-1">
-                          <CheckCircle2 size={11} className="text-emerald-500" /> Hoàn thành
+                          <CheckCircle2 size={11} className="text-emerald-500" />{' '}
+                          {t.exercises.completedStatus}
                         </span>
                       ) : isPartiallyCompleted ? (
-                        <span className="text-orange-600">Đã làm {progressText}</span>
+                        <span className="text-orange-600">
+                          {interpolate(t.exercises.inProgressStatus, { progress: progressText })}
+                        </span>
                       ) : (
                         <span className="text-slate-400 group-hover:text-blue-600 flex items-center gap-1 transition-colors">
-                          Bắt đầu làm{' '}
+                          {t.exercises.startExercise}{' '}
                           <ArrowRight
                             size={10}
                             className="group-hover:translate-x-0.5 transition-transform"

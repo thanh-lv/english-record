@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { sanitizeString, phoneSchema, coerceNullableNumber, coerceNumber } from './common.schema';
+import { sanitizeString, phoneSchema, coerceNullableNumber } from './common.schema';
 
 /**
  * Attendance Student schema
@@ -60,10 +60,12 @@ export const attendanceStudentResponseSchema = z.object({
   phone: z.string().nullable().optional(),
   zalo_phone: z.string().nullable().optional(),
   hoc_lieu: coerceNullableNumber,
-  hoc_lieu_fee: coerceNullableNumber,
+  hoc_lieu_label: z.string().nullable().optional(),
+  hoc_lieu_value: coerceNullableNumber,
   note: z.string().nullable().optional(),
   student_note: z.string().nullable().optional(),
   created_at: z.string().nullable().optional(),
+  teacher_id: z.string().nullable().optional(),
 });
 
 export const attendanceStudentsResponseArraySchema = z.array(attendanceStudentResponseSchema);

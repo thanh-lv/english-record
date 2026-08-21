@@ -53,6 +53,16 @@ export const createStudentSchema = z.object({
   password: studentPasswordSchema,
   year_born: yearBornSchema,
   grade: studentGradeSchema.optional(),
+  username: z
+    .string()
+    .trim()
+    .min(3, 'Tên đăng nhập phải có ít nhất 3 ký tự.')
+    .max(50, 'Tên đăng nhập không được vượt quá 50 ký tự.')
+    .regex(
+      /^[a-zA-Z0-9_.-]+$/,
+      'Tên đăng nhập chỉ được chứa chữ cái, số, dấu chấm, gạch ngang và gạch dưới.'
+    )
+    .optional(),
 });
 
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
@@ -93,6 +103,8 @@ export const userProfileResponseSchema = z.object({
   password: z.string().nullable().optional(),
   updated_at: z.string().nullable().optional(),
   created_at: z.string().nullable().optional(),
+  teacher_id: z.string().nullable().optional(),
+  username: z.string().nullable().optional(),
 });
 
 export const userProfilesResponseArraySchema = z.array(userProfileResponseSchema);

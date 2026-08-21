@@ -32,23 +32,41 @@ describe('authService', () => {
       expect(authService.getStoredProfileId()).toBeNull();
     });
 
+    it('manages full profile in localStorage correctly', () => {
+      expect(authService.getStoredProfile()).toBeNull();
+
+      const mockProfile: any = { id: 'p1', name: 'Teacher A', role: 'teacher' };
+      authService.setStoredProfile(mockProfile);
+      expect(authService.getStoredProfile()).toEqual(mockProfile);
+      expect(authService.getStoredProfileId()).toBe('p1');
+
+      authService.clearStoredProfile();
+      expect(authService.getStoredProfile()).toBeNull();
+      expect(authService.getStoredProfileId()).toBeNull();
+    });
+
     it('gracefully handles localStorage exceptions', () => {
       const getItemSpy = vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
         throw new Error('SecurityError');
       });
       expect(authService.getStoredProfileId()).toBeNull();
+      expect(authService.getStoredProfile()).toBeNull();
       getItemSpy.mockRestore();
 
       const setItemSpy = vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
         throw new Error('QuotaExceededError');
       });
       expect(() => authService.setStoredProfileId('123')).not.toThrow();
+      expect(() =>
+        authService.setStoredProfile({ id: '123', name: 'Test', role: 'student' } as any)
+      ).not.toThrow();
       setItemSpy.mockRestore();
 
       const removeItemSpy = vi.spyOn(localStorage, 'removeItem').mockImplementation(() => {
         throw new Error('SecurityError');
       });
       expect(() => authService.clearStoredProfileId()).not.toThrow();
+      expect(() => authService.clearStoredProfile()).not.toThrow();
       removeItemSpy.mockRestore();
     });
   });
@@ -272,7 +290,7 @@ describe('authService', () => {
       (supabase.from as any).mockReturnValue({ select: selectMock });
 
       await expect(authService.loginStudent('NonExistent', '123', 'anon-1')).rejects.toThrow(
-        'Tên học sinh không tồn tại.'
+        'Tên đăng nhập không tồn tại.'
       );
     });
 
@@ -306,7 +324,7 @@ describe('authService', () => {
       (supabase.from as any).mockReturnValue({ select: selectMock });
 
       await expect(authService.loginStudent('Alice', 'wrong-pass', 'anon-1')).rejects.toThrow(
-        'Tên học sinh đã tồn tại hoặc mật khẩu không chính xác.'
+        'Tên đăng nhập hoặc mật khẩu không chính xác.'
       );
     });
 

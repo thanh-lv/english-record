@@ -10,6 +10,7 @@ import { OfflineBanner } from '../components/common/OfflineBanner';
 import { useRecordings } from '../components/teacher/hooks/useRecordings';
 import { supabase } from '../lib/supabase';
 import { Recording } from '../types';
+import { useTeacher } from '../contexts/TeacherContext';
 import { lazy, Suspense, useEffect } from 'react';
 
 const StoriesManager = lazy(() =>
@@ -45,11 +46,6 @@ const VocabAudioBuilder = lazy(() =>
 const AttendanceManager = lazy(() =>
   import('../components/teacher/attendance/AttendanceManager').then(m => ({
     default: m.AttendanceManager,
-  }))
-);
-const LogsManager = lazy(() =>
-  import('../components/teacher/logs/LogsManager').then(m => ({
-    default: m.LogsManager,
   }))
 );
 
@@ -128,14 +124,25 @@ export default function TeacherPage({
   addNotification: (record: Recording) => void;
 }) {
   const { t } = useLanguage();
+  const { teacherId } = useTeacher();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const highlightRecordId = searchParams.get('highlight');
 
-  const { summaries, loading, appError, deleteTargetId, setDeleteTargetId, confirmDelete } =
-    useRecordings(user, {
-      onNewRecording: addNotification,
-    });
+  const {
+    summaries,
+    loading,
+    appError,
+    deleteTargetId,
+    setDeleteTargetId,
+    deleteSaving,
+    deleteError,
+    setDeleteError,
+    confirmDelete,
+  } = useRecordings(user, {
+    onNewRecording: addNotification,
+    teacherId,
+  });
 
   const clearHighlight = () => {
     const next = new URLSearchParams(searchParams);
@@ -209,7 +216,7 @@ export default function TeacherPage({
                   <StudentsManager
                     onSelectStudent={(name, avatar) =>
                       navigate(
-                        `/teacher/submissions/${encodeURIComponent(name)}${avatar ? `?avatar=${encodeURIComponent(avatar)}` : ''}`
+                        `/teacher/recordings/${encodeURIComponent(name)}${avatar ? `?avatar=${encodeURIComponent(avatar)}` : ''}`
                       )
                     }
                   />
@@ -220,7 +227,6 @@ export default function TeacherPage({
               <Route path="vocabulary" element={<VocabularyManager />} />
               <Route path="shadowing" element={<ShadowingManager />} />
               <Route path="audio-builder" element={<VocabAudioBuilder />} />
-              <Route path="logs" element={<LogsManager />} />
               <Route path="*" element={<Navigate to="/teacher/attendance" replace />} />
             </Routes>
           </Suspense>
@@ -231,8 +237,13 @@ export default function TeacherPage({
         <DeleteConfirmModal
           title={t.common.deleteRecordingTitle}
           description={t.common.deleteRecordingDesc}
+          saving={deleteSaving}
+          error={deleteError}
           onConfirm={confirmDelete}
-          onCancel={() => setDeleteTargetId(null)}
+          onCancel={() => {
+            setDeleteTargetId(null);
+            setDeleteError('');
+          }}
         />
       )}
     </div>

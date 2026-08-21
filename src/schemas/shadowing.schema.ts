@@ -1,15 +1,36 @@
 import { z } from 'zod';
 import { sanitizeString, gradesArraySchema, coerceNullableNumber } from './common.schema';
 
-const YOUTUBE_REGEX = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-
 /**
- * Extract YouTube ID (must be 11 characters)
+ * Extract YouTube ID (11 characters) from any YouTube URL format
+ * (watch?v=, youtu.be/, shorts/, live/, embed/, mobile m., with any query params or whitespace)
  */
-export function extractYoutubeId(url: string): string | null {
-  if (!url) return null;
-  const match = url.match(YOUTUBE_REGEX);
-  return match && match[2].length === 11 ? match[2] : null;
+export function extractYoutubeId(url?: string | null): string | null {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  // Must belong to YouTube domain
+  const isYouTubeDomain = /(?:youtube(?:-nocookie)?\.com|youtu\.be)/i.test(trimmed);
+  if (!isYouTubeDomain) {
+    return null;
+  }
+
+  // 1. Query parameter `v=ID` (e.g. youtube.com/watch?v=ID, m.youtube.com/watch?feature=...&v=ID)
+  const vParamMatch = trimmed.match(/[?&]v=([a-zA-Z0-9_-]{11})(?:[&#?%/\s]|$)/i);
+  if (vParamMatch && vParamMatch[1]) {
+    return vParamMatch[1];
+  }
+
+  // 2. Path-based: youtu.be/ID, /shorts/ID, /embed/ID, /live/ID, /v/ID, /e/ID, /watch/ID
+  const pathMatch = trimmed.match(
+    /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|e\/|shorts\/|live\/|watch\/))([a-zA-Z0-9_-]{11})(?:[&#?%/\s]|$)/i
+  );
+  if (pathMatch && pathMatch[1]) {
+    return pathMatch[1];
+  }
+
+  return null;
 }
 
 export const shadowingVideoSchema = z
@@ -87,6 +108,7 @@ export const shadowingVideoResponseSchema = z.object({
   grades: z.array(z.coerce.number()).nullable().optional(),
   is_active: z.boolean().optional(),
   created_at: z.string().nullable().optional(),
+  teacher_id: z.string().nullable().optional(),
 });
 
 export const shadowingVideosResponseArraySchema = z.array(shadowingVideoResponseSchema);

@@ -4,22 +4,29 @@ import { Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const TeacherPage = lazy(() => import('./pages/TeacherPage'));
 const StudentPage = lazy(() => import('./pages/StudentPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 import { Mic, LogOut, Loader2 } from 'lucide-react';
 import { NotificationBell } from './components/teacher/shared/NotificationBell';
 import { useNotifications } from './components/teacher/hooks/useNotifications';
 import { useLanguage, interpolate } from './i18n/LanguageContext';
 import { useAuth } from './hooks/useAuth';
+import { TeacherProvider } from './contexts/TeacherContext';
 
 export default function App() {
   const { t, lang, setLang } = useLanguage();
-  const { user, userProfile, setUserProfile, authLoading, isTeacher, logout } = useAuth({
-    onLanguageChange: setLang,
-  });
+  const { user, userProfile, setUserProfile, authLoading, isSuperAdmin, isTeacher, logout } =
+    useAuth({
+      onLanguageChange: setLang,
+    });
   const navigate = useNavigate();
   const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
+  const currentTeacherId = isTeacher && userProfile ? userProfile.id : null;
   const { notifications, unreadCount, readIds, addNotification, markRead, markAllRead, clearAll } =
-    useNotifications();
+    useNotifications(currentTeacherId);
 
   const handleLogout = async (e: React.MouseEvent) => {
     if (e) e.preventDefault();
@@ -44,6 +51,43 @@ export default function App() {
             {t.common.connecting}
           </p>
         </div>
+      </div>
+    );
+  }
+
+  if (isAdminRoute) {
+    return (
+      <div className="min-h-[100dvh] bg-gradient-to-b from-[#FFFDF6] via-[#F8FAFC] to-[#F1F5F9] text-slate-800 flex flex-col font-sans selection:bg-amber-100 selection:text-amber-900">
+        <Suspense
+          fallback={
+            <div className="min-h-screen bg-slate-50/50 flex justify-center items-center">
+              <Loader2 className="w-8 h-8 text-amber-600 animate-spin" />
+            </div>
+          }
+        >
+          <Routes>
+            <Route
+              path="/admin/login"
+              element={
+                isSuperAdmin ? (
+                  <Navigate to="/admin/dashboard" replace />
+                ) : (
+                  <AdminLoginPage setProfile={setUserProfile} />
+                )
+              }
+            />
+            <Route
+              path="/admin/*"
+              element={
+                isSuperAdmin ? (
+                  <AdminPage user={user} onLogout={logout} />
+                ) : (
+                  <Navigate to="/admin/login" replace />
+                )
+              }
+            />
+          </Routes>
+        </Suspense>
       </div>
     );
   }
@@ -131,7 +175,14 @@ export default function App() {
               element={
                 userProfile ? (
                   <Navigate
-                    to={location.state?.from || (isTeacher ? '/teacher/attendance' : '/student')}
+                    to={
+                      location.state?.from ||
+                      (isTeacher
+                        ? '/teacher/attendance'
+                        : isSuperAdmin
+                          ? '/admin/dashboard'
+                          : '/student')
+                    }
                     replace
                   />
                 ) : (
@@ -146,7 +197,15 @@ export default function App() {
                   <StudentPage user={user} profile={userProfile} />
                 ) : (
                   <Navigate
-                    to={userProfile ? '/teacher/attendance' : '/login'}
+                    to={
+                      userProfile
+                        ? isTeacher
+                          ? '/teacher/attendance'
+                          : isSuperAdmin
+                            ? '/admin/dashboard'
+                            : '/login'
+                        : '/login'
+                    }
                     state={{ from: location.pathname }}
                     replace
                   />
@@ -156,11 +215,13 @@ export default function App() {
             <Route
               path="/teacher/*"
               element={
-                isTeacher ? (
-                  <TeacherPage user={user} addNotification={addNotification} />
+                isTeacher && userProfile ? (
+                  <TeacherProvider teacherId={userProfile.id}>
+                    <TeacherPage user={user} addNotification={addNotification} />
+                  </TeacherProvider>
                 ) : (
                   <Navigate
-                    to={userProfile ? '/student' : '/login'}
+                    to={userProfile ? (isSuperAdmin ? '/admin/dashboard' : '/student') : '/login'}
                     state={{ from: location.pathname }}
                     replace
                   />
@@ -168,15 +229,23 @@ export default function App() {
               }
             />
             <Route
-              path="*"
+              path="/"
               element={
                 <Navigate
-                  to={!userProfile ? '/login' : isTeacher ? '/teacher/attendance' : '/student'}
-                  state={!userProfile ? { from: location.pathname } : undefined}
+                  to={
+                    !userProfile
+                      ? '/login'
+                      : isSuperAdmin
+                        ? '/admin/dashboard'
+                        : isTeacher
+                          ? '/teacher/attendance'
+                          : '/student'
+                  }
                   replace
                 />
               }
             />
+            <Route path="*" element={<NotFoundPage userProfile={userProfile} />} />
           </Routes>
         </Suspense>
       </main>

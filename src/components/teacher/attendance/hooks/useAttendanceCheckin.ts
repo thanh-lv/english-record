@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { attendanceService } from '../../../../services/attendanceService';
 import { loggerService } from '../../../../services/loggerService';
 import { AttendanceStudent, AttendanceRecord } from '../../../../types';
+import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export function useAttendanceCheckin() {
+  const { teacherId } = useTeacher();
   const [students, setStudents] = useState<AttendanceStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [monthRecords, setMonthRecords] = useState<AttendanceRecord[]>([]);
@@ -24,22 +26,25 @@ export function useAttendanceCheckin() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    attendanceService.fetchAttendanceStudents().then(data => {
+    attendanceService.fetchAttendanceStudents(teacherId).then(data => {
       setStudents(data);
       setLoading(false);
     });
-  }, []);
+  }, [teacherId]);
 
-  const loadMonthRecords = useCallback(async (year: number, month: number) => {
-    const start = new Date(year, month, 1).toISOString();
-    const end = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
-    try {
-      const data = await attendanceService.fetchAttendanceRecords(start, end);
-      setMonthRecords(data);
-    } catch (err) {
-      loggerService.error('useAttendanceCheckin', 'Error fetching attendance records', err);
-    }
-  }, []);
+  const loadMonthRecords = useCallback(
+    async (year: number, month: number) => {
+      const start = new Date(year, month, 1).toISOString();
+      const end = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+      try {
+        const data = await attendanceService.fetchAttendanceRecords(start, end, teacherId);
+        setMonthRecords(data);
+      } catch (err) {
+        loggerService.error('useAttendanceCheckin', 'Error fetching attendance records', err);
+      }
+    },
+    [teacherId]
+  );
 
   useEffect(() => {
     loadMonthRecords(calYear, calMonth);

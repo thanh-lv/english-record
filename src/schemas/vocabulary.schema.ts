@@ -1,10 +1,5 @@
 import { z } from 'zod';
-import {
-  sanitizeString,
-  gradesArraySchema,
-  coerceNullableNumber,
-  coerceNumber,
-} from './common.schema';
+import { sanitizeString, gradesArraySchema, coerceNullableNumber } from './common.schema';
 
 /**
  * Vocabulary Set schema

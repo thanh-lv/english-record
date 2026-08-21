@@ -10,6 +10,7 @@ export interface Story {
   grades?: number[];
   is_active: boolean;
   created_at?: string;
+  teacher_id?: string;
 }
 
 export interface CreateStoryPayload {
@@ -20,6 +21,7 @@ export interface CreateStoryPayload {
   content: string;
   grades?: number[];
   is_active?: boolean;
+  teacher_id?: string;
 }
 
 export interface UpdateStoryPayload {

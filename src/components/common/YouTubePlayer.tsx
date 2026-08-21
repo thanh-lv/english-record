@@ -1,6 +1,7 @@
 import React from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { extractYoutubeId } from '../../schemas';
 
 interface YouTubePlayerProps {
   url?: string | null;
@@ -10,13 +11,6 @@ interface YouTubePlayerProps {
   onReady?: YouTubeProps['onReady'];
   onStateChange?: YouTubeProps['onStateChange'];
   opts?: YouTubeProps['opts'];
-}
-
-function extractYoutubeId(url?: string | null) {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
 }
 
 export default function YouTubePlayer({

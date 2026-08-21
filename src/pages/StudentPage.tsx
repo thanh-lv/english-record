@@ -66,6 +66,7 @@ export default function StudentPage({
   const {
     activeTopics,
     topicsLoading,
+    isInitialLoading,
     myRecordings,
     setMyRecordings,
     setCompletedNumbers,
@@ -85,7 +86,7 @@ export default function StudentPage({
 
   const { showCelebration, closeCelebration } = useCelebrationTrigger(
     completedTopicNumbers,
-    topicsLoading,
+    isInitialLoading,
     activeTopics.length
   );
 
@@ -222,15 +223,29 @@ export default function StudentPage({
             />
             <Route
               path="flashcards"
-              element={<FlashcardsTab studentGrade={profile?.grade ?? undefined} />}
+              element={
+                <FlashcardsTab
+                  studentGrade={profile?.grade ?? undefined}
+                  teacherId={profile?.teacher_id}
+                />
+              }
             />
-            <Route path="games" element={<GamesTab studentGrade={profile?.grade ?? undefined} />} />
+            <Route
+              path="games"
+              element={
+                <GamesTab
+                  studentGrade={profile?.grade ? Number(profile.grade) : undefined}
+                  teacherId={profile?.teacher_id}
+                />
+              }
+            />
             <Route
               path="shadowing"
               element={
                 <ShadowingTab
                   studentGrade={profile?.grade ?? undefined}
                   myRecordings={myRecordings}
+                  teacherId={profile?.teacher_id}
                   onVideoClick={v => navigate(`/student/shadowing/${v.id}`)}
                 />
               }

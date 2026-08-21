@@ -11,11 +11,8 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
-import { supabase } from '../../../lib/supabase';
-import { calculateStreak } from '../../../utils';
 import { CreateStudentModal } from './CreateStudentModal';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
 import { EditStudentModal } from './EditStudentModal';
@@ -60,6 +57,8 @@ export function StudentsManager({
     deleteTarget,
     setDeleteTarget,
     deleteSaving,
+    deleteError,
+    setDeleteError,
     handleDelete,
     onStudentCreated,
     onStudentUpdated,
@@ -185,6 +184,11 @@ export function StudentsManager({
                       <h3 className="font-black text-slate-800 text-base truncate group-hover:text-emerald-600 transition-colors">
                         {st.name}
                       </h3>
+                      {st.username && (
+                        <p className="text-[11px] font-bold text-emerald-600 truncate font-mono">
+                          @{st.username}
+                        </p>
+                      )}
                       <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                         {st.year_born && (
                           <span className="text-[11px] font-bold text-slate-400">
@@ -306,8 +310,13 @@ export function StudentsManager({
         <DeleteConfirmModal
           title={tm.deleteStudentTitle || tm.deleteStudentNote || 'Xác nhận xóa học sinh'}
           description={deleteTarget.name}
+          saving={deleteSaving}
+          error={deleteError}
           onConfirm={handleDelete}
-          onCancel={() => setDeleteTarget(null)}
+          onCancel={() => {
+            setDeleteTarget(null);
+            setDeleteError('');
+          }}
         />
       )}
     </div>

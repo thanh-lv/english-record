@@ -3,8 +3,10 @@ import { topicService } from '../../../../services/topicService';
 import { loggerService } from '../../../../services/loggerService';
 import { Topic, ParsedQuestion } from '../../../../types';
 import { validateTopicTitle, validateGrades, sanitizeText } from '../../../../utils/validators';
+import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export function useTopics() {
+  const { teacherId } = useTeacher();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -30,12 +32,14 @@ export function useTopics() {
     id: string;
     label: string;
   } | null>(null);
+  const [deleteSaving, setDeleteSaving] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const fetchTopics = useCallback(async () => {
     setLoading(true);
     setLoadError(false);
     try {
-      const data = await topicService.fetchAllTopics();
+      const data = await topicService.fetchAllTopics(teacherId);
       setTopics(data);
     } catch (err) {
       loggerService.error('useTopics', 'Fetch topics error', err);
@@ -43,7 +47,7 @@ export function useTopics() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [teacherId]);
 
   useEffect(() => {
     fetchTopics();
@@ -121,7 +125,7 @@ export function useTopics() {
     setAddTopicError('');
     try {
       const maxOrder = topics.filter(t => t.type === addingTopic).length + 1;
-      await topicService.createTopic(cleanTitle, addingTopic, maxOrder, newTopicGrades);
+      await topicService.createTopic(cleanTitle, addingTopic, maxOrder, newTopicGrades, teacherId);
       setNewTopicTitle('');
       setNewTopicGrades([]);
       setAddTopicError('');
@@ -135,15 +139,54 @@ export function useTopics() {
     }
   };
 
-  const confirmDelete = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!deleteTarget) return;
-    if (deleteTarget.type === 'question') {
-      await topicService.deleteQuestion(deleteTarget.id);
-    } else {
-      await topicService.deleteTopic(deleteTarget.id);
+  const confirmDelete = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
-    setDeleteTarget(null);
+    if (!deleteTarget) return;
+
+    setDeleteSaving(true);
+    setDeleteError('');
+    try {
+      if (deleteTarget.type === 'question') {
+        await topicService.deleteQuestion(deleteTarget.id);
+      } else {
+        await topicService.deleteTopic(deleteTarget.id);
+      }
+      setDeleteTarget(null);
+      await fetchTopics();
+    } catch (err: any) {
+      loggerService.error('useTopics', 'Error confirming delete', err);
+      setDeleteError(err.message || 'Lỗi khi xóa. Vui lòng thử lại.');
+    } finally {
+      setDeleteSaving(false);
+    }
+  };
+
+  const createQuestion = async (topicId: string, values: any) => {
+    const topic = topics.find(t => t.id === topicId);
+    const maxOrder = topic?.questions?.length || 0;
+    await topicService.createQuestion({
+      topic_id: topicId,
+      text: values.text,
+      translation: values.translation || null,
+      sample_answer: values.sample_answer || null,
+      target: values.target || null,
+      image_url: values.image_url || null,
+      order_index: maxOrder,
+    });
+    fetchTopics();
+  };
+
+  const updateQuestion = async (questionId: string, values: any) => {
+    await topicService.updateQuestion(questionId, {
+      text: values.text,
+      translation: values.translation || null,
+      sample_answer: values.sample_answer || null,
+      target: values.target || null,
+      image_url: values.image_url || null,
+    });
     fetchTopics();
   };
 
@@ -191,11 +234,16 @@ export function useTopics() {
     saving,
     deleteTarget,
     setDeleteTarget,
+    deleteSaving,
+    deleteError,
+    setDeleteError,
     fetchTopics,
     toggleTopicActive,
     saveTopic,
     addTopic,
     confirmDelete,
+    createQuestion,
+    updateQuestion,
     addParsedQuestions,
   };
 }

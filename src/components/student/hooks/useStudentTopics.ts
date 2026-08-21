@@ -7,7 +7,8 @@ import { Topic } from '../../../types';
 export function useStudentTopics(profile: any, isBongBe: boolean) {
   const topicType = isBongBe ? 'bongbe' : 'standard';
   const studentGrade = profile?.grade ? Number(profile.grade) : null;
-  const cacheKey = `topics:student:${topicType}:${studentGrade ?? 'all'}`;
+  const teacherId = profile?.teacher_id || null;
+  const cacheKey = `topics:student:${topicType}:${studentGrade ?? 'all'}:${teacherId ?? 'global'}`;
 
   const [activeTopics, setActiveTopics] = useState<Topic[]>(
     () => clientCache.get<Topic[]>(cacheKey) || []
@@ -24,12 +25,18 @@ export function useStudentTopics(profile: any, isBongBe: boolean) {
         const result = await clientCache.fetchWithCache(
           cacheKey,
           async () => {
-            const { data, error } = await supabase
+            let query = supabase
               .from('topics')
               .select('*, questions(*)')
               .eq('type', topicType)
               .eq('is_active', true)
               .order('order_index');
+
+            if (teacherId) {
+              query = query.eq('teacher_id', teacherId);
+            }
+
+            const { data, error } = await query;
 
             if (error) throw error;
 
@@ -68,7 +75,7 @@ export function useStudentTopics(profile: any, isBongBe: boolean) {
     return () => {
       cancelled = true;
     };
-  }, [cacheKey, topicType, studentGrade]);
+  }, [cacheKey, topicType, studentGrade, teacherId]);
 
   return { activeTopics, topicsLoading };
 }

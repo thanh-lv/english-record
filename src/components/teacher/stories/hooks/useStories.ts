@@ -4,8 +4,10 @@ import { uploadService } from '../../../../services/uploadService';
 import { loggerService } from '../../../../services/loggerService';
 import { Story } from '../../../../types';
 import { validateStory, validateGrades, sanitizeText } from '../../../../utils/validators';
+import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export function useStories(t: any) {
+  const { teacherId } = useTeacher();
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterText, setFilterText] = useState('');
@@ -51,14 +53,14 @@ export function useStories(t: any) {
 
   const fetchStories = useCallback(async () => {
     try {
-      const data = await storyService.fetchAllStories();
+      const data = await storyService.fetchAllStories(teacherId);
       setStories(data);
     } catch (err) {
       loggerService.error('useStories', 'Fetch stories error', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [teacherId]);
 
   useEffect(() => {
     fetchStories();
@@ -224,6 +226,7 @@ export function useStories(t: any) {
         content: cleanContent,
         image_url: null,
         is_active: true,
+        teacher_id: teacherId,
       });
       setStories([data, ...stories]);
       setShowManual(false);
@@ -306,6 +309,7 @@ export function useStories(t: any) {
         content: cleanStory,
         image_url: imageUrl,
         is_active: true,
+        teacher_id: teacherId,
       });
 
       setStories([data, ...stories]);
@@ -344,6 +348,7 @@ export function useStories(t: any) {
     setDeleteStoryTarget,
     deleteSaving,
     deleteError,
+    setDeleteError,
     editTitle,
     setEditTitle,
     editContent,

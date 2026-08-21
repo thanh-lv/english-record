@@ -18,6 +18,7 @@ import { supabase } from '../../../lib/supabase';
 import { AudioPlayer } from '../../common/AudioPlayer';
 import { StudentSummary } from '../hooks/useRecordings';
 import YouTubePlayer from '../../common/YouTubePlayer';
+import { useTeacher } from '../../../contexts/TeacherContext';
 
 export function RecordingsManager({
   summaries,
@@ -33,6 +34,7 @@ export function RecordingsManager({
   onSelectStudent: (studentName: string, avatar?: string) => void;
 }) {
   const { t } = useLanguage();
+  const { teacherId } = useTeacher();
 
   const [filterName, setFilterName] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -45,10 +47,13 @@ export function RecordingsManager({
   useEffect(() => {
     const fetchStudentProfiles = async () => {
       try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('name, avatar, grade')
-          .eq('role', 'student');
+        let query = supabase.from('profiles').select('name, avatar, grade').eq('role', 'student');
+
+        if (teacherId) {
+          query = query.eq('teacher_id', teacherId);
+        }
+
+        const { data } = await query;
         if (data) {
           const map: Record<string, { avatar?: string; grade?: string | number }> = {};
           data.forEach((p: any) => {
@@ -66,7 +71,7 @@ export function RecordingsManager({
       }
     };
     fetchStudentProfiles();
-  }, []);
+  }, [teacherId]);
 
   const filteredSummaries = React.useMemo(() => {
     return summaries.filter(s => {

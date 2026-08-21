@@ -195,24 +195,39 @@ describe('validators utilities', () => {
   describe('extractYoutubeId', () => {
     it('extracts ID from standard watch URL', () => {
       expect(extractYoutubeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+      expect(extractYoutubeId('https://www.youtube.com/watch?v=ml5NmFbpIhs')).toBe('ml5NmFbpIhs');
       expect(extractYoutubeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s')).toBe(
         'dQw4w9WgXcQ'
+      );
+      expect(extractYoutubeId('https://www.youtube.com/watch?feature=shared&v=ml5NmFbpIhs')).toBe(
+        'ml5NmFbpIhs'
+      );
+      expect(extractYoutubeId('  https://www.youtube.com/watch?v=ml5NmFbpIhs  ')).toBe(
+        'ml5NmFbpIhs'
       );
     });
 
     it('extracts ID from shortened youtu.be URL', () => {
       expect(extractYoutubeId('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+      expect(extractYoutubeId('https://youtu.be/ml5NmFbpIhs?si=abc123xyz')).toBe('ml5NmFbpIhs');
       expect(extractYoutubeId('https://youtu.be/dQw4w9WgXcQ?t=10')).toBe('dQw4w9WgXcQ');
     });
 
-    it('extracts ID from embed URL', () => {
+    it('extracts ID from embed, shorts, and live URLs', () => {
       expect(extractYoutubeId('https://www.youtube.com/embed/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+      expect(extractYoutubeId('https://www.youtube.com/shorts/ml5NmFbpIhs')).toBe('ml5NmFbpIhs');
+      expect(extractYoutubeId('https://www.youtube.com/live/ml5NmFbpIhs?feature=share')).toBe(
+        'ml5NmFbpIhs'
+      );
     });
 
     it('returns null for invalid or empty URLs', () => {
       expect(extractYoutubeId('')).toBeNull();
+      expect(extractYoutubeId(null)).toBeNull();
+      expect(extractYoutubeId(undefined)).toBeNull();
       expect(extractYoutubeId('https://google.com')).toBeNull();
       expect(extractYoutubeId('https://youtube.com/watch?v=short')).toBeNull();
+      expect(extractYoutubeId('invalid-url')).toBeNull();
     });
   });
 

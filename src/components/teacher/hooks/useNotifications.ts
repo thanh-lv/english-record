@@ -24,30 +24,73 @@ function loadReadIds(): Set<string> {
   }
 }
 
-export function useNotifications() {
-  const [notifications, setNotifications] = useState<Notification[]>(loadNotifications);
-  const [readIds, setReadIds] = useState<Set<string>>(loadReadIds);
+export function useNotifications(teacherId?: string | null) {
+  const storageKey = teacherId ? `teacher-notifications:${teacherId}` : 'teacher-notifications';
+  const readKey = teacherId
+    ? `teacher-notifications-read:${teacherId}`
+    : 'teacher-notifications-read';
+
+  const [notifications, setNotifications] = useState<Notification[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(storageKey) || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const [readIds, setReadIds] = useState<Set<string>>(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(readKey) || '[]'));
+    } catch {
+      return new Set();
+    }
+  });
+
+  // Reload notifications when teacherId changes
+  useEffect(() => {
+    try {
+      setNotifications(JSON.parse(localStorage.getItem(storageKey) || '[]'));
+    } catch {
+      setNotifications([]);
+    }
+    try {
+      setReadIds(new Set(JSON.parse(localStorage.getItem(readKey) || '[]')));
+    } catch {
+      setReadIds(new Set());
+    }
+  }, [storageKey, readKey]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-  }, [notifications]);
+    localStorage.setItem(storageKey, JSON.stringify(notifications));
+  }, [notifications, storageKey]);
 
   useEffect(() => {
-    localStorage.setItem(READ_KEY, JSON.stringify([...readIds]));
-  }, [readIds]);
+    localStorage.setItem(readKey, JSON.stringify([...readIds]));
+  }, [readIds, readKey]);
 
-  const addNotification = useCallback((record: any) => {
-    const item: Notification = {
-      id: record.id ?? Math.random().toString(36).slice(2),
-      student_name: record.student_name || 'Học sinh',
-      topic_number: record.topic_number,
-      created_at: record.created_at || new Date().toISOString(),
-    };
-    setNotifications(prev => {
-      const next = [item, ...prev].slice(0, MAX_ITEMS);
-      return next;
-    });
-  }, []);
+  const addNotification = useCallback(
+    (record: any) => {
+      if (!record) return;
+      // Filter out notifications that belong to a different teacher
+      if (teacherId && record.teacher_id && record.teacher_id !== teacherId) {
+        return;
+      }
+
+      const item: Notification = {
+        id: record.id ?? Math.random().toString(36).slice(2),
+        student_name: record.student_name || 'Học sinh',
+        topic_number: record.topic_number,
+        created_at: record.created_at || new Date().toISOString(),
+        teacher_id: record.teacher_id || teacherId || null,
+      };
+      setNotifications(prev => {
+        if (prev.some(n => n.id === item.id)) return prev;
+        const next = [item, ...prev].slice(0, MAX_ITEMS);
+        return next;
+      });
+    },
+    [teacherId]
+  );
 
   const markAllRead = useCallback(() => {
     setReadIds(prev => {

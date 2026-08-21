@@ -8,6 +8,18 @@ describe('useCelebrationTrigger hook', () => {
     expect(result.current.showCelebration).toBe(false);
   });
 
+  it('does not trigger celebration when data is loading', () => {
+    const { result, rerender } = renderHook(
+      ({ completed, loading }) => useCelebrationTrigger(completed, loading, 5),
+      { initialProps: { completed: [] as number[], loading: true } }
+    );
+    expect(result.current.showCelebration).toBe(false);
+
+    // Recordings load and completed numbers become [1, 2], but loading transitions to false
+    rerender({ completed: [1, 2], loading: false });
+    expect(result.current.showCelebration).toBe(false);
+  });
+
   it('triggers celebration when a new topic is completed', () => {
     let completedTopics = [1, 2];
     const { result, rerender } = renderHook(

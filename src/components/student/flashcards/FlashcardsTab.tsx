@@ -19,6 +19,7 @@ import { VocabSet, VocabCard } from '../../../types';
 
 interface FlashcardsTabProps {
   studentGrade?: number | string | null;
+  teacherId?: string | null;
 }
 
 function FlipCard({ card }: { card: VocabCard }) {
@@ -340,7 +341,7 @@ function StudyMode({ set, onClose }: { set: VocabSet; onClose: () => void }) {
   );
 }
 
-export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
+export function FlashcardsTab({ studentGrade, teacherId }: FlashcardsTabProps) {
   const { t } = useLanguage();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -352,10 +353,16 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
     const fetchSets = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('vocabulary_sets')
-          .select('id, title, emoji, grades, created_at, vocabulary_cards(id)')
+          .select('id, title, emoji, grades, created_at, teacher_id, vocabulary_cards(id)')
           .order('created_at', { ascending: false });
+
+        if (teacherId) {
+          query = query.eq('teacher_id', teacherId);
+        }
+
+        const { data, error } = await query;
         if (error) throw error;
 
         const filtered = (data || [])
@@ -380,7 +387,7 @@ export function FlashcardsTab({ studentGrade }: FlashcardsTabProps) {
       }
     };
     fetchSets();
-  }, [parsedStudentGrade]);
+  }, [parsedStudentGrade, teacherId]);
 
   const filteredSets = useMemo(() => {
     if (!filterText.trim()) return sets;

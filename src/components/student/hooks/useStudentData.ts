@@ -8,15 +8,23 @@ export { useStudentTopics, useStudentRecordings, useStudentStories };
 
 export function useStudentData(user: any, profile: any, isBongBe: boolean, _studentAge?: number) {
   const { activeTopics, topicsLoading } = useStudentTopics(profile, isBongBe);
-  const { myRecordings, setMyRecordings, completedNumbers, setCompletedNumbers } =
-    useStudentRecordings(user, profile);
+  const {
+    myRecordings,
+    setMyRecordings,
+    completedNumbers,
+    setCompletedNumbers,
+    recordingsLoading,
+  } = useStudentRecordings(user, profile);
   const { dbStories } = useStudentStories(profile);
 
   const streak = useMemo(() => calculateStreak(myRecordings), [myRecordings]);
+  const isInitialLoading = topicsLoading || recordingsLoading;
 
   return {
     activeTopics,
     topicsLoading,
+    recordingsLoading,
+    isInitialLoading,
     myRecordings,
     setMyRecordings,
     completedNumbers,

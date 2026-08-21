@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { attendanceService } from '../../../../services/attendanceService';
 import { loggerService } from '../../../../services/loggerService';
 import { AttendanceStudent, AttendanceRecord } from '../../../../types';
+import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export function useTuitionSummary(t: any) {
+  const { teacherId } = useTeacher();
   const tAtt = t?.attendance || {};
 
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
@@ -23,7 +25,9 @@ export function useTuitionSummary(t: any) {
     Record<string, { label: string; value: number }>
   >(() => {
     try {
-      const saved = localStorage.getItem('english_record_class_hoc_lieu_map');
+      const saved = localStorage.getItem(
+        `english_record_class_hoc_lieu_map_${teacherId || 'default'}`
+      );
       return saved ? JSON.parse(saved) : {};
     } catch {
       return {};
@@ -44,7 +48,10 @@ export function useTuitionSummary(t: any) {
         [className]: { label: updatedLabel, value: updatedValue },
       };
       try {
-        localStorage.setItem('english_record_class_hoc_lieu_map', JSON.stringify(next));
+        localStorage.setItem(
+          `english_record_class_hoc_lieu_map_${teacherId || 'default'}`,
+          JSON.stringify(next)
+        );
       } catch {}
       return next;
     });
@@ -69,8 +76,8 @@ export function useTuitionSummary(t: any) {
 
     try {
       const [stData, recData] = await Promise.all([
-        attendanceService.fetchAttendanceStudents(),
-        attendanceService.fetchAttendanceRecords(startDate, endDate),
+        attendanceService.fetchAttendanceStudents(teacherId),
+        attendanceService.fetchAttendanceRecords(startDate, endDate, teacherId),
       ]);
       setStudents(stData);
       setRecords(recData);
@@ -79,7 +86,7 @@ export function useTuitionSummary(t: any) {
     } finally {
       setLoading(false);
     }
-  }, [calYear, calMonth]);
+  }, [calYear, calMonth, teacherId]);
 
   useEffect(() => {
     loadData();
@@ -90,7 +97,11 @@ export function useTuitionSummary(t: any) {
 
   const loadPayments = useCallback(async () => {
     try {
-      const payments = await attendanceService.fetchAttendancePayments(calYear, calMonth + 1);
+      const payments = await attendanceService.fetchAttendancePayments(
+        calYear,
+        calMonth + 1,
+        teacherId
+      );
       const map: Record<string, boolean> = {};
       payments.forEach(p => {
         map[p.student_id] = p.is_paid;
@@ -99,7 +110,7 @@ export function useTuitionSummary(t: any) {
     } catch (err) {
       loggerService.error('useTuitionSummary', 'Error loading payment statuses', err);
     }
-  }, [calYear, calMonth]);
+  }, [calYear, calMonth, teacherId]);
 
   useEffect(() => {
     loadPayments();
@@ -126,19 +137,19 @@ export function useTuitionSummary(t: any) {
 
       const clsName = student.class_name || tAtt.unassignedClass;
       const classHocLieu = classHocLieuMap[clsName];
-      const hocLieuFee =
+      const hocLieuValue =
         classHocLieu && classHocLieu.value > 0
           ? classHocLieu.value
-          : Number((student as any).hoc_lieu_fee) || 0;
+          : Number(student.hoc_lieu_value ?? 0);
 
-      const total = subtotal + hocLieuFee;
+      const total = subtotal + hocLieuValue;
       const isPaid = Boolean(paymentsMap[student.id]);
 
       return {
         ...student,
         sessionsCount,
         subtotal,
-        hocLieuFee,
+        hocLieuValue,
         hocLieuLabel: classHocLieu?.label || tAtt.hocLieuSlip || '📚 Học liệu',
         total,
         isPaid,

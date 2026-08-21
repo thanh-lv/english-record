@@ -9,4 +9,3 @@ export * from '../students/hooks/useStudentsManager';
 export * from '../topics/hooks/useTopics';
 export * from '../vocabulary/hooks/useVocabulary';
 export * from '../stories/hooks/useStories';
-export * from '../logs/hooks/useLogs';

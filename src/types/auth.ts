@@ -1,4 +1,4 @@
-export type UserRole = 'student' | 'teacher';
+export type UserRole = 'student' | 'teacher' | 'super_admin';
 
 export interface UserProfile {
   id: string;
@@ -13,6 +13,8 @@ export interface UserProfile {
   password?: string | null;
   updated_at?: string | null;
   created_at?: string | null;
+  teacher_id?: string | null;
+  username?: string | null;
 }
 
 export interface TeacherLoginCredentials {

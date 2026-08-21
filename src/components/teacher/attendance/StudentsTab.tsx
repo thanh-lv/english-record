@@ -5,6 +5,7 @@ import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
 import { formatClassName } from '../../../utils';
 import { useBodyScrollLock } from '../../../hooks';
 import { useAttendanceStudents } from './useAttendanceStudents';
+import { AttendanceStudent } from '../../../types';
 
 export function StudentsTab() {
   const { t } = useLanguage();
@@ -25,8 +26,6 @@ export function StudentsTab() {
     handlePriceChange,
     phone,
     setPhone,
-    hocLieuFee,
-    handleHocLieuFeeChange,
     note,
     setNote,
     saving,
@@ -34,6 +33,8 @@ export function StudentsTab() {
     deleteId,
     setDeleteId,
     deleteSaving,
+    deleteError,
+    setDeleteError,
     openCreateModal,
     openEditModal: handleEdit,
     handleSave,
@@ -43,22 +44,25 @@ export function StudentsTab() {
   // Lock body scroll when modal is open
   useBodyScrollLock(Boolean(showForm || deleteId));
 
-  // Group students by class for display
   const [search, setSearch] = useState('');
   const [filterCls, setFilterCls] = useState('all');
 
   const availableClasses = Array.from(
-    new Set(students.map(s => s.class_name || tAtt.unassignedClass))
+    new Set(students.map((s: AttendanceStudent) => s.class_name || tAtt.unassignedClass))
   ).sort();
-  const filtered = students.filter(s => {
+
+  const filtered = students.filter((s: AttendanceStudent) => {
     const matchCls = filterCls === 'all' || (s.class_name || tAtt.unassignedClass) === filterCls;
-    const matchSearch = s.name.toLowerCase().includes(search.toLowerCase());
+    const matchSearch =
+      !search ||
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      (s.class_name && s.class_name.toLowerCase().includes(search.toLowerCase()));
     return matchCls && matchSearch;
   });
 
   // Group filtered by class
-  const byClass: Record<string, typeof students> = {};
-  filtered.forEach(s => {
+  const byClass: Record<string, AttendanceStudent[]> = {};
+  filtered.forEach((s: AttendanceStudent) => {
     const key = s.class_name || tAtt.unassignedClass;
     if (!byClass[key]) byClass[key] = [];
     byClass[key].push(s);
@@ -171,19 +175,6 @@ export function StudentsTab() {
                     className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-black text-slate-700 mb-1.5">
-                    {tAtt.hocLieuLabelWithUnit || '📚 Học liệu (đ)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={hocLieuFee}
-                    maxLength={15}
-                    onChange={handleHocLieuFeeChange}
-                    placeholder="VD: 50.000"
-                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  />
-                </div>
               </div>
 
               <div>
@@ -233,8 +224,12 @@ export function StudentsTab() {
           description={tAtt.confirmDeleteStudent}
           confirmLabel={tAtt.deleteStudent}
           saving={deleteSaving}
+          error={deleteError}
           onConfirm={handleDeleteConfirm}
-          onCancel={() => setDeleteId(null)}
+          onCancel={() => {
+            setDeleteId(null);
+            setDeleteError('');
+          }}
         />
       )}
 

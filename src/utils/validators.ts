@@ -39,6 +39,51 @@ export function validateStudentName(
 }
 
 /**
+ * Generate a clean username slug from Vietnamese/English name
+ */
+export function generateUsernameFromName(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+}
+
+/**
+ * Validate student username
+ */
+export function validateUsername(
+  username: string,
+  errorMsgs?: { required?: string; min?: string; max?: string; invalid?: string }
+): ValidationResult {
+  const clean = username ? username.trim().toLowerCase() : '';
+  if (!clean) {
+    return {
+      isValid: false,
+      error: errorMsgs?.required || 'Vui lòng nhập tên đăng nhập.',
+    };
+  }
+  const schema = z
+    .string()
+    .min(2, errorMsgs?.min || 'Tên đăng nhập phải có ít nhất 2 ký tự.')
+    .max(50, errorMsgs?.max || 'Tên đăng nhập không được vượt quá 50 ký tự.')
+    .regex(
+      /^[a-zA-Z0-9_.-]+$/,
+      errorMsgs?.invalid ||
+        'Tên đăng nhập chỉ được chứa chữ cái không dấu, số, dấu chấm, gạch ngang và gạch dưới.'
+    );
+
+  const res = schema.safeParse(clean);
+  if (!res.success) {
+    return { isValid: false, error: res.error.issues[0]?.message };
+  }
+  return { isValid: true };
+}
+
+/**
  * Validate password using Zod studentPasswordSchema
  */
 export function validatePassword(

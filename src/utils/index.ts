@@ -6,3 +6,4 @@ export * from './audioEncoder';
 export * from './imageOptimizer';
 export * from './validators';
 export * from './security';
+export * from './stackParser';

@@ -13,8 +13,9 @@ export type TeacherTab =
   | 'stories'
   | 'vocabulary'
   | 'shadowing'
-  | 'audio-builder'
-  | 'logs';
+  | 'audio-builder';
+
+export type AdminTab = 'dashboard' | 'teachers' | 'logs';
 
 export type ActiveTab =
   | 'exercises'

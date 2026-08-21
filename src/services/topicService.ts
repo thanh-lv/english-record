@@ -5,15 +5,19 @@ import { Topic, Question } from '../types';
 import { parseApiResponse, topicsResponseArraySchema } from '../schemas';
 
 export const topicService = {
-  async fetchAllTopics(): Promise<Topic[]> {
+  async fetchAllTopics(teacherId?: string): Promise<Topic[]> {
     return withServiceHandling('topicService', 'fetchAllTopics', async () => {
+      const cacheKey = teacherId ? `topics:all:${teacherId}` : 'topics:all';
       return clientCache.fetchWithCache(
-        'topics:all',
+        cacheKey,
         async () => {
-          const { data, error } = await supabase
-            .from('topics')
-            .select('*, questions(*)')
-            .order('order_index');
+          let query = supabase.from('topics').select('*, questions(*)').order('order_index');
+
+          if (teacherId) {
+            query = query.eq('teacher_id', teacherId);
+          }
+
+          const { data, error } = await query;
 
           if (error) throw error;
 
@@ -74,7 +78,8 @@ export const topicService = {
     title: string,
     type: 'standard' | 'bongbe',
     orderIndex: number,
-    grades?: number[]
+    grades?: number[],
+    teacherId?: string
   ): Promise<void> {
     return withServiceHandling('topicService', 'createTopic', async () => {
       const payload: any = {
@@ -84,6 +89,9 @@ export const topicService = {
         is_active: true,
         grades: grades || [],
       };
+      if (teacherId) {
+        payload.teacher_id = teacherId;
+      }
 
       let { error } = await supabase.from('topics').insert(payload);
 
@@ -100,6 +108,9 @@ export const topicService = {
 
   async deleteTopic(topicId: string): Promise<void> {
     return withServiceHandling('topicService', 'deleteTopic', async () => {
+      // 1. Delete associated questions first in case DB foreign key does not have CASCADE
+      await supabase.from('questions').delete().eq('topic_id', topicId);
+      // 2. Delete the topic row
       const { error } = await supabase.from('topics').delete().eq('id', topicId);
       if (error) throw error;
       clientCache.invalidate('topics');

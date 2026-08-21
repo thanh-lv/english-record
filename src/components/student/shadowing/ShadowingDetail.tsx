@@ -442,7 +442,7 @@ export function ShadowingDetail({
             <div className="space-y-5 my-auto text-center animate-in fade-in duration-300">
               <div className="space-y-1.5">
                 <h3 className="font-black text-slate-800 text-base sm:text-lg">
-                  Luyện nghe trước khi ghi âm
+                  {t.shadowing.listenStepTitle}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed">
                   {t.shadowing.step1Desc}
@@ -480,7 +480,7 @@ export function ShadowingDetail({
             <div className="space-y-5 my-auto text-center animate-in fade-in duration-300">
               <div className="space-y-1.5">
                 <h3 className="font-black text-slate-800 text-base sm:text-lg">
-                  Lồng tiếng cho video
+                  {t.shadowing.recordStepTitle}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed">
                   {t.shadowing.step2Desc}
@@ -503,7 +503,7 @@ export function ShadowingDetail({
                     </button>
                   </div>
                   <p className="text-xs font-black text-rose-600 animate-pulse">
-                    Đang ghi âm... Nhấn nút vuông để dừng
+                    {t.shadowing.recordingHint}
                   </p>
                 </div>
               ) : (
@@ -516,7 +516,7 @@ export function ShadowingDetail({
                     <Mic size={36} />
                   </button>
                   <p className="text-xs sm:text-sm font-black text-slate-600">
-                    Bấm nút đỏ để bắt đầu lồng tiếng 🎙️
+                    {t.shadowing.startRecordHint}
                   </p>
 
                   <button
@@ -542,7 +542,7 @@ export function ShadowingDetail({
             <div className="space-y-5 my-auto text-center animate-in fade-in duration-300">
               <div className="space-y-1.5">
                 <h3 className="font-black text-slate-800 text-base sm:text-lg">
-                  Nghe lại và Gửi bài
+                  {t.shadowing.reviewStepTitle}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed">
                   {t.shadowing.step3Desc}
@@ -564,7 +564,7 @@ export function ShadowingDetail({
                   {shadowingRecording.isSaving ? (
                     <>
                       <Loader2 size={18} className="animate-spin" />
-                      Đang gửi bài...
+                      {t.shadowing.submittingRecording}
                     </>
                   ) : (
                     <>
@@ -699,9 +699,7 @@ export function ShadowingDetail({
               </div>
               <div className="space-y-1.5">
                 <h3 className="text-xl font-black text-slate-800">{t.shadowing.saved}</h3>
-                <p className="text-xs font-semibold text-slate-500">
-                  Con đã hoàn thành bài luyện Shadowing xuất sắc! 🎉
-                </p>
+                <p className="text-xs font-semibold text-slate-500">{t.shadowing.congratsTitle}</p>
               </div>
               <button
                 type="button"

@@ -9,8 +9,10 @@ import {
   validateGrades,
   sanitizeText,
 } from '../../../../utils/validators';
+import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export function useVocabulary(t: any) {
+  const { teacherId } = useTeacher();
   const [sets, setSets] = useState<VocabSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterText, setFilterText] = useState('');
@@ -59,14 +61,14 @@ export function useVocabulary(t: any) {
   const fetchSets = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await vocabularyService.fetchSets();
+      const data = await vocabularyService.fetchSets(teacherId);
       setSets(data);
     } catch (err: any) {
       loggerService.error('useVocabulary', 'Fetch sets error', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [teacherId]);
 
   useEffect(() => {
     fetchSets();
@@ -135,7 +137,12 @@ export function useVocabulary(t: any) {
     setCreateSetSaving(true);
     setCreateSetError('');
     try {
-      const newSet = await vocabularyService.createSet(cleanTitle, cleanEmoji, selectedGrades);
+      const newSet = await vocabularyService.createSet(
+        cleanTitle,
+        cleanEmoji,
+        selectedGrades,
+        teacherId
+      );
       setSets([newSet, ...sets]);
       setShowCreateSet(false);
       setNewTitle('');

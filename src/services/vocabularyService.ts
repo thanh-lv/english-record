@@ -10,12 +10,18 @@ import {
 const WORKER_URL = 'https://free-image-generation-api.levanthanh29111999.workers.dev/';
 
 export const vocabularyService = {
-  async fetchSets(): Promise<VocabSet[]> {
+  async fetchSets(teacherId?: string): Promise<VocabSet[]> {
     return withServiceHandling('vocabularyService', 'fetchSets', async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('vocabulary_sets')
-        .select('id, title, emoji, grades, created_at, vocabulary_cards(id)')
+        .select('id, title, emoji, grades, created_at, teacher_id, vocabulary_cards(id)')
         .order('created_at', { ascending: false });
+
+      if (teacherId) {
+        query = query.eq('teacher_id', teacherId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -50,15 +56,25 @@ export const vocabularyService = {
     });
   },
 
-  async createSet(title: string, emoji: string, grades: number[] = []): Promise<VocabSet> {
+  async createSet(
+    title: string,
+    emoji: string,
+    grades: number[] = [],
+    teacherId?: string
+  ): Promise<VocabSet> {
     return withServiceHandling('vocabularyService', 'createSet', async () => {
+      const insertPayload: any = {
+        title,
+        emoji,
+        grades,
+      };
+      if (teacherId) {
+        insertPayload.teacher_id = teacherId;
+      }
+
       const { data, error } = await supabase
         .from('vocabulary_sets')
-        .insert({
-          title,
-          emoji,
-          grades,
-        })
+        .insert(insertPayload)
         .select()
         .single();
 
@@ -86,6 +102,7 @@ export const vocabularyService = {
 
   async deleteSet(setId: string): Promise<void> {
     return withServiceHandling('vocabularyService', 'deleteSet', async () => {
+      await supabase.from('vocabulary_cards').delete().eq('set_id', setId);
       const { error } = await supabase.from('vocabulary_sets').delete().eq('id', setId);
       if (error) throw error;
     });

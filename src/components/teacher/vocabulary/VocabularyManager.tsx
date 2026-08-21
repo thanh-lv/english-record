@@ -60,8 +60,12 @@ export function VocabularyManager() {
     ipaLoading,
     deleteSetTarget,
     setDeleteSetTarget,
+    deleteSetSaving,
+    deleteSetError,
     deleteCardTarget,
     setDeleteCardTarget,
+    deleteCardSaving,
+    deleteCardError,
     handleToggleSet,
     handleCreateSet,
     handleDeleteSet,
@@ -591,6 +595,8 @@ export function VocabularyManager() {
         <DeleteConfirmModal
           title={vm.deleteSetTitle || 'Xác nhận xóa bộ từ vựng'}
           description={deleteSetTarget.title}
+          saving={deleteSetSaving}
+          error={deleteSetError}
           onConfirm={handleDeleteSet}
           onCancel={() => setDeleteSetTarget(null)}
         />
@@ -601,6 +607,8 @@ export function VocabularyManager() {
         <DeleteConfirmModal
           title={vm.deleteCardTitle || 'Xác nhận xóa thẻ từ vựng'}
           description={deleteCardTarget.front}
+          saving={deleteCardSaving}
+          error={deleteCardError}
           onConfirm={handleDeleteCard}
           onCancel={() => setDeleteCardTarget(null)}
         />

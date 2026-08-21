@@ -7,6 +7,8 @@ export interface CreateStudentPayload {
   year_born?: number | null;
   grade?: number | null;
   role?: 'student';
+  teacher_id?: string;
+  username?: string;
 }
 
 export interface UpdateStudentPayload {
@@ -15,6 +17,7 @@ export interface UpdateStudentPayload {
   grade?: number | null;
   avatar?: string | null;
   language?: string;
+  username?: string | null;
 }
 
 export interface StudentStats {

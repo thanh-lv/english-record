@@ -98,7 +98,7 @@ describe('useShadowingManager hook', () => {
     expect(result.current.youtubeUrl).toBe('');
   });
 
-  it('opens edit modal with video fields populated', async () => {
+  it('opens edit modal with video fields populated and showCreate true', async () => {
     const mockVideo = {
       id: 'v1',
       title: 'Video Title',
@@ -118,9 +118,16 @@ describe('useShadowingManager hook', () => {
       result.current.openEditModal(mockVideo as any);
     });
 
+    expect(result.current.showCreate).toBe(true);
     expect(result.current.editingVideo).toEqual(mockVideo);
     expect(result.current.title).toBe('Video Title');
     expect(result.current.selectedGrades).toEqual([1, 2]);
+
+    act(() => {
+      result.current.closeModal();
+    });
+    expect(result.current.showCreate).toBe(false);
+    expect(result.current.editingVideo).toBeNull();
   });
 
   it('handles validation error and successfully saves new video', async () => {
@@ -177,6 +184,8 @@ describe('useShadowingManager hook', () => {
       result.current.setTitle('New Updated Title');
     });
 
+    expect(result.current.showCreate).toBe(true);
+
     await act(async () => {
       await result.current.handleSave({ preventDefault: vi.fn() } as any);
     });
@@ -187,6 +196,7 @@ describe('useShadowingManager hook', () => {
     );
     expect(result.current.videos[0].title).toBe('New Updated Title');
     expect(result.current.editingVideo).toBeNull();
+    expect(result.current.showCreate).toBe(false);
   });
 
   it('toggles video active state and handles errors', async () => {

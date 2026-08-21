@@ -128,6 +128,31 @@ describe('attendanceService', () => {
       expect(res).toEqual(mockRecords);
     });
 
+    it('fetches records filtered by teacherId', async () => {
+      const mockRecords = [{ id: 'r1', student_id: 's1', checkin_time: '2026-08-01T08:00:00Z' }];
+      const lteMock = vi.fn().mockResolvedValue({ data: mockRecords, error: null });
+      const gteMock = vi.fn().mockReturnValue({ lte: lteMock });
+      const inMock = vi.fn().mockReturnValue({ gte: gteMock });
+      const selectRecordsMock = vi.fn().mockReturnValue({ in: inMock });
+
+      const eqStudentsMock = vi.fn().mockResolvedValue({ data: [{ id: 's1' }], error: null });
+      const selectStudentsMock = vi.fn().mockReturnValue({ eq: eqStudentsMock });
+
+      (supabase.from as any).mockImplementation((table: string) => {
+        if (table === 'attendance_students') return { select: selectStudentsMock };
+        return { select: selectRecordsMock };
+      });
+
+      const res = await attendanceService.fetchAttendanceRecords(
+        '2026-08-01T00:00:00Z',
+        '2026-08-31T23:59:59Z',
+        'teacher-123'
+      );
+      expect(eqStudentsMock).toHaveBeenCalledWith('teacher_id', 'teacher-123');
+      expect(inMock).toHaveBeenCalledWith('student_id', ['s1']);
+      expect(res).toEqual(mockRecords);
+    });
+
     it('throws error on fetch records failure', async () => {
       const lteMock = vi.fn().mockResolvedValue({ data: null, error: new Error('Records error') });
       const gteMock = vi.fn().mockReturnValue({ lte: lteMock });
@@ -238,6 +263,29 @@ describe('attendanceService', () => {
       (supabase.from as any).mockReturnValue({ select: selectMock });
 
       const res = await attendanceService.fetchAttendancePayments(2026, 8);
+      expect(eqYearMock).toHaveBeenCalledWith('year', 2026);
+      expect(eqMonthMock).toHaveBeenCalledWith('month', 8);
+      expect(res).toEqual(mockPayments);
+    });
+
+    it('fetches payments filtered by teacherId', async () => {
+      const mockPayments = [{ id: 'p1', student_id: 's1', is_paid: true, year: 2026, month: 8 }];
+      const eqMonthMock = vi.fn().mockResolvedValue({ data: mockPayments, error: null });
+      const eqYearMock = vi.fn().mockReturnValue({ eq: eqMonthMock });
+      const inMock = vi.fn().mockReturnValue({ eq: eqYearMock });
+      const selectPaymentsMock = vi.fn().mockReturnValue({ in: inMock });
+
+      const eqStudentsMock = vi.fn().mockResolvedValue({ data: [{ id: 's1' }], error: null });
+      const selectStudentsMock = vi.fn().mockReturnValue({ eq: eqStudentsMock });
+
+      (supabase.from as any).mockImplementation((table: string) => {
+        if (table === 'attendance_students') return { select: selectStudentsMock };
+        return { select: selectPaymentsMock };
+      });
+
+      const res = await attendanceService.fetchAttendancePayments(2026, 8, 'teacher-123');
+      expect(eqStudentsMock).toHaveBeenCalledWith('teacher_id', 'teacher-123');
+      expect(inMock).toHaveBeenCalledWith('student_id', ['s1']);
       expect(eqYearMock).toHaveBeenCalledWith('year', 2026);
       expect(eqMonthMock).toHaveBeenCalledWith('month', 8);
       expect(res).toEqual(mockPayments);

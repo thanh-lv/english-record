@@ -5,11 +5,12 @@ export interface AttendanceStudent {
   unit_price?: number;
   phone?: string;
   zalo_phone?: string;
-  hoc_lieu?: number;
-  hoc_lieu_fee?: number;
+  hoc_lieu_label?: string;
+  hoc_lieu_value?: number;
   note?: string;
   student_note?: string;
   created_at?: string;
+  teacher_id?: string;
 }
 
 export type Student = AttendanceStudent;
@@ -20,8 +21,10 @@ export interface AttendanceStudentPayload {
   unit_price?: number;
   phone?: string;
   zalo_phone?: string;
-  hoc_lieu_fee?: number;
+  hoc_lieu_label?: string;
+  hoc_lieu_value?: number;
   note?: string;
+  teacher_id?: string;
 }
 
 export interface AttendanceRecord {

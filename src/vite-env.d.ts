@@ -11,6 +11,8 @@ interface ImportMetaEnv {
   readonly VITE_S3_BUCKET_NAME: string;
   readonly VITE_R2_PUBLIC_URL?: string;
   readonly VITE_GEMINI_API_KEY: string;
+  readonly VITE_TELEGRAM_BOT_TOKEN?: string;
+  readonly VITE_TELEGRAM_CHAT_ID?: string;
 }
 
 interface ImportMeta {

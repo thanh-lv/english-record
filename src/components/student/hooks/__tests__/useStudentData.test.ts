@@ -112,6 +112,7 @@ describe('Student hooks', () => {
         if (table === 'recordings') {
           return {
             select: vi.fn().mockReturnValue({
+              ilike: vi.fn().mockResolvedValue({ data: mockRecordings, error: null }),
               eq: vi.fn().mockResolvedValue({ data: mockRecordings, error: null }),
             }),
           };
@@ -140,6 +141,8 @@ describe('Student hooks', () => {
       expect(result.current.myRecordings).toHaveLength(2);
       expect(result.current.completedNumbers).toEqual([1, 2]);
       expect(result.current.streak).toBe(1);
+      expect(result.current.recordingsLoading).toBe(false);
+      expect(result.current.isInitialLoading).toBe(false);
     });
 
     it('handles realtime INSERT, UPDATE, DELETE payloads for student recordings', async () => {

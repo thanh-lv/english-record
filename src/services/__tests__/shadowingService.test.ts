@@ -22,8 +22,12 @@ describe('shadowingService', () => {
     describe('extractYoutubeId', () => {
       it('extracts 11-char ID from various YouTube URL formats', () => {
         expect(extractYoutubeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+        expect(extractYoutubeId('https://www.youtube.com/watch?v=ml5NmFbpIhs')).toBe('ml5NmFbpIhs');
         expect(extractYoutubeId('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+        expect(extractYoutubeId('https://youtu.be/ml5NmFbpIhs?si=test123456')).toBe('ml5NmFbpIhs');
         expect(extractYoutubeId('https://www.youtube.com/embed/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+        expect(extractYoutubeId('https://www.youtube.com/shorts/ml5NmFbpIhs')).toBe('ml5NmFbpIhs');
+        expect(extractYoutubeId('https://www.youtube.com/live/ml5NmFbpIhs')).toBe('ml5NmFbpIhs');
       });
 
       it('returns null for invalid or missing URLs', () => {

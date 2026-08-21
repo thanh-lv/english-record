@@ -17,9 +17,15 @@ interface ShadowingTabProps {
   onVideoClick: (video: any) => void;
   studentGrade?: number | string | null;
   myRecordings?: any[];
+  teacherId?: string | null;
 }
 
-export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: ShadowingTabProps) {
+export function ShadowingTab({
+  onVideoClick,
+  studentGrade,
+  myRecordings,
+  teacherId,
+}: ShadowingTabProps) {
   const { t } = useLanguage();
 
   const {
@@ -31,7 +37,7 @@ export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: Shado
     filterMode,
     setFilterMode,
     parsedStudentGrade,
-  } = useShadowingStudent({ studentGrade });
+  } = useShadowingStudent({ studentGrade, teacherId });
 
   if (loading) {
     return (
@@ -39,7 +45,7 @@ export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: Shado
         <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
           <div className="w-6 h-6 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
         </div>
-        <p className="text-xs font-bold text-slate-400">Đang tải danh sách video...</p>
+        <p className="text-xs font-bold text-slate-400">{t.shadowing.loadingVideos}</p>
       </div>
     );
   }
@@ -79,9 +85,11 @@ export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: Shado
             </div>
             <div>
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                Tổng số video
+                {t.shadowing.totalVideos}
               </p>
-              <p className="text-sm font-black text-slate-800">{filteredVideos.length} bài luyện</p>
+              <p className="text-sm font-black text-slate-800">
+                {filteredVideos.length} {t.shadowing.practiceCountUnit}
+              </p>
             </div>
           </div>
         </div>
@@ -132,7 +140,7 @@ export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: Shado
               type="text"
               value={filterText}
               onChange={e => setFilterText(e.target.value)}
-              placeholder="Tìm video luyện nói..."
+              placeholder={t.shadowing.searchPlaceholder}
               className="w-full sm:w-56 pl-9 pr-8 py-2 bg-white rounded-xl border border-slate-200/80 text-xs font-bold text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20 focus:border-indigo-500 transition-all shadow-2xs"
             />
             {filterText && (
@@ -156,7 +164,7 @@ export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: Shado
           </div>
           <p className="font-black text-slate-700 text-base">{t.shadowing.empty}</p>
           <p className="text-xs text-slate-400 max-w-sm mx-auto font-medium">
-            Hãy thử đổi từ khóa tìm kiếm hoặc chọn bộ lọc &quot;Tất cả bài học&quot; nhé!
+            {t.shadowing.noVideosHint}
           </p>
           {(filterText || filterMode !== 'all') && (
             <button
@@ -167,7 +175,7 @@ export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: Shado
               }}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 shadow-sm"
             >
-              <RotateCcw size={13} /> Xem tất cả video
+              <RotateCcw size={13} /> {t.shadowing.viewAllVideosBtn}
             </button>
           )}
         </div>
@@ -242,8 +250,8 @@ export function ShadowingTab({ onVideoClick, studentGrade, myRecordings }: Shado
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-400 group-hover:text-indigo-600 transition-colors">
                     <span>
                       {myRecordings?.some((rec: any) => rec.shadowing_video_id === video.id)
-                        ? 'Xem lại & Luyện tập'
-                        : 'Luyện tập ngay'}
+                        ? t.shadowing.reviewAndPractice
+                        : t.shadowing.practiceNow}
                     </span>
                     <ArrowRight
                       size={13}

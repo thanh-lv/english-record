@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { LogEntry, LogFilter, LogLevel, RemoteLogRecord } from '../types';
+import { telegramAlertService } from './telegramAlertService';
 
 const MAX_LOGS = 150;
 const MAX_STORED_ERRORS = 30;
@@ -138,6 +139,29 @@ class LoggerService {
     // Asynchronously send ERROR and WARN logs to Supabase
     if (level === 'ERROR' || level === 'WARN') {
       this.sendRemoteLog(entry).catch(() => {});
+    }
+
+    // Asynchronously send critical crashes and fatal errors to Telegram Bot
+    const isCriticalModule =
+      module === 'ReactErrorBoundary' ||
+      module === 'WindowError' ||
+      module === 'UnhandledPromiseRejection';
+    const isCriticalExplicit = data?.isCritical === true || data?.critical === true;
+
+    if (level === 'ERROR' && (isCriticalModule || isCriticalExplicit)) {
+      telegramAlertService
+        .sendCriticalAlert({
+          module: entry.module,
+          message: entry.message,
+          stack: entry.stack,
+          url: entry.url,
+          userId: entry.userId,
+          userName: entry.userName,
+          userRole: entry.userRole,
+          userAgent: entry.userAgent,
+          extraData: entry.data,
+        })
+        .catch(() => {});
     }
 
     return entry;

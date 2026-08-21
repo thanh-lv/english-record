@@ -87,12 +87,15 @@ self.addEventListener("fetch", (event) => {
   // Bỏ qua các scheme không phải HTTP/HTTPS (ví dụ chrome-extension://)
   if (!url.protocol.startsWith("http")) return;
 
-  // Bỏ qua Backend APIs, Database (Supabase) và Cloud Storage (S3 / R2)
+  // Bỏ qua Backend APIs, Database (Supabase), Cloud Storage (S3 / R2 / CDN), và Range requests (Audio/Video streaming)
   if (
     url.hostname.includes("supabase.co") ||
     url.hostname.includes("supabase.in") ||
     url.hostname.includes("r2.cloudflarestorage") ||
-    url.hostname.includes("amazonaws.com")
+    url.hostname.includes("r2.dev") ||
+    url.hostname.includes("amazonaws.com") ||
+    url.hostname.includes("workers.dev") ||
+    event.request.headers.has("range")
   ) {
     return;
   }
@@ -241,10 +244,9 @@ self.addEventListener("fetch", (event) => {
   // --------------------------------------------------------------------------
   const isAudioMedia =
     url.hostname.includes("dictionaryapi.dev") ||
-    url.hostname.includes("lingva") ||
-    (url.hostname.includes("google.com") &&
-      url.pathname.includes("translate_tts")) ||
-    /\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(url.pathname);
+    url.hostname.includes("soundoftext.com") ||
+    (url.origin === self.location.origin &&
+      /\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(url.pathname));
 
   if (isAudioMedia) {
     event.respondWith(

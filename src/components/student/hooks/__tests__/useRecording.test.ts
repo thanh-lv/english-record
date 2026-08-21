@@ -32,7 +32,7 @@ vi.mock('../../../../i18n/LanguageContext', () => ({
 
 describe('useRecording hook', () => {
   const mockUser = { id: 'student-user-123' };
-  const mockProfile = { name: 'David' };
+  const mockProfile = { name: 'David', teacher_id: 'teacher-123' };
   const mockTopic = {
     id: 't1',
     title: 'Animals',
@@ -310,5 +310,35 @@ describe('useRecording hook', () => {
 
     expect(result.current.isSaving).toBe(false);
     expect(result.current.appError.length).toBeGreaterThan(0);
+  });
+
+  it('sets error and prevents save when student profile is missing teacher_id', async () => {
+    const unlinkedProfile = { name: 'David' }; // missing teacher_id
+
+    const { result } = renderHook(() =>
+      useRecording({
+        user: mockUser,
+        profile: unlinkedProfile,
+        selectedNumber: 1,
+        currentTopic: mockTopic,
+        activeQuestionIndex: 0,
+        onSaveSuccess,
+      })
+    );
+
+    const dummyBlob = new Blob(['audio'], { type: 'audio/webm' });
+    act(() => {
+      result.current.setBongBeAudios({ 0: dummyBlob });
+    });
+
+    const mockEvent = { preventDefault: vi.fn(), stopPropagation: vi.fn() } as any;
+
+    await act(async () => {
+      await result.current.saveRecording(mockEvent);
+    });
+
+    expect(result.current.isSaving).toBe(false);
+    expect(result.current.appError).toContain('chưa được liên kết với giáo viên');
+    expect(sendMock).not.toHaveBeenCalled();
   });
 });

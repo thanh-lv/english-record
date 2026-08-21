@@ -5,6 +5,8 @@ import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
 import { studentService } from '../../../services/studentService';
 import {
   validateStudentName,
+  validateUsername,
+  generateUsernameFromName,
   validatePassword,
   validateYearBorn,
   validateGrade,
@@ -12,6 +14,7 @@ import {
 } from '../../../utils/validators';
 
 import { UserProfile } from '../../../types';
+import { useTeacher } from '../../../contexts/TeacherContext';
 
 interface CreateStudentModalProps {
   onCreated: (student: UserProfile) => void;
@@ -19,7 +22,10 @@ interface CreateStudentModalProps {
 }
 
 export function CreateStudentModal({ onCreated, onClose }: CreateStudentModalProps) {
+  const { teacherId } = useTeacher();
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [isUsernameManuallyEdited, setIsUsernameManuallyEdited] = useState(false);
   const [yearBorn, setYearBorn] = useState('2015');
   const [grade, setGrade] = useState('');
   const [password, setPassword] = useState('');
@@ -32,6 +38,9 @@ export function CreateStudentModal({ onCreated, onClose }: CreateStudentModalPro
   const handleCreate = async () => {
     const cleanName = sanitizeText(name);
     const cleanPass = password.trim();
+    const finalUsername = username.trim()
+      ? username.trim().toLowerCase()
+      : generateUsernameFromName(cleanName);
 
     const nameValidation = validateStudentName(cleanName, {
       required: t.common.nameMin,
@@ -40,6 +49,12 @@ export function CreateStudentModal({ onCreated, onClose }: CreateStudentModalPro
     });
     if (!nameValidation.isValid) {
       setError(nameValidation.error || t.common.nameMin);
+      return;
+    }
+
+    const usernameValidation = validateUsername(finalUsername);
+    if (!usernameValidation.isValid) {
+      setError(usernameValidation.error || 'Tên đăng nhập không hợp lệ.');
       return;
     }
 
@@ -78,7 +93,7 @@ export function CreateStudentModal({ onCreated, onClose }: CreateStudentModalPro
     setSaving(true);
     setError('');
     try {
-      const exists = await studentService.checkStudentNameExists(cleanName);
+      const exists = await studentService.checkStudentNameExists(cleanName, teacherId);
       if (exists) {
         setError(t.common.nameDuplicate);
         return;
@@ -89,6 +104,8 @@ export function CreateStudentModal({ onCreated, onClose }: CreateStudentModalPro
         password: cleanPass,
         year_born: parsedYear,
         grade: parsedGrade,
+        teacher_id: teacherId,
+        username: finalUsername,
       });
 
       onCreated(inserted);
@@ -138,11 +155,32 @@ export function CreateStudentModal({ onCreated, onClose }: CreateStudentModalPro
               value={name}
               maxLength={50}
               onChange={e => {
-                setName(e.target.value);
+                const val = e.target.value;
+                setName(val);
+                if (!isUsernameManuallyEdited) {
+                  setUsername(generateUsernameFromName(val));
+                }
                 setError('');
               }}
               onKeyDown={e => e.key === 'Enter' && handleCreate()}
               placeholder={t.login.namePlaceholder}
+              className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-black text-slate-600 mb-1.5 uppercase tracking-wide">
+              {t.teacherModal.usernameLabel}
+            </label>
+            <input
+              value={username}
+              maxLength={50}
+              onChange={e => {
+                setUsername(e.target.value.toLowerCase());
+                setIsUsernameManuallyEdited(true);
+                setError('');
+              }}
+              onKeyDown={e => e.key === 'Enter' && handleCreate()}
+              placeholder={t.teacherModal.usernamePlaceholder}
               className="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-emerald-400 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
             />
           </div>

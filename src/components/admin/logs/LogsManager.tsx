@@ -17,9 +17,13 @@ import {
   Flame,
   User,
   Globe,
+  Bot,
+  FileCode,
 } from 'lucide-react';
 import { useLogs } from './hooks/useLogs';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import { TelegramConfigModal } from './TelegramConfigModal';
+import { parseErrorStack } from '../../../utils/stackParser';
 
 export function LogsManager() {
   const { t } = useLanguage();
@@ -46,6 +50,8 @@ export function LogsManager() {
     handleClearLogs,
     handleDownload,
   } = useLogs();
+
+  const [showTelegramModal, setShowTelegramModal] = React.useState(false);
 
   const getLevelBadge = (level: string) => {
     switch (level) {
@@ -89,21 +95,20 @@ export function LogsManager() {
     }
   };
 
+  const tAdmin = t.admin;
+
   return (
-    <div className="space-y-5 animate-fade-in">
-      {/* Header */}
+    <div className="space-y-5 animate-in fade-in duration-300">
+      {/* Top Header Card */}
       <div className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2.5">
             <span className="p-2 bg-rose-50 text-rose-600 rounded-xl">
               <Bug size={20} />
             </span>
-            Nhật Ký Lỗi & Trải Nghiệm Người Dùng
+            {tAdmin.logsTitle}
           </h2>
-          <p className="text-xs text-slate-500 font-medium mt-1">
-            Theo dõi sự cố, lỗi thu âm, lỗi mạng và phản hồi kỹ thuật từ học sinh và thiết bị
-            client.
-          </p>
+          <p className="text-xs text-slate-500 font-medium mt-1">{tAdmin.logsSubtitle}</p>
         </div>
 
         {/* Action buttons */}
@@ -132,7 +137,7 @@ export function LogsManager() {
               }`}
             >
               <Laptop size={14} />
-              Máy này (Local)
+              {tAdmin.localDeviceBadge}
             </button>
           </div>
 
@@ -141,9 +146,19 @@ export function LogsManager() {
             onClick={refetch}
             disabled={loading}
             className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-bold transition-all cursor-pointer"
-            title="Làm mới dữ liệu"
+            title={tAdmin.refreshTooltip}
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowTelegramModal(true)}
+            className="h-9 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+            title="Cấu hình / Test Telegram Alert Bot"
+          >
+            <Bot size={14} />
+            <span>Telegram Bot</span>
           </button>
 
           <button
@@ -152,7 +167,7 @@ export function LogsManager() {
             className="h-9 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
           >
             <Download size={14} />
-            Xuất file Log
+            {tAdmin.exportLogsBtn}
           </button>
 
           {source === 'local' && (
@@ -162,7 +177,7 @@ export function LogsManager() {
               className="h-9 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
             >
               <Trash2 size={14} />
-              Xóa log máy này
+              {tAdmin.clearLocalLogsBtn}
             </button>
           )}
         </div>
@@ -171,14 +186,14 @@ export function LogsManager() {
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-          <p className="text-xs font-bold text-slate-400">Tổng số Log</p>
+          <p className="text-xs font-bold text-slate-400">{tAdmin.totalLogsStat}</p>
           <p className="text-2xl font-black text-slate-800 mt-1">{stats.total}</p>
         </div>
 
         <div className="bg-rose-50/50 p-4 rounded-2xl border border-rose-200/60 shadow-xs">
           <p className="text-xs font-bold text-rose-500 flex items-center gap-1">
             <AlertCircle size={14} />
-            Lỗi (ERROR)
+            {tAdmin.errorLogsStat}
           </p>
           <p className="text-2xl font-black text-rose-600 mt-1">{stats.errors}</p>
         </div>
@@ -186,7 +201,7 @@ export function LogsManager() {
         <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-200/60 shadow-xs">
           <p className="text-xs font-bold text-amber-700 flex items-center gap-1">
             <AlertTriangle size={14} />
-            Cảnh báo (WARN)
+            {tAdmin.warnLogsStat}
           </p>
           <p className="text-2xl font-black text-amber-700 mt-1">{stats.warnings}</p>
         </div>
@@ -208,7 +223,7 @@ export function LogsManager() {
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo nội dung lỗi, tên học sinh, stack..."
+            placeholder={tAdmin.searchLogsPlaceholder}
             className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
           />
         </div>
@@ -220,11 +235,11 @@ export function LogsManager() {
             onChange={e => setFilterLevel(e.target.value)}
             className="h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-700 focus:outline-hidden"
           >
-            <option value="all">Mọi cấp độ</option>
-            <option value="ERROR">Chỉ ERROR</option>
-            <option value="WARN">Chỉ WARN</option>
-            <option value="INFO">Chỉ INFO</option>
-            <option value="DEBUG">Chỉ DEBUG</option>
+            <option value="all">{tAdmin.filterAllLevels}</option>
+            <option value="ERROR">{tAdmin.filterOnlyError}</option>
+            <option value="WARN">{tAdmin.filterOnlyWarn}</option>
+            <option value="INFO">{tAdmin.filterOnlyInfo}</option>
+            <option value="DEBUG">{tAdmin.filterOnlyDebug}</option>
           </select>
 
           {/* Module Filter */}
@@ -233,7 +248,7 @@ export function LogsManager() {
             onChange={e => setFilterModule(e.target.value)}
             className="h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-700 focus:outline-hidden"
           >
-            <option value="all">Mọi module</option>
+            <option value="all">{tAdmin.filterAllModules}</option>
             {availableModules.map(mod => (
               <option key={mod} value={mod}>
                 {mod}
@@ -248,15 +263,13 @@ export function LogsManager() {
         {loading && filteredLogs.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center text-slate-400 border border-slate-200/80">
             <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-blue-500" />
-            <p className="text-xs font-bold">Đang tải danh sách nhật ký...</p>
+            <p className="text-xs font-bold">{tAdmin.loadingLogs}</p>
           </div>
         ) : filteredLogs.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center text-slate-400 border border-slate-200/80">
             <Check size={32} className="mx-auto mb-2 text-emerald-500" />
-            <p className="text-sm font-black text-slate-700">Không có lỗi nào được ghi nhận</p>
-            <p className="text-xs text-slate-400 font-medium mt-1">
-              Hệ thống đang hoạt động ổn định và trơn tru.
-            </p>
+            <p className="text-sm font-black text-slate-700">{tAdmin.noLogsFound}</p>
+            <p className="text-xs text-slate-400 font-medium mt-1">{tAdmin.noLogsFoundDesc}</p>
           </div>
         ) : (
           filteredLogs.map(log => {
@@ -264,6 +277,7 @@ export function LogsManager() {
             const userName = (log as any).user_name || (log as any).userName;
             const userRole = (log as any).role || (log as any).userRole;
             const timestamp = (log as any).created_at || (log as any).timestamp;
+            const parsedLoc = parseErrorStack(log.stack);
 
             return (
               <div
@@ -276,6 +290,21 @@ export function LogsManager() {
                     <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[11px] font-mono font-bold">
                       {log.module}
                     </span>
+                    {parsedLoc.fileName && (
+                      <span
+                        className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-md text-[11px] font-mono font-bold flex items-center gap-1"
+                        title={parsedLoc.filePath || parsedLoc.rawLocation}
+                      >
+                        <FileCode size={11} className="text-amber-600" />
+                        {parsedLoc.fileName}
+                        {parsedLoc.lineNumber ? `:${parsedLoc.lineNumber}` : ''}
+                      </span>
+                    )}
+                    {parsedLoc.functionName && (
+                      <span className="px-2 py-0.5 bg-sky-50 text-sky-800 border border-sky-200 rounded-md text-[11px] font-mono font-bold">
+                        ⚙️ {parsedLoc.functionName}
+                      </span>
+                    )}
                     {userName && (
                       <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-md text-[11px] font-bold flex items-center gap-1">
                         <User size={10} />
@@ -292,7 +321,7 @@ export function LogsManager() {
                         onClick={() => handleDeleteRemote(log.id)}
                         disabled={deletingId === log.id}
                         className="p-1 hover:text-rose-600 text-slate-300 transition-colors cursor-pointer"
-                        title="Xóa log này"
+                        title={tAdmin.deleteLogTooltip}
                       >
                         <Trash2 size={13} />
                       </button>
@@ -312,11 +341,35 @@ export function LogsManager() {
                       className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
                     >
                       {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                      <span>{isExpanded ? 'Thu gọn chi tiết' : 'Xem chi tiết & Stack Trace'}</span>
+                      <span>{isExpanded ? tAdmin.collapseDetails : tAdmin.expandDetails}</span>
                     </button>
 
                     {isExpanded && (
-                      <div className="mt-3 p-3 bg-slate-900 text-slate-300 rounded-xl text-xs font-mono space-y-2 select-all overflow-x-auto shadow-inner">
+                      <div className="mt-3 p-3 bg-slate-900 text-slate-300 rounded-xl text-xs font-mono space-y-2.5 select-all overflow-x-auto shadow-inner">
+                        {/* File Location Card */}
+                        {(parsedLoc.filePath || parsedLoc.rawLocation) && (
+                          <div className="p-2 bg-slate-800/90 border border-slate-700/80 rounded-lg space-y-1">
+                            <p className="text-amber-300 font-bold flex items-center gap-1.5 text-[11px]">
+                              <FileCode size={13} />
+                              <span>Vị trí tệp (File & Line):</span>
+                            </p>
+                            <p className="text-amber-100 font-mono text-[11px] pl-4 select-all">
+                              {parsedLoc.filePath || parsedLoc.rawLocation}
+                              {parsedLoc.lineNumber
+                                ? ` (Dòng ${parsedLoc.lineNumber}${parsedLoc.columnNumber ? `, Cột ${parsedLoc.columnNumber}` : ''})`
+                                : ''}
+                            </p>
+                            {parsedLoc.functionName && (
+                              <p className="text-slate-400 text-[10px] pl-4">
+                                Hàm / Component:{' '}
+                                <code className="text-sky-300 font-bold">
+                                  {parsedLoc.functionName}
+                                </code>
+                              </p>
+                            )}
+                          </div>
+                        )}
+
                         {log.url && (
                           <p className="text-slate-400 flex items-center gap-1 text-[11px]">
                             <Globe size={11} /> URL: {log.url}
@@ -350,7 +403,9 @@ export function LogsManager() {
                                 ) : (
                                   <Copy size={10} />
                                 )}
-                                <span>{copiedId === log.id ? 'Đã sao chép' : 'Sao chép'}</span>
+                                <span>
+                                  {copiedId === log.id ? tAdmin.copiedLogBtn : tAdmin.copyLogBtn}
+                                </span>
                               </button>
                             </div>
                             <pre className="text-[11px] text-rose-300 whitespace-pre-wrap max-h-48 overflow-y-auto">
@@ -367,6 +422,10 @@ export function LogsManager() {
           })
         )}
       </div>
+
+      <TelegramConfigModal isOpen={showTelegramModal} onClose={() => setShowTelegramModal(false)} />
     </div>
   );
 }
+
+export default LogsManager;

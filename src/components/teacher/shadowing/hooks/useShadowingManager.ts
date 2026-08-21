@@ -7,8 +7,10 @@ import {
 import { loggerService } from '../../../../services/loggerService';
 import { ShadowingVideo } from '../../../../types';
 import { validateShadowingVideo, validateGrades, sanitizeText } from '../../../../utils/validators';
+import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export function useShadowingManager(t: any) {
+  const { teacherId } = useTeacher();
   const [videos, setVideos] = useState<ShadowingVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -33,14 +35,14 @@ export function useShadowingManager(t: any) {
 
   const fetchVideos = useCallback(async () => {
     try {
-      const data = await shadowingService.fetchShadowingVideos();
+      const data = await shadowingService.fetchShadowingVideos(false, teacherId);
       setVideos(data);
     } catch (err: any) {
       loggerService.error('useShadowingManager', 'Fetch videos error', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [teacherId]);
 
   useEffect(() => {
     fetchVideos();
@@ -89,7 +91,8 @@ export function useShadowingManager(t: any) {
     }
   };
 
-  const openCreateModal = () => {
+  const openCreateModal = useCallback(() => {
+    setEditingVideo(null);
     setTitle('');
     setYoutubeUrl('');
     setPreviewStart('');
@@ -99,9 +102,9 @@ export function useShadowingManager(t: any) {
     setSelectedGrades([]);
     setError('');
     setShowCreate(true);
-  };
+  }, []);
 
-  const openEditModal = (video: ShadowingVideo) => {
+  const openEditModal = useCallback((video: ShadowingVideo) => {
     setEditingVideo(video);
     setTitle(video.title);
     setYoutubeUrl(video.youtube_url);
@@ -111,7 +114,14 @@ export function useShadowingManager(t: any) {
     setRecordEnd(formatSecondsToTime(video.record_end));
     setSelectedGrades(video.grades || []);
     setError('');
-  };
+    setShowCreate(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setShowCreate(false);
+    setEditingVideo(null);
+    setError('');
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,6 +172,7 @@ export function useShadowingManager(t: any) {
       record_start: parseTimeToSeconds(recordStart),
       record_end: parseTimeToSeconds(recordEnd),
       grades: selectedGrades,
+      teacher_id: teacherId,
     };
 
     try {
@@ -169,6 +180,7 @@ export function useShadowingManager(t: any) {
         const updated = await shadowingService.updateShadowingVideo(editingVideo.id, payload);
         setVideos(prev => prev.map(v => (v.id === updated.id ? updated : v)));
         setEditingVideo(null);
+        setShowCreate(false);
       } else {
         const created = await shadowingService.createShadowingVideo(payload);
         setVideos(prev => [created, ...prev]);
@@ -243,6 +255,7 @@ export function useShadowingManager(t: any) {
     copiedId,
     openCreateModal,
     openEditModal,
+    closeModal,
     handleSave,
     handleToggleActive,
     handleDelete,

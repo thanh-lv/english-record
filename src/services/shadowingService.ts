@@ -5,16 +5,12 @@ import {
   parseApiResponse,
   shadowingVideoResponseSchema,
   shadowingVideosResponseArraySchema,
+  extractYoutubeId,
 } from '../schemas';
 
 export type { ShadowingVideo, ShadowingVideoPayload };
 
-export const extractYoutubeId = (url: string): string | null => {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
-};
+export { extractYoutubeId };
 
 export const formatSecondsToTime = (seconds: number | null | undefined): string => {
   if (seconds === null || seconds === undefined || isNaN(Number(seconds))) return '';
@@ -40,7 +36,7 @@ export const shadowingService = {
   formatSecondsToTime,
   parseTimeToSeconds,
 
-  async fetchShadowingVideos(activeOnly = false): Promise<ShadowingVideo[]> {
+  async fetchShadowingVideos(activeOnly = false, teacherId?: string): Promise<ShadowingVideo[]> {
     return withServiceHandling('shadowingService', 'fetchShadowingVideos', async () => {
       let query = supabase
         .from('shadowing_videos')
@@ -49,6 +45,10 @@ export const shadowingService = {
 
       if (activeOnly) {
         query = query.eq('is_active', true);
+      }
+
+      if (teacherId) {
+        query = query.eq('teacher_id', teacherId);
       }
 
       const { data, error } = await query;
@@ -86,6 +86,9 @@ export const shadowingService = {
         grades: payload.grades || [],
         is_active: payload.is_active ?? true,
       };
+      if (payload.teacher_id) {
+        insertPayload.teacher_id = payload.teacher_id;
+      }
 
       let { data, error } = await supabase
         .from('shadowing_videos')
@@ -153,6 +156,7 @@ export const shadowingService = {
 
   async deleteShadowingVideo(id: string): Promise<void> {
     return withServiceHandling('shadowingService', 'deleteShadowingVideo', async () => {
+      await supabase.from('recordings').delete().eq('shadowing_video_id', id);
       const { error } = await supabase.from('shadowing_videos').delete().eq('id', id);
       if (error) throw error;
     });

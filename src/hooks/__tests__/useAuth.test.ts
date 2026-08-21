@@ -16,6 +16,9 @@ vi.mock('../../services/authService', () => ({
   authService: {
     getCurrentUser: vi.fn(),
     signInAnonymously: vi.fn(),
+    getStoredProfile: vi.fn(),
+    setStoredProfile: vi.fn(),
+    clearStoredProfile: vi.fn(),
     getStoredProfileId: vi.fn(),
     setStoredProfileId: vi.fn(),
     clearStoredProfileId: vi.fn(),
@@ -23,6 +26,7 @@ vi.mock('../../services/authService', () => ({
     getTeacherProfileByAuthUid: vi.fn(),
     loginStudent: vi.fn(),
     signInTeacher: vi.fn(),
+    signInSuperAdmin: vi.fn(),
     signOut: vi.fn(),
   },
 }));
@@ -33,6 +37,8 @@ describe('useAuth hook', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
+    (authService.getStoredProfile as any).mockReturnValue(null);
+    (authService.getStoredProfileId as any).mockReturnValue(null);
     (supabase.auth.onAuthStateChange as any).mockImplementation((cb: any) => {
       authCallback = cb;
       return {
@@ -62,8 +68,22 @@ describe('useAuth hook', () => {
     (authService.getCurrentUser as any).mockRejectedValue(new Error('Network error'));
 
     const { result } = renderHook(() => useAuth());
-    await act(async () => {});
+    await act(async () => {
+      if (authCallback) {
+        await authCallback('INITIAL_SESSION', null);
+      }
+    });
 
+    expect(result.current.authLoading).toBe(false);
+  });
+
+  it('initializes userProfile synchronously from stored profile in localStorage', () => {
+    const cachedProfile = { id: 'prof-cached', name: 'Cached Teacher', role: 'teacher' };
+    (authService.getStoredProfile as any).mockReturnValue(cachedProfile);
+
+    const { result } = renderHook(() => useAuth());
+
+    expect(result.current.userProfile).toEqual(cachedProfile);
     expect(result.current.authLoading).toBe(false);
   });
 
@@ -113,7 +133,7 @@ describe('useAuth hook', () => {
       });
     });
 
-    expect(authService.clearStoredProfileId).toHaveBeenCalled();
+    expect(authService.clearStoredProfile).toHaveBeenCalled();
     expect(result.current.userProfile).toBeNull();
   });
 
@@ -146,7 +166,7 @@ describe('useAuth hook', () => {
       });
     });
 
-    expect(authService.setStoredProfileId).toHaveBeenCalledWith('teacher-1');
+    expect(authService.setStoredProfile).toHaveBeenCalledWith(mockTeacher);
     expect(result.current.userProfile).toEqual(mockTeacher);
     expect(result.current.isTeacher).toBe(true);
     expect(onLanguageChange).toHaveBeenCalledWith('en');
@@ -187,12 +207,17 @@ describe('useAuth hook', () => {
     expect(result.current.userProfile).toEqual(mockStudent);
   });
 
-  it('throws error on student login if user is not yet initialized', async () => {
+  it('handles student login gracefully even when user is not yet initialized', async () => {
+    const mockStudent = { id: 'st-1', name: 'Bob', role: 'student' };
+    (authService.loginStudent as any).mockResolvedValue(mockStudent);
     const { result } = renderHook(() => useAuth());
 
-    await expect(result.current.loginStudent('Bob', '123')).rejects.toThrow(
-      'Hệ thống đang khởi tạo, vui lòng thử lại sau 2 giây.'
-    );
+    await act(async () => {
+      const profile = await result.current.loginStudent('Bob', '123');
+      expect(profile).toEqual(mockStudent);
+    });
+
+    expect(result.current.userProfile).toEqual(mockStudent);
   });
 
   it('handles teacher login action', async () => {
