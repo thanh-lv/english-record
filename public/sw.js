@@ -87,7 +87,7 @@ self.addEventListener("fetch", (event) => {
   // Bỏ qua các scheme không phải HTTP/HTTPS (ví dụ chrome-extension://)
   if (!url.protocol.startsWith("http")) return;
 
-  // Bỏ qua Backend APIs, Database (Supabase), Cloud Storage (S3 / R2 / CDN), và Range requests (Audio/Video streaming)
+  // Bỏ qua Backend APIs, Database (Supabase), Cloud Storage (S3 / R2 / CDN), Telegram API, Gemini API và Range requests
   if (
     url.hostname.includes("supabase.co") ||
     url.hostname.includes("supabase.in") ||
@@ -95,6 +95,9 @@ self.addEventListener("fetch", (event) => {
     url.hostname.includes("r2.dev") ||
     url.hostname.includes("amazonaws.com") ||
     url.hostname.includes("workers.dev") ||
+    url.hostname.includes("telegram.org") ||
+    url.hostname.includes("googleapis.com/v1") ||
+    url.hostname.includes("generativelanguage.googleapis.com") ||
     event.request.headers.has("range")
   ) {
     return;
@@ -102,7 +105,7 @@ self.addEventListener("fetch", (event) => {
 
   // --------------------------------------------------------------------------
   // A. HTML Navigation Requests (SPA Routes & index.html)
-  // Chiến lược: Network-First với Timeout (3s) -> Fallback Cache index.html
+  // Chiến lược: Network-First -> Fallback Cache index.html (App Shell)
   // --------------------------------------------------------------------------
   const isNavigation =
     event.request.mode === "navigate" ||
@@ -112,37 +115,31 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       (async () => {
         try {
-          // Thử lấy từ network với timeout 3s để tránh màn hình trắng khi mạng lag
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Network timeout")), 3000),
-          );
-          const networkResponse = await Promise.race([
-            fetch(event.request),
-            timeoutPromise,
-          ]);
-
+          // Thử lấy từ network trước để luôn có phiên bản mới nhất
+          const networkResponse = await fetch(event.request);
           if (networkResponse && networkResponse.status === 200) {
             const clone = networkResponse.clone();
             caches
               .open(CACHE_APP)
-              .then((cache) => cache.put(event.request, clone));
+              .then((cache) => cache.put(event.request, clone))
+              .catch(() => {});
           }
           return networkResponse;
         } catch {
-          // Offline hoặc timeout: Lấy từ cache
+          // Khi offline hoặc lỗi mạng: Phục vụ App Shell (index.html) từ cache
           const cached =
             (await caches.match(event.request)) ||
             (await caches.match("/index.html")) ||
             (await caches.match("/"));
-          return (
-            cached ||
-            new Response(
-              "Hệ thống đang offline. Vui lòng kiểm tra kết nối mạng.",
-              {
-                status: 503,
-                headers: { "Content-Type": "text/plain; charset=utf-8" },
-              },
-            )
+          if (cached) {
+            return cached;
+          }
+          return new Response(
+            `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Đang kết nối lại...</title><style>body{font-family:system-ui,-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#F8FAFC;color:#334155;text-align:center;padding:20px}button{background:#2563EB;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:16px;cursor:pointer;margin-top:16px}</style></head><body><div><h2>⚠️ Không có kết nối mạng</h2><p>Vui lòng kiểm tra lại kết nối mạng hoặc thử lại.</p><button onclick="window.location.reload()">Tải lại trang</button></div></body></html>`,
+            {
+              status: 503,
+              headers: { "Content-Type": "text/html; charset=utf-8" },
+            },
           );
         }
       })(),
@@ -162,22 +159,31 @@ self.addEventListener("fetch", (event) => {
 
   if (isViteAsset) {
     event.respondWith(
-      caches.match(event.request).then(async (cached) => {
-        if (cached) return cached;
-
+      (async () => {
         try {
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+
           const response = await fetch(event.request);
           if (response && response.status === 200) {
             const clone = response.clone();
             caches
               .open(CACHE_APP)
-              .then((cache) => cache.put(event.request, clone));
+              .then((cache) => cache.put(event.request, clone))
+              .catch(() => {});
           }
-          return response;
+          return (
+            response ||
+            new Response("Asset not found", { status: 404 })
+          );
         } catch {
-          return new Response("Asset not available offline", { status: 404 });
+          const fallback = await caches.match(event.request);
+          return (
+            fallback ||
+            new Response("Asset not available offline", { status: 503 })
+          );
         }
-      }),
+      })(),
     );
     return;
   }
@@ -193,47 +199,72 @@ self.addEventListener("fetch", (event) => {
 
   if (isFontFile) {
     event.respondWith(
-      caches.open(CACHE_FONTS).then(async (cache) => {
-        const cached = await cache.match(event.request);
-        if (cached) return cached;
-
+      (async () => {
         try {
+          const cache = await caches.open(CACHE_FONTS);
+          const cached = await cache.match(event.request);
+          if (cached) return cached;
+
           const response = await fetch(event.request);
           if (
             response &&
             (response.status === 200 || response.type === "opaque")
           ) {
-            cache.put(event.request, response.clone());
+            cache.put(event.request, response.clone()).catch(() => {});
           }
           return response;
         } catch {
+          const cached = await caches.match(event.request);
           return (
-            cached || new Response("Font unavailable offline", { status: 504 })
+            cached ||
+            new Response("Font unavailable offline", { status: 504 })
           );
         }
-      }),
+      })(),
     );
     return;
   }
 
   if (isFontStylesheet) {
     event.respondWith(
-      caches.open(CACHE_FONTS).then(async (cache) => {
-        const cached = await cache.match(event.request);
-        const networkFetch = fetch(event.request)
-          .then((response) => {
-            if (
-              response &&
-              (response.status === 200 || response.type === "opaque")
-            ) {
-              cache.put(event.request, response.clone());
-            }
-            return response;
-          })
-          .catch(() => cached);
+      (async () => {
+        try {
+          const cache = await caches.open(CACHE_FONTS);
+          const cached = await cache.match(event.request);
 
-        return cached || networkFetch;
-      }),
+          const networkPromise = fetch(event.request)
+            .then((response) => {
+              if (
+                response &&
+                (response.status === 200 || response.type === "opaque")
+              ) {
+                cache.put(event.request, response.clone()).catch(() => {});
+              }
+              return response;
+            })
+            .catch(() => null);
+
+          if (cached) {
+            // Revalidate in background
+            networkPromise.catch(() => {});
+            return cached;
+          }
+
+          const res = await networkPromise;
+          return (
+            res ||
+            new Response("/* Font stylesheet offline */", {
+              status: 200,
+              headers: { "Content-Type": "text/css" },
+            })
+          );
+        } catch {
+          return new Response("/* Font stylesheet error */", {
+            status: 200,
+            headers: { "Content-Type": "text/css" },
+          });
+        }
+      })(),
     );
     return;
   }
@@ -250,26 +281,30 @@ self.addEventListener("fetch", (event) => {
 
   if (isAudioMedia) {
     event.respondWith(
-      caches.open(CACHE_MEDIA).then(async (cache) => {
-        const cached = await cache.match(event.request);
-        if (cached) return cached;
-
+      (async () => {
         try {
+          const cache = await caches.open(CACHE_MEDIA);
+          const cached = await cache.match(event.request);
+          if (cached) return cached;
+
           const response = await fetch(event.request);
-          // Chỉ cache response 200 hoàn chỉnh (tránh 206 Partial Content gây lỗi Cache API)
           if (
             response &&
             (response.status === 200 || response.type === "opaque")
           ) {
             cache.put(event.request, response.clone()).then(() => {
               trimCache(CACHE_MEDIA, MAX_MEDIA_ENTRIES);
-            });
+            }).catch(() => {});
           }
           return response;
         } catch {
-          return cached || new Response("Audio offline", { status: 504 });
+          const cached = await caches.match(event.request);
+          return (
+            cached ||
+            new Response("Audio offline", { status: 504 })
+          );
         }
-      }),
+      })(),
     );
     return;
   }
@@ -282,47 +317,74 @@ self.addEventListener("fetch", (event) => {
 
   if (isImage) {
     event.respondWith(
-      caches.open(CACHE_IMAGES).then(async (cache) => {
-        const cached = await cache.match(event.request);
-        const fetchPromise = fetch(event.request)
-          .then((networkResponse) => {
-            if (
-              networkResponse &&
-              (networkResponse.status === 200 ||
-                networkResponse.type === "opaque")
-            ) {
-              cache.put(event.request, networkResponse.clone()).then(() => {
-                trimCache(CACHE_IMAGES, MAX_IMAGE_ENTRIES);
-              });
-            }
-            return networkResponse;
-          })
-          .catch(() => cached);
+      (async () => {
+        try {
+          const cache = await caches.open(CACHE_IMAGES);
+          const cached = await cache.match(event.request);
 
-        return cached || fetchPromise;
-      }),
+          const networkPromise = fetch(event.request)
+            .then((networkResponse) => {
+              if (
+                networkResponse &&
+                (networkResponse.status === 200 ||
+                  networkResponse.type === "opaque")
+              ) {
+                cache.put(event.request, networkResponse.clone()).then(() => {
+                  trimCache(CACHE_IMAGES, MAX_IMAGE_ENTRIES);
+                }).catch(() => {});
+              }
+              return networkResponse;
+            })
+            .catch(() => null);
+
+          if (cached) {
+            // Revalidate in background
+            networkPromise.catch(() => {});
+            return cached;
+          }
+
+          const res = await networkPromise;
+          return (
+            res ||
+            new Response("", { status: 404, statusText: "Image Not Found" })
+          );
+        } catch {
+          const cached = await caches.match(event.request);
+          return (
+            cached ||
+            new Response("", { status: 404, statusText: "Image Not Found" })
+          );
+        }
+      })(),
     );
     return;
   }
 
   // --------------------------------------------------------------------------
-  // F. Fallback cho các tài nguyên tĩnh khác (manifest.json, v.v.)
-  // Chiến lược: Network-First với Fallback Cache
+  // F. Fallback cho các tài nguyên tĩnh cùng origin (manifest.json, v.v.)
+  // Chiến lược: Network-First với Fallback Cache an toàn
   // --------------------------------------------------------------------------
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (
-          !response ||
-          response.status !== 200 ||
-          response.type === "opaque"
-        ) {
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      (async () => {
+        try {
+          const response = await fetch(event.request);
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches
+              .open(CACHE_APP)
+              .then((cache) => cache.put(event.request, clone))
+              .catch(() => {});
+          }
           return response;
+        } catch {
+          const cached = await caches.match(event.request);
+          return (
+            cached ||
+            new Response("Offline resource not cached", { status: 503 })
+          );
         }
-        const clone = response.clone();
-        caches.open(CACHE_APP).then((cache) => cache.put(event.request, clone));
-        return response;
-      })
-      .catch(() => caches.match(event.request)),
-  );
+      })(),
+    );
+  }
 });
