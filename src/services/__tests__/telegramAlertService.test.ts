@@ -4,18 +4,27 @@ import { telegramAlertService } from '../telegramAlertService';
 describe('telegramAlertService', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     localStorage.clear();
     telegramAlertService.setCustomChatId('');
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     localStorage.clear();
   });
 
-  it('provides the default bot token if no env is set', () => {
+  it('provides the bot token from environment variable if set', () => {
+    vi.stubEnv('VITE_TELEGRAM_BOT_TOKEN', 'mock-bot-token-test');
     const token = telegramAlertService.getBotToken();
-    expect(token).toBe('8849248903:AAFWqYjaRkEx7Ej1QdsgkWgOXk4urX_qxS8');
+    expect(token).toBe('mock-bot-token-test');
+  });
+
+  it('returns empty string if no env bot token is set', () => {
+    vi.stubEnv('VITE_TELEGRAM_BOT_TOKEN', '');
+    const token = telegramAlertService.getBotToken();
+    expect(token).toBe('');
   });
 
   it('sets and gets custom chat ID via localStorage', () => {
@@ -26,6 +35,7 @@ describe('telegramAlertService', () => {
   });
 
   it('sends critical alert to Telegram API with formatted HTML message', async () => {
+    vi.stubEnv('VITE_TELEGRAM_BOT_TOKEN', 'mock-bot-token-test');
     telegramAlertService.setCustomChatId('987654321');
 
     const fetchMock = vi.fn().mockResolvedValue({
@@ -48,7 +58,7 @@ describe('telegramAlertService', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const callArgs = fetchMock.mock.calls[0];
     expect(callArgs[0]).toContain(
-      'https://api.telegram.org/bot8849248903:AAFWqYjaRkEx7Ej1QdsgkWgOXk4urX_qxS8/sendMessage'
+      'https://api.telegram.org/botmock-bot-token-test/sendMessage'
     );
 
     const body = JSON.parse(callArgs[1].body);

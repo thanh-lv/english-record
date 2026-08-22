@@ -1,6 +1,5 @@
 import { parseErrorStack } from '../utils/stackParser';
 
-const DEFAULT_BOT_TOKEN = '8849248903:AAFWqYjaRkEx7Ej1QdsgkWgOXk4urX_qxS8';
 const STORAGE_CHAT_ID_KEY = 'english_record_telegram_chat_id';
 const THROTTLE_MS = 60000; // Debounce identical error for 60s
 const MAX_ALERTS_PER_MINUTE = 5;
@@ -25,7 +24,7 @@ class TelegramAlertService {
   public getBotToken(): string {
     return (
       (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TELEGRAM_BOT_TOKEN) ||
-      DEFAULT_BOT_TOKEN
+      ''
     );
   }
 
