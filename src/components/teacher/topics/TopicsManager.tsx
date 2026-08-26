@@ -48,8 +48,6 @@ export function TopicsManager() {
     isAllSelected,
     isSomeSelected,
     toggleSelectTopic,
-    selectAllTopics,
-    deselectAllTopics,
     toggleSelectAll,
     openBulkDeleteModal,
     expandedTopic,
@@ -386,7 +384,7 @@ export function TopicsManager() {
           </p>
           <button
             type="button"
-            onClick={fetchTopics}
+            onClick={() => fetchTopics()}
             className="px-5 py-2 bg-rose-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-rose-700 transition-all active:scale-95"
           >
             {tc.retry}
