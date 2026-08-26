@@ -28,30 +28,40 @@ export function useTopics() {
   const [addTopicError, setAddTopicError] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
-    type: 'topic' | 'question';
-    id: string;
+    type: 'topic' | 'question' | 'bulk-topics';
+    id?: string;
+    ids?: string[];
     label: string;
+    count?: number;
   } | null>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
 
-  const fetchTopics = useCallback(async () => {
-    setLoading(true);
-    setLoadError(false);
-    try {
-      const data = await topicService.fetchAllTopics(teacherId);
-      setTopics(data);
-    } catch (err) {
-      loggerService.error('useTopics', 'Fetch topics error', err);
-      setLoadError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [teacherId]);
+  const fetchTopics = useCallback(
+    async (showLoading = true) => {
+      if (showLoading) setLoading(true);
+      setLoadError(false);
+      try {
+        const data = await topicService.fetchAllTopics(teacherId);
+        setTopics(data);
+      } catch (err) {
+        loggerService.error('useTopics', 'Fetch topics error', err);
+        if (showLoading) setLoadError(true);
+      } finally {
+        if (showLoading) setLoading(false);
+      }
+    },
+    [teacherId]
+  );
 
   useEffect(() => {
-    fetchTopics();
+    fetchTopics(true);
   }, [fetchTopics]);
+
+  useEffect(() => {
+    setSelectedTopicIds([]);
+  }, [activeType]);
 
   const filteredTopics = topics
     .filter(t => t.type === activeType)
@@ -71,9 +81,45 @@ export function useTopics() {
   const totalPages = Math.ceil(filteredTopics.length / PAGE_SIZE);
   const pagedTopics = filteredTopics.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
+  const isAllSelected =
+    filteredTopics.length > 0 && filteredTopics.every(t => selectedTopicIds.includes(t.id));
+  const isSomeSelected = selectedTopicIds.length > 0 && !isAllSelected;
+
+  const toggleSelectTopic = (topicId: string) => {
+    setSelectedTopicIds(prev =>
+      prev.includes(topicId) ? prev.filter(id => id !== topicId) : [...prev, topicId]
+    );
+  };
+
+  const selectAllTopics = () => {
+    setSelectedTopicIds(filteredTopics.map(t => t.id));
+  };
+
+  const deselectAllTopics = () => {
+    setSelectedTopicIds([]);
+  };
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      deselectAllTopics();
+    } else {
+      selectAllTopics();
+    }
+  };
+
+  const openBulkDeleteModal = () => {
+    if (selectedTopicIds.length === 0) return;
+    setDeleteTarget({
+      type: 'bulk-topics',
+      ids: [...selectedTopicIds],
+      label: `${selectedTopicIds.length} chủ đề`,
+      count: selectedTopicIds.length,
+    });
+  };
+
   const toggleTopicActive = async (topicId: string, currentValue: boolean) => {
-    await topicService.toggleTopicActive(topicId, currentValue);
     setTopics(prev => prev.map(t => (t.id === topicId ? { ...t, is_active: !currentValue } : t)));
+    await topicService.toggleTopicActive(topicId, currentValue);
   };
 
   const saveTopic = async (topicId: string) => {
@@ -97,7 +143,7 @@ export function useTopics() {
         grades: editTopicGrades,
       });
       setEditingTopic(null);
-      fetchTopics();
+      await fetchTopics(false);
     } catch (err: any) {
       loggerService.error('useTopics', 'Error updating topic', err);
       setEditTopicError(err.message || 'Lỗi lưu chủ đề');
@@ -130,7 +176,7 @@ export function useTopics() {
       setNewTopicGrades([]);
       setAddTopicError('');
       setAddingTopic(null);
-      fetchTopics();
+      await fetchTopics(false);
     } catch (err: any) {
       loggerService.error('useTopics', 'Error creating topic', err);
       setAddTopicError(err.message || 'Lỗi tạo chủ đề mới');
@@ -149,13 +195,28 @@ export function useTopics() {
     setDeleteSaving(true);
     setDeleteError('');
     try {
-      if (deleteTarget.type === 'question') {
-        await topicService.deleteQuestion(deleteTarget.id);
-      } else {
-        await topicService.deleteTopic(deleteTarget.id);
+      if (deleteTarget.type === 'question' && deleteTarget.id) {
+        const questionId = deleteTarget.id;
+        await topicService.deleteQuestion(questionId);
+        setTopics(prev =>
+          prev.map(t => ({
+            ...t,
+            questions: (t.questions || []).filter(q => q.id !== questionId),
+          }))
+        );
+      } else if (deleteTarget.type === 'bulk-topics' && deleteTarget.ids) {
+        const idsToDelete = new Set(deleteTarget.ids);
+        await topicService.deleteTopics(deleteTarget.ids);
+        setTopics(prev => prev.filter(t => !idsToDelete.has(t.id)));
+        setSelectedTopicIds([]);
+      } else if (deleteTarget.id) {
+        const topicId = deleteTarget.id;
+        await topicService.deleteTopic(topicId);
+        setTopics(prev => prev.filter(t => t.id !== topicId));
+        setSelectedTopicIds(prev => prev.filter(id => id !== topicId));
       }
       setDeleteTarget(null);
-      await fetchTopics();
+      await fetchTopics(false);
     } catch (err: any) {
       loggerService.error('useTopics', 'Error confirming delete', err);
       setDeleteError(err.message || 'Lỗi khi xóa. Vui lòng thử lại.');
@@ -176,7 +237,7 @@ export function useTopics() {
       image_url: values.image_url || null,
       order_index: maxOrder,
     });
-    fetchTopics();
+    await fetchTopics(false);
   };
 
   const updateQuestion = async (questionId: string, values: any) => {
@@ -187,14 +248,14 @@ export function useTopics() {
       target: values.target || null,
       image_url: values.image_url || null,
     });
-    fetchTopics();
+    await fetchTopics(false);
   };
 
   const addParsedQuestions = async (topicId: string, parsed: ParsedQuestion[]) => {
     const topic = topics.find(t => t.id === topicId);
     const startingOrder = topic?.questions?.length || 0;
     await topicService.insertParsedQuestions(topicId, parsed, startingOrder);
-    fetchTopics();
+    await fetchTopics(false);
   };
 
   return {
@@ -210,7 +271,16 @@ export function useTopics() {
     page,
     setPage,
     totalPages,
+    filteredTopics,
     pagedTopics,
+    selectedTopicIds,
+    isAllSelected,
+    isSomeSelected,
+    toggleSelectTopic,
+    selectAllTopics,
+    deselectAllTopics,
+    toggleSelectAll,
+    openBulkDeleteModal,
     expandedTopic,
     setExpandedTopic,
     editingTopic,

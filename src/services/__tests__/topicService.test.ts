@@ -165,18 +165,62 @@ describe('topicService', () => {
     it('deletes topic by id', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
-      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock, update: updateMock });
 
       await topicService.deleteTopic('topic-delete-id');
       expect(eqMock).toHaveBeenCalledWith('id', 'topic-delete-id');
     });
 
     it('throws error when deleteTopic fails', async () => {
-      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Delete error') });
+      const eqMock = vi.fn().mockImplementation((col: string) => {
+        if (col === 'id') {
+          return Promise.resolve({ error: new Error('Delete error') });
+        }
+        return Promise.resolve({ error: null });
+      });
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
-      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock, update: updateMock });
 
       await expect(topicService.deleteTopic('topic-delete-id')).rejects.toThrow('Delete error');
+    });
+
+    it('deletes multiple topics by ids', async () => {
+      const inMock = vi.fn().mockResolvedValue({ error: null });
+      const deleteMock = vi.fn().mockReturnValue({ in: inMock });
+      const updateMock = vi.fn().mockReturnValue({ in: inMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock, update: updateMock });
+
+      await topicService.deleteTopics(['topic-1', 'topic-2']);
+      expect(inMock).toHaveBeenCalledWith('topic_id', ['topic-1', 'topic-2']);
+      expect(inMock).toHaveBeenCalledWith('id', ['topic-1', 'topic-2']);
+    });
+
+    it('handles empty array gracefully in deleteTopics', async () => {
+      const inMock = vi.fn().mockResolvedValue({ error: null });
+      const deleteMock = vi.fn().mockReturnValue({ in: inMock });
+      const updateMock = vi.fn().mockReturnValue({ in: inMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock, update: updateMock });
+
+      await topicService.deleteTopics([]);
+      expect(supabase.from).not.toHaveBeenCalled();
+    });
+
+    it('throws error when deleteTopics fails', async () => {
+      const inMock = vi.fn().mockImplementation((col: string) => {
+        if (col === 'id') {
+          return Promise.resolve({ error: new Error('Bulk delete error') });
+        }
+        return Promise.resolve({ error: null });
+      });
+      const deleteMock = vi.fn().mockReturnValue({ in: inMock });
+      const updateMock = vi.fn().mockReturnValue({ in: inMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock, update: updateMock });
+
+      await expect(topicService.deleteTopics(['topic-1', 'topic-2'])).rejects.toThrow(
+        'Bulk delete error'
+      );
     });
   });
 
@@ -221,16 +265,23 @@ describe('topicService', () => {
     it('deletes question', async () => {
       const eqMock = vi.fn().mockResolvedValue({ error: null });
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
-      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock, update: updateMock });
 
       await topicService.deleteQuestion('q1');
       expect(eqMock).toHaveBeenCalledWith('id', 'q1');
     });
 
     it('throws error when deleteQuestion fails', async () => {
-      const eqMock = vi.fn().mockResolvedValue({ error: new Error('Delete question error') });
+      const eqMock = vi.fn().mockImplementation((col: string) => {
+        if (col === 'id') {
+          return Promise.resolve({ error: new Error('Delete question error') });
+        }
+        return Promise.resolve({ error: null });
+      });
       const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
-      (supabase.from as any).mockReturnValue({ delete: deleteMock });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
+      (supabase.from as any).mockReturnValue({ delete: deleteMock, update: updateMock });
 
       await expect(topicService.deleteQuestion('q1')).rejects.toThrow('Delete question error');
     });

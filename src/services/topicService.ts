@@ -108,10 +108,46 @@ export const topicService = {
 
   async deleteTopic(topicId: string): Promise<void> {
     return withServiceHandling('topicService', 'deleteTopic', async () => {
-      // 1. Delete associated questions first in case DB foreign key does not have CASCADE
-      await supabase.from('questions').delete().eq('topic_id', topicId);
-      // 2. Delete the topic row
+      // 1. Unlink any recordings referencing this topic to prevent foreign key constraint blocks
+      try {
+        await supabase
+          .from('recordings')
+          .update({ topic_id: null, question_id: null })
+          .eq('topic_id', topicId);
+      } catch (err) {
+        console.warn('[topicService] Unlink recordings warning (ignored):', err);
+      }
+      // 2. Delete associated questions first in case DB foreign key does not have CASCADE
+      const { error: qErr } = await supabase.from('questions').delete().eq('topic_id', topicId);
+      if (qErr) {
+        console.warn('[topicService] Delete questions warning:', qErr);
+      }
+      // 3. Delete the topic row
       const { error } = await supabase.from('topics').delete().eq('id', topicId);
+      if (error) throw error;
+      clientCache.invalidate('topics');
+    });
+  },
+
+  async deleteTopics(topicIds: string[]): Promise<void> {
+    return withServiceHandling('topicService', 'deleteTopics', async () => {
+      if (!topicIds || topicIds.length === 0) return;
+      // 1. Unlink any recordings referencing these topics to prevent foreign key constraint blocks
+      try {
+        await supabase
+          .from('recordings')
+          .update({ topic_id: null, question_id: null })
+          .in('topic_id', topicIds);
+      } catch (err) {
+        console.warn('[topicService] Unlink recordings warning (ignored):', err);
+      }
+      // 2. Delete associated questions first in case DB foreign key does not have CASCADE
+      const { error: qErr } = await supabase.from('questions').delete().in('topic_id', topicIds);
+      if (qErr) {
+        console.warn('[topicService] Delete questions warning:', qErr);
+      }
+      // 3. Delete topic rows
+      const { error } = await supabase.from('topics').delete().in('id', topicIds);
       if (error) throw error;
       clientCache.invalidate('topics');
     });
@@ -135,6 +171,14 @@ export const topicService = {
 
   async deleteQuestion(questionId: string): Promise<void> {
     return withServiceHandling('topicService', 'deleteQuestion', async () => {
+      try {
+        await supabase
+          .from('recordings')
+          .update({ question_id: null })
+          .eq('question_id', questionId);
+      } catch (err) {
+        console.warn('[topicService] Unlink recordings warning (ignored):', err);
+      }
       const { error } = await supabase.from('questions').delete().eq('id', questionId);
       if (error) throw error;
       clientCache.invalidate('topics');

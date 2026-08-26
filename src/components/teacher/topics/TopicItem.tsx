@@ -19,9 +19,11 @@ interface TopicItemProps {
   idx: number;
   isExpanded: boolean;
   isEditing: boolean;
+  isSelected?: boolean;
   editTopicTitle: string;
   editTopicGrades: number[];
   saving: boolean;
+  onToggleSelect?: (id: string) => void;
   onToggleExpand: () => void;
   onToggleActive: (id: string, current: boolean) => void;
   onStartEdit: (id: string, title: string, grades?: number[]) => void;
@@ -42,9 +44,11 @@ export function TopicItem({
   idx,
   isExpanded,
   isEditing,
+  isSelected = false,
   editTopicTitle,
   editTopicGrades,
   saving,
+  onToggleSelect,
   onToggleExpand,
   onToggleActive,
   onStartEdit,
@@ -59,7 +63,13 @@ export function TopicItem({
   onOpenAiParser,
 }: TopicItemProps) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all overflow-hidden">
+    <div
+      className={`rounded-2xl border transition-all overflow-hidden ${
+        isSelected
+          ? 'bg-blue-50/40 border-blue-300 ring-2 ring-blue-400/20 shadow-xs'
+          : 'bg-white border-slate-200/80 shadow-2xs hover:border-slate-300'
+      }`}
+    >
       {isEditing ? (
         <div className="p-4 bg-blue-50/70 border-b border-blue-100 space-y-3">
           <div className="flex items-center gap-2">
@@ -136,21 +146,38 @@ export function TopicItem({
         </div>
       ) : (
         <div
-          className="flex items-center gap-3 p-3.5 sm:p-4 hover:bg-slate-50/70 transition-colors cursor-pointer"
+          className="flex items-center gap-2 sm:gap-2.5 p-3 sm:p-3.5 hover:bg-slate-50/70 transition-colors cursor-pointer"
           onClick={onToggleExpand}
         >
-          {isExpanded ? (
-            <ChevronDown size={18} className="text-slate-400 shrink-0" />
-          ) : (
-            <ChevronRight size={18} className="text-slate-400 shrink-0" />
+          {onToggleSelect && (
+            <div
+              className="p-1 -ml-0.5 flex items-center justify-center shrink-0"
+              onClick={e => {
+                e.stopPropagation();
+                onToggleSelect(topic.id);
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={isSelected}
+                readOnly
+                aria-label={`Chọn chủ đề ${topic.title}`}
+                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer accent-blue-600 transition-all pointer-events-none"
+              />
+            </div>
           )}
-          <span className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 font-black text-xs flex items-center justify-center shrink-0 border border-blue-100">
+          {isExpanded ? (
+            <ChevronDown size={17} className="text-slate-400 shrink-0" />
+          ) : (
+            <ChevronRight size={17} className="text-slate-400 shrink-0" />
+          )}
+          <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-blue-50 text-blue-600 font-black text-xs flex items-center justify-center shrink-0 border border-blue-100">
             {idx + 1}
           </span>
-          <div className="flex-1 min-w-0 flex items-center gap-2 truncate">
-            <span className="font-black text-slate-800 text-sm truncate">{topic.title}</span>
+          <div className="flex-1 min-w-0 flex items-center gap-1.5 truncate">
+            <span className="font-black text-slate-800 text-xs sm:text-sm truncate">{topic.title}</span>
             {Array.isArray(topic.grades) && topic.grades.length > 0 ? (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200/70 shrink-0">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200/70 shrink-0">
                 {interpolate(t.common.gradeLabel, {
                   grade: topic.grades
                     .slice()
@@ -159,29 +186,30 @@ export function TopicItem({
                 })}
               </span>
             ) : (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-500 shrink-0">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 text-slate-500 shrink-0">
                 {t.teacherModal.allGradesOption}
               </span>
             )}
           </div>
-          <span className="text-xs text-slate-400 font-bold px-2 py-0.5 rounded-lg bg-slate-50 border border-slate-100 shrink-0">
+          <span className="text-[10px] sm:text-xs text-slate-400 font-bold px-1.5 sm:px-2 py-0.5 rounded-lg bg-slate-50 border border-slate-100 shrink-0">
             {topic.questions.length} {t.common.questionCount}
           </span>
-          <div className="flex gap-1.5 shrink-0 items-center" onClick={e => e.stopPropagation()}>
+          <div className="flex gap-1 shrink-0 items-center" onClick={e => e.stopPropagation()}>
             <button
               type="button"
               onClick={e => {
                 e.stopPropagation();
                 onToggleActive(topic.id, topic.is_active ?? true);
               }}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black border transition-all active:scale-95 ${
+              title={(topic.is_active ?? true) ? (t.teacherModal.topicStatusActive || 'Đang hiện') : (t.teacherModal.topicStatusHidden || 'Đã ẩn')}
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] sm:text-[11px] font-black border transition-all active:scale-95 ${
                 (topic.is_active ?? true)
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100'
                   : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
               }`}
             >
               {(topic.is_active ?? true) ? <Eye size={12} /> : <EyeOff size={12} />}
-              <span>
+              <span className="hidden xl:inline">
                 {(topic.is_active ?? true)
                   ? t.teacherModal.topicStatusActive || 'Đang hiện'
                   : t.teacherModal.topicStatusHidden || 'Đã ẩn'}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertCircle, Check, Loader2, Plus, Search, Sparkles, X } from 'lucide-react';
+import { AlertCircle, Check, Loader2, Plus, Search, Sparkles, Trash2, X } from 'lucide-react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { AIQuestionParserModal } from './AIQuestionParserModal';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
@@ -42,7 +42,16 @@ export function TopicsManager() {
     page,
     setPage,
     totalPages,
+    filteredTopics,
     pagedTopics,
+    selectedTopicIds,
+    isAllSelected,
+    isSomeSelected,
+    toggleSelectTopic,
+    selectAllTopics,
+    deselectAllTopics,
+    toggleSelectAll,
+    openBulkDeleteModal,
     expandedTopic,
     setExpandedTopic,
     editingTopic,
@@ -187,6 +196,35 @@ export function TopicsManager() {
             <option value="unassigned">{tm.allGradesOption || 'Tất cả các khối'} (Mặc định)</option>
           </select>
 
+          {/* Quick select all toggle button in toolbar */}
+          {filteredTopics.length > 0 && (
+            <button
+              type="button"
+              onClick={toggleSelectAll}
+              title={isAllSelected ? (tc.deselectAll || 'Bỏ chọn') : (tc.selectAll || 'Chọn tất cả')}
+              className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ${
+                isAllSelected
+                  ? 'bg-blue-50 border-blue-200 text-blue-700'
+                  : 'bg-slate-50/80 hover:bg-slate-100 border-slate-200 text-slate-600'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={isAllSelected}
+                ref={el => {
+                  if (el) el.indeterminate = isSomeSelected;
+                }}
+                readOnly
+                className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-0 cursor-pointer accent-blue-600 pointer-events-none"
+              />
+              <span className="hidden sm:inline">
+                {isAllSelected
+                  ? tc.deselectAll || 'Bỏ chọn'
+                  : tc.selectAll || 'Chọn tất cả'}
+              </span>
+            </button>
+          )}
+
           {/* Spacer */}
           <div className="flex-1" />
 
@@ -206,6 +244,44 @@ export function TopicsManager() {
           )}
         </div>
       </div>
+
+      {/* Bulk Action Bar */}
+      {selectedTopicIds.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-3.5 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-xl bg-blue-600 text-white text-xs font-black shadow-xs">
+              {selectedTopicIds.length}
+            </span>
+            <span className="text-xs font-bold text-slate-700">
+              {interpolate(tc.selectedTopicsCount || 'Đã chọn {count} chủ đề', {
+                count: selectedTopicIds.length,
+              })}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={toggleSelectAll}
+              className="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-all active:scale-95 cursor-pointer shadow-2xs"
+            >
+              {isAllSelected
+                ? tm.deselectAllTopics || tc.deselectAll || 'Bỏ chọn tất cả'
+                : tm.selectAllTopics || tc.selectAll || 'Chọn tất cả'}
+            </button>
+            <button
+              type="button"
+              onClick={openBulkDeleteModal}
+              className="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl transition-all active:scale-95 flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <Trash2 size={14} />
+              {interpolate(tc.bulkDeleteSelected || 'Xóa {count} chủ đề đã chọn', {
+                count: selectedTopicIds.length,
+              })}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Add new topic form */}
       {addingTopic === activeType && (
@@ -319,47 +395,51 @@ export function TopicsManager() {
           </button>
         </div>
       ) : (
-        <div className="space-y-2">
-          {pagedTopics.map((topic, idx) => (
-            <TopicItem
-              key={topic.id}
-              t={t}
-              topic={topic}
-              idx={page * PAGE_SIZE + idx}
-              isExpanded={expandedTopic === topic.id}
-              isEditing={editingTopic === topic.id}
-              editTopicTitle={editTopicTitle}
-              editTopicGrades={editTopicGrades}
-              saving={saving}
-              onToggleExpand={() => setExpandedTopic(expandedTopic === topic.id ? null : topic.id)}
-              onToggleActive={toggleTopicActive}
-              onStartEdit={(id, title, grades) => {
-                setEditingTopic(id);
-                setEditTopicTitle(title);
-                setEditTopicGrades(Array.isArray(grades) ? grades : []);
-              }}
-              onSaveEdit={saveTopic}
-              onCancelEdit={() => setEditingTopic(null)}
-              onDeleteTopic={(id, title) => setDeleteTarget({ type: 'topic', id, label: title })}
-              onEditTopicTitleChange={setEditTopicTitle}
-              onEditTopicGradesChange={setEditTopicGrades}
-              onOpenAddQuestion={(topicId, topicType) =>
-                setQuestionModal({ mode: 'add', topicId, topicType })
-              }
-              onOpenEditQuestion={(topicId, topicType, q) =>
-                setQuestionModal({
-                  mode: 'edit',
-                  topicId,
-                  topicType,
-                  question: q,
-                })
-              }
-              onDeleteQuestion={(id, text) =>
-                setDeleteTarget({ type: 'question', id, label: text })
-              }
-              onOpenAiParser={topicId => setAiParserTopicId(topicId)}
-            />
-          ))}
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+            {pagedTopics.map((topic, idx) => (
+              <TopicItem
+                key={topic.id}
+                t={t}
+                topic={topic}
+                idx={page * PAGE_SIZE + idx}
+                isExpanded={expandedTopic === topic.id}
+                isEditing={editingTopic === topic.id}
+                isSelected={selectedTopicIds.includes(topic.id)}
+                editTopicTitle={editTopicTitle}
+                editTopicGrades={editTopicGrades}
+                saving={saving}
+                onToggleSelect={toggleSelectTopic}
+                onToggleExpand={() => setExpandedTopic(expandedTopic === topic.id ? null : topic.id)}
+                onToggleActive={toggleTopicActive}
+                onStartEdit={(id, title, grades) => {
+                  setEditingTopic(id);
+                  setEditTopicTitle(title);
+                  setEditTopicGrades(Array.isArray(grades) ? grades : []);
+                }}
+                onSaveEdit={saveTopic}
+                onCancelEdit={() => setEditingTopic(null)}
+                onDeleteTopic={(id, title) => setDeleteTarget({ type: 'topic', id, label: title })}
+                onEditTopicTitleChange={setEditTopicTitle}
+                onEditTopicGradesChange={setEditTopicGrades}
+                onOpenAddQuestion={(topicId, topicType) =>
+                  setQuestionModal({ mode: 'add', topicId, topicType })
+                }
+                onOpenEditQuestion={(topicId, topicType, q) =>
+                  setQuestionModal({
+                    mode: 'edit',
+                    topicId,
+                    topicType,
+                    question: q,
+                  })
+                }
+                onDeleteQuestion={(id, text) =>
+                  setDeleteTarget({ type: 'question', id, label: text })
+                }
+                onOpenAiParser={topicId => setAiParserTopicId(topicId)}
+              />
+            ))}
+          </div>
 
           {/* Empty state */}
           {pagedTopics.length === 0 && (
@@ -466,11 +546,30 @@ export function TopicsManager() {
       {deleteTarget && (
         <DeleteConfirmModal
           title={
-            deleteTarget.type === 'topic'
-              ? t.common.deleteTopicConfirm || 'Xác nhận xóa chủ đề'
-              : t.common.deleteQuestionConfirm || 'Xác nhận xóa câu hỏi'
+            deleteTarget.type === 'bulk-topics'
+              ? interpolate(tc.deleteTopicsBulkConfirm || 'Xác nhận xóa {count} chủ đề đã chọn', {
+                  count: deleteTarget.count || deleteTarget.ids?.length || 0,
+                })
+              : deleteTarget.type === 'topic'
+                ? t.common.deleteTopicConfirm || 'Xác nhận xóa chủ đề'
+                : t.common.deleteQuestionConfirm || 'Xác nhận xóa câu hỏi'
           }
-          description={deleteTarget.label}
+          description={
+            deleteTarget.type === 'bulk-topics'
+              ? interpolate(
+                  tc.deleteTopicsBulkDesc ||
+                    'Thầy/cô có chắc chắn muốn xóa {count} chủ đề đã chọn và toàn bộ câu hỏi bên trong không? Thao tác này không thể hoàn tác.',
+                  { count: deleteTarget.count || deleteTarget.ids?.length || 0 }
+                )
+              : deleteTarget.label
+          }
+          confirmLabel={
+            deleteTarget.type === 'bulk-topics'
+              ? interpolate(tc.bulkDeleteSelected || 'Xóa {count} chủ đề', {
+                  count: deleteTarget.count || deleteTarget.ids?.length || 0,
+                })
+              : undefined
+          }
           saving={deleteSaving}
           error={deleteError}
           onConfirm={confirmDelete}
@@ -478,7 +577,31 @@ export function TopicsManager() {
             setDeleteTarget(null);
             setDeleteError('');
           }}
-        />
+        >
+          {deleteTarget.type === 'bulk-topics' && deleteTarget.ids && (
+            <div className="max-h-40 overflow-y-auto space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
+              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                {t.teacherNav?.topics || 'Danh sách chủ đề sẽ xóa'}:
+              </div>
+              {topics
+                .filter(t => deleteTarget.ids?.includes(t.id))
+                .map(t => (
+                  <div
+                    key={t.id}
+                    className="font-bold text-slate-700 truncate flex items-center justify-between gap-2 py-0.5"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0 truncate">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span className="truncate">{t.title}</span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-medium shrink-0">
+                      {t.questions?.length || 0} {tc.questionCount || 'câu'}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
+        </DeleteConfirmModal>
       )}
     </div>
   );
