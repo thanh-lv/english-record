@@ -175,7 +175,9 @@ export function TopicItem({
             {idx + 1}
           </span>
           <div className="flex-1 min-w-0 flex items-center gap-1.5 truncate">
-            <span className="font-black text-slate-800 text-xs sm:text-sm truncate">{topic.title}</span>
+            <span className="font-black text-slate-800 text-xs sm:text-sm truncate">
+              {topic.title}
+            </span>
             {Array.isArray(topic.grades) && topic.grades.length > 0 ? (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200/70 shrink-0">
                 {interpolate(t.common.gradeLabel, {
@@ -201,7 +203,11 @@ export function TopicItem({
                 e.stopPropagation();
                 onToggleActive(topic.id, topic.is_active ?? true);
               }}
-              title={(topic.is_active ?? true) ? (t.teacherModal.topicStatusActive || 'Đang hiện') : (t.teacherModal.topicStatusHidden || 'Đã ẩn')}
+              title={
+                (topic.is_active ?? true)
+                  ? t.teacherModal.topicStatusActive || 'Đang hiện'
+                  : t.teacherModal.topicStatusHidden || 'Đã ẩn'
+              }
               className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] sm:text-[11px] font-black border transition-all active:scale-95 ${
                 (topic.is_active ?? true)
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100'

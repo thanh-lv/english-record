@@ -201,7 +201,7 @@ export function TopicsManager() {
             <button
               type="button"
               onClick={toggleSelectAll}
-              title={isAllSelected ? (tc.deselectAll || 'Bỏ chọn') : (tc.selectAll || 'Chọn tất cả')}
+              title={isAllSelected ? tc.deselectAll || 'Bỏ chọn' : tc.selectAll || 'Chọn tất cả'}
               className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer ${
                 isAllSelected
                   ? 'bg-blue-50 border-blue-200 text-blue-700'
@@ -218,9 +218,7 @@ export function TopicsManager() {
                 className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-0 cursor-pointer accent-blue-600 pointer-events-none"
               />
               <span className="hidden sm:inline">
-                {isAllSelected
-                  ? tc.deselectAll || 'Bỏ chọn'
-                  : tc.selectAll || 'Chọn tất cả'}
+                {isAllSelected ? tc.deselectAll || 'Bỏ chọn' : tc.selectAll || 'Chọn tất cả'}
               </span>
             </button>
           )}
@@ -410,7 +408,9 @@ export function TopicsManager() {
                 editTopicGrades={editTopicGrades}
                 saving={saving}
                 onToggleSelect={toggleSelectTopic}
-                onToggleExpand={() => setExpandedTopic(expandedTopic === topic.id ? null : topic.id)}
+                onToggleExpand={() =>
+                  setExpandedTopic(expandedTopic === topic.id ? null : topic.id)
+                }
                 onToggleActive={toggleTopicActive}
                 onStartEdit={(id, title, grades) => {
                   setEditingTopic(id);

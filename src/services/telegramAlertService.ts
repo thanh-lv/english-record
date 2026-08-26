@@ -22,10 +22,7 @@ class TelegramAlertService {
   private cachedChatId: string | null = null;
 
   public getBotToken(): string {
-    return (
-      (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TELEGRAM_BOT_TOKEN) ||
-      ''
-    );
+    return (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TELEGRAM_BOT_TOKEN) || '';
   }
 
   public getChatId(): string {

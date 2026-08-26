@@ -57,9 +57,7 @@ describe('telegramAlertService', () => {
     expect(result).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const callArgs = fetchMock.mock.calls[0];
-    expect(callArgs[0]).toContain(
-      'https://api.telegram.org/botmock-bot-token-test/sendMessage'
-    );
+    expect(callArgs[0]).toContain('https://api.telegram.org/botmock-bot-token-test/sendMessage');
 
     const body = JSON.parse(callArgs[1].body);
     expect(body.chat_id).toBe('987654321');
