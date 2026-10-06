@@ -1,6 +1,6 @@
 # 🎙️ English Record - Nền Tảng Luyện Tiếng Anh & Quản Lý Lớp Học
 
-[![CI Workflow](https://github.com/thanhlv/english-record/actions/workflows/ci.yml/badge.svg)](https://github.com/thanhlv/english-record/actions/workflows/ci.yml)
+[![CI Workflow](https://github.com/thanh-lv/english-record/actions/workflows/ci.yml/badge.svg)](https://github.com/thanh-lv/english-record/actions/workflows/ci.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB.svg?logo=react)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF.svg?logo=vite)](https://vitejs.dev/)
@@ -69,14 +69,14 @@
 ## 🚀 Hướng Dẫn Cài Đặt & Chạy Cục Bộ
 
 ### 1. Yêu cầu hệ thống
-- **Node.js**: Phiên bản `>= 18.0.0`
+- **Node.js**: `20.19+`, `22.13+` hoặc `24+` (Vitest 4 và ESLint 10 không chạy trên Node 18; CI dùng Node 24)
 - **npm**: Đi kèm với Node.js
 
 ### 2. Cài đặt và cấu hình
 
 ```bash
 # 1. Clone repository về máy
-git clone https://github.com/thanhlv/english-record.git
+git clone https://github.com/thanh-lv/english-record.git
 cd english-record
 
 # 2. Cài đặt các thư viện phụ thuộc
@@ -86,15 +86,19 @@ npm install
 cp .env.example .env
 ```
 
-Mở file `.env` và điền các thông số Supabase và S3/R2 của bạn (xem mô tả chi tiết trong [.env.example](file:///.env.example)).
+Mở file `.env` và điền các thông số Supabase và S3/R2 của bạn (xem mô tả chi tiết trong [.env.example](.env.example)).
 
-### 3. Nạp dữ liệu mẫu ban đầu (Tùy chọn)
+### 3. Cập nhật cơ sở dữ liệu
+
+Chạy lần lượt các file SQL trong [`supabase/migrations/`](supabase/migrations) (theo thứ tự tên file) bằng **SQL Editor** của Supabase, hoặc `supabase db push` nếu dùng Supabase CLI. Các migration chạy lại nhiều lần vẫn an toàn.
+
+### 4. Nạp dữ liệu mẫu ban đầu (Tùy chọn)
 
 ```bash
 node seed-topics.cjs
 ```
 
-### 4. Khởi chạy máy chủ phát triển
+### 5. Khởi chạy máy chủ phát triển
 
 ```bash
 npm run dev
@@ -106,7 +110,7 @@ npm run dev
 ## 📜 Danh Mục Lệnh (NPM Scripts)
 
 - `npm run dev`: Chạy dev server với HMR.
-- `npm run build`: Biên dịch TypeScript và build bundle tối ưu cho production.
+- `npm run build`: Build bundle tối ưu cho production bằng Vite (không kiểm tra kiểu — dùng `npm run type-check`).
 - `npm run preview`: Chạy thử bản build production local.
 - `npm run type-check`: Kiểm tra toàn bộ kiểu dữ liệu bằng `tsc --noEmit`.
 - `npm run lint`: Chạy ESLint kiểm tra quy chuẩn mã nguồn.
@@ -122,15 +126,16 @@ npm run dev
 
 ## 🌐 Triển Khai Lên Render (Deployment)
 
-Dự án được tối ưu sẵn sàng triển khai dưới dạng **Static Site** trên **[Render](https://render.com/)** thông qua tệp cấu hình [render.yaml](file:///render.yaml):
+Dự án triển khai dưới dạng **Static Site** trên **[Render](https://render.com/)**, cấu hình thủ công trên dashboard (repo không có `render.yaml`):
 
 1. Kết nối repository `english-record` trên tài khoản Render.
-2. Chọn **New + > Blueprint** hoặc tạo **Static Site**:
+2. Chọn **New + > Static Site**:
    - **Build Command**: `npm run build`
    - **Publish Directory**: `dist`
-   - **Redirects/Rewrites**: `/*` chuyển tiếp về `/index.html` (SPA Routing).
-3. Thêm các biến môi trường cấu hình (Supabase, S3/R2) trong tab **Environment Variables** của Render.
-4. Render sẽ tự động build và deploy mỗi khi có commit mới được merge vào nhánh `main`.
+3. Trong tab **Redirects/Rewrites**, thêm rule **Rewrite** từ `/*` về `/index.html` (SPA Routing). File `public/_redirects` chỉ có tác dụng với các host đọc file này (Netlify, Cloudflare Pages).
+4. Thêm các biến môi trường cấu hình (Supabase, S3/R2) trong tab **Environment Variables** của Render.
+5. Chạy các migration mới trong `supabase/migrations/` trên Supabase **trước** khi deploy code cần đến chúng.
+6. Render sẽ tự động build và deploy mỗi khi có commit mới được merge vào nhánh `main`.
 
 ---
 
@@ -138,19 +143,19 @@ Dự án được tối ưu sẵn sàng triển khai dưới dạng **Static Sit
 
 ```
 english-record/
-├── .github/workflows/         # Cấu hình GitHub Actions CI (Lint, Typecheck, Test, Build, Audit)
+├── .github/workflows/         # Cấu hình GitHub Actions CI (Type-check, Lint)
 ├── docs/                      # Tài liệu kỹ thuật chi tiết
 │   ├── ARCHITECTURE.md        # Kiến trúc hệ thống, Sơ đồ Mermaid, Database Schema
 │   ├── ENVIRONMENT_AND_DATA_FLOW.md # Biến môi trường & 8 Luồng dữ liệu (Data Flows)
 │   └── ONBOARDING.md          # Hướng dẫn chi tiết cho thành viên mới
-├── render.yaml                # Cấu hình tự động triển khai Static Site trên Render
 ├── public/                    # Tài nguyên tĩnh (PWA manifest, Service Worker)
+├── supabase/migrations/       # Migration SQL cho cơ sở dữ liệu Supabase
 ├── src/
 │   ├── components/            # UI Components theo từng phân hệ
 │   │   ├── common/            # AudioPlayer, YouTubePlayer, OfflineBanner...
 │   │   ├── student/           # Màn hình học sinh (exercises, flashcards, games, stories...)
 │   │   └── teacher/           # Màn hình giáo viên (attendance, topics, vocabulary, stories...)
-│   ├── hooks/                 # Custom React Hooks (useQuery, useAuth, useRecording...)
+│   ├── hooks/                 # Custom React Hooks dùng chung (useQuery, useAuth, useOnlineStatus...)
 │   ├── i18n/                  # Hệ thống đa ngôn ngữ (Tiếng Việt / Tiếng Anh)
 │   ├── lib/                   # Cache Engine, SDK Clients (Supabase, S3)
 │   ├── pages/                 # Trang ứng dụng (LoginPage, StudentPage, TeacherPage)
@@ -169,6 +174,6 @@ english-record/
 
 ## 📖 Tài Liệu Chi Tiết
 
-- 🏗️ **[Tài liệu Kiến Trúc Hệ Thống (docs/ARCHITECTURE.md)](file:///docs/ARCHITECTURE.md)**: Kiến trúc hệ thống, phân quyền (Auth Flow), quy trình nén và upload âm thanh, cấu trúc bảng PostgreSQL.
-- 🔄 **[Thiết Lập Môi Trường & 8 Luồng Dữ Liệu (docs/ENVIRONMENT_AND_DATA_FLOW.md)](file:///docs/ENVIRONMENT_AND_DATA_FLOW.md)**: Hướng dẫn biến môi trường, chi tiết 8 luồng dữ liệu bằng sơ đồ tuần tự (Authentication, Audio Recording, Client Cache & SWR, Security & XSS Prevention, Attendance & Tuition, Shadowing, Vocab Audio Builder, Client Remote Logging).
-- 🚀 **[Hướng Dẫn Bắt Đầu Dành Cho Thành Viên Mới (docs/ONBOARDING.md)](file:///docs/ONBOARDING.md)**: Hướng dẫn nhanh 5 phút, cách thêm tính năng mới, viết test, quy chuẩn commit và xử lý sự cố thường gặp.
+- 🏗️ **[Tài liệu Kiến Trúc Hệ Thống (docs/ARCHITECTURE.md)](docs/ARCHITECTURE.md)**: Kiến trúc hệ thống, phân quyền (Auth Flow), quy trình nén và upload âm thanh, cấu trúc bảng PostgreSQL.
+- 🔄 **[Thiết Lập Môi Trường & 8 Luồng Dữ Liệu (docs/ENVIRONMENT_AND_DATA_FLOW.md)](docs/ENVIRONMENT_AND_DATA_FLOW.md)**: Hướng dẫn biến môi trường, chi tiết 8 luồng dữ liệu bằng sơ đồ tuần tự (Authentication, Audio Recording, Client Cache & SWR, Security & XSS Prevention, Attendance & Tuition, Shadowing, Vocab Audio Builder, Client Remote Logging).
+- 🚀 **[Hướng Dẫn Bắt Đầu Dành Cho Thành Viên Mới (docs/ONBOARDING.md)](docs/ONBOARDING.md)**: Hướng dẫn nhanh 5 phút, cách thêm tính năng mới, viết test, quy chuẩn commit và xử lý sự cố thường gặp.

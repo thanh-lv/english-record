@@ -378,7 +378,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
           >
             {tAtt.attendanceDates}
           </p>
-          {/* Dùng text-align center + inline-block thay flex+gap để html2canvas render đúng */}
+          {/* Dùng text-align center + inline-block thay flex+gap để ảnh xuất ra (html-to-image) render đúng */}
           <div
             style={{
               textAlign: 'center',
