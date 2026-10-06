@@ -888,6 +888,10 @@ export const en = {
     cancelCheckinTooltip: 'Cancel attendance for this day',
     alreadyCheckedInCount: 'Checked in ({count} sessions)',
     addOneSession: '+ Add 1 session',
+    addHalfSession: '+ Add ½ session',
+    fullSessionOption: 'Full',
+    halfSessionOption: '½ session',
+    sessionValueLabel: 'Duration',
     cancelCheckinConfirmTitle: 'Confirm attendance cancellation',
     cancelCheckinConfirmDesc:
       'Are you sure you want to cancel the attendance of student {name} on {date}?',

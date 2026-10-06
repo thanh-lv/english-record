@@ -888,6 +888,10 @@ export const vi = {
     cancelCheckinTooltip: 'Hủy điểm danh ngày này',
     alreadyCheckedInCount: 'Đã DD ({count} buổi)',
     addOneSession: '+ Thêm 1 buổi',
+    addHalfSession: '+ Thêm ½ buổi',
+    fullSessionOption: '1 buổi',
+    halfSessionOption: '½ buổi',
+    sessionValueLabel: 'Thời lượng',
     cancelCheckinConfirmTitle: 'Xác nhận hủy điểm danh',
     cancelCheckinConfirmDesc:
       'Bạn có chắc chắn muốn hủy điểm danh của học sinh {name} vào {date} không?',

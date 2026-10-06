@@ -13,7 +13,7 @@ import {
   Save,
   Users,
 } from 'lucide-react';
-import { formatClassName } from '../../../utils';
+import { formatClassName, getSessionValue, sumSessions } from '../../../utils';
 import { useBodyScrollLock } from '../../../hooks';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { useTeacher } from '../../../contexts/TeacherContext';
@@ -37,6 +37,8 @@ export function CheckinTab() {
   const [checkinHour, setCheckinHour] = useState(String(today.getHours()).padStart(2, '0'));
   const [checkinMinute, setCheckinMinute] = useState(String(today.getMinutes()).padStart(2, '0'));
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  // Selected students who only attended half a session
+  const [halfIds, setHalfIds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [deleteTargetStudent, setDeleteTargetStudent] = useState<any | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -126,8 +128,9 @@ export function CheckinTab() {
 
     monthRecords.forEach(r => {
       const d = new Date(r.checkin_time).getDate();
-      countMap[d] = (countMap[d] || 0) + 1;
-      const price = Number(studentMap[r.student_id]?.unit_price || 0);
+      const value = getSessionValue(r);
+      countMap[d] = (countMap[d] || 0) + value;
+      const price = Math.round(Number(studentMap[r.student_id]?.unit_price || 0) * value);
       revMap[d] = (revMap[d] || 0) + price;
       total += price;
     });
@@ -142,6 +145,7 @@ export function CheckinTab() {
     const d = new Date(calYear, calMonth, day);
     setModalDate(d);
     setCheckedIds(new Set());
+    setHalfIds(new Set());
     setSuccess(false);
     if (isToday(day)) {
       setCheckinHour(String(today.getHours()).padStart(2, '0'));
@@ -154,6 +158,7 @@ export function CheckinTab() {
   const closeModal = () => {
     setModalDate(null);
     setCheckedIds(new Set());
+    setHalfIds(new Set());
     setSuccess(false);
   };
 
@@ -192,9 +197,19 @@ export function CheckinTab() {
 
   const handleToggle = (id: string) => {
     const next = new Set(checkedIds);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+    if (next.has(id)) {
+      next.delete(id);
+      setStudentHalf(id, false);
+    } else next.add(id);
     setCheckedIds(next);
+  };
+  const setStudentHalf = (id: string, isHalf: boolean) => {
+    setHalfIds(prev => {
+      const next = new Set(prev);
+      if (isHalf) next.add(id);
+      else next.delete(id);
+      return next;
+    });
   };
   const handleSelectAll = () => {
     if (filteredStudents.every(s => checkedIds.has(s.id))) {
@@ -242,10 +257,12 @@ export function CheckinTab() {
       const recs = Array.from(checkedIds).map(student_id => ({
         student_id,
         checkin_time: timestamp,
+        session_value: halfIds.has(student_id) ? 0.5 : 1,
       }));
       await attendanceService.saveAttendanceCheckin(recs);
       setSuccess(true);
       setCheckedIds(new Set());
+      setHalfIds(new Set());
       await loadMonthRecords(calYear, calMonth);
       setTimeout(() => setSuccess(false), 2500);
     } catch (err) {
@@ -265,6 +282,10 @@ export function CheckinTab() {
       .join('')
       .toUpperCase();
   const checkedCount = checkedIds.size;
+  const selectedSessionTotal = Array.from(checkedIds).reduce(
+    (sum, id) => sum + (halfIds.has(id) ? 0.5 : 1),
+    0
+  );
   const studentsWithCheckinCount = modalDate
     ? filteredStudents.filter(s => getStudentDayRecords(s.id).length > 0).length
     : 0;
@@ -319,7 +340,7 @@ export function CheckinTab() {
                 {interpolate(
                   tAtt.monthSummaryExpected || 'Tổng ngày: {sessions} buổi · Dự kiến: {amount}',
                   {
-                    sessions: monthRecords.length,
+                    sessions: sumSessions(monthRecords),
                     amount: interpolate(tAtt.currencyVnd || '{amount} đ', {
                       amount: totalMonthRevenue.toLocaleString(),
                     }),
@@ -551,7 +572,7 @@ export function CheckinTab() {
                   {checkedCount > 0 && (
                     <span className="text-emerald-600 font-black">
                       {interpolate(tAtt.selectingSessions || '+ Đang chọn thêm {count} buổi', {
-                        count: checkedCount,
+                        count: selectedSessionTotal,
                       })}
                     </span>
                   )}
@@ -647,6 +668,7 @@ export function CheckinTab() {
                           const isChecked = checkedIds.has(student.id);
                           const existingRecs = getStudentDayRecords(student.id);
                           const existingCount = existingRecs.length;
+                          const isHalf = halfIds.has(student.id);
                           const ini = initials(student.name);
 
                           return (
@@ -708,17 +730,41 @@ export function CheckinTab() {
                                     <CheckCircle2 size={10} />{' '}
                                     {interpolate(
                                       tAtt.alreadyCheckedInCount || 'Đã DD ({count} buổi)',
-                                      { count: existingCount }
+                                      { count: sumSessions(existingRecs) }
                                     )}
                                   </span>
                                 )}
                                 {isChecked && (
                                   <span className="text-[10px] font-black text-white bg-emerald-600 px-1.5 py-0.5 rounded-lg flex items-center gap-0.5 shadow-sm">
                                     <CheckCircle2 size={10} />{' '}
-                                    {tAtt.addOneSession || '+ Thêm 1 buổi'}
+                                    {isHalf
+                                      ? tAtt.addHalfSession || '+ Thêm ½ buổi'
+                                      : tAtt.addOneSession || '+ Thêm 1 buổi'}
                                   </span>
                                 )}
                               </button>
+
+                              {/* Full / half session switch */}
+                              {isChecked && (
+                                <div className="flex w-full rounded-lg border border-emerald-300 overflow-hidden text-[10px] font-black">
+                                  {[false, true].map(half => (
+                                    <button
+                                      key={String(half)}
+                                      type="button"
+                                      onClick={() => setStudentHalf(student.id, half)}
+                                      className={`flex-1 py-1 transition-colors ${
+                                        isHalf === half
+                                          ? 'bg-emerald-600 text-white'
+                                          : 'bg-white text-emerald-700 hover:bg-emerald-100'
+                                      }`}
+                                    >
+                                      {half
+                                        ? tAtt.halfSessionOption || '½ buổi'
+                                        : tAtt.fullSessionOption || '1 buổi'}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           );
                         })}

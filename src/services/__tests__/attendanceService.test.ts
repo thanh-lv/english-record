@@ -180,6 +180,21 @@ describe('attendanceService', () => {
       expect(insertMock).toHaveBeenCalledWith(records);
     });
 
+    it('sends session_value only for half sessions', async () => {
+      const insertMock = vi.fn().mockResolvedValue({ error: null });
+      (supabase.from as any).mockReturnValue({ insert: insertMock });
+
+      await attendanceService.saveAttendanceCheckin([
+        { student_id: 's1', checkin_time: '2026-08-01T08:00:00Z', session_value: 1 },
+        { student_id: 's2', checkin_time: '2026-08-01T08:00:00Z', session_value: 0.5 },
+      ]);
+
+      expect(insertMock).toHaveBeenCalledWith([
+        { student_id: 's1', checkin_time: '2026-08-01T08:00:00Z' },
+        { student_id: 's2', checkin_time: '2026-08-01T08:00:00Z', session_value: 0.5 },
+      ]);
+    });
+
     it('does nothing when record list is empty', async () => {
       await attendanceService.saveAttendanceCheckin([]);
       expect(supabase.from).not.toHaveBeenCalled();
@@ -416,7 +431,7 @@ describe('attendanceService', () => {
 
     it('aggregates revenue correctly without paymentsMap using db payments for all months', async () => {
       const studentsData = [{ id: 's1', unit_price: 200000 }];
-      const recordsData = [{ student_id: 's1' }];
+      const recordsData = [{ student_id: 's1' }, { student_id: 's1', session_value: 0.5 }];
       const paymentsData = [{ student_id: 's1', is_paid: true }];
 
       (supabase.from as any).mockImplementation((table: string) => {
@@ -448,8 +463,8 @@ describe('attendanceService', () => {
 
       const res = await attendanceService.fetchAnalyticsData(2026, 8);
       expect(res).toHaveLength(6);
-      expect(res[5].projected).toBe(200000);
-      expect(res[5].collected).toBe(200000);
+      expect(res[5].projected).toBe(300000); // 1 + 0.5 sessions
+      expect(res[5].collected).toBe(300000);
     });
   });
 });

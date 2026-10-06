@@ -23,7 +23,7 @@ import { toPng } from 'html-to-image';
 import JSZip from 'jszip';
 import { TuitionSlipTemplate } from './TuitionSlipTemplate';
 import { ZaloShareModal } from './ZaloShareModal';
-import { formatClassName } from '../../../utils';
+import { formatClassName, getSessionValue, sumSessions } from '../../../utils';
 import { useBodyScrollLock } from '../../../hooks';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { useTeacher } from '../../../contexts/TeacherContext';
@@ -180,9 +180,11 @@ export function SummaryTab() {
   const [showAddDateForm, setShowAddDateForm] = useState(false);
   const [newDateVal, setNewDateVal] = useState('');
   const [newTimeVal, setNewTimeVal] = useState('08:00');
+  const [newSessionVal, setNewSessionVal] = useState(1);
   const [editingRecId, setEditingRecId] = useState<string | null>(null);
   const [editDateVal, setEditDateVal] = useState('');
   const [editTimeVal, setEditTimeVal] = useState('08:00');
+  const [editSessionVal, setEditSessionVal] = useState(1);
   const [recActionLoading, setRecActionLoading] = useState(false);
 
   useEffect(() => {
@@ -276,11 +278,12 @@ export function SummaryTab() {
             label: student.hoc_lieu_label || tAtt.hocLieuSlip || '📚 Học liệu',
             value: Number(student.hoc_lieu_value ?? student.hoc_lieu ?? 0),
           };
-          const baseFee = studentRecords.length * student.unit_price;
+          const totalSessions = sumSessions(studentRecords);
+          const baseFee = Math.round(totalSessions * student.unit_price);
 
           return {
             ...student,
-            total_sessions: studentRecords.length,
+            total_sessions: totalSessions,
             total_fee: baseFee + Number(hlObj.value || 0),
             hoc_lieu_label: hlObj.label,
             hoc_lieu_value: hlObj.value,
@@ -409,7 +412,9 @@ export function SummaryTab() {
             hour: '2-digit',
             minute: '2-digit',
           }),
-          tAtt.present,
+          getSessionValue(r) < 1
+            ? `${tAtt.present} (${tAtt.halfSessionOption || '½ buổi'})`
+            : tAtt.present,
         ];
       }),
       [],
@@ -501,6 +506,7 @@ export function SummaryTab() {
           student_id: studentId,
           checkin_time: timestamp,
           status: 'present',
+          ...(newSessionVal !== 1 ? { session_value: newSessionVal } : {}),
         })
         .select('*, attendance_students(name, unit_price)')
         .single();
@@ -509,6 +515,7 @@ export function SummaryTab() {
         setRecords(prev => [...prev, data]);
         setShowAddDateForm(false);
         setNewDateVal('');
+        setNewSessionVal(1);
       }
     } catch (e) {
       console.error('Error adding makeup session:', e);
@@ -523,12 +530,14 @@ export function SummaryTab() {
     setRecActionLoading(true);
     try {
       const timestamp = new Date(`${editDateVal}T${editTimeVal}:00`).toISOString();
-      const { error } = await supabase
-        .from('attendance_records')
-        .update({ checkin_time: timestamp })
-        .eq('id', recId);
+      const current = records.find(r => r.id === recId);
+      const changes: { checkin_time: string; session_value?: number } = {
+        checkin_time: timestamp,
+      };
+      if (getSessionValue(current) !== editSessionVal) changes.session_value = editSessionVal;
+      const { error } = await supabase.from('attendance_records').update(changes).eq('id', recId);
       if (error) throw error;
-      setRecords(prev => prev.map(r => (r.id === recId ? { ...r, checkin_time: timestamp } : r)));
+      setRecords(prev => prev.map(r => (r.id === recId ? { ...r, ...changes } : r)));
       setEditingRecId(null);
     } catch (e) {
       console.error('Error editing session date:', e);
@@ -1063,7 +1072,7 @@ export function SummaryTab() {
                           <p className="text-xs font-black text-purple-900">
                             {interpolate(
                               tAtt.attendanceHistoryTitle || 'Danh sách điểm danh ({count} buổi)',
-                              { count: studentRecs.length }
+                              { count: sumSessions(studentRecs) }
                             )}
                           </p>
                           <p className="text-[11px] text-purple-600 font-medium">
@@ -1115,6 +1124,19 @@ export function SummaryTab() {
                                 onChange={e => setNewTimeVal(e.target.value)}
                                 className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-purple-400"
                               />
+                            </div>
+                            <div className="w-28">
+                              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                                {tAtt.sessionValueLabel || 'Thời lượng'}
+                              </label>
+                              <select
+                                value={newSessionVal}
+                                onChange={e => setNewSessionVal(Number(e.target.value))}
+                                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-purple-400 bg-white"
+                              >
+                                <option value={1}>{tAtt.fullSessionOption || '1 buổi'}</option>
+                                <option value={0.5}>{tAtt.halfSessionOption || '½ buổi'}</option>
+                              </select>
                             </div>
                             <div className="flex items-end gap-2 pt-4">
                               <button
@@ -1224,9 +1246,33 @@ export function SummaryTab() {
                                       )}
                                     </td>
                                     <td className="px-3 py-2.5 text-center">
-                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-black rounded-lg">
-                                        <CheckCircle2 size={11} /> {tAtt.present || 'Có mặt'}
-                                      </span>
+                                      {isEditing ? (
+                                        <select
+                                          value={editSessionVal}
+                                          onChange={e => setEditSessionVal(Number(e.target.value))}
+                                          className="px-2 py-1 border border-purple-300 rounded-lg text-xs font-bold text-slate-800 bg-white"
+                                        >
+                                          <option value={1}>
+                                            {tAtt.fullSessionOption || '1 buổi'}
+                                          </option>
+                                          <option value={0.5}>
+                                            {tAtt.halfSessionOption || '½ buổi'}
+                                          </option>
+                                        </select>
+                                      ) : (
+                                        <span
+                                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-black rounded-lg ${
+                                            getSessionValue(r) < 1
+                                              ? 'bg-amber-100 text-amber-800'
+                                              : 'bg-emerald-100 text-emerald-800'
+                                          }`}
+                                        >
+                                          <CheckCircle2 size={11} />{' '}
+                                          {getSessionValue(r) < 1
+                                            ? tAtt.halfSessionOption || '½ buổi'
+                                            : tAtt.present || 'Có mặt'}
+                                        </span>
+                                      )}
                                     </td>
                                     <td className="px-3 py-2.5 text-right">
                                       {isEditing ? (
@@ -1259,6 +1305,7 @@ export function SummaryTab() {
                                               const tStr = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
                                               setEditDateVal(dStr);
                                               setEditTimeVal(tStr);
+                                              setEditSessionVal(getSessionValue(r));
                                             }}
                                             className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-100 rounded-lg transition-colors cursor-pointer"
                                             title={tAtt.editDateTime || 'Sửa ngày/giờ'}

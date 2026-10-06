@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { attendanceService } from '../../../../services/attendanceService';
 import { supabase } from '../../../../lib/supabase';
 import { loggerService } from '../../../../services/loggerService';
-import { formatClassName } from '../../../../utils';
+import { formatClassName, getSessionValue } from '../../../../utils';
 import { interpolate } from '../../../../i18n/LanguageContext';
 import { AttendanceMonthlyTrend, ClassAttendanceRate } from '../../../../types';
 import { useTeacher } from '../../../../contexts/TeacherContext';
@@ -59,11 +59,11 @@ export function useAttendanceAnalytics({
         studQuery = studQuery.eq('teacher_id', teacherId);
       }
 
-      let recQuery: any = supabase.from('attendance_records').select('student_id');
+      let recQuery: any = supabase.from('attendance_records').select('*');
       if (teacherId) {
         recQuery = supabase
           .from('attendance_records')
-          .select('student_id, attendance_students!inner(teacher_id)')
+          .select('*, attendance_students!inner(teacher_id)')
           .eq('attendance_students.teacher_id', teacherId);
       }
 
@@ -93,7 +93,7 @@ export function useAttendanceAnalytics({
               currentTAtt?.unassignedClass || 'Chưa phân lớp',
               currentTAtt?.className ? currentTAtt.className + ' ' : 'Lớp '
             );
-            if (byClass[cls]) byClass[cls].totalSessions += 1;
+            if (byClass[cls]) byClass[cls].totalSessions += getSessionValue(r);
           }
         });
 

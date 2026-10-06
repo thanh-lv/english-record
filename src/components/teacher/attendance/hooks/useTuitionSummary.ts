@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { attendanceService } from '../../../../services/attendanceService';
 import { loggerService } from '../../../../services/loggerService';
 import { AttendanceStudent, AttendanceRecord } from '../../../../types';
+import { sumSessions } from '../../../../utils';
 import { useTeacher } from '../../../../contexts/TeacherContext';
 
 export function useTuitionSummary(t: any) {
@@ -131,9 +132,9 @@ export function useTuitionSummary(t: any) {
   const studentSummaries = useMemo(() => {
     return students.map(student => {
       const studentRecs = records.filter(r => r.student_id === student.id);
-      const sessionsCount = studentRecs.length;
+      const sessionsCount = sumSessions(studentRecs);
       const unitPrice = Number(student.unit_price) || 0;
-      const subtotal = sessionsCount * unitPrice;
+      const subtotal = Math.round(sessionsCount * unitPrice);
 
       const clsName = student.class_name || tAtt.unassignedClass;
       const classHocLieu = classHocLieuMap[clsName];

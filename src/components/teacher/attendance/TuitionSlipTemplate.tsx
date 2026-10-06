@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
+import { getSessionValue } from '../../../utils';
 
 interface TuitionSlipProps {
   student: any;
@@ -36,7 +37,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
       const dt = new Date(r.checkin_time);
       const day = String(dt.getDate()).padStart(2, '0');
       const monthStr = String(dt.getMonth() + 1).padStart(2, '0');
-      return `${day}/${monthStr}`;
+      return `${day}/${monthStr}${getSessionValue(r) < 1 ? ' (½)' : ''}`;
     });
 
     const displayLabel = hocLieuLabel || tAtt.hocLieuSlip || '📚 Học liệu';
@@ -47,7 +48,7 @@ export const TuitionSlipTemplate = forwardRef<HTMLDivElement, TuitionSlipProps>(
           ? hocLieu
           : parseInt(String(hocLieu || '').replace(/\D/g, ''), 10) || 0;
 
-    const baseTuition = (student.total_sessions || 0) * (student.unit_price || 0);
+    const baseTuition = Math.round((student.total_sessions || 0) * (student.unit_price || 0));
     const grandTotal = baseTuition + displayValue;
 
     return (

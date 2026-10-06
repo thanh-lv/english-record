@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { getSessionValue } from '../utils/format';
 import { withServiceHandling } from './serviceHandler';
 import {
   AttendanceStudent,
@@ -121,7 +122,7 @@ export const attendanceService = {
         if (studentIds.length === 0) return [];
       }
 
-      let query: any = supabase.from('attendance_records').select('id, student_id, checkin_time');
+      let query: any = supabase.from('attendance_records').select('*');
 
       if (studentIds !== null) {
         query = query.in('student_id', studentIds);
@@ -141,11 +142,17 @@ export const attendanceService = {
   },
 
   async saveAttendanceCheckin(
-    records: Array<{ student_id: string; checkin_time: string }>
+    records: Array<{ student_id: string; checkin_time: string; session_value?: number }>
   ): Promise<void> {
     return withServiceHandling('attendanceService', 'saveAttendanceCheckin', async () => {
       if (records.length === 0) return;
-      const { error } = await supabase.from('attendance_records').insert(records);
+      // Full sessions rely on the column default (1); only half sessions send session_value
+      const rows = records.map(({ student_id, checkin_time, session_value }) =>
+        session_value !== undefined && session_value !== 1
+          ? { student_id, checkin_time, session_value }
+          : { student_id, checkin_time }
+      );
+      const { error } = await supabase.from('attendance_records').insert(rows);
       if (error) throw error;
     });
   },
@@ -259,11 +266,11 @@ export const attendanceService = {
             studQuery = studQuery.eq('teacher_id', teacherId);
           }
 
-          let recQuery: any = supabase.from('attendance_records').select('student_id');
+          let recQuery: any = supabase.from('attendance_records').select('*');
           if (teacherId) {
             recQuery = supabase
               .from('attendance_records')
-              .select('student_id, attendance_students!inner(teacher_id)')
+              .select('*, attendance_students!inner(teacher_id)')
               .eq('attendance_students.teacher_id', teacherId);
           }
 
@@ -300,7 +307,8 @@ export const attendanceService = {
           (recRes.data || []).forEach((r: any) => {
             // Only count sessions for this teacher's students
             if (teacherId && !teacherStudentIds.has(r.student_id)) return;
-            studentSessions[r.student_id] = (studentSessions[r.student_id] || 0) + 1;
+            studentSessions[r.student_id] =
+              (studentSessions[r.student_id] || 0) + getSessionValue(r);
           });
 
           let projected = 0;

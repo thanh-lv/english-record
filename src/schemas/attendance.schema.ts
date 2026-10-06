@@ -74,6 +74,7 @@ export const attendanceRecordResponseSchema = z.object({
   id: z.string(),
   student_id: z.string(),
   checkin_time: z.string(),
+  session_value: coerceNullableNumber,
   attendance_students: z
     .object({
       name: z.string(),

@@ -31,6 +31,7 @@ export interface AttendanceRecord {
   id: string;
   student_id: string;
   checkin_time: string;
+  session_value?: number | null;
   attendance_students?: {
     name: string;
     unit_price?: number;

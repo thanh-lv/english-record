@@ -18,3 +18,15 @@ export function formatClassName(
   }
   return `${classPrefix}${trimmed}`;
 }
+
+type SessionValued = { session_value?: number | string | null };
+
+/** Session weight of an attendance record: 0.5 for a half session, 1 otherwise. */
+export function getSessionValue(record?: SessionValued | null): number {
+  const value = Number(record?.session_value);
+  return value > 0 ? value : 1;
+}
+
+export function sumSessions(records: SessionValued[]): number {
+  return records.reduce((sum, r) => sum + getSessionValue(r), 0);
+}
