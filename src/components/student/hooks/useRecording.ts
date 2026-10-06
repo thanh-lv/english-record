@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { loggerService } from '../../../services/loggerService';
+import { isMissingColumnError } from '../../../utils/postgrest';
 
 interface UseRecordingOptions {
   user: any;
@@ -12,6 +13,41 @@ interface UseRecordingOptions {
   existingRecordingId?: string | null;
   shadowingVideoId?: string | null;
   onSaveSuccess: (recordings: any[], completedNumber: number | null) => void;
+}
+
+/**
+ * Deletes a replaced recording row and its audio file. Failures are logged rather than
+ * surfaced: the new recording is already saved at this point.
+ */
+async function removeReplacedRecording(recordingId: string) {
+  const { data, error } = await supabase
+    .from('recordings')
+    .delete()
+    .eq('id', recordingId)
+    .select('audio_url');
+
+  if (error) {
+    loggerService.warn('useRecording', 'Could not remove replaced recording', {
+      recordingId,
+      error,
+    });
+    return;
+  }
+
+  const audioUrls = (data || []).map((row: any) => row.audio_url).filter(Boolean);
+  if (audioUrls.length === 0) return;
+
+  try {
+    const { uploadService } = await import('../../../services/uploadService');
+    for (const url of audioUrls) {
+      const deleted = await uploadService.deleteFileByUrl(url);
+      if (!deleted) {
+        loggerService.warn('useRecording', 'Could not delete replaced audio file', { url });
+      }
+    }
+  } catch (err) {
+    loggerService.warn('useRecording', 'Could not delete replaced audio files', err);
+  }
 }
 
 export function useRecording({
@@ -200,6 +236,7 @@ export function useRecording({
         const topicId = selectedNumber != null ? currentTopic?.id : null;
 
         const newRecording: Record<string, any> = {
+          student_id: profile.id || null,
           student_name: profile.name,
           topic: currentTopic.title,
           topic_number: selectedNumber,
@@ -216,11 +253,15 @@ export function useRecording({
           newRecording.user_id = authUserId;
         }
 
-        if (existingRecordingId) {
-          await supabase.from('recordings').delete().eq('id', existingRecordingId);
-        }
-
         let { data, error } = await supabase.from('recordings').insert([newRecording]).select();
+
+        // Database not migrated yet (no recordings.student_id column): store without it
+        if (error && isMissingColumnError(error, 'student_id')) {
+          delete newRecording.student_id;
+          const retryRes = await supabase.from('recordings').insert([newRecording]).select();
+          data = retryRes.data;
+          error = retryRes.error;
+        }
 
         // If error is foreign key violation on user_id (code 23503), retry without user_id
         if (
@@ -244,6 +285,12 @@ export function useRecording({
         if (data && data.length > 0) {
           savedRecordings.push(...data);
         }
+      }
+
+      // Only drop the recording being replaced once every new one is stored, so a failed
+      // upload or insert never loses the student's previous submission.
+      if (existingRecordingId) {
+        await removeReplacedRecording(existingRecordingId);
       }
 
       onSaveSuccess(savedRecordings, selectedNumber);

@@ -66,6 +66,21 @@ describe('useRecordings hook and helper services', () => {
       expect(res.total).toBe(1);
     });
 
+    it('matches the student name literally instead of as a LIKE pattern', async () => {
+      const queryObj = {
+        ilike: vi.fn().mockReturnThis(),
+        order: vi.fn().mockReturnThis(),
+        range: vi.fn().mockReturnThis(),
+        is: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
+      };
+      (supabase.from as any).mockReturnValue({
+        select: vi.fn().mockReturnValue(queryObj),
+      });
+
+      await fetchStudentRecordings('An_100%', 1, 5, 'topic');
+      expect(queryObj.ilike).toHaveBeenCalledWith('student_name', 'An\\_100\\%');
+    });
+
     it('throws error when query fails', async () => {
       const queryObj = {
         ilike: vi.fn().mockReturnThis(),
@@ -171,11 +186,11 @@ describe('useRecordings hook and helper services', () => {
           };
         }
         if (table === 'recordings') {
-          return {
-            select: vi.fn().mockReturnValue({
-              order: vi.fn().mockResolvedValue({ data: mockRawRecordings, error: null }),
-            }),
+          const query: any = {
+            order: vi.fn(() => query),
+            range: vi.fn().mockResolvedValue({ data: mockRawRecordings, error: null }),
           };
+          return { select: vi.fn().mockReturnValue(query) };
         }
         return { select: vi.fn() };
       });
@@ -191,6 +206,42 @@ describe('useRecordings hook and helper services', () => {
       expect(result.current.summaries[0].studentName).toBe('Anna');
       expect(result.current.summaries[0].count).toBe(2);
       expect(result.current.summaries[0].hasUngraded).toBe(true);
+    });
+
+    it('pages through more than 1000 raw recordings in the fallback aggregation', async () => {
+      const makeRows = (count: number, name: string) =>
+        Array.from({ length: count }, (_, i) => ({
+          student_name: name,
+          created_at: new Date(Date.UTC(2026, 7, 19, 0, 0, i)).toISOString(),
+          teacher_rating: 5,
+          teacher_feedback: 'ok',
+        }));
+      const pages = [makeRows(1000, 'Anna'), makeRows(5, 'Ben')];
+      const rangeMock = vi.fn((from: number) =>
+        Promise.resolve({ data: pages[from / 1000] || [], error: null })
+      );
+
+      (supabase.from as any).mockImplementation((table: string) => {
+        if (table === 'student_recording_stats_view') {
+          return { select: vi.fn().mockResolvedValue({ data: [], error: null }) };
+        }
+        const query: any = { order: vi.fn(() => query), range: rangeMock };
+        return { select: vi.fn().mockReturnValue(query) };
+      });
+
+      const user = { id: 'teacher-1' };
+      const { result } = renderHook(() => useRecordings(user));
+
+      await act(async () => {
+        await new Promise(r => setTimeout(r, 10));
+      });
+
+      expect(rangeMock).toHaveBeenCalledWith(0, 999);
+      expect(rangeMock).toHaveBeenCalledWith(1000, 1999);
+      const counts = Object.fromEntries(
+        result.current.summaries.map(s => [s.studentName, s.count])
+      );
+      expect(counts).toEqual({ Anna: 1000, Ben: 5 });
     });
 
     it('confirms and deletes recording by deleteTargetId', async () => {

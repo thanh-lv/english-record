@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { loggerService } from '../../../services/loggerService';
+import { escapeLikePattern, isMissingColumnError } from '../../../utils/postgrest';
 import { Recording } from '../../../types';
 
 export function useStudentRecordings(user: any, profile: any) {
@@ -15,23 +16,39 @@ export function useStudentRecordings(user: any, profile: any) {
     }
 
     const studentName = profile.name.trim();
+    const studentId: string | null = profile.id || null;
     let isMounted = true;
 
     const fetchRecordings = async () => {
       setRecordingsLoading(true);
       try {
-        let query = supabase
-          .from('recordings')
-          .select(
-            'id, topic_number, audio_url, created_at, teacher_rating, teacher_feedback, student_reaction, question_id, question_text, topic, topic_id, shadowing_video_id, teacher_id'
-          )
-          .ilike('student_name', studentName);
+        // Recordings are linked to the student's profile id; matching by name would mix up
+        // classmates who share a name.
+        const buildQuery = (byStudentId: boolean) => {
+          let query = supabase
+            .from('recordings')
+            .select(
+              'id, topic_number, audio_url, created_at, teacher_rating, teacher_feedback, student_reaction, question_id, question_text, topic, topic_id, shadowing_video_id, teacher_id'
+            );
 
-        if (profile?.teacher_id) {
-          query = query.eq('teacher_id', profile.teacher_id);
+          query = byStudentId
+            ? query.eq('student_id', studentId)
+            : query.ilike('student_name', escapeLikePattern(studentName));
+
+          if (profile?.teacher_id) {
+            query = query.eq('teacher_id', profile.teacher_id);
+          }
+          return query;
+        };
+
+        let { data, error } = await buildQuery(Boolean(studentId));
+
+        // Database not migrated yet (no recordings.student_id column): match by name instead
+        if (error && studentId && isMissingColumnError(error, 'student_id')) {
+          const fallback = await buildQuery(false);
+          data = fallback.data;
+          error = fallback.error;
         }
-
-        const { data, error } = await query;
 
         if (error) throw error;
         if (data && isMounted) {
@@ -73,6 +90,10 @@ export function useStudentRecordings(user: any, profile: any) {
           ) {
             return;
           }
+          // The channel filters by name, so skip rows that belong to a same-name classmate
+          if (studentId && record?.student_id && record.student_id !== studentId) {
+            return;
+          }
 
           if (payload.eventType === 'INSERT') {
             setMyRecordings(prev => {
@@ -97,7 +118,7 @@ export function useStudentRecordings(user: any, profile: any) {
       isMounted = false;
       supabase.removeChannel(channel);
     };
-  }, [user, profile?.name, profile?.teacher_id]);
+  }, [user, profile?.id, profile?.name, profile?.teacher_id]);
 
   return {
     myRecordings,

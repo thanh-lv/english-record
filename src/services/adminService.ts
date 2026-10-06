@@ -1,6 +1,8 @@
 import { supabase } from '../lib/supabase';
 import { withServiceHandling } from './serviceHandler';
+import { loggerService } from './loggerService';
 import { UserProfile } from '../types';
+import { fetchAllRows } from '../utils/postgrest';
 
 export interface AdminTeacherItem extends UserProfile {
   student_count: number;
@@ -62,32 +64,46 @@ export const adminService = {
 
   async fetchTeachers(): Promise<AdminTeacherItem[]> {
     return withServiceHandling('adminService', 'fetchTeachers', async () => {
-      const [teachersRes, studentsRes, recordingsRes, topicsRes] = await Promise.all([
+      // Counts are aggregated client-side, so page through every row: a single select is
+      // capped at 1000 rows and would silently undercount on larger systems.
+      const fetchTeacherIds = (table: string, filter?: { column: string; value: string }) =>
+        fetchAllRows<{ teacher_id: string | null }>((from, to) => {
+          let query = supabase.from(table).select('id, teacher_id');
+          if (filter) query = query.eq(filter.column, filter.value);
+          return query.order('id').range(from, to);
+        }).catch(err => {
+          loggerService.error('adminService', `Error counting ${table} per teacher`, err);
+          return [];
+        });
+
+      const [teachersRes, students, recordings, topics] = await Promise.all([
         supabase.from('profiles').select('*').eq('role', 'teacher').order('name'),
-        supabase.from('profiles').select('id, teacher_id').eq('role', 'student'),
-        supabase.from('recordings').select('id, teacher_id'),
-        supabase.from('topics').select('id, teacher_id'),
+        fetchTeacherIds('profiles', { column: 'role', value: 'student' }),
+        fetchTeacherIds('recordings'),
+        fetchTeacherIds('topics'),
       ]);
 
       if (teachersRes.error) throw teachersRes.error;
 
       const teachers = teachersRes.data || [];
-      const students = studentsRes.data || [];
-      const recordings = recordingsRes.data || [];
-      const topics = topicsRes.data || [];
 
-      return teachers.map((t: any) => {
-        const studentCount = students.filter(s => s.teacher_id === t.id).length;
-        const recordingCount = recordings.filter(r => r.teacher_id === t.id).length;
-        const topicCount = topics.filter(top => top.teacher_id === t.id).length;
+      const countByTeacher = (rows: { teacher_id: string | null }[]) => {
+        const counts = new Map<string, number>();
+        for (const row of rows) {
+          if (row.teacher_id) counts.set(row.teacher_id, (counts.get(row.teacher_id) || 0) + 1);
+        }
+        return counts;
+      };
+      const studentCounts = countByTeacher(students);
+      const recordingCounts = countByTeacher(recordings);
+      const topicCounts = countByTeacher(topics);
 
-        return {
-          ...t,
-          student_count: studentCount,
-          recording_count: recordingCount,
-          topic_count: topicCount,
-        };
-      });
+      return teachers.map((t: any) => ({
+        ...t,
+        student_count: studentCounts.get(t.id) || 0,
+        recording_count: recordingCounts.get(t.id) || 0,
+        topic_count: topicCounts.get(t.id) || 0,
+      }));
     });
   },
 

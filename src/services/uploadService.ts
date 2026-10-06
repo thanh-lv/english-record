@@ -76,6 +76,56 @@ export const uploadService = {
     const endpoint = import.meta.env.VITE_S3_ENDPOINT || '';
     return `${endpoint.replace(/\/$/, '')}/${S3_BUCKET}/${filename}`;
   },
+
+  /**
+   * Best-effort removal of a previously uploaded object, identified by the public URL that
+   * was stored for it. URLs that do not point into this bucket are ignored.
+   * Resolves to whether an object was deleted; never throws.
+   */
+  async deleteFileByUrl(url: string): Promise<boolean> {
+    const key = getStorageKeyFromUrl(url);
+    if (!key) return false;
+    try {
+      const { DeleteObjectCommand } = await import('@aws-sdk/client-s3');
+      const s3Client = await getS3Client();
+      await s3Client.send(new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: key }));
+      return true;
+    } catch {
+      return false;
+    }
+  },
 };
+
+/**
+ * Derives the bucket object key from a public file URL, accepting every URL shape produced by
+ * uploads (public domain / R2 public URL / raw endpoint). Returns null for foreign URLs.
+ */
+export function getStorageKeyFromUrl(url: string): string | null {
+  if (!url) return null;
+  const endpoint = (import.meta.env.VITE_S3_ENDPOINT || '').replace(/\/$/, '');
+  const bases = [
+    import.meta.env.VITE_S3_PUBLIC_DOMAIN,
+    import.meta.env.VITE_R2_PUBLIC_URL,
+    endpoint && S3_BUCKET ? `${endpoint}/${S3_BUCKET}` : '',
+    // useRecording omits the bucket segment when the endpoint already contains it
+    endpoint && S3_BUCKET && endpoint.includes(S3_BUCKET) ? endpoint : '',
+  ]
+    .filter((base): base is string => Boolean(base))
+    .map(base => base.replace(/\/$/, ''))
+    // Prefer the most specific base so `${endpoint}/${bucket}` wins over `${endpoint}`
+    .sort((a, b) => b.length - a.length);
+
+  for (const base of bases) {
+    if (url.startsWith(`${base}/`)) {
+      const key = url.slice(base.length + 1).split(/[?#]/)[0];
+      try {
+        return decodeURIComponent(key) || null;
+      } catch {
+        return key || null;
+      }
+    }
+  }
+  return null;
+}
 
 export const uploadToStorage = uploadService.uploadFile;

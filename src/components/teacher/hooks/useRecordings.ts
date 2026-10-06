@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import { escapeLikePattern, fetchAllRows } from '../../../utils/postgrest';
 
 interface UseRecordingsOptions {
   onNewRecording?: (record: any) => void;
@@ -52,21 +53,23 @@ export function useRecordings(user: any, options?: UseRecordingsOptions) {
         return;
       }
 
-      // Fallback: query directly from recordings table
-      let query = supabase
-        .from('recordings')
-        .select('student_name, created_at, teacher_rating, teacher_feedback, teacher_id')
-        .order('created_at', { ascending: false });
+      // Fallback: aggregate directly from the recordings table, paging past the 1000-row cap
+      const data = await fetchAllRows((from, to) => {
+        let query = supabase
+          .from('recordings')
+          .select('student_name, created_at, teacher_rating, teacher_feedback, teacher_id')
+          .order('created_at', { ascending: false })
+          .order('id');
 
-      if (teacherId) {
-        query = query.eq('teacher_id', teacherId);
-      }
+        if (teacherId) {
+          query = query.eq('teacher_id', teacherId);
+        }
 
-      const { data, error } = await query;
-      if (error) throw error;
+        return query.range(from, to);
+      });
 
       const map = new Map<string, StudentSummary>();
-      for (const rec of data || []) {
+      for (const rec of data) {
         const key = (rec.student_name || '').trim().toLowerCase();
         const hasFeedback =
           (rec.teacher_rating || 0) > 0 ||
@@ -180,7 +183,7 @@ export async function fetchStudentRecordings(
   let query = supabase
     .from('recordings')
     .select(selectStr, { count: 'exact' })
-    .ilike('student_name', studentName)
+    .ilike('student_name', escapeLikePattern(studentName))
     .order('created_at', { ascending: false })
     .range(from, to);
 
@@ -217,7 +220,7 @@ export async function fetchRecordingPage(
   let query = supabase
     .from('recordings')
     .select('id, created_at')
-    .ilike('student_name', studentName)
+    .ilike('student_name', escapeLikePattern(studentName))
     .order('created_at', { ascending: false });
 
   if (teacherId) {

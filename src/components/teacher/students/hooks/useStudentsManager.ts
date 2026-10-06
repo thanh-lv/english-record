@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { studentService } from '../../../../services/studentService';
 import { supabase } from '../../../../lib/supabase';
 import { loggerService } from '../../../../services/loggerService';
-import { calculateStreak } from '../../../../utils';
+import { calculateStreak, fetchAllRows } from '../../../../utils';
 import { UserProfile, StudentStats } from '../../../../types';
 import { useTeacher } from '../../../../contexts/TeacherContext';
+
+const normalizeName = (name?: string | null) => (name || '').trim().toLowerCase();
 
 export function useStudentsManager() {
   const { teacherId } = useTeacher();
@@ -26,15 +28,26 @@ export function useStudentsManager() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      let recQuery = supabase.from('recordings').select('*');
       let topQuery = supabase.from('topics').select('id, questions(id)').eq('is_active', true);
 
       if (teacherId) {
-        recQuery = recQuery.eq('teacher_id', teacherId);
         topQuery = topQuery.eq('teacher_id', teacherId);
       }
 
-      const [stData, { data: recData }, { data: topData }] = await Promise.all([
+      // Page through all recordings: a single select is capped at 1000 rows, which made
+      // the per-student statistics silently wrong for larger classes.
+      const recQuery = fetchAllRows((from, to) => {
+        let query = supabase.from('recordings').select('*');
+        if (teacherId) {
+          query = query.eq('teacher_id', teacherId);
+        }
+        return query.order('id').range(from, to);
+      }).catch(err => {
+        loggerService.error('useStudentsManager', 'Error fetching recordings for stats', err);
+        return [];
+      });
+
+      const [stData, recData, { data: topData }] = await Promise.all([
         studentService.fetchStudents(teacherId),
         recQuery,
         topQuery,
@@ -54,17 +67,27 @@ export function useStudentsManager() {
     fetchData();
   }, [fetchData]);
 
-  const calculateStudentStats = useCallback(
-    (studentName: string): StudentStats => {
-      const studentRecs = recordings.filter(
-        r => r.student_name.toLowerCase() === studentName.toLowerCase()
-      );
+  const recordingsByStudent = useMemo(() => {
+    // Once the student_id migration is applied every row carries the column (null for rows
+    // that could not be attributed to a single student); before that, only the name links them.
+    const linkedById = recordings.some(r => 'student_id' in r);
+    const groups = new Map<string, any[]>();
+    for (const rec of recordings) {
+      const key = linkedById ? rec.student_id : normalizeName(rec.student_name);
+      if (!key) continue;
+      const list = groups.get(key);
+      if (list) list.push(rec);
+      else groups.set(key, [rec]);
+    }
+    return { linkedById, groups };
+  }, [recordings]);
 
-      const dates = studentRecs
-        .map(r => r.created_at)
-        .filter(Boolean)
-        .sort();
-      const streak = calculateStreak(dates);
+  const calculateStudentStats = useCallback(
+    (student: Pick<UserProfile, 'id' | 'name'>): StudentStats => {
+      const key = recordingsByStudent.linkedById ? student.id : normalizeName(student.name);
+      const studentRecs = recordingsByStudent.groups.get(key) || [];
+
+      const streak = calculateStreak(studentRecs);
 
       const completedTopicCount = activeTopics.filter(topic => {
         const topicQuestions = topic.questions || [];
@@ -85,7 +108,7 @@ export function useStudentsManager() {
         totalRecordings,
       };
     },
-    [recordings, activeTopics]
+    [recordingsByStudent, activeTopics]
   );
 
   const filteredStudents = useMemo(() => {

@@ -55,6 +55,16 @@ describe('studentService', () => {
       expect(ilikeMock).toHaveBeenCalledWith('name', 'Alice');
     });
 
+    it('matches the name literally instead of as a LIKE pattern', async () => {
+      const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: null });
+      const ilikeMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
+      const selectMock = vi.fn().mockReturnValue({ ilike: ilikeMock });
+      (supabase.from as any).mockReturnValue({ select: selectMock });
+
+      await studentService.checkStudentNameExists(' An_% ');
+      expect(ilikeMock).toHaveBeenCalledWith('name', 'An\\_\\%');
+    });
+
     it('returns false when no profile matches', async () => {
       const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: null });
       const ilikeMock = vi.fn().mockReturnValue({ maybeSingle: maybeSingleMock });

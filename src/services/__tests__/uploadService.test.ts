@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { uploadService } from '../uploadService';
+import { uploadService, getStorageKeyFromUrl } from '../uploadService';
 import { getS3Client } from '../../lib/s3';
 
 const sendMock = vi.fn().mockResolvedValue({});
@@ -75,5 +75,69 @@ describe('uploadService', () => {
     const url = await uploadService.uploadFile(file, 'stories', 10);
 
     expect(url.startsWith('https://s3.example.com/test-bucket/stories/')).toBe(true);
+  });
+
+  describe('getStorageKeyFromUrl', () => {
+    it('extracts the object key from public-domain and R2 public URLs', () => {
+      vi.stubEnv('VITE_S3_PUBLIC_DOMAIN', 'https://cdn.englishrecord.com/');
+      vi.stubEnv('VITE_R2_PUBLIC_URL', 'https://pub-123.r2.dev');
+
+      expect(getStorageKeyFromUrl('https://cdn.englishrecord.com/stories/a.webp')).toBe(
+        'stories/a.webp'
+      );
+      expect(getStorageKeyFromUrl('https://pub-123.r2.dev/profile-1/123_topic_1_q0.webm')).toBe(
+        'profile-1/123_topic_1_q0.webm'
+      );
+    });
+
+    it('extracts the key from raw endpoint URLs with or without the bucket segment', () => {
+      vi.stubEnv('VITE_S3_PUBLIC_DOMAIN', '');
+      vi.stubEnv('VITE_R2_PUBLIC_URL', '');
+      vi.stubEnv('VITE_S3_ENDPOINT', 'https://s3.example.com/');
+      expect(getStorageKeyFromUrl('https://s3.example.com/test-bucket/uploads/a%20b.mp3')).toBe(
+        'uploads/a b.mp3'
+      );
+
+      vi.stubEnv('VITE_S3_ENDPOINT', 'https://test-bucket.s3.example.com');
+      expect(getStorageKeyFromUrl('https://test-bucket.s3.example.com/p1/x.webm')).toBe(
+        'p1/x.webm'
+      );
+    });
+
+    it('returns null for URLs outside the bucket', () => {
+      vi.stubEnv('VITE_R2_PUBLIC_URL', 'https://pub-123.r2.dev');
+      expect(getStorageKeyFromUrl('https://evil.example.com/p1/x.webm')).toBeNull();
+      expect(getStorageKeyFromUrl('https://pub-123.r2.dev.evil.com/p1/x.webm')).toBeNull();
+      expect(getStorageKeyFromUrl('')).toBeNull();
+    });
+  });
+
+  describe('deleteFileByUrl', () => {
+    it('sends a DeleteObjectCommand for files in the bucket', async () => {
+      vi.stubEnv('VITE_R2_PUBLIC_URL', 'https://pub-123.r2.dev');
+
+      await expect(
+        uploadService.deleteFileByUrl('https://pub-123.r2.dev/p1/old.webm')
+      ).resolves.toBe(true);
+
+      expect(sendMock).toHaveBeenCalledTimes(1);
+      const command = sendMock.mock.calls[0][0];
+      expect(command.constructor.name).toBe('DeleteObjectCommand');
+      expect(command.input).toEqual({ Bucket: 'test-bucket', Key: 'p1/old.webm' });
+    });
+
+    it('skips foreign URLs and swallows storage errors', async () => {
+      vi.stubEnv('VITE_R2_PUBLIC_URL', 'https://pub-123.r2.dev');
+
+      await expect(uploadService.deleteFileByUrl('https://other.example.com/x')).resolves.toBe(
+        false
+      );
+      expect(sendMock).not.toHaveBeenCalled();
+
+      sendMock.mockRejectedValueOnce(new Error('AccessDenied'));
+      await expect(
+        uploadService.deleteFileByUrl('https://pub-123.r2.dev/p1/old.webm')
+      ).resolves.toBe(false);
+    });
   });
 });

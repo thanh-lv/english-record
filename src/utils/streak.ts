@@ -26,7 +26,10 @@ export function calculateStreak(records: any[]): number {
   }
 
   let streak = 0;
-  let currentDate = new Date(sortedDates[0]); // Start counting from the most recent date
+  // Start counting from the most recent date. Build it from its parts: `new Date('YYYY-MM-DD')`
+  // parses as UTC midnight, which is the previous local day in timezones behind UTC.
+  const [year, month, day] = sortedDates[0].split('-').map(Number);
+  const currentDate = new Date(year, month - 1, day);
 
   // We walk through the sorted dates. If they are exactly 1 day apart, we increment streak.
   for (let i = 0; i < sortedDates.length; i++) {

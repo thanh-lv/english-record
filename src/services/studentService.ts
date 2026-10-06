@@ -11,6 +11,7 @@ import {
   userProfilesResponseArraySchema,
   recordingsResponseArraySchema,
 } from '../schemas';
+import { escapeLikePattern } from '../utils/postgrest';
 
 export type { CreateStudentPayload, UpdateStudentPayload, StudentRecordingsResponse };
 
@@ -42,7 +43,10 @@ export const studentService = {
 
   async checkStudentNameExists(name: string, teacherId?: string): Promise<boolean> {
     return withServiceHandling('studentService', 'checkStudentNameExists', async () => {
-      let query = supabase.from('profiles').select('id').ilike('name', name.trim());
+      let query = supabase
+        .from('profiles')
+        .select('id')
+        .ilike('name', escapeLikePattern(name.trim()));
 
       if (teacherId) {
         query = query.eq('teacher_id', teacherId);
@@ -141,7 +145,7 @@ export const studentService = {
       let query = supabase
         .from('recordings')
         .select('*, shadowing_videos(youtube_url)', { count: 'exact' })
-        .ilike('student_name', studentName.trim());
+        .ilike('student_name', escapeLikePattern(studentName.trim()));
 
       if (teacherId) {
         query = query.eq('teacher_id', teacherId);

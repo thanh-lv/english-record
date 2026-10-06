@@ -17,6 +17,14 @@ vi.mock('../../../../lib/s3', () => ({
   }),
 }));
 
+const deleteFileByUrlMock = vi.fn().mockResolvedValue(true);
+
+vi.mock('../../../../services/uploadService', () => ({
+  uploadService: {
+    deleteFileByUrl: (...args: any[]) => deleteFileByUrlMock(...args),
+  },
+}));
+
 vi.mock('../../../../i18n/LanguageContext', () => ({
   useLanguage: () => ({
     t: {
@@ -32,7 +40,7 @@ vi.mock('../../../../i18n/LanguageContext', () => ({
 
 describe('useRecording hook', () => {
   const mockUser = { id: 'student-user-123' };
-  const mockProfile = { name: 'David', teacher_id: 'teacher-123' };
+  const mockProfile = { id: 'profile-david', name: 'David', teacher_id: 'teacher-123' };
   const mockTopic = {
     id: 't1',
     title: 'Animals',
@@ -194,11 +202,127 @@ describe('useRecording hook', () => {
     expect(result.current.appError.length).toBeGreaterThan(0);
   });
 
+  const mockEvent = () => ({ preventDefault: vi.fn(), stopPropagation: vi.fn() }) as any;
+
+  function mockRecordingsTable({
+    insertResults = [{ data: [{ id: 'rec-saved-1' }], error: null }],
+    deletedRows = [{ audio_url: 'https://pub.example.dev/profile-david/old.webm' }],
+  }: { insertResults?: any[]; deletedRows?: any[] } = {}) {
+    const insertedPayloads: any[] = [];
+    let insertCall = 0;
+    const insertMock = vi.fn((rows: any[]) => {
+      insertedPayloads.push({ ...rows[0] });
+      const res = insertResults[Math.min(insertCall++, insertResults.length - 1)];
+      return { select: vi.fn().mockResolvedValue(res) };
+    });
+    const deleteSelectMock = vi.fn().mockResolvedValue({ data: deletedRows, error: null });
+    const eqMock = vi.fn().mockReturnValue({ select: deleteSelectMock });
+    const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
+    (supabase.from as any).mockImplementation((table: string) =>
+      table === 'recordings' ? { insert: insertMock, delete: deleteMock } : {}
+    );
+    return { insertMock, insertedPayloads, deleteMock, eqMock };
+  }
+
+  async function saveOneRecording(options: { existingRecordingId?: string | null } = {}) {
+    const { result } = renderHook(() =>
+      useRecording({
+        user: mockUser,
+        profile: mockProfile,
+        selectedNumber: 1,
+        currentTopic: mockTopic,
+        activeQuestionIndex: 0,
+        existingRecordingId: options.existingRecordingId ?? null,
+        onSaveSuccess,
+      })
+    );
+    act(() => {
+      result.current.setBongBeAudios({ 0: new Blob(['audio'], { type: 'audio/webm' }) });
+    });
+    await act(async () => {
+      await result.current.saveRecording(mockEvent());
+    });
+    return result;
+  }
+
+  it('links the new recording to the student profile id', async () => {
+    const { insertedPayloads } = mockRecordingsTable();
+
+    await saveOneRecording();
+
+    expect(insertedPayloads[0]).toMatchObject({
+      student_id: 'profile-david',
+      student_name: 'David',
+    });
+  });
+
+  it('retries without student_id when the database has not been migrated yet', async () => {
+    const { insertedPayloads } = mockRecordingsTable({
+      insertResults: [
+        {
+          data: null,
+          error: {
+            code: 'PGRST204',
+            message: "Could not find the 'student_id' column of 'recordings' in the schema cache",
+          },
+        },
+        { data: [{ id: 'rec-saved-1' }], error: null },
+      ],
+    });
+
+    const result = await saveOneRecording();
+
+    expect(insertedPayloads).toHaveLength(2);
+    expect(insertedPayloads[0].student_id).toBe('profile-david');
+    expect(insertedPayloads[1]).not.toHaveProperty('student_id');
+    expect(onSaveSuccess).toHaveBeenCalledWith([{ id: 'rec-saved-1' }], 1);
+    expect(result.current.appError).toBe('');
+  });
+
+  it('removes the replaced recording and its audio file only after the new one is saved', async () => {
+    const { insertMock, deleteMock, eqMock } = mockRecordingsTable();
+
+    await saveOneRecording({ existingRecordingId: 'old-rec-id' });
+
+    expect(eqMock).toHaveBeenCalledWith('id', 'old-rec-id');
+    expect(insertMock.mock.invocationCallOrder[0]).toBeLessThan(
+      deleteMock.mock.invocationCallOrder[0]
+    );
+    expect(deleteFileByUrlMock).toHaveBeenCalledWith(
+      'https://pub.example.dev/profile-david/old.webm'
+    );
+    expect(onSaveSuccess).toHaveBeenCalled();
+  });
+
+  it('keeps the previous recording when saving the new one fails', async () => {
+    const { deleteMock } = mockRecordingsTable({
+      insertResults: [{ data: null, error: { code: '23514', message: 'check violation' } }],
+    });
+
+    const result = await saveOneRecording({ existingRecordingId: 'old-rec-id' });
+
+    expect(deleteMock).not.toHaveBeenCalled();
+    expect(deleteFileByUrlMock).not.toHaveBeenCalled();
+    expect(onSaveSuccess).not.toHaveBeenCalled();
+    expect(result.current.appError.length).toBeGreaterThan(0);
+  });
+
+  it('keeps the previous recording when the audio upload fails', async () => {
+    const { insertMock, deleteMock } = mockRecordingsTable();
+    sendMock.mockRejectedValueOnce(new Error('S3 Network Failure'));
+
+    await saveOneRecording({ existingRecordingId: 'old-rec-id' });
+
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(deleteMock).not.toHaveBeenCalled();
+  });
+
   it('saves recordings to S3 and Supabase when saveRecording is triggered', async () => {
     const savedRecord = { id: 'rec-saved-1', topic_number: 1, student_name: 'David' };
     const selectMock = vi.fn().mockResolvedValue({ data: [savedRecord], error: null });
     const insertMock = vi.fn().mockReturnValue({ select: selectMock });
-    const eqMock = vi.fn().mockResolvedValue({ error: null });
+    const deleteSelectMock = vi.fn().mockResolvedValue({ data: [], error: null });
+    const eqMock = vi.fn().mockReturnValue({ select: deleteSelectMock });
     const deleteMock = vi.fn().mockReturnValue({ eq: eqMock });
 
     (supabase.from as any).mockImplementation((table: string) => {

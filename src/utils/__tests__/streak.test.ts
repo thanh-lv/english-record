@@ -85,6 +85,23 @@ describe('calculateStreak', () => {
     expect(calculateStreak(records)).toBe(2);
   });
 
+  it('counts consecutive days in timezones behind UTC', () => {
+    const originalTz = process.env.TZ;
+    process.env.TZ = 'America/New_York';
+    try {
+      vi.setSystemTime(new Date(2026, 7, 19, 12, 0, 0));
+      const records = [
+        { created_at: makeDate(0, 9) },
+        { created_at: makeDate(1, 10) },
+        { created_at: makeDate(2, 11) },
+      ];
+      expect(calculateStreak(records)).toBe(3);
+    } finally {
+      if (originalTz === undefined) delete process.env.TZ;
+      else process.env.TZ = originalTz;
+    }
+  });
+
   it('handles unsorted record entries properly', () => {
     const records = [
       { created_at: makeDate(2, 11) },
