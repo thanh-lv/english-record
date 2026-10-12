@@ -25,6 +25,5 @@ export interface TeacherLoginCredentials {
 export interface StudentLoginCredentials {
   name: string;
   pass: string;
-  currentUserId: string;
   timeoutMs?: number;
 }

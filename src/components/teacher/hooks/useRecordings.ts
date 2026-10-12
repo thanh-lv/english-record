@@ -1,3 +1,4 @@
+import type { User } from '@supabase/supabase-js';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useLanguage } from '../../../i18n/LanguageContext';
@@ -15,7 +16,7 @@ import { StudentSummary, Recording } from '../../../types';
 
 export type { StudentSummary, Recording };
 
-export function useRecordings(user: any, options?: UseRecordingsOptions) {
+export function useRecordings(user: Pick<User, 'id'> | null, options?: UseRecordingsOptions) {
   const { t } = useLanguage();
   const [summaries, setSummaries] = useState<StudentSummary[]>([]);
   const [loading, setLoading] = useState(true);

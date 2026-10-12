@@ -18,7 +18,7 @@ import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
 import { EditStudentModal } from './EditStudentModal';
 import { ResetPasswordModal } from './ResetPasswordModal';
 
-import { useStudentsManager } from './useStudentsManager';
+import { useStudentsManager } from './hooks/useStudentsManager';
 
 const avatarColors = [
   'bg-blue-50 text-blue-600 border-blue-200',

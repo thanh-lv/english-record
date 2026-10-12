@@ -16,7 +16,7 @@ import {
 import React, { useState } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
-import { useShadowingManager } from './useShadowingManager';
+import { useShadowingManager } from './hooks/useShadowingManager';
 import { extractYoutubeId, formatSecondsToTime } from '../../../services/shadowingService';
 
 export function ShadowingManager() {

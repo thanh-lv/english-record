@@ -1,3 +1,5 @@
+import type { User } from '@supabase/supabase-js';
+import type { UserProfile } from '../../../types';
 import {
   Mic,
   Square,
@@ -22,8 +24,8 @@ import YouTubePlayer from '../../common/YouTubePlayer';
 import { TeacherFeedback } from '../../common/TeacherFeedback';
 
 interface ShadowingDetailProps {
-  user: any;
-  profile: any;
+  user: User | null;
+  profile: UserProfile;
   myRecordings?: any[];
   onSaveSuccess: (saved: any[]) => void;
 }

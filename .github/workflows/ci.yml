@@ -1,24 +1,56 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  lint-and-typecheck:
-    name: Lint & Type Check
+  # ============================================================================
+  # 1. Code Quality: Prettier & ESLint
+  # ============================================================================
+  lint-and-format:
+    name: Lint & Format Check
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Prettier formatting
+        run: npm run format:check
+
+      - name: Run ESLint static analysis
+        run: npm run lint
+
+  # ============================================================================
+  # 2. Static Type Checking: TypeScript
+  # ============================================================================
+  type-check:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
           cache: 'npm'
 
       - name: Install dependencies
@@ -27,5 +59,92 @@ jobs:
       - name: Run TypeScript type check
         run: npm run type-check
 
-      - name: Run ESLint
-        run: npm run lint
+  # ============================================================================
+  # 3. Automated Tests & Code Coverage: Vitest
+  # ============================================================================
+  unit-tests:
+    name: Unit Tests & Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Vitest with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+  # ============================================================================
+  # 4. Security Audit
+  # ============================================================================
+  security-audit:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Audit dependencies for high/critical vulnerabilities
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+  # ============================================================================
+  # 5. Production Build Verification
+  # ============================================================================
+  build:
+    name: Production Build Verification
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, type-check, unit-tests]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production bundle
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_S3_ENDPOINT: ${{ secrets.VITE_S3_ENDPOINT }}
+          VITE_S3_REGION: ${{ secrets.VITE_S3_REGION }}
+          VITE_S3_ACCESS_KEY_ID: ${{ secrets.VITE_S3_ACCESS_KEY_ID }}
+          VITE_S3_SECRET_ACCESS_KEY: ${{ secrets.VITE_S3_SECRET_ACCESS_KEY }}
+          VITE_S3_BUCKET_NAME: ${{ secrets.VITE_S3_BUCKET_NAME }}
+          VITE_R2_PUBLIC_URL: ${{ secrets.VITE_R2_PUBLIC_URL }}
+          VITE_AI_API_KEY: ${{ secrets.VITE_AI_API_KEY }}
+
+      - name: Upload production build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-bundle
+          path: dist/
+          retention-days: 7

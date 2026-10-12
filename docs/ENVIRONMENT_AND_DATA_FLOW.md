@@ -34,7 +34,7 @@ Sao chép `.env.example` thành `.env` và cấu hình các biến sau:
 
 ### C. Cấu Trúc Bảng Dữ Liệu Trên Supabase
 
-1. **`profiles`**: Thông tin người dùng (`id`, `auth_uid`, `name`, `role`, `grade`, `avatar`, `language`, `password`).
+1. **`profiles`**: Thông tin người dùng (`id`, `auth_uid`, `name`, `role`, `grade`, `avatar`, `language`). Cột `password` chỉ dùng để nhận mật khẩu mới của học sinh: trigger hash sang bảng `student_credentials` rồi lưu `NULL`; học sinh đăng nhập qua hàm `login_student` (migration `004_student_password_hash.sql`).
 2. **`topics`**: Danh mục chủ đề luyện nói (`id`, `title`, `type`, `grades`, `order_index`, `is_active`).
 3. **`questions`**: Câu hỏi thuộc chủ đề (`id`, `topic_id`, `text`, `translation`, `sample_answer`, `target`, `image_url`, `audio_url`, `order_index`).
 4. **`recordings`**: Bản ghi âm của học sinh (`id`, `student_name`, `topic_id`, `topic_number`, `audio_url`, `teacher_rating`, `teacher_feedback`, `student_reaction`, `status`).
@@ -42,7 +42,7 @@ Sao chép `.env.example` thành `.env` và cấu hình các biến sau:
 6. **`vocab_sets` & `vocab_cards`**: Bộ thẻ từ vựng (`title`, `front`, `back`, `ipa`, `image_url`, `audio_url`).
 7. **`shadowing_videos`**: Video luyện nói theo phụ đề YouTube (`title`, `youtube_url`, `preview_start`, `preview_end`, `record_start`, `record_end`, `grades`, `is_active`).
 8. **`attendance_students`**: Danh sách học sinh điểm danh (`name`, `class_name`, `unit_price`, `phone`, `hoc_lieu_label`, `hoc_lieu_value`, `note`, `teacher_id`).
-9. **`attendance_records`**: Lịch sử điểm danh từng buổi (`student_id`, `checkin_time`).
+9. **`attendance_records`**: Lịch sử điểm danh từng buổi (`student_id`, `checkin_time`, `session_value`: 1 = cả buổi, 0.5 = nửa buổi).
 10. **`attendance_payments`**: Lịch sử đóng học phí (`student_id`, `month`, `year`, `is_paid`, `paid_at`).
 11. **`client_error_logs`**: Lịch sử log lỗi và chẩn đoán phía client (`user_id`, `level`, `module`, `message`, `stack`, `url`, `user_agent`).
 

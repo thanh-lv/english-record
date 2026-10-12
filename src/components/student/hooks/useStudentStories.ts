@@ -1,10 +1,11 @@
+import type { UserProfile } from '../../../types';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { clientCache } from '../../../lib/cache';
 import { loggerService } from '../../../services/loggerService';
 import { Story } from '../../../types';
 
-export function useStudentStories(profile: any) {
+export function useStudentStories(profile: UserProfile) {
   const studentGrade = profile?.grade ? Number(profile.grade) : null;
   const teacherId = profile?.teacher_id || null;
   const cacheKey = `stories:student:${studentGrade ?? 'all'}:${teacherId ?? 'global'}`;

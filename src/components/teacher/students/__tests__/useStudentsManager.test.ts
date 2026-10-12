@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useStudentsManager } from '../useStudentsManager';
+import { useStudentsManager } from '../hooks/useStudentsManager';
 import { studentService } from '../../../../services/studentService';
 import { supabase } from '../../../../lib/supabase';
 

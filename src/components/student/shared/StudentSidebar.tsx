@@ -1,3 +1,4 @@
+import type { UserProfile } from '../../../types';
 import {
   Award,
   BookMarked,
@@ -65,7 +66,7 @@ const TAB_THEMES: Record<
 };
 
 interface StudentSidebarProps {
-  profile: any;
+  profile: UserProfile;
   currentAvatar: string;
   completedNumbers: number[];
   streak: number;

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useAttendanceStudents } from '../useAttendanceStudents';
-import { useAttendanceCheckin } from '../useAttendanceCheckin';
-import { useAttendanceAnalytics } from '../useAttendanceAnalytics';
+import { useAttendanceStudents } from '../hooks/useAttendanceStudents';
+import { useAttendanceCheckin } from '../hooks/useAttendanceCheckin';
+import { useAttendanceAnalytics } from '../hooks/useAttendanceAnalytics';
 import { attendanceService } from '../../../../services/attendanceService';
 import { supabase } from '../../../../lib/supabase';
 

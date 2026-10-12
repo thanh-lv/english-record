@@ -1,10 +1,11 @@
+import type { UserProfile } from '../../../types';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { clientCache } from '../../../lib/cache';
 import { loggerService } from '../../../services/loggerService';
 import { Topic } from '../../../types';
 
-export function useStudentTopics(profile: any, isBongBe: boolean) {
+export function useStudentTopics(profile: UserProfile, isBongBe: boolean) {
   const topicType = isBongBe ? 'bongbe' : 'standard';
   const studentGrade = profile?.grade ? Number(profile.grade) : null;
   const teacherId = profile?.teacher_id || null;

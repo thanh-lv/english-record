@@ -4,7 +4,7 @@ import { Users, Plus, Pencil, Trash2, Loader2, Save, Phone } from 'lucide-react'
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
 import { formatClassName } from '../../../utils';
 import { useBodyScrollLock } from '../../../hooks';
-import { useAttendanceStudents } from './useAttendanceStudents';
+import { useAttendanceStudents } from './hooks/useAttendanceStudents';
 import { AttendanceStudent } from '../../../types';
 
 export function StudentsTab() {

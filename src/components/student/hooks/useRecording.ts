@@ -1,3 +1,5 @@
+import type { User } from '@supabase/supabase-js';
+import type { UserProfile } from '../../../types';
 import { useRef, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useLanguage } from '../../../i18n/LanguageContext';
@@ -5,8 +7,8 @@ import { loggerService } from '../../../services/loggerService';
 import { isMissingColumnError } from '../../../utils/postgrest';
 
 interface UseRecordingOptions {
-  user: any;
-  profile: any;
+  user: Pick<User, 'id'> | null;
+  profile: UserProfile;
   selectedNumber: number | null;
   currentTopic: any;
   activeQuestionIndex: number;

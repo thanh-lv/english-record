@@ -1,3 +1,4 @@
+import type { UserProfile } from '../../../../types';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useRecording } from '../useRecording';
@@ -40,7 +41,11 @@ vi.mock('../../../../i18n/LanguageContext', () => ({
 
 describe('useRecording hook', () => {
   const mockUser = { id: 'student-user-123' };
-  const mockProfile = { id: 'profile-david', name: 'David', teacher_id: 'teacher-123' };
+  const mockProfile = {
+    id: 'profile-david',
+    name: 'David',
+    teacher_id: 'teacher-123',
+  } as UserProfile;
   const mockTopic = {
     id: 't1',
     title: 'Animals',
@@ -437,7 +442,7 @@ describe('useRecording hook', () => {
   });
 
   it('sets error and prevents save when student profile is missing teacher_id', async () => {
-    const unlinkedProfile = { name: 'David' }; // missing teacher_id
+    const unlinkedProfile = { name: 'David' } as UserProfile; // missing teacher_id
 
     const { result } = renderHook(() =>
       useRecording({

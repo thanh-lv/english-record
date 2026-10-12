@@ -8,3 +8,4 @@ export * from './validators';
 export * from './security';
 export * from './stackParser';
 export * from './postgrest';
+export * from './routes';

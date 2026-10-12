@@ -20,9 +20,7 @@ export const studentService = {
     return withServiceHandling('studentService', 'fetchStudents', async () => {
       let query = supabase
         .from('profiles')
-        .select(
-          'id, name, updated_at, role, password, avatar, year_born, grade, teacher_id, username'
-        )
+        .select('id, name, updated_at, role, avatar, year_born, grade, teacher_id, username')
         .eq('role', 'student')
         .order('name');
 
@@ -113,6 +111,8 @@ export const studentService = {
     });
   },
 
+  // Mật khẩu gửi lên qua cột `password` được trigger trong DB hash lại và không lưu
+  // dạng chữ thường (xem docs/migrations/004_student_password_hash.sql).
   async resetStudentPassword(id: string, password: string): Promise<void> {
     return withServiceHandling('studentService', 'resetStudentPassword', async () => {
       const { error } = await supabase

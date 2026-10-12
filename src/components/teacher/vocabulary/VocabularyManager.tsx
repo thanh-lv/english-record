@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
-import { useVocabulary } from './useVocabulary';
+import { useVocabulary } from './hooks/useVocabulary';
 import { VocabSetCard } from './VocabSetCard';
 
 export function VocabularyManager() {

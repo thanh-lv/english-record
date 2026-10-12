@@ -1,9 +1,10 @@
+import type { UserProfile } from '../../../types';
 import { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 
 export const AVATARS = ['🐰', '🐯', '🐶', '🦊', '🐻', '🐼', '🐨', '🐸', '🐧', '🦄', '🦖', '🐳'];
 
-export function useAvatar(profile: any) {
+export function useAvatar(profile: UserProfile) {
   const [currentAvatar, setCurrentAvatar] = useState(() => {
     return profile.avatar || localStorage.getItem(`avatar_${profile.id}`) || '🐰';
   });

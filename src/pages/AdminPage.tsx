@@ -1,3 +1,4 @@
+import type { User } from '@supabase/supabase-js';
 import { lazy, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Route, Routes, Navigate } from 'react-router-dom';
@@ -22,7 +23,7 @@ const LogsManager = lazy(() =>
 );
 
 export interface AdminPageProps {
-  user?: any;
+  user?: User | null;
   onLogout?: () => void;
 }
 

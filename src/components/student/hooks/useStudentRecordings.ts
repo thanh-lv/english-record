@@ -1,10 +1,12 @@
+import type { User } from '@supabase/supabase-js';
+import type { UserProfile } from '../../../types';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { loggerService } from '../../../services/loggerService';
 import { escapeLikePattern, isMissingColumnError } from '../../../utils/postgrest';
 import { Recording } from '../../../types';
 
-export function useStudentRecordings(user: any, profile: any) {
+export function useStudentRecordings(user: Pick<User, 'id'> | null, profile: UserProfile) {
   const [myRecordings, setMyRecordings] = useState<Recording[]>([]);
   const [completedNumbers, setCompletedNumbers] = useState<number[]>([]);
   const [recordingsLoading, setRecordingsLoading] = useState<boolean>(true);

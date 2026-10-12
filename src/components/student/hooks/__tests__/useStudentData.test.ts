@@ -1,3 +1,4 @@
+import type { UserProfile } from '../../../../types';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useStudentData, useStudentTopics, useStudentStories } from '../useStudentData';
@@ -60,7 +61,7 @@ describe('Student hooks', () => {
         }),
       });
 
-      const { result } = renderHook(() => useStudentTopics({ grade: 3 }, false));
+      const { result } = renderHook(() => useStudentTopics({ grade: 3 } as UserProfile, false));
 
       await act(async () => {
         await new Promise(r => setTimeout(r, 10));
@@ -89,7 +90,7 @@ describe('Student hooks', () => {
         }),
       });
 
-      const { result } = renderHook(() => useStudentStories({ grade: 3 }));
+      const { result } = renderHook(() => useStudentStories({ grade: 3 } as UserProfile));
 
       await act(async () => {
         await new Promise(r => setTimeout(r, 10));
@@ -130,7 +131,7 @@ describe('Student hooks', () => {
       });
 
       const user = { id: 'student-bob' };
-      const profile = { name: 'Bob', grade: 4 };
+      const profile = { name: 'Bob', grade: 4 } as UserProfile;
 
       const { result } = renderHook(() => useStudentData(user, profile, false));
 
@@ -158,7 +159,7 @@ describe('Student hooks', () => {
       }));
 
       const user = { id: 'student-1' };
-      const profile = { name: 'Charlie', grade: 2 };
+      const profile = { name: 'Charlie', grade: 2 } as UserProfile;
 
       const { result } = renderHook(() => useStudentData(user, profile, false));
 

@@ -1,10 +1,11 @@
+import type { UserProfile } from '../../../types';
 import { Library } from 'lucide-react';
 import { interpolate, useLanguage } from '../../../i18n/LanguageContext';
 import { LazyImage } from '../../common/LazyImage';
 
 interface StoriesTabProps {
   dbStories: any[];
-  profile: any;
+  profile: UserProfile;
   studentAge: number;
   onStoryClick: (story: any) => void;
 }

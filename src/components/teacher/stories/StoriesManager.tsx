@@ -2,7 +2,7 @@ import { BookOpen, Loader2, Plus, Search, Sparkles, X } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { useEscapeToClose } from '../../../hooks/useEscapeToClose';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
-import { useStories } from './useStories';
+import { useStories } from './hooks/useStories';
 import { StoryCard } from './StoryCard';
 import { StoryCreateModal } from './StoryCreateModal';
 import { StoryManualModal } from './StoryManualModal';

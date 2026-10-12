@@ -1,3 +1,4 @@
+import type { UserProfile } from '../../../../types';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useStudentRecordings } from '../useStudentRecordings';
@@ -46,7 +47,7 @@ describe('useStudentRecordings', () => {
   });
 
   it('loads recordings by the student profile id instead of the name', async () => {
-    const profile = { id: 'profile-an', name: 'An', teacher_id: 'teacher-1' };
+    const profile = { id: 'profile-an', name: 'An', teacher_id: 'teacher-1' } as UserProfile;
     const queries = mockRecordingQueries([{ data: [{ id: 'r1', topic_number: 2 }], error: null }]);
 
     const { result } = renderHook(() => useStudentRecordings(user, profile));
@@ -61,7 +62,7 @@ describe('useStudentRecordings', () => {
   });
 
   it('falls back to a literal name match when the student_id column does not exist yet', async () => {
-    const profile = { id: 'profile-an', name: 'An_1%', teacher_id: 'teacher-1' };
+    const profile = { id: 'profile-an', name: 'An_1%', teacher_id: 'teacher-1' } as UserProfile;
     const queries = mockRecordingQueries([
       {
         data: null,
@@ -79,7 +80,7 @@ describe('useStudentRecordings', () => {
   });
 
   it('ignores realtime rows that belong to a same-name classmate', async () => {
-    const profile = { id: 'profile-an', name: 'An', teacher_id: 'teacher-1' };
+    const profile = { id: 'profile-an', name: 'An', teacher_id: 'teacher-1' } as UserProfile;
     mockRecordingQueries([{ data: [], error: null }]);
 
     const { result } = renderHook(() => useStudentRecordings(user, profile));

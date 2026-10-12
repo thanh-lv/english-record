@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useShadowingManager } from '../useShadowingManager';
+import { useShadowingManager } from '../hooks/useShadowingManager';
 import { shadowingService } from '../../../../services/shadowingService';
 
 vi.mock('../../../../services/shadowingService', () => ({

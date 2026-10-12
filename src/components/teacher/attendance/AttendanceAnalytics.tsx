@@ -7,7 +7,7 @@ import {
   AlertCircle,
   Star,
 } from 'lucide-react';
-import { useAttendanceAnalytics } from './useAttendanceAnalytics';
+import { useAttendanceAnalytics } from './hooks/useAttendanceAnalytics';
 import { formatClassName } from '../../../utils';
 import { interpolate } from '../../../i18n/LanguageContext';
 

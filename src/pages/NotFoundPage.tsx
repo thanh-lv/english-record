@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Home, ArrowLeft, Search, HelpCircle, Compass } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { UserProfile } from '../types';
+import { homePathFor } from '../utils/routes';
 
 interface NotFoundPageProps {
   userProfile?: UserProfile | null;
@@ -12,16 +13,7 @@ export default function NotFoundPage({ userProfile }: NotFoundPageProps) {
   const navigate = useNavigate();
   const tNotFound = t.notFound;
 
-  const isTeacher = userProfile?.role === 'teacher';
-  const isSuperAdmin = userProfile?.role === 'super_admin';
-
-  const homePath = !userProfile
-    ? '/login'
-    : isSuperAdmin
-      ? '/admin/dashboard'
-      : isTeacher
-        ? '/teacher/attendance'
-        : '/student';
+  const homePath = homePathFor(userProfile);
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-12">

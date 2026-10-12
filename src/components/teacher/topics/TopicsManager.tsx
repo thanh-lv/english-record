@@ -3,7 +3,7 @@ import { AlertCircle, Check, Loader2, Plus, Search, Sparkles, Trash2, X } from '
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { AIQuestionParserModal } from './AIQuestionParserModal';
 import { DeleteConfirmModal } from '../shared/DeleteConfirmModal';
-import { useTopics } from './useTopics';
+import { useTopics } from './hooks/useTopics';
 import { TopicItem } from './TopicItem';
 import { QuestionModal } from './QuestionModal';
 function getPaginationItems(currentPage: number, totalPages: number): (number | '...')[] {

@@ -1,3 +1,5 @@
+import type { User } from '@supabase/supabase-js';
+import type { UserProfile } from '../../../types';
 import { useMemo } from 'react';
 import { calculateStreak } from '../../../utils';
 import { useStudentTopics } from './useStudentTopics';
@@ -6,7 +8,12 @@ import { useStudentStories } from './useStudentStories';
 
 export { useStudentTopics, useStudentRecordings, useStudentStories };
 
-export function useStudentData(user: any, profile: any, isBongBe: boolean, _studentAge?: number) {
+export function useStudentData(
+  user: Pick<User, 'id'> | null,
+  profile: UserProfile,
+  isBongBe: boolean,
+  _studentAge?: number
+) {
   const { activeTopics, topicsLoading } = useStudentTopics(profile, isBongBe);
   const {
     myRecordings,

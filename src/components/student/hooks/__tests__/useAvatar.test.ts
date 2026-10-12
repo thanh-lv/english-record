@@ -1,3 +1,4 @@
+import type { UserProfile } from '../../../../types';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useAvatar, AVATARS } from '../useAvatar';
@@ -21,18 +22,18 @@ describe('useAvatar', () => {
   });
 
   it('initializes with avatar from profile if available', () => {
-    const { result } = renderHook(() => useAvatar({ id: 'user-1', avatar: '🐯' }));
+    const { result } = renderHook(() => useAvatar({ id: 'user-1', avatar: '🐯' } as UserProfile));
     expect(result.current.currentAvatar).toBe('🐯');
   });
 
   it('initializes with avatar from localStorage when profile has no avatar', () => {
     localStorage.setItem('avatar_user-1', '🐼');
-    const { result } = renderHook(() => useAvatar({ id: 'user-1' }));
+    const { result } = renderHook(() => useAvatar({ id: 'user-1' } as UserProfile));
     expect(result.current.currentAvatar).toBe('🐼');
   });
 
   it('falls back to default bunny avatar when no stored or profile avatar exists', () => {
-    const { result } = renderHook(() => useAvatar({ id: 'user-new' }));
+    const { result } = renderHook(() => useAvatar({ id: 'user-new' } as UserProfile));
     expect(result.current.currentAvatar).toBe('🐰');
   });
 
@@ -41,7 +42,7 @@ describe('useAvatar', () => {
     const updateMock = vi.fn().mockReturnValue({ eq: eqMock });
     (supabase.from as any).mockReturnValue({ update: updateMock });
 
-    const { result } = renderHook(() => useAvatar({ id: 'user-1' }));
+    const { result } = renderHook(() => useAvatar({ id: 'user-1' } as UserProfile));
 
     await act(async () => {
       await result.current.changeAvatar('🦁');

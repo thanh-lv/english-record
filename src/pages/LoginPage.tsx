@@ -34,21 +34,16 @@ export default function LoginPage({
       return;
     }
 
-    let currentUserId = user?.id;
-    if (!currentUserId) {
+    // Cần có phiên ẩn danh trước để server gắn phiên này với học sinh
+    if (!user?.id) {
       try {
-        const anonUser = await authService.signInAnonymously();
-        currentUserId = anonUser?.id;
+        await authService.signInAnonymously();
       } catch (err) {
         console.warn('Anonymous sign-in skipped or unavailable:', err);
       }
     }
 
-    const profileData = await authService.loginStudent(
-      trimmedUsername,
-      password,
-      currentUserId || 'anonymous'
-    );
+    const profileData = await authService.loginStudent(trimmedUsername, password);
     setProfile(profileData);
   };
 

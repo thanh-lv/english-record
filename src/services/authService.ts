@@ -6,6 +6,13 @@ export const PROFILE_DATA_STORAGE_KEY = 'english_record_user_profile';
 
 export type { UserProfile };
 
+// Mã lỗi do hàm login_student trả về
+const STUDENT_LOGIN_ERRORS: Record<string, string> = {
+  student_not_found: 'Tên đăng nhập không tồn tại.',
+  invalid_password: 'Tên đăng nhập hoặc mật khẩu không chính xác.',
+  password_not_set: 'Tài khoản chưa có mật khẩu. Hãy nhờ giáo viên đặt mật khẩu cho em nhé.',
+};
+
 export const authService = {
   getStoredProfile(): UserProfile | null {
     try {
@@ -18,7 +25,9 @@ export const authService = {
 
   setStoredProfile(profile: UserProfile): void {
     try {
-      localStorage.setItem(PROFILE_DATA_STORAGE_KEY, JSON.stringify(profile));
+      // Không bao giờ lưu mật khẩu xuống máy người dùng
+      const { password: _password, ...safeProfile } = profile;
+      localStorage.setItem(PROFILE_DATA_STORAGE_KEY, JSON.stringify(safeProfile));
       localStorage.setItem(PROFILE_ID_STORAGE_KEY, profile.id);
     } catch {
       // ignore storage errors
@@ -153,59 +162,24 @@ export const authService = {
     return profile as UserProfile;
   },
 
-  async loginStudent(
-    username: string,
-    pass: string,
-    currentUserId = 'anonymous',
-    timeoutMs = 8000
-  ): Promise<UserProfile> {
-    const trimmedUsername = username.trim();
-
+  /**
+   * Đăng nhập học sinh. Mật khẩu được kiểm tra phía server bởi hàm `login_student`
+   * (xem docs/migrations/004_student_password_hash.sql); client không bao giờ nhận mật khẩu.
+   */
+  async loginStudent(username: string, pass: string, timeoutMs = 8000): Promise<UserProfile> {
     const dbOperation = async () => {
-      const { data: existingUser, error: searchError } = await supabase
-        .from('profiles')
-        .select(
-          'id, name, role, password, avatar, year_born, grade, auth_user_id, teacher_id, username'
-        )
-        .ilike('username', trimmedUsername)
-        .eq('role', 'student')
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('login_student', {
+        p_username: username.trim(),
+        p_password: pass,
+      });
 
-      if (searchError) throw searchError;
-      if (!existingUser || existingUser.role !== 'student') {
-        throw new Error('Tên đăng nhập không tồn tại.');
+      if (error) {
+        const friendly = STUDENT_LOGIN_ERRORS[error.message];
+        if (friendly) throw new Error(friendly);
+        throw error;
       }
-      if (existingUser.password && existingUser.password !== pass) {
-        throw new Error('Tên đăng nhập hoặc mật khẩu không chính xác.');
-      }
-
-      const validAuthUserId =
-        currentUserId && currentUserId !== 'anonymous'
-          ? currentUserId
-          : existingUser.auth_user_id || null;
-
-      const updatedProfile: UserProfile = {
-        ...existingUser,
-        auth_user_id: validAuthUserId,
-        password: pass,
-        updated_at: new Date().toISOString(),
-      };
-
-      const updatePayload: Record<string, any> = {
-        password: pass,
-        updated_at: updatedProfile.updated_at,
-      };
-      if (validAuthUserId) {
-        updatePayload.auth_user_id = validAuthUserId;
-      }
-
-      const { error: dbError } = await supabase
-        .from('profiles')
-        .update(updatePayload)
-        .eq('id', existingUser.id);
-
-      if (dbError) throw dbError;
-      return updatedProfile;
+      if (!data) throw new Error(STUDENT_LOGIN_ERRORS.student_not_found);
+      return data as UserProfile;
     };
 
     const profileData = (await Promise.race([

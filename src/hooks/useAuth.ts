@@ -1,3 +1,4 @@
+import type { User } from '@supabase/supabase-js';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { authService } from '../services/authService';
@@ -9,7 +10,7 @@ export interface UseAuthOptions {
 }
 
 export function useAuth(options?: UseAuthOptions) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(() =>
     authService.getStoredProfile()
   );
@@ -120,16 +121,15 @@ export function useAuth(options?: UseAuthOptions) {
 
   const loginStudent = useCallback(
     async (name: string, pass: string) => {
-      let currentUserId = user?.id;
-      if (!currentUserId) {
+      // Cần có phiên ẩn danh trước để server gắn phiên này với học sinh
+      if (!user?.id) {
         try {
-          const anonUser = await authService.signInAnonymously();
-          currentUserId = anonUser?.id;
+          await authService.signInAnonymously();
         } catch {
           // ignore
         }
       }
-      const profile = await authService.loginStudent(name, pass, currentUserId || 'anonymous');
+      const profile = await authService.loginStudent(name, pass);
       authService.setStoredProfile(profile);
       setUserProfile(profile);
       return profile;

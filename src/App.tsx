@@ -13,6 +13,7 @@ import { useNotifications } from './components/teacher/hooks/useNotifications';
 import { useLanguage, interpolate } from './i18n/LanguageContext';
 import { useAuth } from './hooks/useAuth';
 import { TeacherProvider } from './contexts/TeacherContext';
+import { homePathFor } from './utils/routes';
 
 export default function App() {
   const { t, lang, setLang } = useLanguage();
@@ -174,17 +175,7 @@ export default function App() {
               path="/login"
               element={
                 userProfile ? (
-                  <Navigate
-                    to={
-                      location.state?.from ||
-                      (isTeacher
-                        ? '/teacher/attendance'
-                        : isSuperAdmin
-                          ? '/admin/dashboard'
-                          : '/student')
-                    }
-                    replace
-                  />
+                  <Navigate to={location.state?.from || homePathFor(userProfile)} replace />
                 ) : (
                   <LoginPage setProfile={setUserProfile} user={user} />
                 )
@@ -197,15 +188,7 @@ export default function App() {
                   <StudentPage user={user} profile={userProfile} />
                 ) : (
                   <Navigate
-                    to={
-                      userProfile
-                        ? isTeacher
-                          ? '/teacher/attendance'
-                          : isSuperAdmin
-                            ? '/admin/dashboard'
-                            : '/login'
-                        : '/login'
-                    }
+                    to={homePathFor(userProfile)}
                     state={{ from: location.pathname }}
                     replace
                   />
@@ -221,30 +204,14 @@ export default function App() {
                   </TeacherProvider>
                 ) : (
                   <Navigate
-                    to={userProfile ? (isSuperAdmin ? '/admin/dashboard' : '/student') : '/login'}
+                    to={homePathFor(userProfile)}
                     state={{ from: location.pathname }}
                     replace
                   />
                 )
               }
             />
-            <Route
-              path="/"
-              element={
-                <Navigate
-                  to={
-                    !userProfile
-                      ? '/login'
-                      : isSuperAdmin
-                        ? '/admin/dashboard'
-                        : isTeacher
-                          ? '/teacher/attendance'
-                          : '/student'
-                  }
-                  replace
-                />
-              }
-            />
+            <Route path="/" element={<Navigate to={homePathFor(userProfile)} replace />} />
             <Route path="*" element={<NotFoundPage userProfile={userProfile} />} />
           </Routes>
         </Suspense>
