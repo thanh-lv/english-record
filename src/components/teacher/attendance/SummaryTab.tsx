@@ -4,6 +4,7 @@ import { supabase } from '../../../lib/supabase';
 import {
   Download,
   CalendarDays,
+  AlertTriangle,
   Users,
   Loader2,
   Image as ImageIcon,
@@ -17,7 +18,13 @@ import { TuitionSlipTemplate } from './TuitionSlipTemplate';
 import { StudentTuitionDetailModal } from './StudentTuitionDetailModal';
 import { exportStudentExcel, exportSummaryExcel, type TuitionSummaryRow } from './tuitionExport';
 import { ZaloShareModal } from './ZaloShareModal';
-import { formatClassName, sumSessions } from '../../../utils';
+import {
+  formatClassName,
+  sumSessions,
+  lunarFromDate,
+  nextLunarFirstDay,
+  isLunarMonthStart,
+} from '../../../utils';
 import { useBodyScrollLock } from '../../../hooks';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { useTeacher } from '../../../contexts/TeacherContext';
@@ -134,6 +141,8 @@ export function SummaryTab() {
   const [exportStudent, setExportStudent] = useState<any>(null);
 
   const now = new Date();
+  const lunarToday = lunarFromDate(now);
+  const lunarTodayMonthLabel = `${lunarToday.month}${lunarToday.leap ? ` ${tAtt.lunarLeap}` : ''}`;
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
 
@@ -378,6 +387,34 @@ export function SummaryTab() {
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300" id="printable-summary">
+      {/* ---- Lunar calendar notice: mùng 1 / mùng 2 nên tránh gửi phiếu học phí ---- */}
+      {isLunarMonthStart(lunarToday) ? (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-3.5 sm:p-4 print:hidden"
+        >
+          <AlertTriangle size={20} className="text-rose-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-black text-rose-800">
+              {interpolate(tAtt.lunarWarningTitle, {
+                day: lunarToday.day,
+                month: lunarTodayMonthLabel,
+              })}
+            </p>
+            <p className="text-xs font-medium text-rose-700 mt-0.5">{tAtt.lunarWarningDesc}</p>
+          </div>
+        </div>
+      ) : (
+        <p className="flex items-center gap-1.5 text-md font-bold text-red-500 px-1 print:hidden">
+          <CalendarDays size={13} className="text-slate-400 shrink-0" />
+          {interpolate(tAtt.lunarTodayInfo, {
+            day: lunarToday.day,
+            month: lunarTodayMonthLabel,
+            date: nextLunarFirstDay(now).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US'),
+          })}
+        </p>
+      )}
+
       {/* ---- Controls bar ---- */}
       <div className="bg-slate-50/80 rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 shadow-2xs space-y-3 print:hidden">
         <div className="flex flex-wrap items-end gap-3">

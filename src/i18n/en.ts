@@ -761,6 +761,13 @@ export const en = {
     hasCheckin: 'Has check-in',
     sunSunday: 'Sun = Sunday',
     fadedFutureDate: 'Faded = Future date',
+    lunarLegend: 'Top-right number = lunar date (red = 1st, 2nd of lunar month)',
+    lunarDateTitle: 'Lunar date: {day}/{month}',
+    lunarLeap: 'leap',
+    lunarWarningTitle: 'Today is day {day} of lunar month {month}',
+    lunarWarningDesc:
+      'Many families avoid paying money on the 1st and 2nd of the lunar month. Consider sending tuition slips on a later day.',
+    lunarTodayInfo: 'Lunar date today: {day}/{month}. Next lunar 1st: {date}.',
     attendance: 'Attendance',
     allCheckedIn: 'All checked in!',
     changeFilterToSeeMore: 'Change class filter to see more',

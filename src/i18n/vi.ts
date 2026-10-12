@@ -761,6 +761,13 @@ export const vi = {
     hasCheckin: 'Có điểm danh',
     sunSunday: 'CN = Chủ nhật',
     fadedFutureDate: 'Ô mờ = ngày tương lai',
+    lunarLegend: 'Số góc phải = ngày âm lịch (đỏ = mùng 1, mùng 2)',
+    lunarDateTitle: 'Âm lịch: {day}/{month}',
+    lunarLeap: 'nhuận',
+    lunarWarningTitle: 'Hôm nay là mùng {day} tháng {month} âm lịch',
+    lunarWarningDesc:
+      'Nhiều gia đình kiêng chi tiền vào mùng 1, mùng 2. Bạn nên cân nhắc lùi ngày gửi phiếu học phí.',
+    lunarTodayInfo: 'Âm lịch hôm nay: {day}/{month}. Mùng 1 sắp tới: {date}.',
     attendance: 'Điểm danh',
     allCheckedIn: 'Tất cả đã điểm danh!',
     changeFilterToSeeMore: 'Thay đổi bộ lọc lớp để xem thêm',

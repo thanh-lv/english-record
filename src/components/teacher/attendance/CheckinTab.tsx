@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { attendanceService } from '../../../services/attendanceService';
 import { loggerService } from '../../../services/loggerService';
 import { ChevronLeft, ChevronRight, CalendarDays, CheckCircle2, Loader2 } from 'lucide-react';
-import { getSessionValue, sumSessions } from '../../../utils';
+import { getSessionValue, sumSessions, solarToLunar, isLunarMonthStart } from '../../../utils';
 import { useBodyScrollLock } from '../../../hooks';
 import { useLanguage, interpolate } from '../../../i18n/LanguageContext';
 import { useTeacher } from '../../../contexts/TeacherContext';
@@ -206,6 +206,8 @@ export function CheckinTab() {
             const count = recordsCountByDay[day] || 0;
             const revenue = revenueByDay[day] || 0;
             const isSunday = idx % 7 === 0;
+            const lunar = solarToLunar(day, calMonth + 1, calYear);
+            const lunarMonthLabel = `${lunar.month}${lunar.leap ? ` ${tAtt.lunarLeap}` : ''}`;
             return (
               <button
                 key={day}
@@ -214,13 +216,30 @@ export function CheckinTab() {
                   ${tod ? 'bg-emerald-50/80 hover:bg-emerald-100/80 cursor-pointer' : 'hover:bg-slate-50 cursor-pointer'}
                 `}
               >
-                {/* Day number */}
-                <span
-                  className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg text-xs sm:text-sm font-black flex-shrink-0
-                  ${tod ? 'bg-emerald-500 text-white shadow-sm' : isSunday ? 'text-rose-500' : 'text-slate-700'}
-                `}
-                >
-                  {day}
+                <span className="w-full flex items-start justify-between gap-1">
+                  {/* Day number */}
+                  <span
+                    className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg text-xs sm:text-sm font-black flex-shrink-0
+                    ${tod ? 'bg-emerald-500 text-white shadow-sm' : isSunday ? 'text-rose-500' : 'text-slate-700'}
+                  `}
+                  >
+                    {day}
+                  </span>
+
+                  {/* Lunar date: mùng 1 / mùng 2 nổi bật để tránh thu học phí */}
+                  <span
+                    title={interpolate(tAtt.lunarDateTitle, {
+                      day: lunar.day,
+                      month: lunarMonthLabel,
+                    })}
+                    className={`text-[9px] sm:text-[11px] leading-tight font-bold rounded-md px-1 py-0.5 ${
+                      isLunarMonthStart(lunar)
+                        ? 'bg-rose-100 text-rose-700 border border-rose-200 font-black'
+                        : 'text-slate-400'
+                    }`}
+                  >
+                    {lunar.day === 1 ? `1/${lunar.month}${lunar.leap ? 'N' : ''}` : lunar.day}
+                  </span>
                 </span>
 
                 {/* Attendance & Revenue Badges */}
@@ -281,6 +300,12 @@ export function CheckinTab() {
         </span>
         <span className="text-rose-400 flex items-center gap-1">{tAtt.sunSunday}</span>
         <span className="text-slate-300">{tAtt.fadedFutureDate}</span>
+        <span className="flex items-center gap-1.5">
+          <span className="px-1 py-0.5 rounded-md bg-rose-100 text-rose-700 border border-rose-200 text-[10px] font-black">
+            1/9
+          </span>{' '}
+          {tAtt.lunarLegend}
+        </span>
       </div>
 
       {modalDate && (
