@@ -1,6 +1,7 @@
 import {
   BookMarked,
   BookOpen,
+  Clapperboard,
   FileAudio,
   Library,
   Menu,
@@ -60,6 +61,11 @@ const TAB_THEMES: Record<
     iconActiveClass: 'text-indigo-600',
     dotClass: 'bg-indigo-600 shadow-indigo-200',
   },
+  movies: {
+    activeClass: 'bg-pink-50 text-pink-700 border-pink-200/90 shadow-xs',
+    iconActiveClass: 'text-pink-600',
+    dotClass: 'bg-pink-600 shadow-pink-200',
+  },
   'audio-builder': {
     activeClass: 'bg-teal-50 text-teal-700 border-teal-200/90 shadow-xs',
     iconActiveClass: 'text-teal-600',
@@ -108,6 +114,11 @@ export function TeacherSidebar() {
       id: 'shadowing',
       label: t.teacherNav.shadowing,
       icon: <Video size={18} />,
+    },
+    {
+      id: 'movies',
+      label: t.teacherNav.movies,
+      icon: <Clapperboard size={18} />,
     },
     {
       id: 'audio-builder',

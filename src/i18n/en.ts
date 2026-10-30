@@ -135,6 +135,7 @@ export const en = {
     stories: 'Stories',
     flashcards: 'Vocabulary',
     shadowing: 'Shadowing',
+    movies: 'Movies',
     audioBuilder: 'Audio Generator',
     attendance: 'Attendance',
     logs: 'Error Logs',
@@ -1106,5 +1107,118 @@ export const en = {
     suggest1: 'Check the URL address for any typo.',
     suggest2: 'Go back to the previous page or main dashboard.',
     needHelp: 'Need help? Please reach out to your teacher.',
+  },
+
+  // Teacher movies (KKPhim)
+  movies: {
+    title: 'Kids Movies',
+    subtitle: 'The "Kids" label comes from KKPhim. Preview before showing a movie to your class.',
+    filterEnglish: 'Western, Vietsub',
+    filterAll: 'All',
+    totalCount: '{count} movies',
+    pageOf: 'Page {page}/{total}',
+    prevPage: 'Previous',
+    nextPage: 'Next',
+    loading: 'Loading movies...',
+    loadError: 'Could not load movies from KKPhim. Please try again.',
+    empty: 'No matching movies.',
+    backToList: 'Movie list',
+    serversLabel: 'Source',
+    episodesLabel: 'Episode',
+    noPlayer: 'This episode cannot be played.',
+  },
+
+  // Homepage
+  home: {
+    login: 'Log in',
+    hero: {
+      badge: 'English speaking practice for young learners 🎤',
+      titleStart: 'Kids practice speaking every day,',
+      titleAccent: 'teachers hear every recording',
+      subtitle:
+        'English with Fun is where children record their speaking and learn vocabulary through flashcards and games. Teachers rate and comment on each recording, and take attendance and work out tuition on the same website.',
+      secondaryCta: 'See what kids learn',
+      factNoInstall: 'Nothing to install',
+      factDevices: 'Works on phones and computers',
+      factLanguages: 'In Vietnamese and English',
+    },
+    features: {
+      title: 'Kids learn by speaking, listening, reading and playing',
+      subtitle: 'Six learning corners, with content their teachers prepare for each grade.',
+      speaking: {
+        title: 'Speaking by topic',
+        desc: 'Children listen to a question, check the sample answer, then record their own voice. Each finished topic earns a prize.',
+      },
+      flashcards: {
+        title: 'Flashcards',
+        desc: 'Flip a card to see the meaning, with IPA, a picture and a button to hear the word.',
+      },
+      shadowing: {
+        title: 'Video shadowing',
+        desc: 'Children listen to a YouTube model, dub it with their own voice and submit it to practice intonation.',
+      },
+      stories: {
+        title: 'Stories',
+        desc: 'Illustrated short stories to read, with a button to hear them read aloud.',
+      },
+      games: {
+        title: 'Games',
+        desc: 'Review vocabulary with three short games.',
+      },
+      achievements: {
+        title: 'Achievements',
+        desc: 'Keep a daily learning streak and collect prizes from finished topics.',
+      },
+    },
+    steps: {
+      title: 'From recording to feedback',
+      one: {
+        title: 'Teachers set the work',
+        desc: 'Teachers create each child’s account, then prepare topics, vocabulary and stories by grade.',
+      },
+      two: {
+        title: 'Kids record and submit',
+        desc: 'Children answer in their own voice and submit right in the browser.',
+      },
+      three: {
+        title: 'Teachers give feedback',
+        desc: 'Teachers get a notification, listen, give a star rating and write a comment. Children read it and send a heart back.',
+      },
+    },
+    teachers: {
+      eyebrow: 'For teachers',
+      title: 'Less paperwork, more time to listen',
+      attendance: {
+        title: 'Quick attendance',
+        desc: 'Mark full or half sessions, and monthly totals add up automatically.',
+      },
+      tuition: {
+        title: 'Tuition worked out for you',
+        desc: 'Calculate fees by session, create tuition slips as images and export to Excel.',
+      },
+      zalo: {
+        title: 'Tell parents on Zalo',
+        desc: 'The tuition message is written for you, ready to paste into Zalo and send.',
+      },
+      ai: {
+        title: 'AI help with lesson prep',
+        desc: 'Pull questions out of raw text, look up IPA, write stories and create illustrations.',
+      },
+    },
+    cta: {
+      title: 'Ready to practice today?',
+      previewNote: 'Images on this page are interface illustrations with sample data.',
+    },
+    previews: {
+      sampleAnswerLabel: 'Sample:',
+      feedbackSample: 'Very clear and confident. Well done!',
+      attendanceTitle: 'Attendance this week',
+      className: 'Class 3A',
+      studentLabel: 'Student',
+      sessionsLabel: 'Sessions',
+      sessionsSample: '12 sessions',
+      totalLabel: 'Total tuition',
+      totalSample: '1,800,000 VND',
+    },
   },
 };

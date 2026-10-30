@@ -5,6 +5,7 @@ export * from './topic';
 export * from './story';
 export * from './vocabulary';
 export * from './shadowing';
+export * from './movie';
 export * from './attendance';
 export * from './recording';
 export * from './notification';

@@ -13,6 +13,7 @@ export type TeacherTab =
   | 'stories'
   | 'vocabulary'
   | 'shadowing'
+  | 'movies'
   | 'audio-builder';
 
 export type AdminTab = 'dashboard' | 'teachers' | 'logs';

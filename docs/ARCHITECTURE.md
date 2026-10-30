@@ -85,7 +85,7 @@ sequenceDiagram
     
     alt Chưa có phiên đăng nhập
         App->>SupabaseAuth: signInAnonymously()
-        App->>User: Điều hướng tới /login
+        App->>User: Hiển thị trang chủ tại /, trang cần đăng nhập thì điều hướng tới /login
     end
 
     alt Đăng nhập vai trò Giáo viên (Teacher)
@@ -284,7 +284,7 @@ english-record/
 │   ├── hooks/                 # Custom React Hooks dùng chung (online status, scroll lock, keyboard shortcuts)
 │   ├── i18n/                  # Hệ thống đa ngôn ngữ (LanguageContext, en.ts, vi.ts)
 │   ├── lib/                   # Khởi tạo SDK bên thứ 3 (supabase.ts, s3.ts)
-│   ├── pages/                 # Các trang chính (LoginPage, StudentPage, TeacherPage)
+│   ├── pages/                 # Các trang chính (HomePage, LoginPage, StudentPage, TeacherPage)
 │   ├── services/              # Business logic & gọi API (topicService, vocabularyService, storyService, uploadService)
 │   ├── test/                  # Cấu hình setup kiểm thử Vitest
 │   ├── types/                 # Định nghĩa TypeScript Types / Interfaces

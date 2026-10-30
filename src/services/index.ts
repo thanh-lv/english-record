@@ -6,5 +6,6 @@ export * from './authService';
 export * from './studentService';
 export * from './attendanceService';
 export * from './shadowingService';
+export * from './movieService';
 export * from './loggerService';
 export * from './serviceHandler';

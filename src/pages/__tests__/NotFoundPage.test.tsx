@@ -47,6 +47,20 @@ describe('NotFoundPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith(-1);
   });
 
+  it('navigates to the homepage when a signed-out visitor clicks back home', () => {
+    render(
+      <BrowserRouter>
+        <LanguageProvider>
+          <NotFoundPage />
+        </LanguageProvider>
+      </BrowserRouter>
+    );
+
+    const homeBtn = screen.getByRole('button', { name: /Về Trang Chủ|Back to Home/i });
+    fireEvent.click(homeBtn);
+    expect(mockNavigate).toHaveBeenCalledWith('/');
+  });
+
   it('navigates to teacher attendance when teacher clicks back home', () => {
     const teacherProfile: UserProfile = {
       id: 'teacher-123',

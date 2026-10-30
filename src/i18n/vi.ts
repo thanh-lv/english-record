@@ -135,6 +135,7 @@ export const vi = {
     stories: 'Truyện kể',
     flashcards: 'Từ vựng',
     shadowing: 'Shadowing',
+    movies: 'Phim',
     audioBuilder: 'Tạo Audio',
     attendance: 'Điểm danh',
     logs: 'Nhật ký lỗi',
@@ -1106,5 +1107,118 @@ export const vi = {
     suggest1: 'Kiểm tra lại đường dẫn URL trên thanh địa chỉ.',
     suggest2: 'Quay trở lại trang trước hoặc trang chính.',
     needHelp: 'Cần hỗ trợ? Hãy liên hệ với giáo viên của bạn nhé.',
+  },
+
+  // Teacher movies (KKPhim)
+  movies: {
+    title: 'Phim Trẻ Em',
+    subtitle: 'Nhãn "Trẻ Em" do nguồn KKPhim gắn. Nên xem trước khi chiếu cho lớp.',
+    filterEnglish: 'Âu Mỹ, Vietsub',
+    filterAll: 'Tất cả',
+    totalCount: '{count} phim',
+    pageOf: 'Trang {page}/{total}',
+    prevPage: 'Trước',
+    nextPage: 'Sau',
+    loading: 'Đang tải phim...',
+    loadError: 'Không tải được phim từ KKPhim. Vui lòng thử lại.',
+    empty: 'Không có phim nào phù hợp.',
+    backToList: 'Danh sách phim',
+    serversLabel: 'Nguồn phát',
+    episodesLabel: 'Tập',
+    noPlayer: 'Tập này không phát được.',
+  },
+
+  // Homepage
+  home: {
+    login: 'Đăng nhập',
+    hero: {
+      badge: 'Luyện nói tiếng Anh cho các bạn nhỏ 🎤',
+      titleStart: 'Con luyện nói mỗi ngày,',
+      titleAccent: 'thầy cô nghe từng bài',
+      subtitle:
+        'English with Fun là nơi con ghi âm bài nói, học từ vựng qua thẻ và trò chơi. Thầy cô chấm sao, nhận xét từng bài, đồng thời điểm danh và tính học phí ngay trên một trang web.',
+      secondaryCta: 'Xem con sẽ học gì',
+      factNoInstall: 'Không cần cài đặt',
+      factDevices: 'Dùng trên điện thoại và máy tính',
+      factLanguages: 'Có tiếng Việt và tiếng Anh',
+    },
+    features: {
+      title: 'Con học bằng cách nói, nghe, đọc và chơi',
+      subtitle: 'Sáu góc học, với nội dung thầy cô soạn theo từng khối lớp.',
+      speaking: {
+        title: 'Luyện nói theo chủ đề',
+        desc: 'Con nghe câu hỏi, xem câu trả lời gợi ý rồi ghi âm giọng nói của mình. Hoàn thành một chủ đề, con nhận một món quà.',
+      },
+      flashcards: {
+        title: 'Thẻ từ vựng',
+        desc: 'Lật thẻ để xem nghĩa, kèm phiên âm IPA, hình ảnh và nút nghe phát âm.',
+      },
+      shadowing: {
+        title: 'Shadowing theo video',
+        desc: 'Con nghe mẫu trên YouTube, tự lồng tiếng rồi nộp bài để luyện ngữ điệu.',
+      },
+      stories: {
+        title: 'Truyện kể',
+        desc: 'Truyện ngắn có tranh minh hoạ, con đọc và bấm nghe đọc to.',
+      },
+      games: {
+        title: 'Trò chơi',
+        desc: 'Ôn lại từ vựng qua ba trò chơi ngắn.',
+      },
+      achievements: {
+        title: 'Thành tích',
+        desc: 'Giữ chuỗi ngày học liên tục và sưu tầm quà từ những chủ đề đã hoàn thành.',
+      },
+    },
+    steps: {
+      title: 'Từ bài nói đến lời nhận xét',
+      one: {
+        title: 'Thầy cô giao bài',
+        desc: 'Thầy cô tạo tài khoản cho con, rồi soạn chủ đề, từ vựng và truyện theo khối lớp.',
+      },
+      two: {
+        title: 'Con ghi âm và nộp',
+        desc: 'Con trả lời bằng giọng của mình và nộp bài ngay trên trình duyệt.',
+      },
+      three: {
+        title: 'Thầy cô nhận xét',
+        desc: 'Thầy cô nhận thông báo, nghe bài, chấm sao và viết nhận xét. Con đọc lại và thả tim cảm ơn.',
+      },
+    },
+    teachers: {
+      eyebrow: 'Dành cho thầy cô',
+      title: 'Bớt việc sổ sách, thêm thời gian nghe con nói',
+      attendance: {
+        title: 'Điểm danh nhanh',
+        desc: 'Ghi nhận cả buổi hoặc nửa buổi, số buổi trong tháng được cộng tự động.',
+      },
+      tuition: {
+        title: 'Học phí tự tính',
+        desc: 'Tính tiền theo số buổi, tạo phiếu học phí dạng ảnh và xuất file Excel.',
+      },
+      zalo: {
+        title: 'Báo phụ huynh qua Zalo',
+        desc: 'Tin nhắn báo học phí được soạn sẵn, chỉ cần dán vào Zalo và gửi.',
+      },
+      ai: {
+        title: 'AI hỗ trợ soạn bài',
+        desc: 'Tách câu hỏi từ văn bản, tra phiên âm IPA, viết truyện và tạo tranh minh hoạ.',
+      },
+    },
+    cta: {
+      title: 'Sẵn sàng luyện nói hôm nay?',
+      previewNote: 'Hình trên trang là minh hoạ giao diện với dữ liệu mẫu.',
+    },
+    previews: {
+      sampleAnswerLabel: 'Gợi ý:',
+      feedbackSample: 'Con nói rất rõ và tự tin. Cô khen con nhé!',
+      attendanceTitle: 'Điểm danh tuần này',
+      className: 'Lớp 3A',
+      studentLabel: 'Học sinh',
+      sessionsLabel: 'Số buổi học',
+      sessionsSample: '12 buổi',
+      totalLabel: 'Tổng học phí',
+      totalSample: '1.800.000đ',
+    },
   },
 };

@@ -13,7 +13,7 @@ export default function NotFoundPage({ userProfile }: NotFoundPageProps) {
   const navigate = useNavigate();
   const tNotFound = t.notFound;
 
-  const homePath = homePathFor(userProfile);
+  const homePath = userProfile ? homePathFor(userProfile) : '/';
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-12">

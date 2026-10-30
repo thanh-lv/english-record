@@ -38,6 +38,16 @@ const ShadowingManager = lazy(() =>
     default: m.ShadowingManager,
   }))
 );
+const MoviesManager = lazy(() =>
+  import('../components/teacher/movies/MoviesManager').then(m => ({
+    default: m.MoviesManager,
+  }))
+);
+const MovieDetailView = lazy(() =>
+  import('../components/teacher/movies/MovieDetailView').then(m => ({
+    default: m.MovieDetailView,
+  }))
+);
 const VocabAudioBuilder = lazy(() =>
   import('../components/teacher/vocabulary/VocabAudioBuilder').then(m => ({
     default: m.VocabAudioBuilder,
@@ -226,6 +236,8 @@ export default function TeacherPage({
               <Route path="stories" element={<StoriesManager />} />
               <Route path="vocabulary" element={<VocabularyManager />} />
               <Route path="shadowing" element={<ShadowingManager />} />
+              <Route path="movies" element={<MoviesManager />} />
+              <Route path="movies/:slug" element={<MovieDetailView />} />
               <Route path="audio-builder" element={<VocabAudioBuilder />} />
               <Route path="*" element={<Navigate to="/teacher/attendance" replace />} />
             </Routes>

@@ -158,7 +158,7 @@ english-record/
 │   ├── hooks/                 # Custom React Hooks dùng chung (useQuery, useAuth, useOnlineStatus...)
 │   ├── i18n/                  # Hệ thống đa ngôn ngữ (Tiếng Việt / Tiếng Anh)
 │   ├── lib/                   # Cache Engine, SDK Clients (Supabase, S3)
-│   ├── pages/                 # Trang ứng dụng (LoginPage, StudentPage, TeacherPage)
+│   ├── pages/                 # Trang ứng dụng (HomePage, LoginPage, StudentPage, TeacherPage)
 │   ├── schemas/               # Zod validation schemas & XSS Sanitization
 │   ├── services/              # Tầng xử lý nghiệp vụ & API (Topics, Vocab, Stories, Upload)
 │   ├── test/                  # Cấu hình test environment

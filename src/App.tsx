@@ -1,13 +1,14 @@
 import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 
+const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const TeacherPage = lazy(() => import('./pages/TeacherPage'));
 const StudentPage = lazy(() => import('./pages/StudentPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
-import { Mic, LogOut, Loader2 } from 'lucide-react';
+import { Mic, LogIn, LogOut, Loader2 } from 'lucide-react';
 import { NotificationBell } from './components/teacher/shared/NotificationBell';
 import { useNotifications } from './components/teacher/hooks/useNotifications';
 import { useLanguage, interpolate } from './i18n/LanguageContext';
@@ -96,28 +97,53 @@ export default function App() {
   return (
     <div className="min-h-[100dvh] bg-gradient-to-b from-[#FFFDF6] via-[#F4F9FF] to-[#FFF5F6] text-slate-800 font-sans selection:bg-pink-100 flex flex-col">
       <header className="bg-white/90 backdrop-blur-md shadow-xs sticky top-0 z-30 border-b border-slate-200/80">
-        <div className="max-w-[1600px] mx-auto w-full px-4 md:px-6 lg:px-8 py-2.5 flex justify-between items-center">
-          <h1 className="font-extrabold text-[#1E88E5] flex items-center gap-2.5">
-            <span className="p-2 bg-[#E3F2FD] rounded-xl shadow-xs shrink-0 hidden sm:inline-flex items-center justify-center text-[#1E88E5]">
-              <Mic size={18} />
-            </span>
-            <span className="text-lg md:text-xl font-black tracking-tight text-slate-800 hidden sm:block">
-              {t.appName}
-            </span>
+        {/* pl-16: chừa chỗ cho nút menu cố định của sidebar trên màn hình nhỏ */}
+        <div
+          className={`max-w-[1600px] mx-auto w-full pr-4 md:px-6 lg:px-8 py-2.5 flex justify-between items-center gap-3 ${
+            userProfile ? 'pl-16' : 'pl-4'
+          }`}
+        >
+          <h1 className="font-extrabold text-[#1E88E5] shrink-0 whitespace-nowrap">
+            <Link to="/" aria-label={t.appName} className="flex items-center gap-2.5">
+              <span
+                className={`p-2 bg-[#E3F2FD] rounded-xl shadow-xs shrink-0 sm:inline-flex items-center justify-center text-[#1E88E5] ${
+                  userProfile ? 'hidden' : 'inline-flex'
+                }`}
+              >
+                <Mic size={18} />
+              </span>
+              <span className="text-lg md:text-xl font-black tracking-tight text-slate-800 hidden sm:block">
+                {t.appName}
+              </span>
+            </Link>
           </h1>
-          <div className="flex items-center gap-2.5 ml-auto w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2.5 ml-auto min-w-0 w-full sm:w-auto justify-end">
             {/* Language switcher */}
             <button
               type="button"
               onClick={() => setLang(lang === 'vi' ? 'en' : 'vi', userProfile?.id)}
-              className="h-9 text-xs font-black px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all shadow-xs flex items-center gap-1.5"
+              aria-label={lang === 'vi' ? 'English' : 'Vietnamese'}
+              className="h-9 shrink-0 whitespace-nowrap text-xs font-black px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all shadow-xs flex items-center gap-1.5"
             >
-              {lang === 'vi' ? '🇬🇧 English' : '🇻🇳 Vietnamese'}
+              <span>{lang === 'vi' ? '🇬🇧' : '🇻🇳'}</span>
+              <span className={userProfile ? 'hidden sm:inline' : undefined}>
+                {lang === 'vi' ? 'English' : 'Vietnamese'}
+              </span>
             </button>
+
+            {!userProfile && location.pathname !== '/login' && (
+              <Link
+                to="/login"
+                className="h-9 flex items-center gap-1.5 text-xs font-black text-white bg-[#1565C0] hover:bg-[#0D47A1] px-3 py-1.5 rounded-xl transition-all shadow-xs"
+              >
+                <LogIn size={14} />
+                {t.home.login}
+              </Link>
+            )}
 
             {userProfile && (
               <>
-                <div className="h-9 flex items-center gap-2 px-3 py-1 bg-amber-50/90 border border-amber-200/80 rounded-xl shadow-xs max-w-[160px] sm:max-w-none">
+                <div className="h-9 min-w-0 flex items-center gap-2 px-3 py-1 bg-amber-50/90 border border-amber-200/80 rounded-xl shadow-xs max-w-[160px] sm:max-w-none">
                   <span className="text-base shrink-0">
                     {userProfile.avatar || (isTeacher ? '👩‍🏫' : '👦')}
                   </span>
@@ -211,7 +237,12 @@ export default function App() {
                 )
               }
             />
-            <Route path="/" element={<Navigate to={homePathFor(userProfile)} replace />} />
+            <Route
+              path="/"
+              element={
+                userProfile ? <Navigate to={homePathFor(userProfile)} replace /> : <HomePage />
+              }
+            />
             <Route path="*" element={<NotFoundPage userProfile={userProfile} />} />
           </Routes>
         </Suspense>
